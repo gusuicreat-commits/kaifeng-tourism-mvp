@@ -1,0 +1,15 @@
+* text=auto
+*.sh text eol=lf
+*.py text eol=lf
+*.ps1 text eol=crlf
+*.cmd text eol=crlf
+# Evidence hashes refer to original bytes, including line endings.
+data/** -text
+docs/reference/** -text
+docs/reports/** -text
+docs/licenses/** -text
+*.png binary
+*.jpg binary
+*.pdf binary
+*.docx binary
+*.xlsx binary

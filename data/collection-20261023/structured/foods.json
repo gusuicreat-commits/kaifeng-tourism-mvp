@@ -1,0 +1,58 @@
+{
+  "schema_version": "kaifeng-foods/1",
+  "generated_at": "2026-10-23T19:03:02+08:00",
+  "foods": [
+    {
+      "food_id": "food_xiaolong_guantangbao",
+      "name": "小笼灌汤包子",
+      "aliases": [
+        "灌汤包",
+        "开封小笼包"
+      ],
+      "brief": "薄皮大馅、灌汤流油，连笼上桌；开封传统名吃",
+      "ingredients": "正文未给完整配料表，不能据名称推断猪肉/清真/无过敏原",
+      "dietary_note": "未知，须向门店确认；不得推断适合任何忌口",
+      "source_ids": [
+        "src_diyilou_mingcai_20261023",
+        "src_kaifeng_gov_diyilou_20261023"
+      ],
+      "evidence_status": "official_cultural_and_brand_description"
+    },
+    {
+      "food_id": "food_huanghe_liyu_beimian",
+      "name": "黄河鲤鱼焙面",
+      "aliases": [
+        "鲤鱼焙面"
+      ],
+      "brief": "第一楼品牌名菜页列出；具体做法/配料待门店菜单确认",
+      "ingredients": "未知，不能据此推定无过敏原或门店有售",
+      "dietary_note": "未知",
+      "source_ids": [
+        "src_diyilou_mingcai_20261023"
+      ],
+      "evidence_status": "official_brand_dish_candidate"
+    },
+    {
+      "food_id": "food_tongziji",
+      "name": "桶子鸡",
+      "brief": "第一楼品牌名菜页列出；门店供应与配料未确认",
+      "ingredients": "未知",
+      "dietary_note": "未知",
+      "source_ids": [
+        "src_diyilou_mingcai_20261023"
+      ],
+      "evidence_status": "official_brand_dish_candidate"
+    },
+    {
+      "food_id": "food_hongshuni",
+      "name": "红薯泥",
+      "brief": "第一楼品牌名菜页列出；门店供应与配料未确认",
+      "ingredients": "未知",
+      "dietary_note": "未知",
+      "source_ids": [
+        "src_diyilou_mingcai_20261023"
+      ],
+      "evidence_status": "official_brand_dish_candidate"
+    }
+  ]
+}

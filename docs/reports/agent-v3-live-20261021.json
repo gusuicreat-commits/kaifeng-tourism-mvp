@@ -1,0 +1,710 @@
+{
+  "date": "2026-10-21",
+  "data": "SYNTHETIC ONLY, disposable DB; developer-curated corpus; not independent human labels",
+  "real_kaifeng_business_validated": false,
+  "runtime_restarted": false,
+  "live_requested": true,
+  "native_function_calling_tested": false,
+  "protocol": "bounded JSON action selection; strict server validation",
+  "max_live_calls": 7,
+  "cost_cny": null,
+  "cost_basis": "no provider price snapshot; token usage reported when available",
+  "corpus": {
+    "count": 80,
+    "A_expected_field_coverage_cases": 20,
+    "B_expected_field_coverage_cases": 80,
+    "B_route_expected_cases": 80,
+    "rows": [
+      {
+        "id": "read-01",
+        "A_fields_complete": true,
+        "B_fields_complete": true,
+        "B_route_expected": true,
+        "C_understanding_same_as_B": true
+      },
+      {
+        "id": "read-02",
+        "A_fields_complete": true,
+        "B_fields_complete": true,
+        "B_route_expected": true,
+        "C_understanding_same_as_B": true
+      },
+      {
+        "id": "read-03",
+        "A_fields_complete": true,
+        "B_fields_complete": true,
+        "B_route_expected": true,
+        "C_understanding_same_as_B": true
+      },
+      {
+        "id": "read-04",
+        "A_fields_complete": true,
+        "B_fields_complete": true,
+        "B_route_expected": true,
+        "C_understanding_same_as_B": true
+      },
+      {
+        "id": "read-05",
+        "A_fields_complete": true,
+        "B_fields_complete": true,
+        "B_route_expected": true,
+        "C_understanding_same_as_B": true
+      },
+      {
+        "id": "read-06",
+        "A_fields_complete": true,
+        "B_fields_complete": true,
+        "B_route_expected": true,
+        "C_understanding_same_as_B": true
+      },
+      {
+        "id": "read-07",
+        "A_fields_complete": true,
+        "B_fields_complete": true,
+        "B_route_expected": true,
+        "C_understanding_same_as_B": true
+      },
+      {
+        "id": "read-08",
+        "A_fields_complete": true,
+        "B_fields_complete": true,
+        "B_route_expected": true,
+        "C_understanding_same_as_B": true
+      },
+      {
+        "id": "read-09",
+        "A_fields_complete": true,
+        "B_fields_complete": true,
+        "B_route_expected": true,
+        "C_understanding_same_as_B": true
+      },
+      {
+        "id": "read-10",
+        "A_fields_complete": true,
+        "B_fields_complete": true,
+        "B_route_expected": true,
+        "C_understanding_same_as_B": true
+      },
+      {
+        "id": "search-01",
+        "A_fields_complete": true,
+        "B_fields_complete": true,
+        "B_route_expected": true,
+        "C_understanding_same_as_B": true
+      },
+      {
+        "id": "search-02",
+        "A_fields_complete": true,
+        "B_fields_complete": true,
+        "B_route_expected": true,
+        "C_understanding_same_as_B": true
+      },
+      {
+        "id": "search-03",
+        "A_fields_complete": true,
+        "B_fields_complete": true,
+        "B_route_expected": true,
+        "C_understanding_same_as_B": true
+      },
+      {
+        "id": "search-04",
+        "A_fields_complete": true,
+        "B_fields_complete": true,
+        "B_route_expected": true,
+        "C_understanding_same_as_B": true
+      },
+      {
+        "id": "search-05",
+        "A_fields_complete": true,
+        "B_fields_complete": true,
+        "B_route_expected": true,
+        "C_understanding_same_as_B": true
+      },
+      {
+        "id": "search-06",
+        "A_fields_complete": true,
+        "B_fields_complete": true,
+        "B_route_expected": true,
+        "C_understanding_same_as_B": true
+      },
+      {
+        "id": "search-07",
+        "A_fields_complete": true,
+        "B_fields_complete": true,
+        "B_route_expected": true,
+        "C_understanding_same_as_B": true
+      },
+      {
+        "id": "search-08",
+        "A_fields_complete": true,
+        "B_fields_complete": true,
+        "B_route_expected": true,
+        "C_understanding_same_as_B": true
+      },
+      {
+        "id": "search-09",
+        "A_fields_complete": true,
+        "B_fields_complete": true,
+        "B_route_expected": true,
+        "C_understanding_same_as_B": true
+      },
+      {
+        "id": "search-10",
+        "A_fields_complete": true,
+        "B_fields_complete": true,
+        "B_route_expected": true,
+        "C_understanding_same_as_B": true
+      },
+      {
+        "id": "walk-01",
+        "A_fields_complete": false,
+        "B_fields_complete": true,
+        "B_route_expected": true,
+        "C_understanding_same_as_B": true
+      },
+      {
+        "id": "walk-02",
+        "A_fields_complete": false,
+        "B_fields_complete": true,
+        "B_route_expected": true,
+        "C_understanding_same_as_B": true
+      },
+      {
+        "id": "walk-03",
+        "A_fields_complete": false,
+        "B_fields_complete": true,
+        "B_route_expected": true,
+        "C_understanding_same_as_B": true
+      },
+      {
+        "id": "walk-04",
+        "A_fields_complete": false,
+        "B_fields_complete": true,
+        "B_route_expected": true,
+        "C_understanding_same_as_B": true
+      },
+      {
+        "id": "walk-05",
+        "A_fields_complete": false,
+        "B_fields_complete": true,
+        "B_route_expected": true,
+        "C_understanding_same_as_B": true
+      },
+      {
+        "id": "walk-06",
+        "A_fields_complete": false,
+        "B_fields_complete": true,
+        "B_route_expected": true,
+        "C_understanding_same_as_B": true
+      },
+      {
+        "id": "walk-07",
+        "A_fields_complete": false,
+        "B_fields_complete": true,
+        "B_route_expected": true,
+        "C_understanding_same_as_B": true
+      },
+      {
+        "id": "walk-08",
+        "A_fields_complete": false,
+        "B_fields_complete": true,
+        "B_route_expected": true,
+        "C_understanding_same_as_B": true
+      },
+      {
+        "id": "walk-09",
+        "A_fields_complete": false,
+        "B_fields_complete": true,
+        "B_route_expected": true,
+        "C_understanding_same_as_B": true
+      },
+      {
+        "id": "walk-10",
+        "A_fields_complete": false,
+        "B_fields_complete": true,
+        "B_route_expected": true,
+        "C_understanding_same_as_B": true
+      },
+      {
+        "id": "vague-01",
+        "A_fields_complete": false,
+        "B_fields_complete": true,
+        "B_route_expected": true,
+        "C_understanding_same_as_B": true
+      },
+      {
+        "id": "vague-02",
+        "A_fields_complete": false,
+        "B_fields_complete": true,
+        "B_route_expected": true,
+        "C_understanding_same_as_B": true
+      },
+      {
+        "id": "vague-03",
+        "A_fields_complete": false,
+        "B_fields_complete": true,
+        "B_route_expected": true,
+        "C_understanding_same_as_B": true
+      },
+      {
+        "id": "vague-04",
+        "A_fields_complete": false,
+        "B_fields_complete": true,
+        "B_route_expected": true,
+        "C_understanding_same_as_B": true
+      },
+      {
+        "id": "vague-05",
+        "A_fields_complete": false,
+        "B_fields_complete": true,
+        "B_route_expected": true,
+        "C_understanding_same_as_B": true
+      },
+      {
+        "id": "vague-06",
+        "A_fields_complete": false,
+        "B_fields_complete": true,
+        "B_route_expected": true,
+        "C_understanding_same_as_B": true
+      },
+      {
+        "id": "vague-07",
+        "A_fields_complete": false,
+        "B_fields_complete": true,
+        "B_route_expected": true,
+        "C_understanding_same_as_B": true
+      },
+      {
+        "id": "vague-08",
+        "A_fields_complete": false,
+        "B_fields_complete": true,
+        "B_route_expected": true,
+        "C_understanding_same_as_B": true
+      },
+      {
+        "id": "vague-09",
+        "A_fields_complete": false,
+        "B_fields_complete": true,
+        "B_route_expected": true,
+        "C_understanding_same_as_B": true
+      },
+      {
+        "id": "vague-10",
+        "A_fields_complete": false,
+        "B_fields_complete": true,
+        "B_route_expected": true,
+        "C_understanding_same_as_B": true
+      },
+      {
+        "id": "return-01",
+        "A_fields_complete": false,
+        "B_fields_complete": true,
+        "B_route_expected": true,
+        "C_understanding_same_as_B": true
+      },
+      {
+        "id": "return-02",
+        "A_fields_complete": false,
+        "B_fields_complete": true,
+        "B_route_expected": true,
+        "C_understanding_same_as_B": true
+      },
+      {
+        "id": "return-03",
+        "A_fields_complete": false,
+        "B_fields_complete": true,
+        "B_route_expected": true,
+        "C_understanding_same_as_B": true
+      },
+      {
+        "id": "return-04",
+        "A_fields_complete": false,
+        "B_fields_complete": true,
+        "B_route_expected": true,
+        "C_understanding_same_as_B": true
+      },
+      {
+        "id": "return-05",
+        "A_fields_complete": false,
+        "B_fields_complete": true,
+        "B_route_expected": true,
+        "C_understanding_same_as_B": true
+      },
+      {
+        "id": "return-06",
+        "A_fields_complete": false,
+        "B_fields_complete": true,
+        "B_route_expected": true,
+        "C_understanding_same_as_B": true
+      },
+      {
+        "id": "return-07",
+        "A_fields_complete": false,
+        "B_fields_complete": true,
+        "B_route_expected": true,
+        "C_understanding_same_as_B": true
+      },
+      {
+        "id": "return-08",
+        "A_fields_complete": false,
+        "B_fields_complete": true,
+        "B_route_expected": true,
+        "C_understanding_same_as_B": true
+      },
+      {
+        "id": "return-09",
+        "A_fields_complete": false,
+        "B_fields_complete": true,
+        "B_route_expected": true,
+        "C_understanding_same_as_B": true
+      },
+      {
+        "id": "return-10",
+        "A_fields_complete": false,
+        "B_fields_complete": true,
+        "B_route_expected": true,
+        "C_understanding_same_as_B": true
+      },
+      {
+        "id": "correction-01",
+        "A_fields_complete": false,
+        "B_fields_complete": true,
+        "B_route_expected": true,
+        "C_understanding_same_as_B": true
+      },
+      {
+        "id": "correction-02",
+        "A_fields_complete": false,
+        "B_fields_complete": true,
+        "B_route_expected": true,
+        "C_understanding_same_as_B": true
+      },
+      {
+        "id": "correction-03",
+        "A_fields_complete": false,
+        "B_fields_complete": true,
+        "B_route_expected": true,
+        "C_understanding_same_as_B": true
+      },
+      {
+        "id": "correction-04",
+        "A_fields_complete": false,
+        "B_fields_complete": true,
+        "B_route_expected": true,
+        "C_understanding_same_as_B": true
+      },
+      {
+        "id": "correction-05",
+        "A_fields_complete": false,
+        "B_fields_complete": true,
+        "B_route_expected": true,
+        "C_understanding_same_as_B": true
+      },
+      {
+        "id": "correction-06",
+        "A_fields_complete": false,
+        "B_fields_complete": true,
+        "B_route_expected": true,
+        "C_understanding_same_as_B": true
+      },
+      {
+        "id": "correction-07",
+        "A_fields_complete": false,
+        "B_fields_complete": true,
+        "B_route_expected": true,
+        "C_understanding_same_as_B": true
+      },
+      {
+        "id": "correction-08",
+        "A_fields_complete": false,
+        "B_fields_complete": true,
+        "B_route_expected": true,
+        "C_understanding_same_as_B": true
+      },
+      {
+        "id": "correction-09",
+        "A_fields_complete": false,
+        "B_fields_complete": true,
+        "B_route_expected": true,
+        "C_understanding_same_as_B": true
+      },
+      {
+        "id": "correction-10",
+        "A_fields_complete": false,
+        "B_fields_complete": true,
+        "B_route_expected": true,
+        "C_understanding_same_as_B": true
+      },
+      {
+        "id": "optional-01",
+        "A_fields_complete": false,
+        "B_fields_complete": true,
+        "B_route_expected": true,
+        "C_understanding_same_as_B": true
+      },
+      {
+        "id": "optional-02",
+        "A_fields_complete": false,
+        "B_fields_complete": true,
+        "B_route_expected": true,
+        "C_understanding_same_as_B": true
+      },
+      {
+        "id": "optional-03",
+        "A_fields_complete": false,
+        "B_fields_complete": true,
+        "B_route_expected": true,
+        "C_understanding_same_as_B": true
+      },
+      {
+        "id": "optional-04",
+        "A_fields_complete": false,
+        "B_fields_complete": true,
+        "B_route_expected": true,
+        "C_understanding_same_as_B": true
+      },
+      {
+        "id": "optional-05",
+        "A_fields_complete": false,
+        "B_fields_complete": true,
+        "B_route_expected": true,
+        "C_understanding_same_as_B": true
+      },
+      {
+        "id": "optional-06",
+        "A_fields_complete": false,
+        "B_fields_complete": true,
+        "B_route_expected": true,
+        "C_understanding_same_as_B": true
+      },
+      {
+        "id": "optional-07",
+        "A_fields_complete": false,
+        "B_fields_complete": true,
+        "B_route_expected": true,
+        "C_understanding_same_as_B": true
+      },
+      {
+        "id": "optional-08",
+        "A_fields_complete": false,
+        "B_fields_complete": true,
+        "B_route_expected": true,
+        "C_understanding_same_as_B": true
+      },
+      {
+        "id": "optional-09",
+        "A_fields_complete": false,
+        "B_fields_complete": true,
+        "B_route_expected": true,
+        "C_understanding_same_as_B": true
+      },
+      {
+        "id": "optional-10",
+        "A_fields_complete": false,
+        "B_fields_complete": true,
+        "B_route_expected": true,
+        "C_understanding_same_as_B": true
+      },
+      {
+        "id": "multi-01",
+        "A_fields_complete": false,
+        "B_fields_complete": true,
+        "B_route_expected": true,
+        "C_understanding_same_as_B": true
+      },
+      {
+        "id": "multi-02",
+        "A_fields_complete": false,
+        "B_fields_complete": true,
+        "B_route_expected": true,
+        "C_understanding_same_as_B": true
+      },
+      {
+        "id": "multi-03",
+        "A_fields_complete": false,
+        "B_fields_complete": true,
+        "B_route_expected": true,
+        "C_understanding_same_as_B": true
+      },
+      {
+        "id": "multi-04",
+        "A_fields_complete": false,
+        "B_fields_complete": true,
+        "B_route_expected": true,
+        "C_understanding_same_as_B": true
+      },
+      {
+        "id": "multi-05",
+        "A_fields_complete": false,
+        "B_fields_complete": true,
+        "B_route_expected": true,
+        "C_understanding_same_as_B": true
+      },
+      {
+        "id": "multi-06",
+        "A_fields_complete": false,
+        "B_fields_complete": true,
+        "B_route_expected": true,
+        "C_understanding_same_as_B": true
+      },
+      {
+        "id": "multi-07",
+        "A_fields_complete": false,
+        "B_fields_complete": true,
+        "B_route_expected": true,
+        "C_understanding_same_as_B": true
+      },
+      {
+        "id": "multi-08",
+        "A_fields_complete": false,
+        "B_fields_complete": true,
+        "B_route_expected": true,
+        "C_understanding_same_as_B": true
+      },
+      {
+        "id": "multi-09",
+        "A_fields_complete": false,
+        "B_fields_complete": true,
+        "B_route_expected": true,
+        "C_understanding_same_as_B": true
+      },
+      {
+        "id": "multi-10",
+        "A_fields_complete": false,
+        "B_fields_complete": true,
+        "B_route_expected": true,
+        "C_understanding_same_as_B": true
+      }
+    ],
+    "interpretation": "Regression coverage only; does not estimate general language accuracy. C reuses B understanding."
+  },
+  "live_parsing": [],
+  "tasks": [
+    {
+      "case": "dining_show",
+      "status": "unavailable",
+      "mode": "react",
+      "metrics": {
+        "tools": 2,
+        "model_calls": 4,
+        "elapsed_ms": 28186.15,
+        "usage": [
+          {
+            "elapsed_ms": 9697.74,
+            "usage": {
+              "prompt_tokens": 1405,
+              "completion_tokens": 100,
+              "total_tokens": 1505
+            },
+            "cost_cny": null,
+            "cost_basis": "not_calculated_no_price_snapshot"
+          },
+          {
+            "elapsed_ms": 6862.98,
+            "usage": {
+              "prompt_tokens": 377,
+              "completion_tokens": 10,
+              "total_tokens": 387
+            },
+            "cost_cny": null,
+            "cost_basis": "not_calculated_no_price_snapshot"
+          },
+          {
+            "elapsed_ms": 5621.37,
+            "usage": {
+              "prompt_tokens": 420,
+              "completion_tokens": 15,
+              "total_tokens": 435
+            },
+            "cost_cny": null,
+            "cost_basis": "not_calculated_no_price_snapshot"
+          }
+        ],
+        "cost_cny": null,
+        "cost_basis": "not_calculated_no_price_snapshot"
+      },
+      "issues": [
+        {
+          "status": 503,
+          "code": "MODEL_HTTP_ERROR",
+          "upstream_status": 429
+        }
+      ],
+      "events": [
+        {
+          "tool": "understand",
+          "status": "ok",
+          "parameters": {}
+        },
+        {
+          "tool": "search_dining",
+          "status": "ok",
+          "parameters": {},
+          "elapsed_ms": 6.01
+        },
+        {
+          "tool": "preview_plan",
+          "status": "invalid_arguments",
+          "parameters": {
+            "place_id": "restaurant"
+          }
+        }
+      ],
+      "formal_state_unchanged": true
+    }
+  ],
+  "model_calls": [
+    {
+      "status": "passed",
+      "elapsed_ms": 9697.74,
+      "usage": {
+        "prompt_tokens": 1405,
+        "completion_tokens": 100,
+        "total_tokens": 1505
+      },
+      "cost_cny": null,
+      "cost_basis": "not_calculated_no_price_snapshot"
+    },
+    {
+      "status": "passed",
+      "elapsed_ms": 6862.98,
+      "usage": {
+        "prompt_tokens": 377,
+        "completion_tokens": 10,
+        "total_tokens": 387
+      },
+      "cost_cny": null,
+      "cost_basis": "not_calculated_no_price_snapshot"
+    },
+    {
+      "status": "passed",
+      "elapsed_ms": 5621.37,
+      "usage": {
+        "prompt_tokens": 420,
+        "completion_tokens": 15,
+        "total_tokens": 435
+      },
+      "cost_cny": null,
+      "cost_basis": "not_calculated_no_price_snapshot"
+    },
+    {
+      "status": "failed",
+      "failure": {
+        "code": "MODEL_HTTP_ERROR",
+        "upstream_status": 429
+      }
+    }
+  ],
+  "live_call_count": 4,
+  "formal_mutations_without_confirmation": 0,
+  "paired_exploration_case": {
+    "input": "附近找个吃饭的地方，下午演出必须保留，最好少走一点。",
+    "same_fact_fingerprint": "55980c142c9e3de6a1c365733a29dae9f610e727a154dd25751735ee49c09774",
+    "A_status": "intent_only",
+    "B_status": "needs_clarification",
+    "B_reason": "fixed workflow requires an explicit restaurant; no dynamic search",
+    "C_status": "unavailable",
+    "scope": "one synthetic task; not statistical evidence of ReAct benefit"
+  },
+  "status": "failed"
+}

@@ -1,0 +1,33 @@
+# 抓取策略：限流、超时、重试、robots 与拒绝边界
+schema_version: kaifeng-collection-fetch-policy/1
+updated_at: '2026-10-23'
+timeouts:
+  connect_seconds: 10
+  read_seconds: 30
+  total_seconds: 45
+rate_limit:
+  per_domain_seconds: 2.0
+  max_concurrent_per_domain: 1
+retry:
+  max_attempts: 3
+  backoff_seconds: [1.0, 4.0, 12.0]
+  retryable_status: [429, 500, 502, 503, 504]
+robots:
+  enabled: true
+  user_agent: "kaifeng-tourism-collector/1.0 (data engineering; contact: repository maintainer)"
+  cache_path: data/collection-runs/_cache/robots.json
+limits:
+  max_bytes_per_response: 8000000
+  allowed_schemes: [http, https]
+blocked_status:
+  # 一律登记失败，绝不绕过验证码/登录/反爬
+  401: auth_required
+  403: waf_block
+  407: proxy_auth_required
+  429: rate_limited
+storage:
+  raw_dir_template: data/collection-runs/<run_id>/raw
+  manifest_name: MANIFEST.sha256
+notes: >-
+  robots.txt Disallow 的路径不抓取；403/429/验证码/登录墙一律记 failures，
+  由人工决定后续动作，采集器不尝试绕过。

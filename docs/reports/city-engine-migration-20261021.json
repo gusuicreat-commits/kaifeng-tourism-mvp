@@ -1,0 +1,22 @@
+{
+  "method": "SQLite consistent backup; additive engine migration on copy; full old rows compared",
+  "old_rows_unchanged": true,
+  "foreign_key_violations": 0,
+  "integrity": "ok",
+  "new_tables": [
+    "city_engine_candidates",
+    "city_engine_operation_revisions",
+    "city_engine_operations",
+    "city_engine_routes"
+  ],
+  "runtime_counts_read_only": {
+    "city_facts": 0,
+    "city_engine_operations": null,
+    "city_engine_routes": null
+  },
+  "notes": [
+    "No test facts or operations imported into runtime",
+    "No deletion ledger restoration",
+    "Runtime service not restarted by this task"
+  ]
+}

@@ -1,0 +1,16 @@
+# Data collection and workbook conversion, installed by scripts/setup.py.
+PyYAML==6.0.3
+beautifulsoup4==4.15.0
+soupsieve==3.0.4
+openpyxl==3.1.5
+et_xmlfile==2.0.0
+pdfplumber==0.11.10
+pdfminer.six==20260107
+charset-normalizer==3.5.2
+cryptography==50.0.2
+cffi==2.1.1
+pycparser==3.12
+pillow==13.0.0
+pypdfium2==5.14.0
+# Windows does not provide the IANA zoneinfo database used by the application.
+tzdata==2025.2; sys_platform == 'win32'

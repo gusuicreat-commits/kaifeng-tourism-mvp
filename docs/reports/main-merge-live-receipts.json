@@ -1,0 +1,300 @@
+[
+  {
+    "created_at": "2026-10-23T08:49:56.865440+00:00",
+    "result": {
+      "decisions": [],
+      "elapsed_ms": 1605.9,
+      "evidence_source_ids": [],
+      "long_term_written": false,
+      "memory_written": true,
+      "model_calls": 0,
+      "references": [],
+      "status": "answered",
+      "stop_reason": "answered",
+      "task_id": "692024c3-ebd8-4ea7-b0dc-de64339e42c2",
+      "tool_count": 2,
+      "trace": [
+        {
+          "fallback": false,
+          "parameters": {},
+          "provider_failure": null,
+          "request_sequence": null,
+          "source": "deterministic_reference_route",
+          "status": "ok",
+          "tool": "understand"
+        },
+        {
+          "parameters": {
+            "uses_visitor_position": false
+          },
+          "query_count": 2,
+          "result_code": null,
+          "search_diagnostics": [
+            {
+              "events": [
+                {
+                  "business_status": "1",
+                  "elapsed_ms": 665.88,
+                  "endpoint": "/v5/place/text",
+                  "http_status": 200,
+                  "info": "OK",
+                  "infocode": "10000",
+                  "sequence": 1,
+                  "status": "success"
+                }
+              ],
+              "http_attempts": 1,
+              "provider_status": "found",
+              "role": "origin"
+            },
+            {
+              "events": [
+                {
+                  "business_status": "1",
+                  "elapsed_ms": 569.02,
+                  "endpoint": "/v5/place/text",
+                  "http_status": 200,
+                  "info": "OK",
+                  "infocode": "10000",
+                  "sequence": 1,
+                  "status": "success"
+                }
+              ],
+              "http_attempts": 1,
+              "provider_status": "found",
+              "role": "destination"
+            }
+          ],
+          "source": "amap_web_service",
+          "status": "resolved",
+          "tool": "search_locations"
+        },
+        {
+          "parameters": {
+            "mode": "walking"
+          },
+          "provider_events": [
+            {
+              "business_status": "1",
+              "elapsed_ms": 289.29,
+              "endpoint": "/v5/direction/walking",
+              "http_status": 200,
+              "info": "OK",
+              "infocode": "10000",
+              "sequence": 1,
+              "status": "success"
+            }
+          ],
+          "provider_status": "estimated",
+          "result_code": null,
+          "source": "amap_web_service",
+          "status": "answered",
+          "tool": "query_reference_route"
+        }
+      ],
+      "trip_version": 1,
+      "usage": []
+    }
+  },
+  {
+    "created_at": "2026-10-23T10:10:33.944986+00:00",
+    "result": {
+      "decisions": [],
+      "elapsed_ms": 4208.94,
+      "evidence_source_ids": [],
+      "long_term_written": false,
+      "memory_written": true,
+      "model_calls": 1,
+      "references": [],
+      "status": "answered",
+      "stop_reason": "answered",
+      "task_id": "1d99c10f-3e47-494c-b137-b769ba63217a",
+      "tool_count": 0,
+      "trace": [
+        {
+          "fallback": false,
+          "parameters": {},
+          "provider_failure": null,
+          "request_sequence": 1,
+          "source": "live_model",
+          "status": "ok",
+          "tool": "understand"
+        }
+      ],
+      "trip_version": 1,
+      "usage": [
+        {
+          "automatic_retries": 0,
+          "cost_basis": "not_calculated_no_price_snapshot",
+          "cost_cny": null,
+          "elapsed_ms": 4192.77,
+          "endpoint_host": "api.moonshot.cn",
+          "http_attempts": 1,
+          "model": "kimi-k2.6",
+          "request_id": null,
+          "schedule": {
+            "request_sequence": 1,
+            "scope": "single_python_process",
+            "started_at": "2026-10-23T10:10:33.984763+00:00"
+          },
+          "source": "live_model",
+          "upstream_status": 200,
+          "usage": {
+            "completion_tokens": 114,
+            "prompt_tokens": 3190,
+            "total_tokens": 3304
+          }
+        }
+      ]
+    }
+  },
+  {
+    "created_at": "2026-10-23T10:13:09.157865+00:00",
+    "result": {
+      "decisions": [],
+      "elapsed_ms": 4149.67,
+      "evidence_source_ids": [],
+      "long_term_written": false,
+      "memory_written": true,
+      "model_calls": 1,
+      "references": [],
+      "status": "answered",
+      "stop_reason": "answered",
+      "task_id": "ede661d9-dee7-4693-855e-279d83b05dee",
+      "tool_count": 0,
+      "trace": [
+        {
+          "fallback": false,
+          "parameters": {},
+          "provider_failure": null,
+          "request_sequence": 1,
+          "source": "live_model",
+          "status": "ok",
+          "tool": "understand"
+        }
+      ],
+      "trip_version": 1,
+      "usage": [
+        {
+          "automatic_retries": 0,
+          "cost_basis": "not_calculated_no_price_snapshot",
+          "cost_cny": null,
+          "elapsed_ms": 4137.9,
+          "endpoint_host": "api.moonshot.cn",
+          "http_attempts": 1,
+          "model": "kimi-k2.6",
+          "request_id": null,
+          "schedule": {
+            "request_sequence": 1,
+            "scope": "single_python_process",
+            "started_at": "2026-10-23T10:13:09.187008+00:00"
+          },
+          "source": "live_model",
+          "upstream_status": 200,
+          "usage": {
+            "completion_tokens": 103,
+            "prompt_tokens": 3264,
+            "total_tokens": 3367
+          }
+        }
+      ]
+    }
+  },
+  {
+    "created_at": "2026-10-23T10:14:36.356211+00:00",
+    "result": {
+      "decisions": [],
+      "elapsed_ms": 1276.81,
+      "evidence_source_ids": [],
+      "long_term_written": false,
+      "memory_written": true,
+      "model_calls": 0,
+      "references": [],
+      "status": "answered",
+      "stop_reason": "answered",
+      "task_id": "2015d0ea-93f1-40cb-a626-1a1f1c5cee3c",
+      "tool_count": 2,
+      "trace": [
+        {
+          "fallback": false,
+          "parameters": {},
+          "provider_failure": null,
+          "request_sequence": null,
+          "source": "deterministic_reference_route",
+          "status": "ok",
+          "tool": "understand"
+        },
+        {
+          "parameters": {
+            "uses_visitor_position": false
+          },
+          "query_count": 2,
+          "result_code": null,
+          "search_diagnostics": [
+            {
+              "events": [
+                {
+                  "business_status": "1",
+                  "elapsed_ms": 374.17,
+                  "endpoint": "/v5/place/text",
+                  "http_status": 200,
+                  "info": "OK",
+                  "infocode": "10000",
+                  "sequence": 1,
+                  "status": "success"
+                }
+              ],
+              "http_attempts": 1,
+              "provider_status": "found",
+              "role": "origin"
+            },
+            {
+              "events": [
+                {
+                  "business_status": "1",
+                  "elapsed_ms": 395.42,
+                  "endpoint": "/v5/place/text",
+                  "http_status": 200,
+                  "info": "OK",
+                  "infocode": "10000",
+                  "sequence": 1,
+                  "status": "success"
+                }
+              ],
+              "http_attempts": 1,
+              "provider_status": "found",
+              "role": "destination"
+            }
+          ],
+          "source": "amap_web_service",
+          "status": "resolved",
+          "tool": "search_locations"
+        },
+        {
+          "parameters": {
+            "mode": "walking"
+          },
+          "provider_events": [
+            {
+              "business_status": "1",
+              "elapsed_ms": 446.04,
+              "endpoint": "/v5/direction/walking",
+              "http_status": 200,
+              "info": "OK",
+              "infocode": "10000",
+              "sequence": 1,
+              "status": "success"
+            }
+          ],
+          "provider_status": "estimated",
+          "result_code": null,
+          "source": "amap_web_service",
+          "status": "answered",
+          "tool": "query_reference_route"
+        }
+      ],
+      "trip_version": 1,
+      "usage": []
+    }
+  }
+]

@@ -1,0 +1,46 @@
+# 开封主城区采集范围配置
+#
+# 硬约束：只采主城区连续建成区；杞县/通许县/尉氏县/兰考县/祥符区非城区一律排除。
+# 边界说明：本文件不伪造精确行政多边形。空间过滤使用人工核定的近似包围盒，
+# 每个包围盒都标注 approximate/pending 状态；城区归属无法判定时记 district=待核验。
+schema_version: kaifeng-collection-scope/1
+updated_at: '2026-10-23'
+city: 开封市
+districts:
+  - key: longting
+    name: 龙亭区
+    role: 核心景区密集区（清明上河园、万岁山、龙亭、翰园、铁塔、天波杨府等）
+    bbox: [114.28, 34.75, 114.40, 34.83]
+    bbox_status: approximate_pending
+  - key: gulou
+    name: 鼓楼区
+    role: 老城商业与夜市核心区（鼓楼夜市、大相国寺、开封府、包公祠、书店街等）
+    bbox: [114.32, 34.76, 114.41, 34.82]
+    bbox_status: approximate_pending
+  - key: shunhe
+    name: 顺河回族区
+    role: 老城东部与汴梁小宋城、老河大夜市方向
+    bbox: [114.33, 34.74, 114.43, 34.82]
+    bbox_status: approximate_pending
+  - key: yuwangtai
+    name: 禹王台区
+    role: 城南禹王台公园及周边建成区
+    bbox: [114.31, 34.70, 114.39, 34.78]
+    bbox_status: approximate_pending
+  - key: demonstration
+    name: 城乡一体化示范区
+    role: 西部新城建成区（市博物馆、文化馆新馆等）；与龙亭区交界处待核验
+    bbox: [114.22, 34.76, 114.32, 34.84]
+    bbox_status: approximate_pending
+excluded:
+  - 杞县
+  - 通许县
+  - 尉氏县
+  - 兰考县
+  - 祥符区（非主城区部分）
+district_unknown_label: 待核验
+spatial_filter:
+  mode: coarse_bbox
+  note: >-
+    粗判定只用于排除明显位于主城区之外或明显位于排除县区的记录；无法判定时
+    保留记录并写入 review_tasks，不因过滤丢弃候选。

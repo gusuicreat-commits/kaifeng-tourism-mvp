@@ -1,0 +1,205 @@
+{
+  "date": "2026-10-21",
+  "task": "汴梁游记可靠行程规划引擎 V1",
+  "scope": "Independent deterministic backend tools; initial and en-route planning share one CP-SAT solver",
+  "status": {
+    "backend_software": "implemented and verified using synthetic fixtures and temporary databases",
+    "real_city_navigation": "not accepted",
+    "amap": "default-off quote adapter tested with MockTransport only; not integrated as calibrated planning matrix",
+    "frontend_and_agent": "not modified or integrated in this task",
+    "runtime": "not restarted or populated with test data"
+  },
+  "verification": [
+    {
+      "command": ".venv/bin/pytest -q",
+      "exit_code": 0,
+      "passed": 282,
+      "warnings": 1,
+      "elapsed_seconds": 10.57,
+      "warning": "Existing Starlette TestClient/httpx deprecation"
+    },
+    {
+      "command": ".venv/bin/python scripts/export_engine_contracts.py --check",
+      "exit_code": 0,
+      "result": "Engine contracts match source"
+    },
+    {
+      "command": ".venv/bin/python scripts/export_city_contracts.py --check",
+      "exit_code": 0,
+      "result": "City contract matches schema.py"
+    },
+    {
+      "command": ".venv/bin/python scripts/demo_city_engine.py",
+      "exit_code": 0,
+      "result": "feasible, explicitly synthetic, no DB/network/LLM"
+    },
+    {
+      "command": ".venv/bin/python scripts/benchmark_city_engine.py",
+      "report": "docs/reports/city-engine-benchmark-20261021.json",
+      "result": "10/20/30 candidates feasible; single run per size, not SLA"
+    },
+    {
+      "method": "SQLite consistent backup then additive migration and old-row comparison on private copy",
+      "report": "docs/reports/city-engine-migration-20261021.json",
+      "result": "old rows unchanged; integrity ok; zero FK violations"
+    }
+  ],
+  "coverage": [
+    "joint attractions and dining",
+    "two fixed shows and same-stage distinct sessions",
+    "multiple program sessions",
+    "opening and admission cutoffs",
+    "return deadline and full time budget",
+    "hard money budget and unknown costs",
+    "required goals never silently dropped",
+    "known directed roads and explicit park boundaries",
+    "reentry conditions",
+    "independent output tamper rejection",
+    "different preferences and small hand-checkable order",
+    "timeouts unavailable and missing data",
+    "completed and ongoing protection",
+    "add meal remove optional goal less walking",
+    "fixed food supply semantics retained",
+    "locked future targets and order",
+    "fresh anchor and server time",
+    "preview only and fact changes during solve",
+    "CAS and actual concurrent confirmation",
+    "atomic rollback and idempotency",
+    "history restore revalidation",
+    "export history-off cascade deletion and deletion ledger replay",
+    "atomic operations CLI dry-run and versions",
+    "AMap timeout quota auth missing route malformed response substitutes"
+  ],
+  "files": {
+    "new": [
+      "backend/app/city/engine/__init__.py",
+      "backend/app/city/engine/amap.py",
+      "backend/app/city/engine/api.py",
+      "backend/app/city/engine/context.py",
+      "backend/app/city/engine/models.py",
+      "backend/app/city/engine/network.py",
+      "backend/app/city/engine/prepare.py",
+      "backend/app/city/engine/service.py",
+      "backend/app/city/engine/solver.py",
+      "backend/app/city/engine/storage.py",
+      "backend/app/city/engine/tools.py",
+      "backend/app/city/engine/travel.py",
+      "backend/app/city/engine/validation.py",
+      "backend/tests/test_city_engine.py",
+      "backend/tests/test_city_engine_api.py",
+      "backend/tests/test_city_engine_travel.py",
+      "backend/tests/fixtures/engine_synthetic.json",
+      "scripts/demo_city_engine.py",
+      "scripts/benchmark_city_engine.py",
+      "scripts/import_city_operations.py",
+      "scripts/export_engine_contracts.py",
+      "docs/contracts/city-engine-v1.schema.json",
+      "docs/PLANNING_ENGINE_V1.md",
+      "docs/reports/city-engine-benchmark-20261021.json",
+      "docs/reports/city-engine-migration-20261021.json",
+      "docs/reports/city-engine-delivery-20261021.json"
+    ],
+    "modified": [
+      "backend/app/main.py",
+      "backend/app/city/storage.py",
+      "backend/app/city/state.py",
+      "backend/app/city/api.py",
+      "backend/app/memory/api.py",
+      "AGENTS.md",
+      "docs/CITY_ARCHITECTURE.md"
+    ],
+    "sha256": {
+      "backend/app/city/engine/__init__.py": "534587d3f5a1a260d8dc67d8cc3ae492bfdd6ffc7ea7b171cbd5ea1446bc61aa",
+      "backend/app/city/engine/amap.py": "adffdf204f586fa10defb334cef7ac6ac15594edad81245954631733c762140b",
+      "backend/app/city/engine/api.py": "b4cca0c5287bdacd52df0d6e9769504a987fcc469ea70c241c59c976dcc20dcb",
+      "backend/app/city/engine/context.py": "7f6e36490b909d2a615a6fc6b7c880c1cc636676a78bf295f08e47fd54cd9206",
+      "backend/app/city/engine/models.py": "b44641cbdc833184bbea7a4d773a476e0b2498795276c2077c57a80baf89b113",
+      "backend/app/city/engine/network.py": "8fadb2f870234dd6059d3ef6e9316826cd32e40d848d1f1fa17b0066cad28d98",
+      "backend/app/city/engine/prepare.py": "ef4c91be899da10b521be5d1cb87079b5b42b29df88d81f8b7679137b162b311",
+      "backend/app/city/engine/service.py": "aaef2c0918023f9cdc77494eadf0277697f42e8f67989b916b2eb899db97099d",
+      "backend/app/city/engine/solver.py": "9c57fce14467329b22eeef1b6b43afcbf51b5c2c55e981f3cc2f8f341c0f684f",
+      "backend/app/city/engine/storage.py": "3707150497934c084816078f18cd75f96613ba487e1f386ffb70734c3b704ac2",
+      "backend/app/city/engine/tools.py": "742746b6e46f55075555f2710448bf5594b4927d28661352a7d5ecb20ea1177a",
+      "backend/app/city/engine/travel.py": "d02f3534cac76b08c57dee251ee38aba5d5b28f324ab5aa7c598355246faf5f1",
+      "backend/app/city/engine/validation.py": "50cbbebe6149e72eebf39db078b99bbc3375596ee608dc7e2190472d9eefe478",
+      "backend/tests/test_city_engine.py": "9616f6cb00db1cb6404551834950744512f4a98ee5825faa960f710d717a56bb",
+      "backend/tests/test_city_engine_api.py": "44715b04ca41f8a02464f3702e92ef238c49aa07c248437ca7d395036c2c86aa",
+      "backend/tests/test_city_engine_travel.py": "4c3e8a6ee8f051d051e0eee8011c857c9bff5ce5091dfafe2ca9133ddbf2391e",
+      "backend/tests/fixtures/engine_synthetic.json": "e85b648cd620cbb61df83ea6dcb3b215b954ca5bc330ac9f75aec2d9bf07dbb1",
+      "scripts/demo_city_engine.py": "9d690c0ceca80f905f2ee98f923638c059363c9ca22822ec642d416978855c03",
+      "scripts/benchmark_city_engine.py": "79252b816858c1566fdf585f86aa931c877bfc6ea7d8a6a1597c68fef32a264d",
+      "scripts/import_city_operations.py": "d706f987eba96dd110cce63ec72fe77a6765620114608ce44e010663c0d003db",
+      "scripts/export_engine_contracts.py": "b7ece49048e2208c45055cd9311dcd7b61d3f5e478b2e289231b8e7df6745a2e",
+      "docs/contracts/city-engine-v1.schema.json": "1e9a010cb33fd557b2bf189c4d7505ce1d88556e03f79274426544818f0f0146",
+      "docs/PLANNING_ENGINE_V1.md": "f6046999aef77a7aa24748ba29ddee44d0a92f2ba4568e2e187965e2955fd7ad",
+      "docs/reports/city-engine-benchmark-20261021.json": "342514cf660507df5310b3c193753c7df2b80db2d8dfc9b0bfdf5c9af1ff13e3",
+      "docs/reports/city-engine-migration-20261021.json": "c603f26d16c8efa82d4d96efeeb7a169f31a79d328c3662dccc306e9c68880e8",
+      "backend/app/main.py": "3539fa9e0e76d2b18dd0d83216dd3f009ac3e3b3a9cad8724eb6c6bfaf12b7eb",
+      "backend/app/city/storage.py": "e87e73fc673d97131135a4d80c9bf9a8d6fcf0772d208a3a98b6591de887284e",
+      "backend/app/city/state.py": "0a10d6acbdf4447450c08740c84dfe554f798569211f065d13bd49cd9d8e24a5",
+      "backend/app/city/api.py": "6e1ed4eb75e2f058442fd0d04034aefcc908fecf7e300bf531c355adee344f22",
+      "backend/app/memory/api.py": "314247b32c40c9937c2f199861a915fa3cdd8784fbead5580ea327e1ec4c666f",
+      "AGENTS.md": "24aafcf2e3b8774de885dc8ce0aa726688724978a7a807b765b9af48332574fc",
+      "docs/CITY_ARCHITECTURE.md": "11256c5d9c680ad035406a53dcf0d4125bb41704525a385376f584e1a011c0dc"
+    }
+  },
+  "project_protection": {
+    "git_repository": false,
+    "backup_manifest": ".backups/planning-engine-v1-20261021/manifest.json",
+    "frontend_written_by_this_task": false,
+    "frontend_baseline_files": 41,
+    "frontend_external_changes_observed": [
+      "frontend/src/journey.css",
+      "frontend/src/journey.ts",
+      "frontend/src/pages/Assistant.vue",
+      "frontend/src/pages/JourneyPage.vue"
+    ],
+    "frontend_build_run": false,
+    "runtime_restart": false,
+    "runtime_test_fixture_import": false,
+    "deletion_ledger_restored": false
+  },
+  "dependencies": {
+    "new_dependencies": [],
+    "ortools": {
+      "version": "9.15.6755",
+      "license": "Apache-2.0"
+    },
+    "networkx": {
+      "version": "3.7",
+      "license": "BSD-3-Clause"
+    },
+    "pydantic": {
+      "version": "2.14.1",
+      "license": "MIT"
+    },
+    "fastapi": {
+      "version": "0.148.0",
+      "license": "MIT"
+    },
+    "httpx": {
+      "version": "0.28.1",
+      "license": "BSD-3-Clause"
+    },
+    "research_code_copied": false
+  },
+  "limits": {
+    "goals": 30,
+    "expanded_candidates": 60,
+    "mode_arcs": 12000,
+    "saved_activities_including_history_and_ongoing": 24,
+    "solver_seconds_default": 1,
+    "solver_seconds_max": 3,
+    "alternatives_max": 3,
+    "timezone": "Asia/Shanghai",
+    "business_days": 1
+  },
+  "remaining": [
+    "Verify and import actual places dated sessions vendors food supply opening and entrance/reentry facts",
+    "Authorize and verify actual AMap endpoint responses, quota and covered modes",
+    "Calibrate time-dependent provider quotes into defensible conservative planning envelopes",
+    "Wire frontend and future Agent to authorized preview and confirmation tools",
+    "Run limited real cross-scenario route and en-route field acceptance"
+  ],
+  "guide": "docs/PLANNING_ENGINE_V1.md"
+}

@@ -1,0 +1,263 @@
+{
+  "schema_version": "kaifeng-opening-expanded/1",
+  "generated_at": "2026-10-23T19:46:51+08:00",
+  "rules": [
+    {
+      "rule_id": "open_qm_page",
+      "place_id": "qingming",
+      "value_text": "09:00-22:00；夜游 17:30 起；节目单有 22:05/22:30 条目",
+      "evidence_status": "page_time_candidate",
+      "source_ids": [
+        "src_search_qingming_gates_20261023"
+      ],
+      "conflicts": [
+        "节目晚于闭园",
+        "页面未明确目标日适用",
+        "停止入园未确认"
+      ],
+      "business_date": null,
+      "opens_at": null,
+      "closes_at": null,
+      "last_entry_at": null,
+      "note": "没有目标业务日期；字段不伪造时刻。需要景区/运营方按目标日确认。"
+    },
+    {
+      "rule_id": "open_wansuishan_official",
+      "place_id": "wansuishan",
+      "value_text": "08:00-22:00",
+      "evidence_status": "official_ticket_page_excerpt",
+      "source_ids": [
+        "src_search_wansuishan_ticket_20261023"
+      ],
+      "conflicts": [
+        "第三方 07:30/08:00-23:00、21:00/21:30 停检",
+        "官网页没有目标日适用和停止入园"
+      ],
+      "business_date": null,
+      "opens_at": null,
+      "closes_at": null,
+      "last_entry_at": null,
+      "note": "没有目标业务日期；字段不伪造时刻。需要景区/运营方按目标日确认。"
+    },
+    {
+      "rule_id": "open_kaifengfu",
+      "place_id": "kaifengfu",
+      "value_text": "07:30-22:00 / 夏季 07:00-19:00 / 冬季 07:30-18:30",
+      "evidence_status": "operator_page_internal_conflict",
+      "source_ids": [
+        "src_read_kaifengfu_guide_20261023"
+      ],
+      "conflicts": [
+        "同页规则互斥",
+        "17:30 停止日间入园仅适用于日票/日间"
+      ],
+      "business_date": null,
+      "opens_at": null,
+      "closes_at": null,
+      "last_entry_at": null,
+      "note": "没有目标业务日期；字段不伪造时刻。需要景区/运营方按目标日确认。"
+    },
+    {
+      "rule_id": "open_longting_official_old",
+      "place_id": "longting",
+      "value_text": "08:00-21:30（2022-08-04 官网游园指南）",
+      "evidence_status": "historical_official_candidate",
+      "source_ids": [
+        "src_search_longting_20261023"
+      ],
+      "conflicts": [
+        "2026 第三方：日常 08:00-18:30/夜游 22:00",
+        "携程 08:00-19:00、18:00 停止入园"
+      ],
+      "business_date": null,
+      "opens_at": null,
+      "closes_at": null,
+      "last_entry_at": null,
+      "note": "没有目标业务日期；字段不伪造时刻。需要景区/运营方按目标日确认。"
+    },
+    {
+      "rule_id": "open_tieta",
+      "place_id": "tieta",
+      "value_text": "08:30-18:00（17:30 停入）/ 08:30-21:00（20:30 停入）",
+      "evidence_status": "conflicting_third_party_candidates",
+      "source_ids": [
+        "src_search_tieta_20261023"
+      ],
+      "conflicts": [
+        "2025-04 公告与 2026-03 平台页冲突",
+        "官方目标日规则缺失"
+      ],
+      "business_date": null,
+      "opens_at": null,
+      "closes_at": null,
+      "last_entry_at": null,
+      "note": "没有目标业务日期；字段不伪造时刻。需要景区/运营方按目标日确认。"
+    },
+    {
+      "rule_id": "open_daxiangguosi",
+      "place_id": "daxiangguosi",
+      "value_text": "夏季 08:00-18:30 / 冬季 08:00-18:00；第三方另称停入提前 30 分钟",
+      "evidence_status": "third_party_candidate",
+      "source_ids": [
+        "src_search_daxiangguosi_20261023"
+      ],
+      "conflicts": [
+        "季节切换日未统一",
+        "没有运营方当前公告"
+      ],
+      "business_date": null,
+      "opens_at": null,
+      "closes_at": null,
+      "last_entry_at": null,
+      "note": "没有目标业务日期；字段不伪造时刻。需要景区/运营方按目标日确认。"
+    },
+    {
+      "rule_id": "open_hanyuan",
+      "place_id": "hanyuan",
+      "value_text": "08:00-22:00（官网入口页）/ 21:00 停止入园（平台）",
+      "evidence_status": "official_and_third_party_conflict",
+      "source_ids": [
+        "src_search_hanyuan_20261023"
+      ],
+      "conflicts": [
+        "官网无停入时间",
+        "平台时间未获运营方确认"
+      ],
+      "business_date": null,
+      "opens_at": null,
+      "closes_at": null,
+      "last_entry_at": null,
+      "note": "没有目标业务日期；字段不伪造时刻。需要景区/运营方按目标日确认。"
+    },
+    {
+      "rule_id": "open_tianboyangfu",
+      "place_id": "tianboyangfu",
+      "value_text": "日常 08:00-18:30 / 夜游 08:00-22:00；平台另称 20:30 停止入园",
+      "evidence_status": "third_party_conflict",
+      "source_ids": [
+        "src_search_tianboyangfu_20261023"
+      ],
+      "conflicts": [
+        "日常/夜游切换日不明",
+        "无官网原文"
+      ],
+      "business_date": null,
+      "opens_at": null,
+      "closes_at": null,
+      "last_entry_at": null,
+      "note": "没有目标业务日期；字段不伪造时刻。需要景区/运营方按目标日确认。"
+    },
+    {
+      "rule_id": "open_xiaosongcheng",
+      "place_id": "xiaosongcheng",
+      "value_text": "10:00-23:00（平台）；23:00 停止入园 / 全天开放 / 23:30 等",
+      "evidence_status": "third_party_conflict",
+      "source_ids": [
+        "src_search_xiaosong_20261023",
+        "src_read_xiaosong_ctrip_20261023"
+      ],
+      "conflicts": [
+        "运营方当前规则未取得",
+        "内部演出票务另算"
+      ],
+      "business_date": null,
+      "opens_at": null,
+      "closes_at": null,
+      "last_entry_at": null,
+      "note": "没有目标业务日期；字段不伪造时刻。需要景区/运营方按目标日确认。"
+    },
+    {
+      "rule_id": "open_baogongci",
+      "place_id": "baogongci",
+      "value_text": "夏 07:00-18:30 / 冬 07:30-17:30；夏季夜游延至 22:00",
+      "evidence_status": "third_party_candidate",
+      "source_ids": [
+        "src_search_baogongci_20261023"
+      ],
+      "conflicts": [
+        "携程另称夏 07:00-22:00",
+        "夜游仅在特定季节/条件"
+      ],
+      "business_date": null,
+      "opens_at": null,
+      "closes_at": null,
+      "last_entry_at": null,
+      "note": "没有目标业务日期；字段不伪造时刻。需要景区/运营方按目标日确认。"
+    },
+    {
+      "rule_id": "open_shanshangan",
+      "place_id": "shanshangan",
+      "value_text": "夏 08:00-18:00 / 冬 08:00-17:30；另一页夏 18:30/冬 17:00",
+      "evidence_status": "third_party_conflict",
+      "source_ids": [
+        "src_search_shanshangan_20261023"
+      ],
+      "conflicts": [
+        "两套第三方时间互斥",
+        "运营方页面缺失"
+      ],
+      "business_date": null,
+      "opens_at": null,
+      "closes_at": null,
+      "last_entry_at": null,
+      "note": "没有目标业务日期；字段不伪造时刻。需要景区/运营方按目标日确认。"
+    },
+    {
+      "rule_id": "open_yanqingguan",
+      "place_id": "yanqingguan",
+      "value_text": "5/1-10/7 08:30-18:30（18:15 停入）；10/8-4/30 08:30-18:00（17:40 停入）",
+      "evidence_status": "third_party_candidate",
+      "source_ids": [
+        "src_search_yanqingguan_20261023"
+      ],
+      "conflicts": [
+        "另有春秋/夏季/冬季三套写法",
+        "无运营方原文"
+      ],
+      "business_date": null,
+      "opens_at": null,
+      "closes_at": null,
+      "last_entry_at": null,
+      "note": "没有目标业务日期；字段不伪造时刻。需要景区/运营方按目标日确认。"
+    },
+    {
+      "rule_id": "open_wall",
+      "place_id": "wall",
+      "value_text": "08:30-22:00（21:30 停入）/ 08:00-22:00（21:00 停检）/ 日游 09:00-18:30、夜游 18:30-22:30",
+      "evidence_status": "conflicting_candidates",
+      "source_ids": [
+        "src_read_tourism_map_20261023",
+        "src_kf_wall_hours_20260813"
+      ],
+      "conflicts": [
+        "2022 运营公告和 2026 第三方也不一致",
+        "开放段/登城口可能不同"
+      ],
+      "business_date": null,
+      "opens_at": null,
+      "closes_at": null,
+      "last_entry_at": null,
+      "note": "没有目标业务日期；字段不伪造时刻。需要景区/运营方按目标日确认。"
+    },
+    {
+      "rule_id": "open_gulou_night",
+      "place_id": "gulou_night",
+      "value_text": "无官方稳定开市/撤市时刻；第三方 10:00-22:00 不可当官方营业时间",
+      "evidence_status": "official_management_without_hours",
+      "source_ids": [
+        "src_read_gulou_official_20261023",
+        "src_search_night_market_20261023"
+      ],
+      "conflicts": [
+        "官方仅说统一入场/撤市",
+        "2026-06-06 至 06-08 曾休市，已恢复"
+      ],
+      "business_date": null,
+      "opens_at": null,
+      "closes_at": null,
+      "last_entry_at": null,
+      "note": "没有目标业务日期；字段不伪造时刻。需要景区/运营方按目标日确认。"
+    }
+  ],
+  "notice": "采集日不是游客目标日。不得把 2026-10-23 或节庆日期直接写入 OpenRule.business_date。"
+}

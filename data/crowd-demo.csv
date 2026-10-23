@@ -1,0 +1,4 @@
+scenic_id,node_id,observed_at,period_end,count,crowd_level,capacity,source_type,source_name,source_url,measurement_kind,confidence,is_simulated
+wansui,theatre,2026-10-01T13:00:00+08:00,,120,0.8,,field,团队导入演示样本,,observation,0.7,true
+wansui,theatre,2026-10-02T13:00:00+08:00,,100,0.7,,field,团队导入演示样本,,observation,0.7,true
+wansui,theatre,2026-10-03T13:00:00+08:00,,110,0.75,,field,团队导入演示样本,,observation,0.7,true

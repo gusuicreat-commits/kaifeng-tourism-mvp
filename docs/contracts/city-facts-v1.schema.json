@@ -1,0 +1,1844 @@
+{
+  "$defs": {
+    "Entrance": {
+      "additionalProperties": false,
+      "properties": {
+        "fact_id": {
+          "maxLength": 120,
+          "minLength": 1,
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]*$",
+          "title": "Fact Id",
+          "type": "string"
+        },
+        "version": {
+          "default": 1,
+          "minimum": 1,
+          "title": "Version",
+          "type": "integer"
+        },
+        "source_ids": {
+          "default": [],
+          "items": {
+            "maxLength": 120,
+            "minLength": 1,
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]*$",
+            "type": "string"
+          },
+          "maxItems": 20,
+          "title": "Source Ids",
+          "type": "array"
+        },
+        "validation_status": {
+          "default": "unverified",
+          "enum": [
+            "unverified",
+            "verified"
+          ],
+          "title": "Validation Status",
+          "type": "string"
+        },
+        "business_status": {
+          "default": "active",
+          "enum": [
+            "active",
+            "cancelled"
+          ],
+          "title": "Business Status",
+          "type": "string"
+        },
+        "is_demo": {
+          "default": false,
+          "title": "Is Demo",
+          "type": "boolean"
+        },
+        "verified_at": {
+          "anyOf": [
+            {
+              "format": "date-time",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Verified At"
+        },
+        "reviewer": {
+          "anyOf": [
+            {
+              "maxLength": 100,
+              "minLength": 1,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Reviewer"
+        },
+        "verification_method": {
+          "anyOf": [
+            {
+              "maxLength": 300,
+              "minLength": 1,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Verification Method"
+        },
+        "observed_at": {
+          "anyOf": [
+            {
+              "format": "date-time",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Observed At"
+        },
+        "effective_from": {
+          "anyOf": [
+            {
+              "format": "date-time",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Effective From"
+        },
+        "effective_to": {
+          "anyOf": [
+            {
+              "format": "date-time",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Effective To"
+        },
+        "rights_status": {
+          "default": "unknown",
+          "enum": [
+            "permitted",
+            "internal_only",
+            "unknown",
+            "prohibited"
+          ],
+          "title": "Rights Status",
+          "type": "string"
+        },
+        "kind": {
+          "const": "entrance",
+          "title": "Kind",
+          "type": "string"
+        },
+        "place_id": {
+          "maxLength": 120,
+          "minLength": 1,
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]*$",
+          "title": "Place Id",
+          "type": "string"
+        },
+        "entrance_place_id": {
+          "maxLength": 120,
+          "minLength": 1,
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]*$",
+          "title": "Entrance Place Id",
+          "type": "string"
+        },
+        "direction": {
+          "enum": [
+            "entry",
+            "exit",
+            "both"
+          ],
+          "title": "Direction",
+          "type": "string"
+        }
+      },
+      "required": [
+        "fact_id",
+        "kind",
+        "place_id",
+        "entrance_place_id",
+        "direction"
+      ],
+      "title": "Entrance",
+      "type": "object"
+    },
+    "Food": {
+      "additionalProperties": false,
+      "properties": {
+        "fact_id": {
+          "maxLength": 120,
+          "minLength": 1,
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]*$",
+          "title": "Fact Id",
+          "type": "string"
+        },
+        "version": {
+          "default": 1,
+          "minimum": 1,
+          "title": "Version",
+          "type": "integer"
+        },
+        "source_ids": {
+          "default": [],
+          "items": {
+            "maxLength": 120,
+            "minLength": 1,
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]*$",
+            "type": "string"
+          },
+          "maxItems": 20,
+          "title": "Source Ids",
+          "type": "array"
+        },
+        "validation_status": {
+          "default": "unverified",
+          "enum": [
+            "unverified",
+            "verified"
+          ],
+          "title": "Validation Status",
+          "type": "string"
+        },
+        "business_status": {
+          "default": "active",
+          "enum": [
+            "active",
+            "cancelled"
+          ],
+          "title": "Business Status",
+          "type": "string"
+        },
+        "is_demo": {
+          "default": false,
+          "title": "Is Demo",
+          "type": "boolean"
+        },
+        "verified_at": {
+          "anyOf": [
+            {
+              "format": "date-time",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Verified At"
+        },
+        "reviewer": {
+          "anyOf": [
+            {
+              "maxLength": 100,
+              "minLength": 1,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Reviewer"
+        },
+        "verification_method": {
+          "anyOf": [
+            {
+              "maxLength": 300,
+              "minLength": 1,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Verification Method"
+        },
+        "observed_at": {
+          "anyOf": [
+            {
+              "format": "date-time",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Observed At"
+        },
+        "effective_from": {
+          "anyOf": [
+            {
+              "format": "date-time",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Effective From"
+        },
+        "effective_to": {
+          "anyOf": [
+            {
+              "format": "date-time",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Effective To"
+        },
+        "rights_status": {
+          "default": "unknown",
+          "enum": [
+            "permitted",
+            "internal_only",
+            "unknown",
+            "prohibited"
+          ],
+          "title": "Rights Status",
+          "type": "string"
+        },
+        "kind": {
+          "const": "food",
+          "title": "Kind",
+          "type": "string"
+        },
+        "name": {
+          "maxLength": 120,
+          "minLength": 1,
+          "title": "Name",
+          "type": "string"
+        }
+      },
+      "required": [
+        "fact_id",
+        "kind",
+        "name"
+      ],
+      "title": "Food",
+      "type": "object"
+    },
+    "OpenRule": {
+      "additionalProperties": false,
+      "properties": {
+        "fact_id": {
+          "maxLength": 120,
+          "minLength": 1,
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]*$",
+          "title": "Fact Id",
+          "type": "string"
+        },
+        "version": {
+          "default": 1,
+          "minimum": 1,
+          "title": "Version",
+          "type": "integer"
+        },
+        "source_ids": {
+          "default": [],
+          "items": {
+            "maxLength": 120,
+            "minLength": 1,
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]*$",
+            "type": "string"
+          },
+          "maxItems": 20,
+          "title": "Source Ids",
+          "type": "array"
+        },
+        "validation_status": {
+          "default": "unverified",
+          "enum": [
+            "unverified",
+            "verified"
+          ],
+          "title": "Validation Status",
+          "type": "string"
+        },
+        "business_status": {
+          "default": "active",
+          "enum": [
+            "active",
+            "cancelled"
+          ],
+          "title": "Business Status",
+          "type": "string"
+        },
+        "is_demo": {
+          "default": false,
+          "title": "Is Demo",
+          "type": "boolean"
+        },
+        "verified_at": {
+          "anyOf": [
+            {
+              "format": "date-time",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Verified At"
+        },
+        "reviewer": {
+          "anyOf": [
+            {
+              "maxLength": 100,
+              "minLength": 1,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Reviewer"
+        },
+        "verification_method": {
+          "anyOf": [
+            {
+              "maxLength": 300,
+              "minLength": 1,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Verification Method"
+        },
+        "observed_at": {
+          "anyOf": [
+            {
+              "format": "date-time",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Observed At"
+        },
+        "effective_from": {
+          "anyOf": [
+            {
+              "format": "date-time",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Effective From"
+        },
+        "effective_to": {
+          "anyOf": [
+            {
+              "format": "date-time",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Effective To"
+        },
+        "rights_status": {
+          "default": "unknown",
+          "enum": [
+            "permitted",
+            "internal_only",
+            "unknown",
+            "prohibited"
+          ],
+          "title": "Rights Status",
+          "type": "string"
+        },
+        "kind": {
+          "const": "open_rule",
+          "title": "Kind",
+          "type": "string"
+        },
+        "place_id": {
+          "maxLength": 120,
+          "minLength": 1,
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]*$",
+          "title": "Place Id",
+          "type": "string"
+        },
+        "business_date": {
+          "format": "date",
+          "title": "Business Date",
+          "type": "string"
+        },
+        "opens_at": {
+          "anyOf": [
+            {
+              "format": "date-time",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Opens At"
+        },
+        "closes_at": {
+          "anyOf": [
+            {
+              "format": "date-time",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Closes At"
+        },
+        "last_entry_at": {
+          "anyOf": [
+            {
+              "format": "date-time",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Last Entry At"
+        },
+        "reentry": {
+          "default": "unknown",
+          "enum": [
+            "allowed",
+            "forbidden",
+            "unknown"
+          ],
+          "title": "Reentry",
+          "type": "string"
+        },
+        "reservation": {
+          "default": "unknown",
+          "enum": [
+            "required",
+            "not_required",
+            "unknown"
+          ],
+          "title": "Reservation",
+          "type": "string"
+        },
+        "ticket_scope": {
+          "anyOf": [
+            {
+              "maxLength": 200,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Ticket Scope"
+        }
+      },
+      "required": [
+        "fact_id",
+        "kind",
+        "place_id",
+        "business_date"
+      ],
+      "title": "OpenRule",
+      "type": "object"
+    },
+    "Place": {
+      "additionalProperties": false,
+      "properties": {
+        "fact_id": {
+          "maxLength": 120,
+          "minLength": 1,
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]*$",
+          "title": "Fact Id",
+          "type": "string"
+        },
+        "version": {
+          "default": 1,
+          "minimum": 1,
+          "title": "Version",
+          "type": "integer"
+        },
+        "source_ids": {
+          "default": [],
+          "items": {
+            "maxLength": 120,
+            "minLength": 1,
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]*$",
+            "type": "string"
+          },
+          "maxItems": 20,
+          "title": "Source Ids",
+          "type": "array"
+        },
+        "validation_status": {
+          "default": "unverified",
+          "enum": [
+            "unverified",
+            "verified"
+          ],
+          "title": "Validation Status",
+          "type": "string"
+        },
+        "business_status": {
+          "default": "active",
+          "enum": [
+            "active",
+            "cancelled"
+          ],
+          "title": "Business Status",
+          "type": "string"
+        },
+        "is_demo": {
+          "default": false,
+          "title": "Is Demo",
+          "type": "boolean"
+        },
+        "verified_at": {
+          "anyOf": [
+            {
+              "format": "date-time",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Verified At"
+        },
+        "reviewer": {
+          "anyOf": [
+            {
+              "maxLength": 100,
+              "minLength": 1,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Reviewer"
+        },
+        "verification_method": {
+          "anyOf": [
+            {
+              "maxLength": 300,
+              "minLength": 1,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Verification Method"
+        },
+        "observed_at": {
+          "anyOf": [
+            {
+              "format": "date-time",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Observed At"
+        },
+        "effective_from": {
+          "anyOf": [
+            {
+              "format": "date-time",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Effective From"
+        },
+        "effective_to": {
+          "anyOf": [
+            {
+              "format": "date-time",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Effective To"
+        },
+        "rights_status": {
+          "default": "unknown",
+          "enum": [
+            "permitted",
+            "internal_only",
+            "unknown",
+            "prohibited"
+          ],
+          "title": "Rights Status",
+          "type": "string"
+        },
+        "kind": {
+          "const": "place",
+          "title": "Kind",
+          "type": "string"
+        },
+        "name": {
+          "maxLength": 120,
+          "minLength": 1,
+          "title": "Name",
+          "type": "string"
+        },
+        "place_type": {
+          "enum": [
+            "scenic",
+            "poi",
+            "stage",
+            "entrance",
+            "restaurant",
+            "night_visit",
+            "transport",
+            "rest"
+          ],
+          "title": "Place Type",
+          "type": "string"
+        },
+        "parent_place_id": {
+          "anyOf": [
+            {
+              "maxLength": 120,
+              "minLength": 1,
+              "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]*$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Parent Place Id"
+        },
+        "address": {
+          "anyOf": [
+            {
+              "maxLength": 300,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Address"
+        },
+        "longitude": {
+          "anyOf": [
+            {
+              "maximum": 180,
+              "minimum": -180,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Longitude"
+        },
+        "latitude": {
+          "anyOf": [
+            {
+              "maximum": 90,
+              "minimum": -90,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Latitude"
+        },
+        "coordinate_system": {
+          "default": "unknown",
+          "enum": [
+            "WGS84",
+            "GCJ02",
+            "local_demo",
+            "unknown"
+          ],
+          "title": "Coordinate System",
+          "type": "string"
+        }
+      },
+      "required": [
+        "fact_id",
+        "kind",
+        "name",
+        "place_type"
+      ],
+      "title": "Place",
+      "type": "object"
+    },
+    "Program": {
+      "additionalProperties": false,
+      "properties": {
+        "fact_id": {
+          "maxLength": 120,
+          "minLength": 1,
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]*$",
+          "title": "Fact Id",
+          "type": "string"
+        },
+        "version": {
+          "default": 1,
+          "minimum": 1,
+          "title": "Version",
+          "type": "integer"
+        },
+        "source_ids": {
+          "default": [],
+          "items": {
+            "maxLength": 120,
+            "minLength": 1,
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]*$",
+            "type": "string"
+          },
+          "maxItems": 20,
+          "title": "Source Ids",
+          "type": "array"
+        },
+        "validation_status": {
+          "default": "unverified",
+          "enum": [
+            "unverified",
+            "verified"
+          ],
+          "title": "Validation Status",
+          "type": "string"
+        },
+        "business_status": {
+          "default": "active",
+          "enum": [
+            "active",
+            "cancelled"
+          ],
+          "title": "Business Status",
+          "type": "string"
+        },
+        "is_demo": {
+          "default": false,
+          "title": "Is Demo",
+          "type": "boolean"
+        },
+        "verified_at": {
+          "anyOf": [
+            {
+              "format": "date-time",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Verified At"
+        },
+        "reviewer": {
+          "anyOf": [
+            {
+              "maxLength": 100,
+              "minLength": 1,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Reviewer"
+        },
+        "verification_method": {
+          "anyOf": [
+            {
+              "maxLength": 300,
+              "minLength": 1,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Verification Method"
+        },
+        "observed_at": {
+          "anyOf": [
+            {
+              "format": "date-time",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Observed At"
+        },
+        "effective_from": {
+          "anyOf": [
+            {
+              "format": "date-time",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Effective From"
+        },
+        "effective_to": {
+          "anyOf": [
+            {
+              "format": "date-time",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Effective To"
+        },
+        "rights_status": {
+          "default": "unknown",
+          "enum": [
+            "permitted",
+            "internal_only",
+            "unknown",
+            "prohibited"
+          ],
+          "title": "Rights Status",
+          "type": "string"
+        },
+        "kind": {
+          "const": "program",
+          "title": "Kind",
+          "type": "string"
+        },
+        "name": {
+          "maxLength": 120,
+          "minLength": 1,
+          "title": "Name",
+          "type": "string"
+        }
+      },
+      "required": [
+        "fact_id",
+        "kind",
+        "name"
+      ],
+      "title": "Program",
+      "type": "object"
+    },
+    "ShowSession": {
+      "additionalProperties": false,
+      "properties": {
+        "fact_id": {
+          "maxLength": 120,
+          "minLength": 1,
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]*$",
+          "title": "Fact Id",
+          "type": "string"
+        },
+        "version": {
+          "default": 1,
+          "minimum": 1,
+          "title": "Version",
+          "type": "integer"
+        },
+        "source_ids": {
+          "default": [],
+          "items": {
+            "maxLength": 120,
+            "minLength": 1,
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]*$",
+            "type": "string"
+          },
+          "maxItems": 20,
+          "title": "Source Ids",
+          "type": "array"
+        },
+        "validation_status": {
+          "default": "unverified",
+          "enum": [
+            "unverified",
+            "verified"
+          ],
+          "title": "Validation Status",
+          "type": "string"
+        },
+        "business_status": {
+          "default": "active",
+          "enum": [
+            "active",
+            "cancelled"
+          ],
+          "title": "Business Status",
+          "type": "string"
+        },
+        "is_demo": {
+          "default": false,
+          "title": "Is Demo",
+          "type": "boolean"
+        },
+        "verified_at": {
+          "anyOf": [
+            {
+              "format": "date-time",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Verified At"
+        },
+        "reviewer": {
+          "anyOf": [
+            {
+              "maxLength": 100,
+              "minLength": 1,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Reviewer"
+        },
+        "verification_method": {
+          "anyOf": [
+            {
+              "maxLength": 300,
+              "minLength": 1,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Verification Method"
+        },
+        "observed_at": {
+          "anyOf": [
+            {
+              "format": "date-time",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Observed At"
+        },
+        "effective_from": {
+          "anyOf": [
+            {
+              "format": "date-time",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Effective From"
+        },
+        "effective_to": {
+          "anyOf": [
+            {
+              "format": "date-time",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Effective To"
+        },
+        "rights_status": {
+          "default": "unknown",
+          "enum": [
+            "permitted",
+            "internal_only",
+            "unknown",
+            "prohibited"
+          ],
+          "title": "Rights Status",
+          "type": "string"
+        },
+        "kind": {
+          "const": "show_session",
+          "title": "Kind",
+          "type": "string"
+        },
+        "program_id": {
+          "maxLength": 120,
+          "minLength": 1,
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]*$",
+          "title": "Program Id",
+          "type": "string"
+        },
+        "stage_place_id": {
+          "maxLength": 120,
+          "minLength": 1,
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]*$",
+          "title": "Stage Place Id",
+          "type": "string"
+        },
+        "business_date": {
+          "format": "date",
+          "title": "Business Date",
+          "type": "string"
+        },
+        "starts_at": {
+          "format": "date-time",
+          "title": "Starts At",
+          "type": "string"
+        },
+        "ends_at": {
+          "anyOf": [
+            {
+              "format": "date-time",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Ends At"
+        },
+        "admission_deadline": {
+          "anyOf": [
+            {
+              "format": "date-time",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Admission Deadline"
+        }
+      },
+      "required": [
+        "fact_id",
+        "kind",
+        "program_id",
+        "stage_place_id",
+        "business_date",
+        "starts_at"
+      ],
+      "title": "ShowSession",
+      "type": "object"
+    },
+    "Source": {
+      "additionalProperties": false,
+      "properties": {
+        "fact_id": {
+          "maxLength": 120,
+          "minLength": 1,
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]*$",
+          "title": "Fact Id",
+          "type": "string"
+        },
+        "version": {
+          "default": 1,
+          "minimum": 1,
+          "title": "Version",
+          "type": "integer"
+        },
+        "source_ids": {
+          "default": [],
+          "items": {
+            "maxLength": 120,
+            "minLength": 1,
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]*$",
+            "type": "string"
+          },
+          "maxItems": 20,
+          "title": "Source Ids",
+          "type": "array"
+        },
+        "validation_status": {
+          "default": "unverified",
+          "enum": [
+            "unverified",
+            "verified"
+          ],
+          "title": "Validation Status",
+          "type": "string"
+        },
+        "business_status": {
+          "default": "active",
+          "enum": [
+            "active",
+            "cancelled"
+          ],
+          "title": "Business Status",
+          "type": "string"
+        },
+        "is_demo": {
+          "default": false,
+          "title": "Is Demo",
+          "type": "boolean"
+        },
+        "verified_at": {
+          "anyOf": [
+            {
+              "format": "date-time",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Verified At"
+        },
+        "reviewer": {
+          "anyOf": [
+            {
+              "maxLength": 100,
+              "minLength": 1,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Reviewer"
+        },
+        "verification_method": {
+          "anyOf": [
+            {
+              "maxLength": 300,
+              "minLength": 1,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Verification Method"
+        },
+        "observed_at": {
+          "anyOf": [
+            {
+              "format": "date-time",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Observed At"
+        },
+        "effective_from": {
+          "anyOf": [
+            {
+              "format": "date-time",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Effective From"
+        },
+        "effective_to": {
+          "anyOf": [
+            {
+              "format": "date-time",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Effective To"
+        },
+        "rights_status": {
+          "default": "unknown",
+          "enum": [
+            "permitted",
+            "internal_only",
+            "unknown",
+            "prohibited"
+          ],
+          "title": "Rights Status",
+          "type": "string"
+        },
+        "kind": {
+          "const": "source",
+          "title": "Kind",
+          "type": "string"
+        },
+        "name": {
+          "maxLength": 200,
+          "minLength": 1,
+          "title": "Name",
+          "type": "string"
+        },
+        "source_type": {
+          "enum": [
+            "official",
+            "operator",
+            "field",
+            "map_service",
+            "other"
+          ],
+          "title": "Source Type",
+          "type": "string"
+        },
+        "url": {
+          "anyOf": [
+            {
+              "format": "uri",
+              "maxLength": 2083,
+              "minLength": 1,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Url"
+        },
+        "locator": {
+          "anyOf": [
+            {
+              "maxLength": 500,
+              "minLength": 1,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Locator"
+        },
+        "publisher": {
+          "anyOf": [
+            {
+              "maxLength": 200,
+              "minLength": 1,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Publisher"
+        },
+        "collected_at": {
+          "format": "date-time",
+          "title": "Collected At",
+          "type": "string"
+        },
+        "published_at": {
+          "anyOf": [
+            {
+              "format": "date-time",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Published At"
+        }
+      },
+      "required": [
+        "fact_id",
+        "kind",
+        "name",
+        "source_type",
+        "collected_at"
+      ],
+      "title": "Source",
+      "type": "object"
+    },
+    "Supply": {
+      "additionalProperties": false,
+      "properties": {
+        "fact_id": {
+          "maxLength": 120,
+          "minLength": 1,
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]*$",
+          "title": "Fact Id",
+          "type": "string"
+        },
+        "version": {
+          "default": 1,
+          "minimum": 1,
+          "title": "Version",
+          "type": "integer"
+        },
+        "source_ids": {
+          "default": [],
+          "items": {
+            "maxLength": 120,
+            "minLength": 1,
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]*$",
+            "type": "string"
+          },
+          "maxItems": 20,
+          "title": "Source Ids",
+          "type": "array"
+        },
+        "validation_status": {
+          "default": "unverified",
+          "enum": [
+            "unverified",
+            "verified"
+          ],
+          "title": "Validation Status",
+          "type": "string"
+        },
+        "business_status": {
+          "default": "active",
+          "enum": [
+            "active",
+            "cancelled"
+          ],
+          "title": "Business Status",
+          "type": "string"
+        },
+        "is_demo": {
+          "default": false,
+          "title": "Is Demo",
+          "type": "boolean"
+        },
+        "verified_at": {
+          "anyOf": [
+            {
+              "format": "date-time",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Verified At"
+        },
+        "reviewer": {
+          "anyOf": [
+            {
+              "maxLength": 100,
+              "minLength": 1,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Reviewer"
+        },
+        "verification_method": {
+          "anyOf": [
+            {
+              "maxLength": 300,
+              "minLength": 1,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Verification Method"
+        },
+        "observed_at": {
+          "anyOf": [
+            {
+              "format": "date-time",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Observed At"
+        },
+        "effective_from": {
+          "anyOf": [
+            {
+              "format": "date-time",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Effective From"
+        },
+        "effective_to": {
+          "anyOf": [
+            {
+              "format": "date-time",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Effective To"
+        },
+        "rights_status": {
+          "default": "unknown",
+          "enum": [
+            "permitted",
+            "internal_only",
+            "unknown",
+            "prohibited"
+          ],
+          "title": "Rights Status",
+          "type": "string"
+        },
+        "kind": {
+          "const": "supply",
+          "title": "Kind",
+          "type": "string"
+        },
+        "vendor_id": {
+          "maxLength": 120,
+          "minLength": 1,
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]*$",
+          "title": "Vendor Id",
+          "type": "string"
+        },
+        "food_id": {
+          "maxLength": 120,
+          "minLength": 1,
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]*$",
+          "title": "Food Id",
+          "type": "string"
+        },
+        "evidence_note": {
+          "maxLength": 500,
+          "minLength": 1,
+          "title": "Evidence Note",
+          "type": "string"
+        }
+      },
+      "required": [
+        "fact_id",
+        "kind",
+        "vendor_id",
+        "food_id",
+        "evidence_note"
+      ],
+      "title": "Supply",
+      "type": "object"
+    },
+    "Vendor": {
+      "additionalProperties": false,
+      "properties": {
+        "fact_id": {
+          "maxLength": 120,
+          "minLength": 1,
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]*$",
+          "title": "Fact Id",
+          "type": "string"
+        },
+        "version": {
+          "default": 1,
+          "minimum": 1,
+          "title": "Version",
+          "type": "integer"
+        },
+        "source_ids": {
+          "default": [],
+          "items": {
+            "maxLength": 120,
+            "minLength": 1,
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]*$",
+            "type": "string"
+          },
+          "maxItems": 20,
+          "title": "Source Ids",
+          "type": "array"
+        },
+        "validation_status": {
+          "default": "unverified",
+          "enum": [
+            "unverified",
+            "verified"
+          ],
+          "title": "Validation Status",
+          "type": "string"
+        },
+        "business_status": {
+          "default": "active",
+          "enum": [
+            "active",
+            "cancelled"
+          ],
+          "title": "Business Status",
+          "type": "string"
+        },
+        "is_demo": {
+          "default": false,
+          "title": "Is Demo",
+          "type": "boolean"
+        },
+        "verified_at": {
+          "anyOf": [
+            {
+              "format": "date-time",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Verified At"
+        },
+        "reviewer": {
+          "anyOf": [
+            {
+              "maxLength": 100,
+              "minLength": 1,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Reviewer"
+        },
+        "verification_method": {
+          "anyOf": [
+            {
+              "maxLength": 300,
+              "minLength": 1,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Verification Method"
+        },
+        "observed_at": {
+          "anyOf": [
+            {
+              "format": "date-time",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Observed At"
+        },
+        "effective_from": {
+          "anyOf": [
+            {
+              "format": "date-time",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Effective From"
+        },
+        "effective_to": {
+          "anyOf": [
+            {
+              "format": "date-time",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Effective To"
+        },
+        "rights_status": {
+          "default": "unknown",
+          "enum": [
+            "permitted",
+            "internal_only",
+            "unknown",
+            "prohibited"
+          ],
+          "title": "Rights Status",
+          "type": "string"
+        },
+        "kind": {
+          "const": "vendor",
+          "title": "Kind",
+          "type": "string"
+        },
+        "place_id": {
+          "maxLength": 120,
+          "minLength": 1,
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]*$",
+          "title": "Place Id",
+          "type": "string"
+        }
+      },
+      "required": [
+        "fact_id",
+        "kind",
+        "place_id"
+      ],
+      "title": "Vendor",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "schema_version": {
+      "const": "city-facts/1",
+      "default": "city-facts/1",
+      "title": "Schema Version",
+      "type": "string"
+    },
+    "records": {
+      "items": {
+        "discriminator": {
+          "mapping": {
+            "entrance": "#/$defs/Entrance",
+            "food": "#/$defs/Food",
+            "open_rule": "#/$defs/OpenRule",
+            "place": "#/$defs/Place",
+            "program": "#/$defs/Program",
+            "show_session": "#/$defs/ShowSession",
+            "source": "#/$defs/Source",
+            "supply": "#/$defs/Supply",
+            "vendor": "#/$defs/Vendor"
+          },
+          "propertyName": "kind"
+        },
+        "oneOf": [
+          {
+            "$ref": "#/$defs/Source"
+          },
+          {
+            "$ref": "#/$defs/Place"
+          },
+          {
+            "$ref": "#/$defs/Entrance"
+          },
+          {
+            "$ref": "#/$defs/OpenRule"
+          },
+          {
+            "$ref": "#/$defs/Program"
+          },
+          {
+            "$ref": "#/$defs/ShowSession"
+          },
+          {
+            "$ref": "#/$defs/Food"
+          },
+          {
+            "$ref": "#/$defs/Vendor"
+          },
+          {
+            "$ref": "#/$defs/Supply"
+          }
+        ]
+      },
+      "maxItems": 2000,
+      "title": "Records",
+      "type": "array"
+    }
+  },
+  "required": [
+    "records"
+  ],
+  "title": "FactBundle",
+  "type": "object"
+}

@@ -1,0 +1,268 @@
+{
+  "database": "temporary empty isolated DB",
+  "max_model_requests": 4,
+  "real_user_data_sent": false,
+  "real_place_or_route_validation": false,
+  "turns": [
+    {
+      "text": "我明天想去开封玩",
+      "outgoing_payload": {
+        "text": "我明天想去开封玩",
+        "context": {
+          "current_date": "2026-10-23",
+          "requirements": {
+            "business_date": null,
+            "starts_at": null,
+            "ends_at": null,
+            "origin_place_id": null,
+            "destination_place_id": null,
+            "interests": [],
+            "dish_interest_ids": [],
+            "modes": [
+              "walking"
+            ],
+            "pace": "standard",
+            "objective": "balanced",
+            "budget_fen": null,
+            "locked_stop_ids": [],
+            "targets": []
+          },
+          "progress": {
+            "completed": [],
+            "skipped": [],
+            "ongoing": null,
+            "remaining": [],
+            "next": null,
+            "ended": false
+          },
+          "references": [],
+          "page_focus": null,
+          "basket": {
+            "version": 0,
+            "items": []
+          },
+          "planning_constraints": {
+            "version": 0,
+            "constraints": null,
+            "rounds": 0
+          },
+          "recent_messages": [],
+          "official_plan": {
+            "status": "not_created",
+            "route_version": 0,
+            "stale_reasons": []
+          },
+          "planning_readiness": {
+            "missing_user_fields": [
+              "business_date",
+              "starts_at",
+              "ends_at",
+              "origin_place_id",
+              "destination_place_id"
+            ],
+            "place_catalog_available": false,
+            "blocked_by_missing_place_data": true,
+            "assessment": {},
+            "issues": []
+          },
+          "material_labels": []
+        }
+      },
+      "model_output": {
+        "schema_version": "travel-intent/3.1",
+        "planning": {
+          "quote": "我明天想去开封玩",
+          "operation": "update",
+          "fields": [
+            {
+              "field": "city",
+              "value": "开封",
+              "quote": "开封"
+            },
+            {
+              "field": "date",
+              "value": "明天",
+              "quote": "明天"
+            }
+          ]
+        },
+        "actions": [
+          {
+            "kind": "modify",
+            "quote": "我明天想去开封玩"
+          }
+        ],
+        "constraints": [],
+        "corrections": [],
+        "unresolved": [],
+        "conversation": null
+      },
+      "status": "planning_input",
+      "mode": "planning",
+      "reply": "已理解你的规划要求，接着核验安排。",
+      "interpretation": {
+        "basis": "kimi_validated",
+        "source": "live_model",
+        "model_calls": 1,
+        "usage": [
+          {
+            "source": "live_model",
+            "model": "kimi-k2.6",
+            "endpoint_host": "api.moonshot.cn",
+            "http_attempts": 1,
+            "automatic_retries": 0,
+            "usage": {
+              "prompt_tokens": 2076,
+              "completion_tokens": 86,
+              "total_tokens": 2162
+            },
+            "cost_cny": null,
+            "cost_basis": "not_calculated_no_price_snapshot",
+            "schedule": {
+              "request_sequence": 1,
+              "started_at": "2026-10-22T16:04:45.226104+00:00",
+              "scope": "single_python_process"
+            },
+            "upstream_status": 200,
+            "request_id": null,
+            "elapsed_ms": 7665.9,
+            "evaluation_request_sequence": 1
+          }
+        ]
+      }
+    },
+    {
+      "text": "你能干嘛",
+      "outgoing_payload": {
+        "text": "你能干嘛",
+        "context": {
+          "current_date": "2026-10-23",
+          "requirements": {
+            "business_date": null,
+            "starts_at": null,
+            "ends_at": null,
+            "origin_place_id": null,
+            "destination_place_id": null,
+            "interests": [],
+            "dish_interest_ids": [],
+            "modes": [
+              "walking"
+            ],
+            "pace": "standard",
+            "objective": "balanced",
+            "budget_fen": null,
+            "locked_stop_ids": [],
+            "targets": []
+          },
+          "progress": {
+            "completed": [],
+            "skipped": [],
+            "ongoing": null,
+            "remaining": [],
+            "next": null,
+            "ended": false
+          },
+          "references": [],
+          "page_focus": null,
+          "basket": {
+            "version": 0,
+            "items": []
+          },
+          "planning_constraints": {
+            "version": 1,
+            "constraints": {
+              "budget_fen": null,
+              "business_date": "2026-10-24",
+              "destination_place_id": null,
+              "ends_at": null,
+              "modes": [
+                "walking"
+              ],
+              "objective": "balanced",
+              "origin_place_id": null,
+              "pace": "standard",
+              "starts_at": null
+            },
+            "rounds": 0
+          },
+          "recent_messages": [
+            {
+              "role": "user",
+              "text": "我明天想去开封玩"
+            },
+            {
+              "role": "assistant",
+              "text": "已理解你的规划要求，接着核验安排。"
+            }
+          ],
+          "official_plan": {
+            "status": "not_created",
+            "route_version": 0,
+            "stale_reasons": []
+          },
+          "planning_readiness": {
+            "missing_user_fields": [
+              "starts_at",
+              "ends_at",
+              "origin_place_id",
+              "destination_place_id"
+            ],
+            "place_catalog_available": false,
+            "blocked_by_missing_place_data": true,
+            "assessment": {
+              "status": "unknown",
+              "reply": "请补充开始时间、结束时间、出发地点、返程地点"
+            },
+            "issues": [
+              {
+                "code": "PERSONAL_CHOICE_MISSING",
+                "message": "请补充开始时间、结束时间、出发地点、返程地点"
+              }
+            ]
+          },
+          "material_labels": []
+        }
+      },
+      "status": "model_busy",
+      "mode": null,
+      "reply": "模型调用额度暂不可用，本次探索已停止；你可以继续使用已有行程或确定性规划，正式行程未变。",
+      "interpretation": {},
+      "planning_state_unchanged": true
+    }
+  ],
+  "status": "failed",
+  "model_requests": 1,
+  "provider_calls": [
+    {
+      "sequence": 1,
+      "case": "dialogue_turn_1",
+      "source": "live_model",
+      "phase": "understand",
+      "started_at": "2026-10-22T16:04:45.164438+00:00",
+      "interval_since_previous_start_ms": null,
+      "status": "passed",
+      "eligible_actions": [],
+      "model": "kimi-k2.6",
+      "endpoint_host": "api.moonshot.cn",
+      "http_attempts": 1,
+      "automatic_retries": 0,
+      "usage": {
+        "prompt_tokens": 2076,
+        "completion_tokens": 86,
+        "total_tokens": 2162
+      },
+      "cost_cny": null,
+      "cost_basis": "not_calculated_no_price_snapshot",
+      "schedule": {
+        "request_sequence": 1,
+        "started_at": "2026-10-22T16:04:45.226104+00:00",
+        "scope": "single_python_process"
+      },
+      "upstream_status": 200,
+      "request_id": null,
+      "elapsed_ms": 7665.9,
+      "evaluation_request_sequence": 1
+    }
+  ],
+  "formal_state_unchanged": true
+}

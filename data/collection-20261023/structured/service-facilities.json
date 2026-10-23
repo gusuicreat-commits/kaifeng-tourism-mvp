@@ -1,0 +1,39 @@
+{
+  "schema_version": "kaifeng-services/1",
+  "generated_at": "2026-10-23T19:03:02+08:00",
+  "facilities": [
+    {
+      "facility_id": "service_qm_visitor_center",
+      "place_id": "qingming",
+      "facility_type": "visitor_center",
+      "location_text": "迎宾门南侧、端门北侧、金水门",
+      "evidence_status": "official_web_candidate",
+      "source_ids": [
+        "src_qmsyun_q_secret_20261023"
+      ],
+      "limitation": "原始网页已保存为 qmsyun_q_secret_20261023.json；页面只给相对位置，不能给坐标和营业时段"
+    },
+    {
+      "facility_id": "service_qm_rest_area",
+      "place_id": "qingming",
+      "facility_type": "rest_area",
+      "location_text": "游客中心有休息室（具体开放/座位未知）",
+      "evidence_status": "official_web_candidate",
+      "source_ids": [
+        "src_qmsyun_q_secret_20261023"
+      ],
+      "limitation": "有休息室文字；开放时段、座位数量和位置未确认"
+    },
+    {
+      "facility_id": "service_wall_phone",
+      "place_id": "wall_daliang_scenic",
+      "facility_type": "information",
+      "location_text": "景区服务咨询电话 0371-23237131",
+      "evidence_status": "third_party_closure_notice_lead",
+      "source_ids": [
+        "src_kf_wall_closure_20260104"
+      ],
+      "limitation": "电话不是厕所/饮水点，需区分信息点与便民设施"
+    }
+  ]
+}

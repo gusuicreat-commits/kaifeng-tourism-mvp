@@ -1,0 +1,2 @@
+cost_id,vendor_id,per_person_cny,basis,meal_duration_min,queue_min,status,source_ids,note
+cost_diyilou_sihou,vendor_diyilou_sihou,60,携程用户反馈/页面显示约60-64元；不是门店报价,,,estimate_not_measured,['src_ctrip_diyilou_20261023'],不要承诺人均或排队时间；实际点单差异未知

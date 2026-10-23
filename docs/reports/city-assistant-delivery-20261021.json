@@ -1,0 +1,43 @@
+{
+  "artifact": "city-assistant-v2",
+  "date": "2026-10-21",
+  "status": "implemented_and_verified_offline",
+  "scope": "formal city itinerary context, continuous chat, controlled preview and explicit confirmation",
+  "frontend_touched_by_this_change": false,
+  "frontend_parallel_changes_detected": [
+    "frontend/src/journey.css",
+    "frontend/src/pages/JourneyPage.vue"
+  ],
+  "runtime_restarted": false,
+  "real_kaifeng_data_validated": false,
+  "real_kimi_api_connected": true,
+  "real_kimi_multiturn_evaluation_run": false,
+  "long_term_memory_written": false,
+  "new_files": [
+    "backend/app/city/assistant/__init__.py",
+    "backend/app/city/assistant/models.py",
+    "backend/app/city/assistant/context.py",
+    "backend/app/city/assistant/interpret.py",
+    "backend/app/city/assistant/tools.py",
+    "backend/app/city/assistant/service.py",
+    "backend/app/city/assistant/api.py",
+    "backend/tests/test_city_assistant.py",
+    "scripts/evaluate_city_assistant.py",
+    "scripts/export_city_assistant_contracts.py",
+    "docs/contracts/city-assistant-v2.schema.json",
+    "docs/CITY_ASSISTANT_V2.md",
+    "docs/reports/city-assistant-delivery-20261021.json"
+  ],
+  "validation": {
+    "specialized_pytest": {"command": ".venv/bin/pytest -q backend/tests/test_city_assistant.py", "passed": 35, "failed": 0},
+    "full_pytest": {"command": ".venv/bin/pytest -q", "passed": 331, "failed": 0},
+    "contract_check": {"command": ".venv/bin/python scripts/export_city_assistant_contracts.py --check", "passed": true},
+    "offline_multiturn": {"report": "docs/reports/city-assistant-offline-20261021.json", "status": "passed", "formal_mutations_without_confirmation": 0, "wrong_tool_calls": 0, "state_read_error_rate": 0.0}
+  },
+  "known_limits": [
+    "synthetic fixture is not real Kaifeng data",
+    "frontend API wiring remains pending",
+    "real traffic provider and production Gaode credentials remain unvalidated",
+    "no real user multiturn accuracy or production SLA claim"
+  ]
+}

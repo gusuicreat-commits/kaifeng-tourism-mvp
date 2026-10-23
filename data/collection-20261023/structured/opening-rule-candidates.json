@@ -1,0 +1,58 @@
+{
+  "schema_version": "kaifeng-opening/1",
+  "generated_at": "2026-10-23T19:03:02+08:00",
+  "rules": [
+    {
+      "rule_id": "open_qm_page_candidate",
+      "place_id": "qingming",
+      "business_date": "2026-10-23",
+      "opens_at": "2026-10-23T09:00:00+08:00",
+      "closes_at": "2026-10-23T22:00:00+08:00",
+      "night_visit_at": "2026-10-23T17:30:00+08:00",
+      "last_entry_at": null,
+      "reentry": "unknown",
+      "reservation": "unknown",
+      "ticket_scope": "预约/票种不得由此页面确认",
+      "evidence_status": "official_page_candidate_with_date_label",
+      "source_ids": [
+        "src_qmsyun_program_20261023"
+      ],
+      "conflicts": [
+        "节目表出现 22:05/22:30 条目，晚于 22:00 闭园；可能是闭园后答谢或页面错误，不能用于行程"
+      ],
+      "missing": [
+        "target trip date",
+        "last entry",
+        "ticket/booking rule",
+        "event-day closure"
+      ]
+    },
+    {
+      "rule_id": "open_wall_summer_2026_candidate",
+      "place_id": "wall_daliang_scenic",
+      "business_date": "2026-10-23",
+      "opens_at": "2026-10-23T08:30:00+08:00",
+      "closes_at": "2026-10-23T22:00:00+08:00",
+      "last_entry_at": null,
+      "reentry": "unknown",
+      "reservation": "unknown",
+      "ticket_scope": null,
+      "evidence_status": "third_party_seasonal_candidate",
+      "source_ids": [
+        "src_kf_wall_hours_20260813"
+      ],
+      "conflicts": [
+        "官网只给演出时段 09:00-21:00/09:15-21:15",
+        "2022 运营公告给 08:30-22:00、21:30 停止检票",
+        "2026 第三方入口页给大梁门 08:30-21:30",
+        "另有采集线索称 08:00-22:00 或 21:00 停检，原始证据未保存，不纳入已证据化冲突"
+      ],
+      "missing": [
+        "official 2026-10-23 rule",
+        "season switch date",
+        "last ticket entry",
+        "event closures"
+      ]
+    }
+  ]
+}

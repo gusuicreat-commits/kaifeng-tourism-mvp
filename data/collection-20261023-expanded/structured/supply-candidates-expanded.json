@@ -1,0 +1,331 @@
+{
+  "schema_version": "kaifeng-supply-expanded/1",
+  "generated_at": "2026-10-23T19:46:51+08:00",
+  "supplies": [
+    {
+      "supply_id": "vendor_huangjia_xisi_food_guantangbao",
+      "vendor_id": "vendor_huangjia_xisi",
+      "food_id": "food_guantangbao",
+      "proof_type": "platform_menu_lead_only",
+      "status": "candidate_not_supply_proof",
+      "source_ids": [
+        "src_search_huangjia_20261023"
+      ],
+      "evidence_note": "平台推荐菜/特色菜条目只说明页面列出，不等于目标日门店供应",
+      "required_proof": [
+        "带日期和门店名的菜单照片",
+        "商家公开菜单链接且明确门店",
+        "现场点单/票据记录"
+      ]
+    },
+    {
+      "supply_id": "vendor_huangjia_xisi_food_tongziji",
+      "vendor_id": "vendor_huangjia_xisi",
+      "food_id": "food_tongziji",
+      "proof_type": "platform_menu_lead_only",
+      "status": "candidate_not_supply_proof",
+      "source_ids": [
+        "src_search_huangjia_20261023"
+      ],
+      "evidence_note": "平台推荐菜/特色菜条目只说明页面列出，不等于目标日门店供应",
+      "required_proof": [
+        "带日期和门店名的菜单照片",
+        "商家公开菜单链接且明确门店",
+        "现场点单/票据记录"
+      ]
+    },
+    {
+      "supply_id": "vendor_huangjia_xisi_food_taohuasuni",
+      "vendor_id": "vendor_huangjia_xisi",
+      "food_id": "food_taohuasuni",
+      "proof_type": "platform_menu_lead_only",
+      "status": "candidate_not_supply_proof",
+      "source_ids": [
+        "src_search_huangjia_20261023"
+      ],
+      "evidence_note": "平台推荐菜/特色菜条目只说明页面列出，不等于目标日门店供应",
+      "required_proof": [
+        "带日期和门店名的菜单照片",
+        "商家公开菜单链接且明确门店",
+        "现场点单/票据记录"
+      ]
+    },
+    {
+      "supply_id": "vendor_huangjia_xisi_food_liyu_beimian",
+      "vendor_id": "vendor_huangjia_xisi",
+      "food_id": "food_liyu_beimian",
+      "proof_type": "platform_menu_lead_only",
+      "status": "candidate_not_supply_proof",
+      "source_ids": [
+        "src_search_huangjia_20261023"
+      ],
+      "evidence_note": "平台推荐菜/特色菜条目只说明页面列出，不等于目标日门店供应",
+      "required_proof": [
+        "带日期和门店名的菜单照片",
+        "商家公开菜单链接且明确门店",
+        "现场点单/票据记录"
+      ]
+    },
+    {
+      "supply_id": "vendor_huangjia_daliang_food_guantangbao",
+      "vendor_id": "vendor_huangjia_daliang",
+      "food_id": "food_guantangbao",
+      "proof_type": "platform_menu_lead_only",
+      "status": "candidate_not_supply_proof",
+      "source_ids": [
+        "src_search_huangjia_20261023"
+      ],
+      "evidence_note": "平台推荐菜/特色菜条目只说明页面列出，不等于目标日门店供应",
+      "required_proof": [
+        "带日期和门店名的菜单照片",
+        "商家公开菜单链接且明确门店",
+        "现场点单/票据记录"
+      ]
+    },
+    {
+      "supply_id": "vendor_xingjia_daliangmen_food_guotie",
+      "vendor_id": "vendor_xingjia_daliangmen",
+      "food_id": "food_guotie",
+      "proof_type": "platform_menu_lead_only",
+      "status": "candidate_not_supply_proof",
+      "source_ids": [
+        "src_search_xingjia_20261023"
+      ],
+      "evidence_note": "平台推荐菜/特色菜条目只说明页面列出，不等于目标日门店供应",
+      "required_proof": [
+        "带日期和门店名的菜单照片",
+        "商家公开菜单链接且明确门店",
+        "现场点单/票据记录"
+      ]
+    },
+    {
+      "supply_id": "vendor_xingjia_daliangmen_food_tongziji",
+      "vendor_id": "vendor_xingjia_daliangmen",
+      "food_id": "food_tongziji",
+      "proof_type": "platform_menu_lead_only",
+      "status": "candidate_not_supply_proof",
+      "source_ids": [
+        "src_search_xingjia_20261023"
+      ],
+      "evidence_note": "平台推荐菜/特色菜条目只说明页面列出，不等于目标日门店供应",
+      "required_proof": [
+        "带日期和门店名的菜单照片",
+        "商家公开菜单链接且明确门店",
+        "现场点单/票据记录"
+      ]
+    },
+    {
+      "supply_id": "vendor_xingjia_daliangmen_food_sanhen_tang",
+      "vendor_id": "vendor_xingjia_daliangmen",
+      "food_id": "food_sanhen_tang",
+      "proof_type": "platform_menu_lead_only",
+      "status": "candidate_not_supply_proof",
+      "source_ids": [
+        "src_search_xingjia_20261023"
+      ],
+      "evidence_note": "平台推荐菜/特色菜条目只说明页面列出，不等于目标日门店供应",
+      "required_proof": [
+        "带日期和门店名的菜单照片",
+        "商家公开菜单链接且明确门店",
+        "现场点单/票据记录"
+      ]
+    },
+    {
+      "supply_id": "vendor_louzhonglou_food_guantangbao",
+      "vendor_id": "vendor_louzhonglou",
+      "food_id": "food_guantangbao",
+      "proof_type": "platform_menu_lead_only",
+      "status": "candidate_not_supply_proof",
+      "source_ids": [
+        "src_search_louzhonglou_20261023"
+      ],
+      "evidence_note": "平台推荐菜/特色菜条目只说明页面列出，不等于目标日门店供应",
+      "required_proof": [
+        "带日期和门店名的菜单照片",
+        "商家公开菜单链接且明确门店",
+        "现场点单/票据记录"
+      ]
+    },
+    {
+      "supply_id": "vendor_louzhonglou_food_chaoliangfen",
+      "vendor_id": "vendor_louzhonglou",
+      "food_id": "food_chaoliangfen",
+      "proof_type": "platform_menu_lead_only",
+      "status": "candidate_not_supply_proof",
+      "source_ids": [
+        "src_search_louzhonglou_20261023"
+      ],
+      "evidence_note": "平台推荐菜/特色菜条目只说明页面列出，不等于目标日门店供应",
+      "required_proof": [
+        "带日期和门店名的菜单照片",
+        "商家公开菜单链接且明确门店",
+        "现场点单/票据记录"
+      ]
+    },
+    {
+      "supply_id": "vendor_louzhonglou_food_yangrou_kangmo",
+      "vendor_id": "vendor_louzhonglou",
+      "food_id": "food_yangrou_kangmo",
+      "proof_type": "platform_menu_lead_only",
+      "status": "candidate_not_supply_proof",
+      "source_ids": [
+        "src_search_louzhonglou_20261023"
+      ],
+      "evidence_note": "平台推荐菜/特色菜条目只说明页面列出，不等于目标日门店供应",
+      "required_proof": [
+        "带日期和门店名的菜单照片",
+        "商家公开菜单链接且明确门店",
+        "现场点单/票据记录"
+      ]
+    },
+    {
+      "supply_id": "vendor_heyuan_hanxing_food_guantangbao",
+      "vendor_id": "vendor_heyuan_hanxing",
+      "food_id": "food_guantangbao",
+      "proof_type": "platform_menu_lead_only",
+      "status": "candidate_not_supply_proof",
+      "source_ids": [
+        "src_search_heyuan_20261023"
+      ],
+      "evidence_note": "平台推荐菜/特色菜条目只说明页面列出，不等于目标日门店供应",
+      "required_proof": [
+        "带日期和门店名的菜单照片",
+        "商家公开菜单链接且明确门店",
+        "现场点单/票据记录"
+      ]
+    },
+    {
+      "supply_id": "vendor_heyuan_hanxing_food_tongziji",
+      "vendor_id": "vendor_heyuan_hanxing",
+      "food_id": "food_tongziji",
+      "proof_type": "platform_menu_lead_only",
+      "status": "candidate_not_supply_proof",
+      "source_ids": [
+        "src_search_heyuan_20261023"
+      ],
+      "evidence_note": "平台推荐菜/特色菜条目只说明页面列出，不等于目标日门店供应",
+      "required_proof": [
+        "带日期和门店名的菜单照片",
+        "商家公开菜单链接且明确门店",
+        "现场点单/票据记录"
+      ]
+    },
+    {
+      "supply_id": "vendor_heyuan_hanxing_food_sanhen_tang",
+      "vendor_id": "vendor_heyuan_hanxing",
+      "food_id": "food_sanhen_tang",
+      "proof_type": "platform_menu_lead_only",
+      "status": "candidate_not_supply_proof",
+      "source_ids": [
+        "src_search_heyuan_20261023"
+      ],
+      "evidence_note": "平台推荐菜/特色菜条目只说明页面列出，不等于目标日门店供应",
+      "required_proof": [
+        "带日期和门店名的菜单照片",
+        "商家公开菜单链接且明确门店",
+        "现场点单/票据记录"
+      ]
+    },
+    {
+      "supply_id": "vendor_heyuan_jinxiang_food_guantangbao",
+      "vendor_id": "vendor_heyuan_jinxiang",
+      "food_id": "food_guantangbao",
+      "proof_type": "platform_menu_lead_only",
+      "status": "candidate_not_supply_proof",
+      "source_ids": [
+        "src_search_heyuan_20261023"
+      ],
+      "evidence_note": "平台推荐菜/特色菜条目只说明页面列出，不等于目标日门店供应",
+      "required_proof": [
+        "带日期和门店名的菜单照片",
+        "商家公开菜单链接且明确门店",
+        "现场点单/票据记录"
+      ]
+    },
+    {
+      "supply_id": "vendor_heyuan_jinxiang_food_liyu_beimian",
+      "vendor_id": "vendor_heyuan_jinxiang",
+      "food_id": "food_liyu_beimian",
+      "proof_type": "platform_menu_lead_only",
+      "status": "candidate_not_supply_proof",
+      "source_ids": [
+        "src_search_heyuan_20261023"
+      ],
+      "evidence_note": "平台推荐菜/特色菜条目只说明页面列出，不等于目标日门店供应",
+      "required_proof": [
+        "带日期和门店名的菜单照片",
+        "商家公开菜单链接且明确门店",
+        "现场点单/票据记录"
+      ]
+    },
+    {
+      "supply_id": "vendor_diyilou_sihou_food_guantangbao",
+      "vendor_id": "vendor_diyilou_sihou",
+      "food_id": "food_guantangbao",
+      "proof_type": "platform_menu_lead_only",
+      "status": "candidate_not_supply_proof",
+      "source_ids": [
+        "src_qunar_diyilou_20261023",
+        "src_ctrip_diyilou_20261023"
+      ],
+      "evidence_note": "平台推荐菜/特色菜条目只说明页面列出，不等于目标日门店供应",
+      "required_proof": [
+        "带日期和门店名的菜单照片",
+        "商家公开菜单链接且明确门店",
+        "现场点单/票据记录"
+      ]
+    },
+    {
+      "supply_id": "vendor_diyilou_sihou_food_liyu_beimian",
+      "vendor_id": "vendor_diyilou_sihou",
+      "food_id": "food_liyu_beimian",
+      "proof_type": "platform_menu_lead_only",
+      "status": "candidate_not_supply_proof",
+      "source_ids": [
+        "src_qunar_diyilou_20261023",
+        "src_ctrip_diyilou_20261023"
+      ],
+      "evidence_note": "平台推荐菜/特色菜条目只说明页面列出，不等于目标日门店供应",
+      "required_proof": [
+        "带日期和门店名的菜单照片",
+        "商家公开菜单链接且明确门店",
+        "现场点单/票据记录"
+      ]
+    },
+    {
+      "supply_id": "vendor_diyilou_sihou_food_tongziji",
+      "vendor_id": "vendor_diyilou_sihou",
+      "food_id": "food_tongziji",
+      "proof_type": "platform_menu_lead_only",
+      "status": "candidate_not_supply_proof",
+      "source_ids": [
+        "src_qunar_diyilou_20261023",
+        "src_ctrip_diyilou_20261023"
+      ],
+      "evidence_note": "平台推荐菜/特色菜条目只说明页面列出，不等于目标日门店供应",
+      "required_proof": [
+        "带日期和门店名的菜单照片",
+        "商家公开菜单链接且明确门店",
+        "现场点单/票据记录"
+      ]
+    },
+    {
+      "supply_id": "vendor_diyilou_sihou_food_hongshuni",
+      "vendor_id": "vendor_diyilou_sihou",
+      "food_id": "food_hongshuni",
+      "proof_type": "platform_menu_lead_only",
+      "status": "candidate_not_supply_proof",
+      "source_ids": [
+        "src_qunar_diyilou_20261023",
+        "src_ctrip_diyilou_20261023"
+      ],
+      "evidence_note": "平台推荐菜/特色菜条目只说明页面列出，不等于目标日门店供应",
+      "required_proof": [
+        "带日期和门店名的菜单照片",
+        "商家公开菜单链接且明确门店",
+        "现场点单/票据记录"
+      ]
+    }
+  ],
+  "notice": "所有供应关系均未达到验收。"
+}

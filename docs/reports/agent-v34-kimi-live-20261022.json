@@ -1,0 +1,1739 @@
+{
+  "date": "2026-10-22",
+  "data": "SYNTHETIC ONLY; not real Kaifeng business validation",
+  "live_requested": true,
+  "runtime_restarted": false,
+  "production_db_used": false,
+  "frontend_dist_replaced": false,
+  "max_live_calls": 12,
+  "min_request_interval_seconds": 25.0,
+  "max_concurrency": 1,
+  "automatic_retries": 0,
+  "cost_cny": null,
+  "cost_basis": "No verified price or billing snapshot",
+  "cases": [
+    {
+      "case": "A_success",
+      "input": "我现在有点饿，想吃灌汤包，最好离我近一点，但下午那场演出千万别错过，你帮我看看怎么安排。",
+      "status": "needs_confirmation",
+      "stop_reason": "needs_confirmation",
+      "waiting_trace": [
+        {
+          "step": 0,
+          "code": "MODEL_WAITING",
+          "reason": "request_spacing",
+          "http_attempts": 0,
+          "retry_after_seconds": 20.174,
+          "next_allowed_at": "2026-10-22T02:53:53.529051+00:00",
+          "scope": "single_python_process",
+          "organization_global": false
+        },
+        {
+          "step": 1,
+          "code": "MODEL_WAITING",
+          "reason": "request_spacing",
+          "http_attempts": 0,
+          "retry_after_seconds": 17.189,
+          "next_allowed_at": "2026-10-22T02:54:18.565205+00:00",
+          "scope": "single_python_process",
+          "organization_global": false
+        },
+        {
+          "step": 2,
+          "code": "MODEL_WAITING",
+          "reason": "request_spacing",
+          "http_attempts": 0,
+          "retry_after_seconds": 20.06,
+          "next_allowed_at": "2026-10-22T02:54:43.606734+00:00",
+          "scope": "single_python_process",
+          "organization_global": false
+        },
+        {
+          "step": 3,
+          "code": "MODEL_WAITING",
+          "reason": "request_spacing",
+          "http_attempts": 0,
+          "retry_after_seconds": 20.46,
+          "next_allowed_at": "2026-10-22T02:55:08.697484+00:00",
+          "scope": "single_python_process",
+          "organization_global": false
+        },
+        {
+          "step": 4,
+          "code": "MODEL_WAITING",
+          "reason": "request_spacing",
+          "http_attempts": 0,
+          "retry_after_seconds": 20.0,
+          "next_allowed_at": "2026-10-22T02:55:33.744845+00:00",
+          "scope": "single_python_process",
+          "organization_global": false
+        }
+      ],
+      "limits": {
+        "max_tools": 4,
+        "max_model_calls": 6,
+        "max_seconds": 240.0,
+        "max_repairs": 1
+      },
+      "execution_mode": "live_acceptance",
+      "mode": "react",
+      "understanding": {
+        "schema_version": "travel-intent/3.1",
+        "actions": [
+          {
+            "kind": "search_dining",
+            "quote": "想吃灌汤包",
+            "target_name": null
+          },
+          {
+            "kind": "modify",
+            "quote": "你帮我看看怎么安排",
+            "target_name": null
+          }
+        ],
+        "constraints": [
+          {
+            "field": "food",
+            "strength": "soft",
+            "value": "灌汤包",
+            "quote": "想吃灌汤包"
+          },
+          {
+            "field": "walking_seconds",
+            "strength": "soft",
+            "value": null,
+            "quote": "最好离我近一点"
+          },
+          {
+            "field": "preserve_shows",
+            "strength": "hard",
+            "value": "s2",
+            "quote": "下午那场演出千万别错过"
+          },
+          {
+            "field": "objective",
+            "strength": "soft",
+            "value": "less_walking",
+            "quote": "最好离我近一点"
+          }
+        ],
+        "corrections": [],
+        "unresolved": []
+      },
+      "interpretation": {
+        "basis": "kimi_validated",
+        "source": "live_model",
+        "model_calls": 1,
+        "usage": [
+          {
+            "source": "live_model",
+            "model": "kimi-k2.6",
+            "endpoint_host": "api.moonshot.cn",
+            "http_attempts": 1,
+            "automatic_retries": 0,
+            "usage": {
+              "prompt_tokens": 1438,
+              "completion_tokens": 131,
+              "total_tokens": 1569
+            },
+            "cost_cny": null,
+            "cost_basis": "not_calculated_no_price_snapshot",
+            "schedule": {
+              "request_sequence": 2,
+              "started_at": "2026-10-22T02:53:53.565275+00:00",
+              "scope": "single_python_process"
+            },
+            "upstream_status": 200,
+            "request_id": null,
+            "elapsed_ms": 7797.56,
+            "evaluation_request_sequence": 2
+          }
+        ]
+      },
+      "events": [
+        {
+          "tool": "understand",
+          "status": "ok",
+          "parameters": {},
+          "source": "live_model",
+          "fallback": false,
+          "request_sequence": 1,
+          "provider_failure": null
+        },
+        {
+          "tool": "search_dining",
+          "status": "ok",
+          "parameters": {},
+          "elapsed_ms": 5.68,
+          "source": "live_model",
+          "request_sequence": 2,
+          "legal": true,
+          "new_information": true,
+          "result_code": null,
+          "item_count": 1
+        },
+        {
+          "tool": "query_shows",
+          "status": "ok",
+          "parameters": {},
+          "elapsed_ms": 5.19,
+          "source": "live_model",
+          "request_sequence": 3,
+          "legal": true,
+          "new_information": true,
+          "result_code": null,
+          "item_count": 1
+        },
+        {
+          "tool": "verify_travel",
+          "status": "ok",
+          "parameters": {
+            "place_id": "restaurant"
+          },
+          "elapsed_ms": 4.48,
+          "source": "live_model",
+          "request_sequence": 4,
+          "legal": true,
+          "new_information": true,
+          "result_code": null,
+          "item_count": 0
+        },
+        {
+          "tool": "preview_plan",
+          "status": "needs_confirmation",
+          "parameters": {
+            "place_id": "restaurant"
+          },
+          "elapsed_ms": 26.99,
+          "source": "live_model",
+          "request_sequence": 5,
+          "legal": true,
+          "new_information": true,
+          "result_code": null,
+          "item_count": 0
+        }
+      ],
+      "decisions": [
+        {
+          "request_sequence": 2,
+          "eligible_actions": [
+            {
+              "tool": "finish"
+            },
+            {
+              "tool": "clarify"
+            },
+            {
+              "tool": "search_dining"
+            },
+            {
+              "tool": "query_shows"
+            }
+          ],
+          "source": "live_model",
+          "fallback": false,
+          "legal": true,
+          "observations": {},
+          "provider": {
+            "source": "live_model",
+            "model": "kimi-k2.6",
+            "endpoint_host": "api.moonshot.cn",
+            "http_attempts": 1,
+            "automatic_retries": 0,
+            "usage": {
+              "prompt_tokens": 463,
+              "completion_tokens": 22,
+              "total_tokens": 485
+            },
+            "cost_cny": null,
+            "cost_basis": "not_calculated_no_price_snapshot",
+            "schedule": {
+              "request_sequence": 3,
+              "started_at": "2026-10-22T02:54:18.606778+00:00",
+              "scope": "single_python_process"
+            },
+            "upstream_status": 200,
+            "request_id": null,
+            "elapsed_ms": 4914.22,
+            "evaluation_request_sequence": 3
+          },
+          "action": {
+            "tool": "search_dining"
+          },
+          "validation": "valid_schema",
+          "tool_status": "ok"
+        },
+        {
+          "request_sequence": 3,
+          "eligible_actions": [
+            {
+              "tool": "finish"
+            },
+            {
+              "tool": "clarify"
+            },
+            {
+              "tool": "query_shows"
+            }
+          ],
+          "source": "live_model",
+          "fallback": false,
+          "legal": true,
+          "observations": {
+            "search_dining": {
+              "status": "ok",
+              "code": null,
+              "item_count": 1
+            }
+          },
+          "provider": {
+            "source": "live_model",
+            "model": "kimi-k2.6",
+            "endpoint_host": "api.moonshot.cn",
+            "http_attempts": 1,
+            "automatic_retries": 0,
+            "usage": {
+              "prompt_tokens": 496,
+              "completion_tokens": 10,
+              "total_tokens": 506
+            },
+            "cost_cny": null,
+            "cost_basis": "not_calculated_no_price_snapshot",
+            "schedule": {
+              "request_sequence": 4,
+              "started_at": "2026-10-22T02:54:43.697520+00:00",
+              "scope": "single_python_process"
+            },
+            "upstream_status": 200,
+            "request_id": null,
+            "elapsed_ms": 4521.93,
+            "evaluation_request_sequence": 4
+          },
+          "action": {
+            "tool": "query_shows"
+          },
+          "validation": "valid_schema",
+          "tool_status": "ok"
+        },
+        {
+          "request_sequence": 4,
+          "eligible_actions": [
+            {
+              "tool": "finish"
+            },
+            {
+              "tool": "clarify"
+            },
+            {
+              "tool": "verify_travel",
+              "place_id": "restaurant"
+            }
+          ],
+          "source": "live_model",
+          "fallback": false,
+          "legal": true,
+          "observations": {
+            "search_dining": {
+              "status": "ok",
+              "code": null,
+              "item_count": 1
+            },
+            "query_shows": {
+              "status": "ok",
+              "code": null,
+              "item_count": 1
+            }
+          },
+          "provider": {
+            "source": "live_model",
+            "model": "kimi-k2.6",
+            "endpoint_host": "api.moonshot.cn",
+            "http_attempts": 1,
+            "automatic_retries": 0,
+            "usage": {
+              "prompt_tokens": 692,
+              "completion_tokens": 23,
+              "total_tokens": 715
+            },
+            "cost_cny": null,
+            "cost_basis": "not_calculated_no_price_snapshot",
+            "schedule": {
+              "request_sequence": 5,
+              "started_at": "2026-10-22T02:55:08.744892+00:00",
+              "scope": "single_python_process"
+            },
+            "upstream_status": 200,
+            "request_id": null,
+            "elapsed_ms": 4986.83,
+            "evaluation_request_sequence": 5
+          },
+          "action": {
+            "tool": "verify_travel",
+            "place_id": "restaurant"
+          },
+          "validation": "valid_schema",
+          "tool_status": "ok"
+        },
+        {
+          "request_sequence": 5,
+          "eligible_actions": [
+            {
+              "tool": "finish"
+            },
+            {
+              "tool": "clarify"
+            },
+            {
+              "tool": "preview_plan",
+              "place_id": "restaurant"
+            }
+          ],
+          "source": "live_model",
+          "fallback": false,
+          "legal": true,
+          "observations": {
+            "search_dining": {
+              "status": "ok",
+              "code": null,
+              "item_count": 1
+            },
+            "query_shows": {
+              "status": "ok",
+              "code": null,
+              "item_count": 1
+            },
+            "verify_travel": {
+              "status": "ok",
+              "code": null,
+              "item_count": 0
+            }
+          },
+          "provider": {
+            "source": "live_model",
+            "model": "kimi-k2.6",
+            "endpoint_host": "api.moonshot.cn",
+            "http_attempts": 1,
+            "automatic_retries": 0,
+            "usage": {
+              "prompt_tokens": 937,
+              "completion_tokens": 15,
+              "total_tokens": 952
+            },
+            "cost_cny": null,
+            "cost_basis": "not_calculated_no_price_snapshot",
+            "schedule": {
+              "request_sequence": 6,
+              "started_at": "2026-10-22T02:55:33.780556+00:00",
+              "scope": "single_python_process"
+            },
+            "upstream_status": 200,
+            "request_id": null,
+            "elapsed_ms": 5200.23,
+            "evaluation_request_sequence": 6
+          },
+          "action": {
+            "tool": "preview_plan",
+            "place_id": "restaurant"
+          },
+          "validation": "valid_schema",
+          "tool_status": "needs_confirmation"
+        }
+      ],
+      "metrics": {
+        "tools": 4,
+        "model_calls": 5,
+        "waiting_ms": 97960.4,
+        "elapsed_ms": 125676.72,
+        "usage": [
+          {
+            "source": "live_model",
+            "model": "kimi-k2.6",
+            "endpoint_host": "api.moonshot.cn",
+            "http_attempts": 1,
+            "automatic_retries": 0,
+            "usage": {
+              "prompt_tokens": 1438,
+              "completion_tokens": 131,
+              "total_tokens": 1569
+            },
+            "cost_cny": null,
+            "cost_basis": "not_calculated_no_price_snapshot",
+            "schedule": {
+              "request_sequence": 2,
+              "started_at": "2026-10-22T02:53:53.565275+00:00",
+              "scope": "single_python_process"
+            },
+            "upstream_status": 200,
+            "request_id": null,
+            "elapsed_ms": 7797.56,
+            "evaluation_request_sequence": 2
+          },
+          {
+            "source": "live_model",
+            "model": "kimi-k2.6",
+            "endpoint_host": "api.moonshot.cn",
+            "http_attempts": 1,
+            "automatic_retries": 0,
+            "usage": {
+              "prompt_tokens": 463,
+              "completion_tokens": 22,
+              "total_tokens": 485
+            },
+            "cost_cny": null,
+            "cost_basis": "not_calculated_no_price_snapshot",
+            "schedule": {
+              "request_sequence": 3,
+              "started_at": "2026-10-22T02:54:18.606778+00:00",
+              "scope": "single_python_process"
+            },
+            "upstream_status": 200,
+            "request_id": null,
+            "elapsed_ms": 4914.22,
+            "evaluation_request_sequence": 3
+          },
+          {
+            "source": "live_model",
+            "model": "kimi-k2.6",
+            "endpoint_host": "api.moonshot.cn",
+            "http_attempts": 1,
+            "automatic_retries": 0,
+            "usage": {
+              "prompt_tokens": 496,
+              "completion_tokens": 10,
+              "total_tokens": 506
+            },
+            "cost_cny": null,
+            "cost_basis": "not_calculated_no_price_snapshot",
+            "schedule": {
+              "request_sequence": 4,
+              "started_at": "2026-10-22T02:54:43.697520+00:00",
+              "scope": "single_python_process"
+            },
+            "upstream_status": 200,
+            "request_id": null,
+            "elapsed_ms": 4521.93,
+            "evaluation_request_sequence": 4
+          },
+          {
+            "source": "live_model",
+            "model": "kimi-k2.6",
+            "endpoint_host": "api.moonshot.cn",
+            "http_attempts": 1,
+            "automatic_retries": 0,
+            "usage": {
+              "prompt_tokens": 692,
+              "completion_tokens": 23,
+              "total_tokens": 715
+            },
+            "cost_cny": null,
+            "cost_basis": "not_calculated_no_price_snapshot",
+            "schedule": {
+              "request_sequence": 5,
+              "started_at": "2026-10-22T02:55:08.744892+00:00",
+              "scope": "single_python_process"
+            },
+            "upstream_status": 200,
+            "request_id": null,
+            "elapsed_ms": 4986.83,
+            "evaluation_request_sequence": 5
+          },
+          {
+            "source": "live_model",
+            "model": "kimi-k2.6",
+            "endpoint_host": "api.moonshot.cn",
+            "http_attempts": 1,
+            "automatic_retries": 0,
+            "usage": {
+              "prompt_tokens": 937,
+              "completion_tokens": 15,
+              "total_tokens": 952
+            },
+            "cost_cny": null,
+            "cost_basis": "not_calculated_no_price_snapshot",
+            "schedule": {
+              "request_sequence": 6,
+              "started_at": "2026-10-22T02:55:33.780556+00:00",
+              "scope": "single_python_process"
+            },
+            "upstream_status": 200,
+            "request_id": null,
+            "elapsed_ms": 5200.23,
+            "evaluation_request_sequence": 6
+          }
+        ],
+        "cost_cny": null,
+        "cost_basis": "not_calculated_no_price_snapshot"
+      },
+      "formal_state_unchanged_before_confirmation": true,
+      "result_reply": "已生成经过规划校验的候选，请核对变更；确认前正式行程保持不变。",
+      "issues": [],
+      "complete_live_chain": true,
+      "rejected_model_actions": 0,
+      "confirmation": {
+        "status": "passed",
+        "http_status": 200,
+        "actor": "explicit_synthetic_test_user",
+        "version_before": 5,
+        "version_after": 6,
+        "route_version_before": 1,
+        "route_version_after": 2,
+        "completed_history_preserved": true,
+        "objective_after": "less_walking",
+        "protected_show_retained": true,
+        "idempotent_replay": true
+      },
+      "candidate_checks": {
+        "preserves_show_s2": true,
+        "preserves_completed_visit": true,
+        "requested_constraints": [
+          {
+            "field": "food",
+            "strength": "soft",
+            "value": "灌汤包",
+            "quote": "想吃灌汤包"
+          },
+          {
+            "field": "walking_seconds",
+            "strength": "soft",
+            "value": null,
+            "quote": "最好离我近一点"
+          },
+          {
+            "field": "preserve_shows",
+            "strength": "hard",
+            "value": "s2",
+            "quote": "下午那场演出千万别错过"
+          },
+          {
+            "field": "objective",
+            "strength": "soft",
+            "value": "less_walking",
+            "quote": "最好离我近一点"
+          }
+        ],
+        "activities": [
+          {
+            "goal_id": "lunch",
+            "place_id": "restaurant",
+            "session_id": null,
+            "starts_at": "2030-05-01T12:00:00+08:00",
+            "departs_at": "2030-05-01T12:45:00+08:00"
+          },
+          {
+            "goal_id": "show",
+            "place_id": "stage2",
+            "session_id": "s2",
+            "starts_at": "2030-05-01T15:00:00+08:00",
+            "departs_at": "2030-05-01T15:30:00+08:00"
+          }
+        ]
+      },
+      "safety_controls": {
+        "source": "deterministic_test_driver_after_confirmation",
+        "cancelled_candidate_http": 409,
+        "stale_candidate_http": 409,
+        "route_version_unchanged_after_controls": true
+      }
+    },
+    {
+      "case": "B_missing_supply",
+      "input": "我现在有点饿，想吃灌汤包，最好离我近一点，但下午那场演出千万别错过，你帮我看看怎么安排。",
+      "status": "budget_exhausted",
+      "stop_reason": "budget_exhausted",
+      "waiting_trace": [
+        {
+          "step": 0,
+          "code": "MODEL_WAITING",
+          "reason": "request_spacing",
+          "http_attempts": 0,
+          "retry_after_seconds": 19.616,
+          "next_allowed_at": "2026-10-22T02:55:58.780519+00:00",
+          "scope": "single_python_process",
+          "organization_global": false
+        },
+        {
+          "step": 1,
+          "code": "MODEL_WAITING",
+          "reason": "request_spacing",
+          "http_attempts": 0,
+          "retry_after_seconds": 17.291,
+          "next_allowed_at": "2026-10-22T02:56:23.826803+00:00",
+          "scope": "single_python_process",
+          "organization_global": false
+        },
+        {
+          "step": 2,
+          "code": "MODEL_WAITING",
+          "reason": "request_spacing",
+          "http_attempts": 0,
+          "retry_after_seconds": 19.878,
+          "next_allowed_at": "2026-10-22T02:56:48.872222+00:00",
+          "scope": "single_python_process",
+          "organization_global": false
+        },
+        {
+          "step": 3,
+          "code": "MODEL_WAITING",
+          "reason": "request_spacing",
+          "http_attempts": 0,
+          "retry_after_seconds": 19.782,
+          "next_allowed_at": "2026-10-22T02:57:13.930366+00:00",
+          "scope": "single_python_process",
+          "organization_global": false
+        },
+        {
+          "step": 4,
+          "code": "MODEL_WAITING",
+          "reason": "request_spacing",
+          "http_attempts": 0,
+          "retry_after_seconds": 19.824,
+          "next_allowed_at": "2026-10-22T02:57:38.992178+00:00",
+          "scope": "single_python_process",
+          "organization_global": false
+        }
+      ],
+      "limits": {
+        "max_tools": 4,
+        "max_model_calls": 6,
+        "max_seconds": 240.0,
+        "max_repairs": 1
+      },
+      "execution_mode": "live_acceptance",
+      "mode": "react",
+      "understanding": {
+        "schema_version": "travel-intent/3.1",
+        "actions": [
+          {
+            "kind": "search_dining",
+            "quote": "想吃灌汤包",
+            "target_name": null
+          },
+          {
+            "kind": "modify",
+            "quote": "你帮我看看怎么安排",
+            "target_name": null
+          }
+        ],
+        "constraints": [
+          {
+            "field": "food",
+            "strength": "soft",
+            "value": "灌汤包",
+            "quote": "想吃灌汤包"
+          },
+          {
+            "field": "walking_seconds",
+            "strength": "soft",
+            "value": null,
+            "quote": "最好离我近一点"
+          },
+          {
+            "field": "preserve_shows",
+            "strength": "hard",
+            "value": "s2",
+            "quote": "下午那场演出千万别错过"
+          },
+          {
+            "field": "objective",
+            "strength": "soft",
+            "value": "less_walking",
+            "quote": "最好离我近一点"
+          }
+        ],
+        "corrections": [],
+        "unresolved": []
+      },
+      "interpretation": {
+        "basis": "kimi_validated",
+        "source": "live_model",
+        "model_calls": 1,
+        "usage": [
+          {
+            "source": "live_model",
+            "model": "kimi-k2.6",
+            "endpoint_host": "api.moonshot.cn",
+            "http_attempts": 1,
+            "automatic_retries": 0,
+            "usage": {
+              "prompt_tokens": 1438,
+              "completion_tokens": 131,
+              "total_tokens": 1569
+            },
+            "cost_cny": null,
+            "cost_basis": "not_calculated_no_price_snapshot",
+            "schedule": {
+              "request_sequence": 7,
+              "started_at": "2026-10-22T02:55:58.826872+00:00",
+              "scope": "single_python_process"
+            },
+            "upstream_status": 200,
+            "request_id": null,
+            "elapsed_ms": 7684.34,
+            "evaluation_request_sequence": 7
+          }
+        ]
+      },
+      "events": [
+        {
+          "tool": "understand",
+          "status": "ok",
+          "parameters": {},
+          "source": "live_model",
+          "fallback": false,
+          "request_sequence": 1,
+          "provider_failure": null
+        },
+        {
+          "tool": "search_dining",
+          "status": "no_candidates",
+          "parameters": {},
+          "elapsed_ms": 6.93,
+          "source": "live_model",
+          "request_sequence": 2,
+          "legal": true,
+          "new_information": true,
+          "result_code": "NO_VERIFIED_SUPPLY_OR_OPENING",
+          "item_count": 0
+        },
+        {
+          "tool": "query_shows",
+          "status": "ok",
+          "parameters": {},
+          "elapsed_ms": 9.09,
+          "source": "live_model",
+          "request_sequence": 3,
+          "legal": true,
+          "new_information": true,
+          "result_code": null,
+          "item_count": 1
+        },
+        {
+          "tool": "search_dining",
+          "status": "ok",
+          "parameters": {},
+          "elapsed_ms": 9.48,
+          "source": "live_model",
+          "request_sequence": 4,
+          "legal": true,
+          "new_information": true,
+          "result_code": null,
+          "item_count": 1
+        },
+        {
+          "tool": "verify_travel",
+          "status": "ok",
+          "parameters": {
+            "place_id": "restaurant"
+          },
+          "elapsed_ms": 13.3,
+          "source": "live_model",
+          "request_sequence": 5,
+          "legal": true,
+          "new_information": true,
+          "result_code": null,
+          "item_count": 0
+        }
+      ],
+      "decisions": [
+        {
+          "request_sequence": 2,
+          "eligible_actions": [
+            {
+              "tool": "finish"
+            },
+            {
+              "tool": "clarify"
+            },
+            {
+              "tool": "search_dining"
+            },
+            {
+              "tool": "query_shows"
+            }
+          ],
+          "source": "live_model",
+          "fallback": false,
+          "legal": true,
+          "observations": {},
+          "provider": {
+            "source": "live_model",
+            "model": "kimi-k2.6",
+            "endpoint_host": "api.moonshot.cn",
+            "http_attempts": 1,
+            "automatic_retries": 0,
+            "usage": {
+              "prompt_tokens": 463,
+              "completion_tokens": 22,
+              "total_tokens": 485
+            },
+            "cost_cny": null,
+            "cost_basis": "not_calculated_no_price_snapshot",
+            "schedule": {
+              "request_sequence": 8,
+              "started_at": "2026-10-22T02:56:23.872266+00:00",
+              "scope": "single_python_process"
+            },
+            "upstream_status": 200,
+            "request_id": null,
+            "elapsed_ms": 5093.44,
+            "evaluation_request_sequence": 8
+          },
+          "action": {
+            "tool": "search_dining"
+          },
+          "validation": "valid_schema",
+          "tool_status": "no_candidates"
+        },
+        {
+          "request_sequence": 3,
+          "eligible_actions": [
+            {
+              "tool": "finish"
+            },
+            {
+              "tool": "clarify"
+            },
+            {
+              "tool": "search_dining",
+              "relax_optional_food": true
+            },
+            {
+              "tool": "query_shows"
+            }
+          ],
+          "source": "live_model",
+          "fallback": false,
+          "legal": true,
+          "observations": {
+            "search_dining": {
+              "status": "no_candidates",
+              "code": "NO_VERIFIED_SUPPLY_OR_OPENING",
+              "item_count": 0
+            }
+          },
+          "provider": {
+            "source": "live_model",
+            "model": "kimi-k2.6",
+            "endpoint_host": "api.moonshot.cn",
+            "http_attempts": 1,
+            "automatic_retries": 0,
+            "usage": {
+              "prompt_tokens": 499,
+              "completion_tokens": 10,
+              "total_tokens": 509
+            },
+            "cost_cny": null,
+            "cost_basis": "not_calculated_no_price_snapshot",
+            "schedule": {
+              "request_sequence": 9,
+              "started_at": "2026-10-22T02:56:48.930405+00:00",
+              "scope": "single_python_process"
+            },
+            "upstream_status": 200,
+            "request_id": null,
+            "elapsed_ms": 5179.95,
+            "evaluation_request_sequence": 9
+          },
+          "action": {
+            "tool": "query_shows"
+          },
+          "validation": "valid_schema",
+          "tool_status": "ok"
+        },
+        {
+          "request_sequence": 4,
+          "eligible_actions": [
+            {
+              "tool": "finish"
+            },
+            {
+              "tool": "clarify"
+            },
+            {
+              "tool": "search_dining",
+              "relax_optional_food": true
+            }
+          ],
+          "source": "live_model",
+          "fallback": false,
+          "legal": true,
+          "observations": {
+            "search_dining": {
+              "status": "no_candidates",
+              "code": "NO_VERIFIED_SUPPLY_OR_OPENING",
+              "item_count": 0
+            },
+            "query_shows": {
+              "status": "ok",
+              "code": null,
+              "item_count": 1
+            }
+          },
+          "provider": {
+            "source": "live_model",
+            "model": "kimi-k2.6",
+            "endpoint_host": "api.moonshot.cn",
+            "http_attempts": 1,
+            "automatic_retries": 0,
+            "usage": {
+              "prompt_tokens": 674,
+              "completion_tokens": 17,
+              "total_tokens": 691
+            },
+            "cost_cny": null,
+            "cost_basis": "not_calculated_no_price_snapshot",
+            "schedule": {
+              "request_sequence": 10,
+              "started_at": "2026-10-22T02:57:13.992215+00:00",
+              "scope": "single_python_process"
+            },
+            "upstream_status": 200,
+            "request_id": null,
+            "elapsed_ms": 5136.4,
+            "evaluation_request_sequence": 10
+          },
+          "action": {
+            "tool": "search_dining",
+            "relax_optional_food": true
+          },
+          "validation": "valid_schema",
+          "tool_status": "ok"
+        },
+        {
+          "request_sequence": 5,
+          "eligible_actions": [
+            {
+              "tool": "finish"
+            },
+            {
+              "tool": "clarify"
+            },
+            {
+              "tool": "verify_travel",
+              "place_id": "restaurant"
+            }
+          ],
+          "source": "live_model",
+          "fallback": false,
+          "legal": true,
+          "observations": {
+            "search_dining": {
+              "status": "ok",
+              "code": null,
+              "item_count": 1
+            },
+            "query_shows": {
+              "status": "ok",
+              "code": null,
+              "item_count": 1
+            }
+          },
+          "provider": {
+            "source": "live_model",
+            "model": "kimi-k2.6",
+            "endpoint_host": "api.moonshot.cn",
+            "http_attempts": 1,
+            "automatic_retries": 0,
+            "usage": {
+              "prompt_tokens": 690,
+              "completion_tokens": 16,
+              "total_tokens": 706
+            },
+            "cost_cny": null,
+            "cost_basis": "not_calculated_no_price_snapshot",
+            "schedule": {
+              "request_sequence": 11,
+              "started_at": "2026-10-22T02:57:39.032238+00:00",
+              "scope": "single_python_process"
+            },
+            "upstream_status": 200,
+            "request_id": null,
+            "elapsed_ms": 4658.92,
+            "evaluation_request_sequence": 11
+          },
+          "action": {
+            "tool": "verify_travel",
+            "place_id": "restaurant"
+          },
+          "validation": "valid_schema",
+          "tool_status": "ok"
+        }
+      ],
+      "metrics": {
+        "tools": 4,
+        "model_calls": 5,
+        "waiting_ms": 96485.01,
+        "elapsed_ms": 124587.74,
+        "usage": [
+          {
+            "source": "live_model",
+            "model": "kimi-k2.6",
+            "endpoint_host": "api.moonshot.cn",
+            "http_attempts": 1,
+            "automatic_retries": 0,
+            "usage": {
+              "prompt_tokens": 1438,
+              "completion_tokens": 131,
+              "total_tokens": 1569
+            },
+            "cost_cny": null,
+            "cost_basis": "not_calculated_no_price_snapshot",
+            "schedule": {
+              "request_sequence": 7,
+              "started_at": "2026-10-22T02:55:58.826872+00:00",
+              "scope": "single_python_process"
+            },
+            "upstream_status": 200,
+            "request_id": null,
+            "elapsed_ms": 7684.34,
+            "evaluation_request_sequence": 7
+          },
+          {
+            "source": "live_model",
+            "model": "kimi-k2.6",
+            "endpoint_host": "api.moonshot.cn",
+            "http_attempts": 1,
+            "automatic_retries": 0,
+            "usage": {
+              "prompt_tokens": 463,
+              "completion_tokens": 22,
+              "total_tokens": 485
+            },
+            "cost_cny": null,
+            "cost_basis": "not_calculated_no_price_snapshot",
+            "schedule": {
+              "request_sequence": 8,
+              "started_at": "2026-10-22T02:56:23.872266+00:00",
+              "scope": "single_python_process"
+            },
+            "upstream_status": 200,
+            "request_id": null,
+            "elapsed_ms": 5093.44,
+            "evaluation_request_sequence": 8
+          },
+          {
+            "source": "live_model",
+            "model": "kimi-k2.6",
+            "endpoint_host": "api.moonshot.cn",
+            "http_attempts": 1,
+            "automatic_retries": 0,
+            "usage": {
+              "prompt_tokens": 499,
+              "completion_tokens": 10,
+              "total_tokens": 509
+            },
+            "cost_cny": null,
+            "cost_basis": "not_calculated_no_price_snapshot",
+            "schedule": {
+              "request_sequence": 9,
+              "started_at": "2026-10-22T02:56:48.930405+00:00",
+              "scope": "single_python_process"
+            },
+            "upstream_status": 200,
+            "request_id": null,
+            "elapsed_ms": 5179.95,
+            "evaluation_request_sequence": 9
+          },
+          {
+            "source": "live_model",
+            "model": "kimi-k2.6",
+            "endpoint_host": "api.moonshot.cn",
+            "http_attempts": 1,
+            "automatic_retries": 0,
+            "usage": {
+              "prompt_tokens": 674,
+              "completion_tokens": 17,
+              "total_tokens": 691
+            },
+            "cost_cny": null,
+            "cost_basis": "not_calculated_no_price_snapshot",
+            "schedule": {
+              "request_sequence": 10,
+              "started_at": "2026-10-22T02:57:13.992215+00:00",
+              "scope": "single_python_process"
+            },
+            "upstream_status": 200,
+            "request_id": null,
+            "elapsed_ms": 5136.4,
+            "evaluation_request_sequence": 10
+          },
+          {
+            "source": "live_model",
+            "model": "kimi-k2.6",
+            "endpoint_host": "api.moonshot.cn",
+            "http_attempts": 1,
+            "automatic_retries": 0,
+            "usage": {
+              "prompt_tokens": 690,
+              "completion_tokens": 16,
+              "total_tokens": 706
+            },
+            "cost_cny": null,
+            "cost_basis": "not_calculated_no_price_snapshot",
+            "schedule": {
+              "request_sequence": 11,
+              "started_at": "2026-10-22T02:57:39.032238+00:00",
+              "scope": "single_python_process"
+            },
+            "upstream_status": 200,
+            "request_id": null,
+            "elapsed_ms": 4658.92,
+            "evaluation_request_sequence": 11
+          }
+        ],
+        "cost_cny": null,
+        "cost_basis": "not_calculated_no_price_snapshot"
+      },
+      "formal_state_unchanged_before_confirmation": true,
+      "result_reply": "已达到工具行动上限，正式行程未变。",
+      "issues": [],
+      "complete_live_chain": false,
+      "rejected_model_actions": 0,
+      "confirmation": {
+        "status": "not_run"
+      },
+      "cancel_http_status": 200,
+      "formal_state_unchanged_after_cancel": true
+    }
+  ],
+  "acceptance": "PASS",
+  "protocol": "bounded JSON, not native function calling",
+  "preflight": {
+    "status": "passed",
+    "provider": {
+      "source": "live_model",
+      "model": "kimi-k2.6",
+      "endpoint_host": "api.moonshot.cn",
+      "http_attempts": 1,
+      "automatic_retries": 0,
+      "usage": {
+        "prompt_tokens": 29,
+        "completion_tokens": 8,
+        "total_tokens": 37
+      },
+      "cost_cny": null,
+      "cost_basis": "not_calculated_no_price_snapshot",
+      "schedule": {
+        "request_sequence": 1,
+        "started_at": "2026-10-22T02:53:28.529093+00:00",
+        "scope": "single_python_process"
+      },
+      "upstream_status": 200,
+      "request_id": null,
+      "elapsed_ms": 4590.61,
+      "evaluation_request_sequence": 1
+    }
+  },
+  "model_calls": [
+    {
+      "sequence": 1,
+      "case": "preflight",
+      "source": "live_model",
+      "phase": "preflight",
+      "started_at": "2026-10-22T02:53:28.500469+00:00",
+      "interval_since_previous_start_ms": null,
+      "status": "passed",
+      "eligible_actions": [],
+      "model": "kimi-k2.6",
+      "endpoint_host": "api.moonshot.cn",
+      "http_attempts": 1,
+      "automatic_retries": 0,
+      "usage": {
+        "prompt_tokens": 29,
+        "completion_tokens": 8,
+        "total_tokens": 37
+      },
+      "cost_cny": null,
+      "cost_basis": "not_calculated_no_price_snapshot",
+      "schedule": {
+        "request_sequence": 1,
+        "started_at": "2026-10-22T02:53:28.529093+00:00",
+        "scope": "single_python_process"
+      },
+      "upstream_status": 200,
+      "request_id": null,
+      "elapsed_ms": 4590.61,
+      "evaluation_request_sequence": 1
+    },
+    {
+      "sequence": 2,
+      "case": "A_success",
+      "source": "live_model",
+      "phase": "understand",
+      "started_at": "2026-10-22T02:53:53.553993+00:00",
+      "interval_since_previous_start_ms": 25053.75,
+      "status": "passed",
+      "eligible_actions": [],
+      "model": "kimi-k2.6",
+      "endpoint_host": "api.moonshot.cn",
+      "http_attempts": 1,
+      "automatic_retries": 0,
+      "usage": {
+        "prompt_tokens": 1438,
+        "completion_tokens": 131,
+        "total_tokens": 1569
+      },
+      "cost_cny": null,
+      "cost_basis": "not_calculated_no_price_snapshot",
+      "schedule": {
+        "request_sequence": 2,
+        "started_at": "2026-10-22T02:53:53.565275+00:00",
+        "scope": "single_python_process"
+      },
+      "upstream_status": 200,
+      "request_id": null,
+      "elapsed_ms": 7797.56,
+      "evaluation_request_sequence": 2
+    },
+    {
+      "sequence": 3,
+      "case": "A_success",
+      "source": "live_model",
+      "phase": "decision",
+      "started_at": "2026-10-22T02:54:18.596155+00:00",
+      "interval_since_previous_start_ms": 25042.39,
+      "status": "passed",
+      "eligible_actions": [
+        {
+          "tool": "finish"
+        },
+        {
+          "tool": "clarify"
+        },
+        {
+          "tool": "search_dining"
+        },
+        {
+          "tool": "query_shows"
+        }
+      ],
+      "model": "kimi-k2.6",
+      "endpoint_host": "api.moonshot.cn",
+      "http_attempts": 1,
+      "automatic_retries": 0,
+      "usage": {
+        "prompt_tokens": 463,
+        "completion_tokens": 22,
+        "total_tokens": 485
+      },
+      "cost_cny": null,
+      "cost_basis": "not_calculated_no_price_snapshot",
+      "schedule": {
+        "request_sequence": 3,
+        "started_at": "2026-10-22T02:54:18.606778+00:00",
+        "scope": "single_python_process"
+      },
+      "upstream_status": 200,
+      "request_id": null,
+      "elapsed_ms": 4914.22,
+      "evaluation_request_sequence": 3,
+      "returned_action": {
+        "tool": "search_dining",
+        "place_id": null,
+        "relax_optional_food": false
+      }
+    },
+    {
+      "sequence": 4,
+      "case": "A_success",
+      "source": "live_model",
+      "phase": "decision",
+      "started_at": "2026-10-22T02:54:43.685945+00:00",
+      "interval_since_previous_start_ms": 25090.02,
+      "status": "passed",
+      "eligible_actions": [
+        {
+          "tool": "finish"
+        },
+        {
+          "tool": "clarify"
+        },
+        {
+          "tool": "query_shows"
+        }
+      ],
+      "model": "kimi-k2.6",
+      "endpoint_host": "api.moonshot.cn",
+      "http_attempts": 1,
+      "automatic_retries": 0,
+      "usage": {
+        "prompt_tokens": 496,
+        "completion_tokens": 10,
+        "total_tokens": 506
+      },
+      "cost_cny": null,
+      "cost_basis": "not_calculated_no_price_snapshot",
+      "schedule": {
+        "request_sequence": 4,
+        "started_at": "2026-10-22T02:54:43.697520+00:00",
+        "scope": "single_python_process"
+      },
+      "upstream_status": 200,
+      "request_id": null,
+      "elapsed_ms": 4521.93,
+      "evaluation_request_sequence": 4,
+      "returned_action": {
+        "tool": "query_shows"
+      }
+    },
+    {
+      "sequence": 5,
+      "case": "A_success",
+      "source": "live_model",
+      "phase": "decision",
+      "started_at": "2026-10-22T02:55:08.730211+00:00",
+      "interval_since_previous_start_ms": 25044.49,
+      "status": "passed",
+      "eligible_actions": [
+        {
+          "tool": "finish"
+        },
+        {
+          "tool": "clarify"
+        },
+        {
+          "tool": "verify_travel",
+          "place_id": "restaurant"
+        }
+      ],
+      "model": "kimi-k2.6",
+      "endpoint_host": "api.moonshot.cn",
+      "http_attempts": 1,
+      "automatic_retries": 0,
+      "usage": {
+        "prompt_tokens": 692,
+        "completion_tokens": 23,
+        "total_tokens": 715
+      },
+      "cost_cny": null,
+      "cost_basis": "not_calculated_no_price_snapshot",
+      "schedule": {
+        "request_sequence": 5,
+        "started_at": "2026-10-22T02:55:08.744892+00:00",
+        "scope": "single_python_process"
+      },
+      "upstream_status": 200,
+      "request_id": null,
+      "elapsed_ms": 4986.83,
+      "evaluation_request_sequence": 5,
+      "returned_action": {
+        "tool": "verify_travel",
+        "place_id": "restaurant",
+        "relax_optional_food": false
+      }
+    },
+    {
+      "sequence": 6,
+      "case": "A_success",
+      "source": "live_model",
+      "phase": "decision",
+      "started_at": "2026-10-22T02:55:33.769775+00:00",
+      "interval_since_previous_start_ms": 25039.79,
+      "status": "passed",
+      "eligible_actions": [
+        {
+          "tool": "finish"
+        },
+        {
+          "tool": "clarify"
+        },
+        {
+          "tool": "preview_plan",
+          "place_id": "restaurant"
+        }
+      ],
+      "model": "kimi-k2.6",
+      "endpoint_host": "api.moonshot.cn",
+      "http_attempts": 1,
+      "automatic_retries": 0,
+      "usage": {
+        "prompt_tokens": 937,
+        "completion_tokens": 15,
+        "total_tokens": 952
+      },
+      "cost_cny": null,
+      "cost_basis": "not_calculated_no_price_snapshot",
+      "schedule": {
+        "request_sequence": 6,
+        "started_at": "2026-10-22T02:55:33.780556+00:00",
+        "scope": "single_python_process"
+      },
+      "upstream_status": 200,
+      "request_id": null,
+      "elapsed_ms": 5200.23,
+      "evaluation_request_sequence": 6,
+      "returned_action": {
+        "tool": "preview_plan",
+        "place_id": "restaurant"
+      }
+    },
+    {
+      "sequence": 7,
+      "case": "B_missing_supply",
+      "source": "live_model",
+      "phase": "understand",
+      "started_at": "2026-10-22T02:55:58.815697+00:00",
+      "interval_since_previous_start_ms": 25046.15,
+      "status": "passed",
+      "eligible_actions": [],
+      "model": "kimi-k2.6",
+      "endpoint_host": "api.moonshot.cn",
+      "http_attempts": 1,
+      "automatic_retries": 0,
+      "usage": {
+        "prompt_tokens": 1438,
+        "completion_tokens": 131,
+        "total_tokens": 1569
+      },
+      "cost_cny": null,
+      "cost_basis": "not_calculated_no_price_snapshot",
+      "schedule": {
+        "request_sequence": 7,
+        "started_at": "2026-10-22T02:55:58.826872+00:00",
+        "scope": "single_python_process"
+      },
+      "upstream_status": 200,
+      "request_id": null,
+      "elapsed_ms": 7684.34,
+      "evaluation_request_sequence": 7
+    },
+    {
+      "sequence": 8,
+      "case": "B_missing_supply",
+      "source": "live_model",
+      "phase": "decision",
+      "started_at": "2026-10-22T02:56:23.856723+00:00",
+      "interval_since_previous_start_ms": 25041.25,
+      "status": "passed",
+      "eligible_actions": [
+        {
+          "tool": "finish"
+        },
+        {
+          "tool": "clarify"
+        },
+        {
+          "tool": "search_dining"
+        },
+        {
+          "tool": "query_shows"
+        }
+      ],
+      "model": "kimi-k2.6",
+      "endpoint_host": "api.moonshot.cn",
+      "http_attempts": 1,
+      "automatic_retries": 0,
+      "usage": {
+        "prompt_tokens": 463,
+        "completion_tokens": 22,
+        "total_tokens": 485
+      },
+      "cost_cny": null,
+      "cost_basis": "not_calculated_no_price_snapshot",
+      "schedule": {
+        "request_sequence": 8,
+        "started_at": "2026-10-22T02:56:23.872266+00:00",
+        "scope": "single_python_process"
+      },
+      "upstream_status": 200,
+      "request_id": null,
+      "elapsed_ms": 5093.44,
+      "evaluation_request_sequence": 8,
+      "returned_action": {
+        "tool": "search_dining",
+        "place_id": null,
+        "relax_optional_food": false
+      }
+    },
+    {
+      "sequence": 9,
+      "case": "B_missing_supply",
+      "source": "live_model",
+      "phase": "decision",
+      "started_at": "2026-10-22T02:56:48.913087+00:00",
+      "interval_since_previous_start_ms": 25056.59,
+      "status": "passed",
+      "eligible_actions": [
+        {
+          "tool": "finish"
+        },
+        {
+          "tool": "clarify"
+        },
+        {
+          "tool": "search_dining",
+          "relax_optional_food": true
+        },
+        {
+          "tool": "query_shows"
+        }
+      ],
+      "model": "kimi-k2.6",
+      "endpoint_host": "api.moonshot.cn",
+      "http_attempts": 1,
+      "automatic_retries": 0,
+      "usage": {
+        "prompt_tokens": 499,
+        "completion_tokens": 10,
+        "total_tokens": 509
+      },
+      "cost_cny": null,
+      "cost_basis": "not_calculated_no_price_snapshot",
+      "schedule": {
+        "request_sequence": 9,
+        "started_at": "2026-10-22T02:56:48.930405+00:00",
+        "scope": "single_python_process"
+      },
+      "upstream_status": 200,
+      "request_id": null,
+      "elapsed_ms": 5179.95,
+      "evaluation_request_sequence": 9,
+      "returned_action": {
+        "tool": "query_shows"
+      }
+    },
+    {
+      "sequence": 10,
+      "case": "B_missing_supply",
+      "source": "live_model",
+      "phase": "decision",
+      "started_at": "2026-10-22T02:57:13.975830+00:00",
+      "interval_since_previous_start_ms": 25062.97,
+      "status": "passed",
+      "eligible_actions": [
+        {
+          "tool": "finish"
+        },
+        {
+          "tool": "clarify"
+        },
+        {
+          "tool": "search_dining",
+          "relax_optional_food": true
+        }
+      ],
+      "model": "kimi-k2.6",
+      "endpoint_host": "api.moonshot.cn",
+      "http_attempts": 1,
+      "automatic_retries": 0,
+      "usage": {
+        "prompt_tokens": 674,
+        "completion_tokens": 17,
+        "total_tokens": 691
+      },
+      "cost_cny": null,
+      "cost_basis": "not_calculated_no_price_snapshot",
+      "schedule": {
+        "request_sequence": 10,
+        "started_at": "2026-10-22T02:57:13.992215+00:00",
+        "scope": "single_python_process"
+      },
+      "upstream_status": 200,
+      "request_id": null,
+      "elapsed_ms": 5136.4,
+      "evaluation_request_sequence": 10,
+      "returned_action": {
+        "tool": "search_dining",
+        "relax_optional_food": true
+      }
+    },
+    {
+      "sequence": 11,
+      "case": "B_missing_supply",
+      "source": "live_model",
+      "phase": "decision",
+      "started_at": "2026-10-22T02:57:39.021140+00:00",
+      "interval_since_previous_start_ms": 25045.53,
+      "status": "passed",
+      "eligible_actions": [
+        {
+          "tool": "finish"
+        },
+        {
+          "tool": "clarify"
+        },
+        {
+          "tool": "verify_travel",
+          "place_id": "restaurant"
+        }
+      ],
+      "model": "kimi-k2.6",
+      "endpoint_host": "api.moonshot.cn",
+      "http_attempts": 1,
+      "automatic_retries": 0,
+      "usage": {
+        "prompt_tokens": 690,
+        "completion_tokens": 16,
+        "total_tokens": 706
+      },
+      "cost_cny": null,
+      "cost_basis": "not_calculated_no_price_snapshot",
+      "schedule": {
+        "request_sequence": 11,
+        "started_at": "2026-10-22T02:57:39.032238+00:00",
+        "scope": "single_python_process"
+      },
+      "upstream_status": 200,
+      "request_id": null,
+      "elapsed_ms": 4658.92,
+      "evaluation_request_sequence": 11,
+      "returned_action": {
+        "tool": "verify_travel",
+        "place_id": "restaurant"
+      }
+    }
+  ],
+  "live_call_count": 11,
+  "provider_invocations": 11,
+  "provider_failure": null,
+  "known_usage": {
+    "prompt_tokens": 7819,
+    "completion_tokens": 405,
+    "total_tokens": 8224
+  },
+  "usage_missing_calls": 0,
+  "formal_mutations_without_confirmation": 0,
+  "offline_suite_status": "not_applicable",
+  "scheduler": {
+    "scope": "single_python_process",
+    "organization_global": false,
+    "rpm": 3,
+    "interval_seconds": 25.0,
+    "concurrency_limit": 1,
+    "tpm": null,
+    "tpd": null,
+    "token_basis": "conservative_utf8_reservation_then_usage",
+    "unknown_provider_token_limits": true,
+    "automatic_retries": 0,
+    "attempts": 11,
+    "inflight": false,
+    "stopped": null
+  },
+  "manual_cancel_requested": false,
+  "total_waiting_ms": 194445.41,
+  "provider_success_responses": 11,
+  "http_429_count": 0,
+  "complete_live_task_count": 1,
+  "observation_comparison": {
+    "same_input": true,
+    "A_tools": [
+      "search_dining",
+      "query_shows",
+      "verify_travel",
+      "preview_plan"
+    ],
+    "B_tools": [
+      "search_dining",
+      "query_shows",
+      "search_dining",
+      "verify_travel"
+    ],
+    "B_safe_no_candidate": true,
+    "scope": "one synthetic pair, not general model accuracy",
+    "B_completion_status": "budget_exhausted",
+    "B_completed_missing_data_stop": false
+  },
+  "report_postprocessing_notes": [
+    "B_safe_no_candidate includes a terminal budget stop with no preview or confirmation. Original trace, usage and timestamps unchanged; first output retained in source backup."
+  ]
+}

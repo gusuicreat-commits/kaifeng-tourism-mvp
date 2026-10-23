@@ -1,0 +1,292 @@
+{
+  "observed_at": "2026-10-23T08:38:55.330183+08:00",
+  "basis": "existing_receipts_read_only",
+  "new_model_requests": 0,
+  "runtime_messages_exported": false,
+  "turns": [
+    {
+      "status": "needs_clarification",
+      "stop_reason": "needs_clarification",
+      "tool_count": 0,
+      "model_calls": 1,
+      "elapsed_ms": 2971.2,
+      "label": "feature",
+      "sequence": 1,
+      "created_at": "2026-10-23T08:17:37.759846+08:00",
+      "mode_retained": false,
+      "raw_model_output_retained": false,
+      "trace": [
+        {
+          "fallback": true,
+          "provider_failure": null,
+          "request_sequence": 1,
+          "source": "deterministic_fallback",
+          "status": "ok",
+          "tool": "understand"
+        }
+      ],
+      "decision_count": 0,
+      "usage": [
+        {
+          "automatic_retries": 0,
+          "elapsed_ms": 2944.57,
+          "endpoint_host": "api.moonshot.cn",
+          "http_attempts": 1,
+          "model": "kimi-k2.6",
+          "source": "live_model",
+          "upstream_status": 200,
+          "usage": {
+            "completion_tokens": 127,
+            "prompt_tokens": 2492,
+            "total_tokens": 2619
+          }
+        }
+      ],
+      "answer_flags": {
+        "generic_parse_failure": true,
+        "claims_failed_food_retrieval": false,
+        "only_service_information": false
+      }
+    },
+    {
+      "status": "answered",
+      "stop_reason": "answered",
+      "tool_count": 0,
+      "model_calls": 1,
+      "elapsed_ms": 1608.62,
+      "label": "punctuation",
+      "sequence": 3,
+      "created_at": "2026-10-23T08:18:12.291930+08:00",
+      "mode_retained": false,
+      "raw_model_output_retained": false,
+      "trace": [
+        {
+          "fallback": false,
+          "provider_failure": null,
+          "request_sequence": 1,
+          "source": "live_model",
+          "status": "ok",
+          "tool": "understand"
+        }
+      ],
+      "decision_count": 0,
+      "usage": [
+        {
+          "automatic_retries": 0,
+          "elapsed_ms": 1601.57,
+          "endpoint_host": "api.moonshot.cn",
+          "http_attempts": 1,
+          "model": "kimi-k2.6",
+          "source": "live_model",
+          "upstream_status": 200,
+          "usage": {
+            "completion_tokens": 27,
+            "prompt_tokens": 2535,
+            "total_tokens": 2562
+          }
+        }
+      ],
+      "answer_flags": {
+        "generic_parse_failure": false,
+        "claims_failed_food_retrieval": false,
+        "only_service_information": false
+      }
+    },
+    {
+      "status": "answered",
+      "stop_reason": "answered",
+      "tool_count": 0,
+      "model_calls": 1,
+      "elapsed_ms": 2531.71,
+      "label": "age",
+      "sequence": 5,
+      "created_at": "2026-10-23T08:18:23.792917+08:00",
+      "mode_retained": false,
+      "raw_model_output_retained": false,
+      "trace": [
+        {
+          "fallback": false,
+          "provider_failure": null,
+          "request_sequence": 1,
+          "source": "live_model",
+          "status": "ok",
+          "tool": "understand"
+        }
+      ],
+      "decision_count": 0,
+      "usage": [
+        {
+          "automatic_retries": 0,
+          "elapsed_ms": 2516.02,
+          "endpoint_host": "api.moonshot.cn",
+          "http_attempts": 1,
+          "model": "kimi-k2.6",
+          "source": "live_model",
+          "upstream_status": 200,
+          "usage": {
+            "completion_tokens": 74,
+            "prompt_tokens": 2579,
+            "total_tokens": 2653
+          }
+        }
+      ],
+      "answer_flags": {
+        "generic_parse_failure": false,
+        "claims_failed_food_retrieval": false,
+        "only_service_information": false
+      }
+    },
+    {
+      "status": "answered",
+      "stop_reason": "answered",
+      "tool_count": 0,
+      "model_calls": 1,
+      "elapsed_ms": 1930.11,
+      "label": "why_wrong",
+      "sequence": 7,
+      "created_at": "2026-10-23T08:19:10.295659+08:00",
+      "mode_retained": false,
+      "raw_model_output_retained": false,
+      "trace": [
+        {
+          "fallback": false,
+          "provider_failure": null,
+          "request_sequence": 1,
+          "source": "live_model",
+          "status": "ok",
+          "tool": "understand"
+        }
+      ],
+      "decision_count": 0,
+      "usage": [
+        {
+          "automatic_retries": 0,
+          "elapsed_ms": 1918.51,
+          "endpoint_host": "api.moonshot.cn",
+          "http_attempts": 1,
+          "model": "kimi-k2.6",
+          "source": "live_model",
+          "upstream_status": 200,
+          "usage": {
+            "completion_tokens": 76,
+            "prompt_tokens": 2648,
+            "total_tokens": 2724
+          }
+        }
+      ],
+      "answer_flags": {
+        "generic_parse_failure": false,
+        "claims_failed_food_retrieval": true,
+        "only_service_information": true
+      }
+    },
+    {
+      "status": "answered",
+      "stop_reason": "answered",
+      "tool_count": 0,
+      "model_calls": 1,
+      "elapsed_ms": 2207.12,
+      "label": "service_info",
+      "sequence": 9,
+      "created_at": "2026-10-23T08:20:01.312385+08:00",
+      "mode_retained": false,
+      "raw_model_output_retained": false,
+      "trace": [
+        {
+          "fallback": false,
+          "provider_failure": null,
+          "request_sequence": 1,
+          "source": "live_model",
+          "status": "ok",
+          "tool": "understand"
+        }
+      ],
+      "decision_count": 0,
+      "usage": [
+        {
+          "automatic_retries": 0,
+          "elapsed_ms": 2196.91,
+          "endpoint_host": "api.moonshot.cn",
+          "http_attempts": 1,
+          "model": "kimi-k2.6",
+          "source": "live_model",
+          "upstream_status": 200,
+          "usage": {
+            "completion_tokens": 101,
+            "prompt_tokens": 2740,
+            "total_tokens": 2841
+          }
+        }
+      ],
+      "answer_flags": {
+        "generic_parse_failure": false,
+        "claims_failed_food_retrieval": false,
+        "only_service_information": false
+      }
+    }
+  ],
+  "receipt_scopes": [
+    {
+      "kind": "other",
+      "n": 4
+    },
+    {
+      "kind": "v3_agent",
+      "n": 5
+    }
+  ],
+  "current_catalog": {
+    "siweicai_binding_count": 0,
+    "siweicai_food_records": 0
+  },
+  "local_services": [
+    {
+      "label": "backend-health",
+      "status": 200,
+      "sha256": "daad4957a418650603c5c5c6d419a0fa45a57cf8a035331f73d9f531f506dbc2",
+      "markers": {}
+    },
+    {
+      "label": "assistant-page",
+      "status": 200,
+      "sha256": "183142249302fe8ed7d52f0cbe27c8af88145e8ce0f92a57356862098ed71cac",
+      "markers": {
+        "CityAgentChat": true,
+        "GuidedPlanner": true
+      }
+    },
+    {
+      "label": "chat-component",
+      "status": 200,
+      "sha256": "6ca1f5f79647c47be98c8bb272e111538fec9c6b11ddb61a31277b6efc1bf8fd",
+      "markers": {
+        "cityAgentApi.start": true,
+        "cityAgentApi.step": true
+      }
+    },
+    {
+      "label": "chat-api",
+      "status": 200,
+      "sha256": "c8f0091a8d6362f29c687c61636d50836a9391c4fefc12b0094cd5055345ccf8",
+      "markers": {
+        "/agent/tasks": true,
+        "/assistant/chat": false
+      }
+    }
+  ],
+  "listener_pids": {
+    "8017": [
+      "52928",
+      "53445"
+    ],
+    "5177": [
+      "52943"
+    ]
+  },
+  "server_log_counts": {
+    "startup": 5,
+    "reload": 4,
+    "v3_posts": 10,
+    "v2_posts": 0
+  }
+}

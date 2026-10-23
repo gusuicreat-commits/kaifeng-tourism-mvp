@@ -1,0 +1,2104 @@
+{
+  "status": "dry_run",
+  "received": 188,
+  "changed": 188,
+  "unchanged": 0,
+  "records": [
+    {
+      "kind": "source",
+      "id": "src_qmsyun_program_20261023",
+      "ready": false,
+      "issues": [
+        "UNVERIFIED",
+        "RIGHTS_NOT_CONFIRMED",
+        "OUTSIDE_VALIDITY_OR_UNKNOWN"
+      ]
+    },
+    {
+      "kind": "source",
+      "id": "src_qmsyun_architecture_20261023",
+      "ready": false,
+      "issues": [
+        "UNVERIFIED",
+        "RIGHTS_NOT_CONFIRMED",
+        "OUTSIDE_VALIDITY_OR_UNKNOWN"
+      ]
+    },
+    {
+      "kind": "source",
+      "id": "src_qmsyun_gate_channels_20261023",
+      "ready": false,
+      "issues": [
+        "UNVERIFIED",
+        "RIGHTS_NOT_CONFIRMED",
+        "OUTSIDE_VALIDITY_OR_UNKNOWN"
+      ]
+    },
+    {
+      "kind": "source",
+      "id": "src_qmsyun_song_banquet_20261023",
+      "ready": false,
+      "issues": [
+        "UNVERIFIED",
+        "RIGHTS_NOT_CONFIRMED",
+        "OUTSIDE_VALIDITY_OR_UNKNOWN"
+      ]
+    },
+    {
+      "kind": "source",
+      "id": "src_qmsyun_tokyo_dream_20261023",
+      "ready": false,
+      "issues": [
+        "UNVERIFIED",
+        "RIGHTS_NOT_CONFIRMED",
+        "OUTSIDE_VALIDITY_OR_UNKNOWN"
+      ]
+    },
+    {
+      "kind": "source",
+      "id": "src_diyilou_home_20261023",
+      "ready": false,
+      "issues": [
+        "UNVERIFIED",
+        "RIGHTS_NOT_CONFIRMED",
+        "OUTSIDE_VALIDITY_OR_UNKNOWN"
+      ]
+    },
+    {
+      "kind": "source",
+      "id": "src_diyilou_mingcai_20261023",
+      "ready": false,
+      "issues": [
+        "UNVERIFIED",
+        "RIGHTS_NOT_CONFIRMED",
+        "OUTSIDE_VALIDITY_OR_UNKNOWN"
+      ]
+    },
+    {
+      "kind": "source",
+      "id": "src_kaifeng_gov_diyilou_20261023",
+      "ready": false,
+      "issues": [
+        "UNVERIFIED",
+        "RIGHTS_NOT_CONFIRMED",
+        "OUTSIDE_VALIDITY_OR_UNKNOWN"
+      ]
+    },
+    {
+      "kind": "source",
+      "id": "src_qunar_diyilou_20261023",
+      "ready": false,
+      "issues": [
+        "UNVERIFIED",
+        "RIGHTS_NOT_CONFIRMED",
+        "OUTSIDE_VALIDITY_OR_UNKNOWN"
+      ]
+    },
+    {
+      "kind": "source",
+      "id": "src_ctrip_diyilou_20261023",
+      "ready": false,
+      "issues": [
+        "UNVERIFIED",
+        "RIGHTS_NOT_CONFIRMED",
+        "OUTSIDE_VALIDITY_OR_UNKNOWN"
+      ]
+    },
+    {
+      "kind": "source",
+      "id": "src_kfwt_wall_2022_20261023",
+      "ready": false,
+      "issues": [
+        "UNVERIFIED",
+        "RIGHTS_NOT_CONFIRMED",
+        "OUTSIDE_VALIDITY_OR_UNKNOWN"
+      ]
+    },
+    {
+      "kind": "source",
+      "id": "src_kf_wall_entrances_20260813",
+      "ready": false,
+      "issues": [
+        "UNVERIFIED",
+        "RIGHTS_NOT_CONFIRMED",
+        "OUTSIDE_VALIDITY_OR_UNKNOWN"
+      ]
+    },
+    {
+      "kind": "source",
+      "id": "src_kf_wall_hours_20260813",
+      "ready": false,
+      "issues": [
+        "UNVERIFIED",
+        "RIGHTS_NOT_CONFIRMED",
+        "OUTSIDE_VALIDITY_OR_UNKNOWN"
+      ]
+    },
+    {
+      "kind": "source",
+      "id": "src_kf_wall_closure_20260104",
+      "ready": false,
+      "issues": [
+        "UNVERIFIED",
+        "RIGHTS_NOT_CONFIRMED",
+        "OUTSIDE_VALIDITY_OR_UNKNOWN"
+      ]
+    },
+    {
+      "kind": "source",
+      "id": "src_qmsyun_q_secret_20261023",
+      "ready": false,
+      "issues": [
+        "UNVERIFIED",
+        "RIGHTS_NOT_CONFIRMED",
+        "OUTSIDE_VALIDITY_OR_UNKNOWN"
+      ]
+    },
+    {
+      "kind": "source",
+      "id": "src_kfcqjq_weimeng_20261023",
+      "ready": false,
+      "issues": [
+        "UNVERIFIED",
+        "RIGHTS_NOT_CONFIRMED",
+        "OUTSIDE_VALIDITY_OR_UNKNOWN"
+      ]
+    },
+    {
+      "kind": "source",
+      "id": "src_kaifeng_bus_2022_20261023",
+      "ready": false,
+      "issues": [
+        "UNVERIFIED",
+        "RIGHTS_NOT_CONFIRMED",
+        "OUTSIDE_VALIDITY_OR_UNKNOWN"
+      ]
+    },
+    {
+      "kind": "place",
+      "id": "kf_station",
+      "ready": false,
+      "issues": [
+        "UNVERIFIED",
+        "RIGHTS_NOT_CONFIRMED",
+        "OUTSIDE_VALIDITY_OR_UNKNOWN",
+        "LOCATION_UNKNOWN",
+        "DEPENDENCY_NOT_READY:source:src_kaifeng_bus_2022_20261023"
+      ]
+    },
+    {
+      "kind": "place",
+      "id": "kf_north_station",
+      "ready": false,
+      "issues": [
+        "UNVERIFIED",
+        "RIGHTS_NOT_CONFIRMED",
+        "OUTSIDE_VALIDITY_OR_UNKNOWN",
+        "LOCATION_UNKNOWN",
+        "DEPENDENCY_NOT_READY:source:src_kaifeng_bus_2022_20261023"
+      ]
+    },
+    {
+      "kind": "place",
+      "id": "qingming",
+      "ready": false,
+      "issues": [
+        "UNVERIFIED",
+        "RIGHTS_NOT_CONFIRMED",
+        "OUTSIDE_VALIDITY_OR_UNKNOWN",
+        "LOCATION_UNKNOWN",
+        "DEPENDENCY_NOT_READY:source:src_qmsyun_program_20261023",
+        "DEPENDENCY_NOT_READY:source:src_qmsyun_architecture_20261023"
+      ]
+    },
+    {
+      "kind": "place",
+      "id": "qm_gate_yingbin",
+      "ready": false,
+      "issues": [
+        "UNVERIFIED",
+        "RIGHTS_NOT_CONFIRMED",
+        "OUTSIDE_VALIDITY_OR_UNKNOWN",
+        "LOCATION_UNKNOWN",
+        "DEPENDENCY_NOT_READY:source:src_qmsyun_architecture_20261023",
+        "DEPENDENCY_NOT_READY:source:src_qmsyun_gate_channels_20261023",
+        "DEPENDENCY_NOT_READY:place:qingming",
+        "DEPENDENCY_NOT_READY:source:src_qmsyun_program_20261023"
+      ]
+    },
+    {
+      "kind": "place",
+      "id": "qm_gate_jinshui",
+      "ready": false,
+      "issues": [
+        "UNVERIFIED",
+        "RIGHTS_NOT_CONFIRMED",
+        "OUTSIDE_VALIDITY_OR_UNKNOWN",
+        "LOCATION_UNKNOWN",
+        "DEPENDENCY_NOT_READY:source:src_qmsyun_architecture_20261023",
+        "DEPENDENCY_NOT_READY:source:src_qmsyun_song_banquet_20261023",
+        "DEPENDENCY_NOT_READY:source:src_qmsyun_gate_channels_20261023",
+        "DEPENDENCY_NOT_READY:place:qingming",
+        "DEPENDENCY_NOT_READY:source:src_qmsyun_program_20261023"
+      ]
+    },
+    {
+      "kind": "place",
+      "id": "qm_gate_duan",
+      "ready": false,
+      "issues": [
+        "UNVERIFIED",
+        "RIGHTS_NOT_CONFIRMED",
+        "OUTSIDE_VALIDITY_OR_UNKNOWN",
+        "LOCATION_UNKNOWN",
+        "DEPENDENCY_NOT_READY:source:src_qmsyun_gate_channels_20261023",
+        "DEPENDENCY_NOT_READY:source:src_qmsyun_song_banquet_20261023",
+        "DEPENDENCY_NOT_READY:place:qingming",
+        "DEPENDENCY_NOT_READY:source:src_qmsyun_program_20261023",
+        "DEPENDENCY_NOT_READY:source:src_qmsyun_architecture_20261023"
+      ]
+    },
+    {
+      "kind": "place",
+      "id": "diyilou_sihou",
+      "ready": false,
+      "issues": [
+        "UNVERIFIED",
+        "RIGHTS_NOT_CONFIRMED",
+        "OUTSIDE_VALIDITY_OR_UNKNOWN",
+        "LOCATION_UNKNOWN",
+        "DEPENDENCY_NOT_READY:source:src_diyilou_home_20261023",
+        "DEPENDENCY_NOT_READY:source:src_qunar_diyilou_20261023"
+      ]
+    },
+    {
+      "kind": "place",
+      "id": "wall_daliang",
+      "ready": false,
+      "issues": [
+        "UNVERIFIED",
+        "RIGHTS_NOT_CONFIRMED",
+        "OUTSIDE_VALIDITY_OR_UNKNOWN",
+        "LOCATION_UNKNOWN",
+        "DEPENDENCY_NOT_READY:source:src_kf_wall_entrances_20260813",
+        "DEPENDENCY_NOT_READY:source:src_kf_wall_closure_20260104",
+        "DEPENDENCY_NOT_READY:place:wall_daliang_scenic",
+        "DEPENDENCY_NOT_READY:source:src_kfwt_wall_2022_20261023"
+      ]
+    },
+    {
+      "kind": "place",
+      "id": "wall_daliang_scenic",
+      "ready": false,
+      "issues": [
+        "UNVERIFIED",
+        "RIGHTS_NOT_CONFIRMED",
+        "OUTSIDE_VALIDITY_OR_UNKNOWN",
+        "LOCATION_UNKNOWN",
+        "DEPENDENCY_NOT_READY:source:src_kfwt_wall_2022_20261023",
+        "DEPENDENCY_NOT_READY:source:src_kf_wall_entrances_20260813"
+      ]
+    },
+    {
+      "kind": "entrance",
+      "id": "ent_qm_yingbin_entry",
+      "ready": false,
+      "issues": [
+        "UNVERIFIED",
+        "RIGHTS_NOT_CONFIRMED",
+        "OUTSIDE_VALIDITY_OR_UNKNOWN",
+        "DEPENDENCY_NOT_READY:source:src_qmsyun_gate_channels_20261023",
+        "DEPENDENCY_NOT_READY:place:qingming",
+        "DEPENDENCY_NOT_READY:source:src_qmsyun_program_20261023",
+        "DEPENDENCY_NOT_READY:source:src_qmsyun_architecture_20261023",
+        "DEPENDENCY_NOT_READY:place:qm_gate_yingbin"
+      ]
+    },
+    {
+      "kind": "entrance",
+      "id": "ent_qm_jinshui_entry",
+      "ready": false,
+      "issues": [
+        "UNVERIFIED",
+        "RIGHTS_NOT_CONFIRMED",
+        "OUTSIDE_VALIDITY_OR_UNKNOWN",
+        "DEPENDENCY_NOT_READY:source:src_qmsyun_gate_channels_20261023",
+        "DEPENDENCY_NOT_READY:source:src_qmsyun_song_banquet_20261023",
+        "DEPENDENCY_NOT_READY:place:qingming",
+        "DEPENDENCY_NOT_READY:source:src_qmsyun_program_20261023",
+        "DEPENDENCY_NOT_READY:source:src_qmsyun_architecture_20261023",
+        "DEPENDENCY_NOT_READY:place:qm_gate_jinshui"
+      ]
+    },
+    {
+      "kind": "entrance",
+      "id": "ent_qm_duan_entry",
+      "ready": false,
+      "issues": [
+        "UNVERIFIED",
+        "RIGHTS_NOT_CONFIRMED",
+        "OUTSIDE_VALIDITY_OR_UNKNOWN",
+        "DEPENDENCY_NOT_READY:source:src_qmsyun_gate_channels_20261023",
+        "DEPENDENCY_NOT_READY:source:src_qmsyun_song_banquet_20261023",
+        "DEPENDENCY_NOT_READY:place:qingming",
+        "DEPENDENCY_NOT_READY:source:src_qmsyun_program_20261023",
+        "DEPENDENCY_NOT_READY:source:src_qmsyun_architecture_20261023",
+        "DEPENDENCY_NOT_READY:place:qm_gate_duan"
+      ]
+    },
+    {
+      "kind": "entrance",
+      "id": "ent_wall_daliang_entry",
+      "ready": false,
+      "issues": [
+        "UNVERIFIED",
+        "RIGHTS_NOT_CONFIRMED",
+        "OUTSIDE_VALIDITY_OR_UNKNOWN",
+        "DEPENDENCY_NOT_READY:source:src_kf_wall_entrances_20260813",
+        "DEPENDENCY_NOT_READY:place:wall_daliang_scenic",
+        "DEPENDENCY_NOT_READY:source:src_kfwt_wall_2022_20261023",
+        "DEPENDENCY_NOT_READY:place:wall_daliang",
+        "DEPENDENCY_NOT_READY:source:src_kf_wall_closure_20260104"
+      ]
+    },
+    {
+      "kind": "program",
+      "id": "program_qm_001",
+      "ready": false,
+      "issues": [
+        "UNVERIFIED",
+        "RIGHTS_NOT_CONFIRMED",
+        "OUTSIDE_VALIDITY_OR_UNKNOWN",
+        "DEPENDENCY_NOT_READY:source:src_qmsyun_program_20261023"
+      ]
+    },
+    {
+      "kind": "program",
+      "id": "program_qm_002",
+      "ready": false,
+      "issues": [
+        "UNVERIFIED",
+        "RIGHTS_NOT_CONFIRMED",
+        "OUTSIDE_VALIDITY_OR_UNKNOWN",
+        "DEPENDENCY_NOT_READY:source:src_qmsyun_program_20261023"
+      ]
+    },
+    {
+      "kind": "program",
+      "id": "program_qm_003",
+      "ready": false,
+      "issues": [
+        "UNVERIFIED",
+        "RIGHTS_NOT_CONFIRMED",
+        "OUTSIDE_VALIDITY_OR_UNKNOWN",
+        "DEPENDENCY_NOT_READY:source:src_qmsyun_program_20261023"
+      ]
+    },
+    {
+      "kind": "program",
+      "id": "program_qm_004",
+      "ready": false,
+      "issues": [
+        "UNVERIFIED",
+        "RIGHTS_NOT_CONFIRMED",
+        "OUTSIDE_VALIDITY_OR_UNKNOWN",
+        "DEPENDENCY_NOT_READY:source:src_qmsyun_program_20261023"
+      ]
+    },
+    {
+      "kind": "program",
+      "id": "program_qm_005",
+      "ready": false,
+      "issues": [
+        "UNVERIFIED",
+        "RIGHTS_NOT_CONFIRMED",
+        "OUTSIDE_VALIDITY_OR_UNKNOWN",
+        "DEPENDENCY_NOT_READY:source:src_qmsyun_program_20261023"
+      ]
+    },
+    {
+      "kind": "program",
+      "id": "program_qm_006",
+      "ready": false,
+      "issues": [
+        "UNVERIFIED",
+        "RIGHTS_NOT_CONFIRMED",
+        "OUTSIDE_VALIDITY_OR_UNKNOWN",
+        "DEPENDENCY_NOT_READY:source:src_qmsyun_program_20261023"
+      ]
+    },
+    {
+      "kind": "program",
+      "id": "program_qm_007",
+      "ready": false,
+      "issues": [
+        "UNVERIFIED",
+        "RIGHTS_NOT_CONFIRMED",
+        "OUTSIDE_VALIDITY_OR_UNKNOWN",
+        "DEPENDENCY_NOT_READY:source:src_qmsyun_program_20261023"
+      ]
+    },
+    {
+      "kind": "program",
+      "id": "program_qm_008",
+      "ready": false,
+      "issues": [
+        "UNVERIFIED",
+        "RIGHTS_NOT_CONFIRMED",
+        "OUTSIDE_VALIDITY_OR_UNKNOWN",
+        "DEPENDENCY_NOT_READY:source:src_qmsyun_program_20261023"
+      ]
+    },
+    {
+      "kind": "program",
+      "id": "program_qm_009",
+      "ready": false,
+      "issues": [
+        "UNVERIFIED",
+        "RIGHTS_NOT_CONFIRMED",
+        "OUTSIDE_VALIDITY_OR_UNKNOWN",
+        "DEPENDENCY_NOT_READY:source:src_qmsyun_program_20261023"
+      ]
+    },
+    {
+      "kind": "program",
+      "id": "program_qm_010",
+      "ready": false,
+      "issues": [
+        "UNVERIFIED",
+        "RIGHTS_NOT_CONFIRMED",
+        "OUTSIDE_VALIDITY_OR_UNKNOWN",
+        "DEPENDENCY_NOT_READY:source:src_qmsyun_program_20261023"
+      ]
+    },
+    {
+      "kind": "program",
+      "id": "program_qm_011",
+      "ready": false,
+      "issues": [
+        "UNVERIFIED",
+        "RIGHTS_NOT_CONFIRMED",
+        "OUTSIDE_VALIDITY_OR_UNKNOWN",
+        "DEPENDENCY_NOT_READY:source:src_qmsyun_program_20261023"
+      ]
+    },
+    {
+      "kind": "program",
+      "id": "program_qm_012",
+      "ready": false,
+      "issues": [
+        "UNVERIFIED",
+        "RIGHTS_NOT_CONFIRMED",
+        "OUTSIDE_VALIDITY_OR_UNKNOWN",
+        "DEPENDENCY_NOT_READY:source:src_qmsyun_program_20261023"
+      ]
+    },
+    {
+      "kind": "program",
+      "id": "program_qm_013",
+      "ready": false,
+      "issues": [
+        "UNVERIFIED",
+        "RIGHTS_NOT_CONFIRMED",
+        "OUTSIDE_VALIDITY_OR_UNKNOWN",
+        "DEPENDENCY_NOT_READY:source:src_qmsyun_program_20261023"
+      ]
+    },
+    {
+      "kind": "program",
+      "id": "program_qm_014",
+      "ready": false,
+      "issues": [
+        "UNVERIFIED",
+        "RIGHTS_NOT_CONFIRMED",
+        "OUTSIDE_VALIDITY_OR_UNKNOWN",
+        "DEPENDENCY_NOT_READY:source:src_qmsyun_program_20261023"
+      ]
+    },
+    {
+      "kind": "program",
+      "id": "program_qm_015",
+      "ready": false,
+      "issues": [
+        "UNVERIFIED",
+        "RIGHTS_NOT_CONFIRMED",
+        "OUTSIDE_VALIDITY_OR_UNKNOWN",
+        "DEPENDENCY_NOT_READY:source:src_qmsyun_program_20261023"
+      ]
+    },
+    {
+      "kind": "program",
+      "id": "program_qm_016",
+      "ready": false,
+      "issues": [
+        "UNVERIFIED",
+        "RIGHTS_NOT_CONFIRMED",
+        "OUTSIDE_VALIDITY_OR_UNKNOWN",
+        "DEPENDENCY_NOT_READY:source:src_qmsyun_program_20261023"
+      ]
+    },
+    {
+      "kind": "program",
+      "id": "program_qm_017",
+      "ready": false,
+      "issues": [
+        "UNVERIFIED",
+        "RIGHTS_NOT_CONFIRMED",
+        "OUTSIDE_VALIDITY_OR_UNKNOWN",
+        "DEPENDENCY_NOT_READY:source:src_qmsyun_program_20261023"
+      ]
+    },
+    {
+      "kind": "program",
+      "id": "program_qm_018",
+      "ready": false,
+      "issues": [
+        "UNVERIFIED",
+        "RIGHTS_NOT_CONFIRMED",
+        "OUTSIDE_VALIDITY_OR_UNKNOWN",
+        "DEPENDENCY_NOT_READY:source:src_qmsyun_program_20261023"
+      ]
+    },
+    {
+      "kind": "program",
+      "id": "program_qm_019",
+      "ready": false,
+      "issues": [
+        "UNVERIFIED",
+        "RIGHTS_NOT_CONFIRMED",
+        "OUTSIDE_VALIDITY_OR_UNKNOWN",
+        "DEPENDENCY_NOT_READY:source:src_qmsyun_program_20261023"
+      ]
+    },
+    {
+      "kind": "program",
+      "id": "program_qm_020",
+      "ready": false,
+      "issues": [
+        "UNVERIFIED",
+        "RIGHTS_NOT_CONFIRMED",
+        "OUTSIDE_VALIDITY_OR_UNKNOWN",
+        "DEPENDENCY_NOT_READY:source:src_qmsyun_program_20261023"
+      ]
+    },
+    {
+      "kind": "program",
+      "id": "program_qm_021",
+      "ready": false,
+      "issues": [
+        "UNVERIFIED",
+        "RIGHTS_NOT_CONFIRMED",
+        "OUTSIDE_VALIDITY_OR_UNKNOWN",
+        "DEPENDENCY_NOT_READY:source:src_qmsyun_program_20261023"
+      ]
+    },
+    {
+      "kind": "program",
+      "id": "program_qm_022",
+      "ready": false,
+      "issues": [
+        "UNVERIFIED",
+        "RIGHTS_NOT_CONFIRMED",
+        "OUTSIDE_VALIDITY_OR_UNKNOWN",
+        "DEPENDENCY_NOT_READY:source:src_qmsyun_program_20261023"
+      ]
+    },
+    {
+      "kind": "program",
+      "id": "program_qm_023",
+      "ready": false,
+      "issues": [
+        "UNVERIFIED",
+        "RIGHTS_NOT_CONFIRMED",
+        "OUTSIDE_VALIDITY_OR_UNKNOWN",
+        "DEPENDENCY_NOT_READY:source:src_qmsyun_program_20261023"
+      ]
+    },
+    {
+      "kind": "program",
+      "id": "program_qm_024",
+      "ready": false,
+      "issues": [
+        "UNVERIFIED",
+        "RIGHTS_NOT_CONFIRMED",
+        "OUTSIDE_VALIDITY_OR_UNKNOWN",
+        "DEPENDENCY_NOT_READY:source:src_qmsyun_program_20261023"
+      ]
+    },
+    {
+      "kind": "program",
+      "id": "program_qm_025",
+      "ready": false,
+      "issues": [
+        "UNVERIFIED",
+        "RIGHTS_NOT_CONFIRMED",
+        "OUTSIDE_VALIDITY_OR_UNKNOWN",
+        "DEPENDENCY_NOT_READY:source:src_qmsyun_program_20261023"
+      ]
+    },
+    {
+      "kind": "program",
+      "id": "program_qm_026",
+      "ready": false,
+      "issues": [
+        "UNVERIFIED",
+        "RIGHTS_NOT_CONFIRMED",
+        "OUTSIDE_VALIDITY_OR_UNKNOWN",
+        "DEPENDENCY_NOT_READY:source:src_qmsyun_program_20261023"
+      ]
+    },
+    {
+      "kind": "program",
+      "id": "program_qm_027",
+      "ready": false,
+      "issues": [
+        "UNVERIFIED",
+        "RIGHTS_NOT_CONFIRMED",
+        "OUTSIDE_VALIDITY_OR_UNKNOWN",
+        "DEPENDENCY_NOT_READY:source:src_qmsyun_program_20261023"
+      ]
+    },
+    {
+      "kind": "program",
+      "id": "program_qm_028",
+      "ready": false,
+      "issues": [
+        "UNVERIFIED",
+        "RIGHTS_NOT_CONFIRMED",
+        "OUTSIDE_VALIDITY_OR_UNKNOWN",
+        "DEPENDENCY_NOT_READY:source:src_qmsyun_program_20261023"
+      ]
+    },
+    {
+      "kind": "program",
+      "id": "program_qm_029",
+      "ready": false,
+      "issues": [
+        "UNVERIFIED",
+        "RIGHTS_NOT_CONFIRMED",
+        "OUTSIDE_VALIDITY_OR_UNKNOWN",
+        "DEPENDENCY_NOT_READY:source:src_qmsyun_program_20261023"
+      ]
+    },
+    {
+      "kind": "program",
+      "id": "program_qm_030",
+      "ready": false,
+      "issues": [
+        "UNVERIFIED",
+        "RIGHTS_NOT_CONFIRMED",
+        "OUTSIDE_VALIDITY_OR_UNKNOWN",
+        "DEPENDENCY_NOT_READY:source:src_qmsyun_program_20261023"
+      ]
+    },
+    {
+      "kind": "program",
+      "id": "program_qm_031",
+      "ready": false,
+      "issues": [
+        "UNVERIFIED",
+        "RIGHTS_NOT_CONFIRMED",
+        "OUTSIDE_VALIDITY_OR_UNKNOWN",
+        "DEPENDENCY_NOT_READY:source:src_qmsyun_program_20261023"
+      ]
+    },
+    {
+      "kind": "program",
+      "id": "program_qm_032",
+      "ready": false,
+      "issues": [
+        "UNVERIFIED",
+        "RIGHTS_NOT_CONFIRMED",
+        "OUTSIDE_VALIDITY_OR_UNKNOWN",
+        "DEPENDENCY_NOT_READY:source:src_qmsyun_program_20261023"
+      ]
+    },
+    {
+      "kind": "program",
+      "id": "program_qm_033",
+      "ready": false,
+      "issues": [
+        "UNVERIFIED",
+        "RIGHTS_NOT_CONFIRMED",
+        "OUTSIDE_VALIDITY_OR_UNKNOWN",
+        "DEPENDENCY_NOT_READY:source:src_qmsyun_program_20261023"
+      ]
+    },
+    {
+      "kind": "program",
+      "id": "program_qm_034",
+      "ready": false,
+      "issues": [
+        "UNVERIFIED",
+        "RIGHTS_NOT_CONFIRMED",
+        "OUTSIDE_VALIDITY_OR_UNKNOWN",
+        "DEPENDENCY_NOT_READY:source:src_qmsyun_program_20261023"
+      ]
+    },
+    {
+      "kind": "program",
+      "id": "program_qm_035",
+      "ready": false,
+      "issues": [
+        "UNVERIFIED",
+        "RIGHTS_NOT_CONFIRMED",
+        "OUTSIDE_VALIDITY_OR_UNKNOWN",
+        "DEPENDENCY_NOT_READY:source:src_qmsyun_program_20261023"
+      ]
+    },
+    {
+      "kind": "program",
+      "id": "program_qm_036",
+      "ready": false,
+      "issues": [
+        "UNVERIFIED",
+        "RIGHTS_NOT_CONFIRMED",
+        "OUTSIDE_VALIDITY_OR_UNKNOWN",
+        "DEPENDENCY_NOT_READY:source:src_qmsyun_program_20261023"
+      ]
+    },
+    {
+      "kind": "program",
+      "id": "program_qm_037",
+      "ready": false,
+      "issues": [
+        "UNVERIFIED",
+        "RIGHTS_NOT_CONFIRMED",
+        "OUTSIDE_VALIDITY_OR_UNKNOWN",
+        "DEPENDENCY_NOT_READY:source:src_qmsyun_program_20261023"
+      ]
+    },
+    {
+      "kind": "program",
+      "id": "program_qm_038",
+      "ready": false,
+      "issues": [
+        "UNVERIFIED",
+        "RIGHTS_NOT_CONFIRMED",
+        "OUTSIDE_VALIDITY_OR_UNKNOWN",
+        "DEPENDENCY_NOT_READY:source:src_qmsyun_program_20261023"
+      ]
+    },
+    {
+      "kind": "program",
+      "id": "program_qm_039",
+      "ready": false,
+      "issues": [
+        "UNVERIFIED",
+        "RIGHTS_NOT_CONFIRMED",
+        "OUTSIDE_VALIDITY_OR_UNKNOWN",
+        "DEPENDENCY_NOT_READY:source:src_qmsyun_program_20261023"
+      ]
+    },
+    {
+      "kind": "program",
+      "id": "program_qm_040",
+      "ready": false,
+      "issues": [
+        "UNVERIFIED",
+        "RIGHTS_NOT_CONFIRMED",
+        "OUTSIDE_VALIDITY_OR_UNKNOWN",
+        "DEPENDENCY_NOT_READY:source:src_qmsyun_program_20261023"
+      ]
+    },
+    {
+      "kind": "program",
+      "id": "program_qm_041",
+      "ready": false,
+      "issues": [
+        "UNVERIFIED",
+        "RIGHTS_NOT_CONFIRMED",
+        "OUTSIDE_VALIDITY_OR_UNKNOWN",
+        "DEPENDENCY_NOT_READY:source:src_qmsyun_program_20261023"
+      ]
+    },
+    {
+      "kind": "program",
+      "id": "program_qm_042",
+      "ready": false,
+      "issues": [
+        "UNVERIFIED",
+        "RIGHTS_NOT_CONFIRMED",
+        "OUTSIDE_VALIDITY_OR_UNKNOWN",
+        "DEPENDENCY_NOT_READY:source:src_qmsyun_program_20261023"
+      ]
+    },
+    {
+      "kind": "program",
+      "id": "program_qm_043",
+      "ready": false,
+      "issues": [
+        "UNVERIFIED",
+        "RIGHTS_NOT_CONFIRMED",
+        "OUTSIDE_VALIDITY_OR_UNKNOWN",
+        "DEPENDENCY_NOT_READY:source:src_qmsyun_program_20261023"
+      ]
+    },
+    {
+      "kind": "program",
+      "id": "program_qm_044",
+      "ready": false,
+      "issues": [
+        "UNVERIFIED",
+        "RIGHTS_NOT_CONFIRMED",
+        "OUTSIDE_VALIDITY_OR_UNKNOWN",
+        "DEPENDENCY_NOT_READY:source:src_qmsyun_program_20261023"
+      ]
+    },
+    {
+      "kind": "program",
+      "id": "program_qm_045",
+      "ready": false,
+      "issues": [
+        "UNVERIFIED",
+        "RIGHTS_NOT_CONFIRMED",
+        "OUTSIDE_VALIDITY_OR_UNKNOWN",
+        "DEPENDENCY_NOT_READY:source:src_qmsyun_program_20261023"
+      ]
+    },
+    {
+      "kind": "program",
+      "id": "program_qm_046",
+      "ready": false,
+      "issues": [
+        "UNVERIFIED",
+        "RIGHTS_NOT_CONFIRMED",
+        "OUTSIDE_VALIDITY_OR_UNKNOWN",
+        "DEPENDENCY_NOT_READY:source:src_qmsyun_program_20261023"
+      ]
+    },
+    {
+      "kind": "program",
+      "id": "program_qm_047",
+      "ready": false,
+      "issues": [
+        "UNVERIFIED",
+        "RIGHTS_NOT_CONFIRMED",
+        "OUTSIDE_VALIDITY_OR_UNKNOWN",
+        "DEPENDENCY_NOT_READY:source:src_qmsyun_program_20261023"
+      ]
+    },
+    {
+      "kind": "program",
+      "id": "program_qm_048",
+      "ready": false,
+      "issues": [
+        "UNVERIFIED",
+        "RIGHTS_NOT_CONFIRMED",
+        "OUTSIDE_VALIDITY_OR_UNKNOWN",
+        "DEPENDENCY_NOT_READY:source:src_qmsyun_program_20261023"
+      ]
+    },
+    {
+      "kind": "program",
+      "id": "program_qm_049",
+      "ready": false,
+      "issues": [
+        "UNVERIFIED",
+        "RIGHTS_NOT_CONFIRMED",
+        "OUTSIDE_VALIDITY_OR_UNKNOWN",
+        "DEPENDENCY_NOT_READY:source:src_qmsyun_program_20261023"
+      ]
+    },
+    {
+      "kind": "program",
+      "id": "program_qm_050",
+      "ready": false,
+      "issues": [
+        "UNVERIFIED",
+        "RIGHTS_NOT_CONFIRMED",
+        "OUTSIDE_VALIDITY_OR_UNKNOWN",
+        "DEPENDENCY_NOT_READY:source:src_qmsyun_program_20261023"
+      ]
+    },
+    {
+      "kind": "program",
+      "id": "program_qm_051",
+      "ready": false,
+      "issues": [
+        "UNVERIFIED",
+        "RIGHTS_NOT_CONFIRMED",
+        "OUTSIDE_VALIDITY_OR_UNKNOWN",
+        "DEPENDENCY_NOT_READY:source:src_qmsyun_program_20261023"
+      ]
+    },
+    {
+      "kind": "program",
+      "id": "program_qm_052",
+      "ready": false,
+      "issues": [
+        "UNVERIFIED",
+        "RIGHTS_NOT_CONFIRMED",
+        "OUTSIDE_VALIDITY_OR_UNKNOWN",
+        "DEPENDENCY_NOT_READY:source:src_qmsyun_program_20261023"
+      ]
+    },
+    {
+      "kind": "program",
+      "id": "program_qm_053",
+      "ready": false,
+      "issues": [
+        "UNVERIFIED",
+        "RIGHTS_NOT_CONFIRMED",
+        "OUTSIDE_VALIDITY_OR_UNKNOWN",
+        "DEPENDENCY_NOT_READY:source:src_qmsyun_program_20261023"
+      ]
+    },
+    {
+      "kind": "program",
+      "id": "program_qm_054",
+      "ready": false,
+      "issues": [
+        "UNVERIFIED",
+        "RIGHTS_NOT_CONFIRMED",
+        "OUTSIDE_VALIDITY_OR_UNKNOWN",
+        "DEPENDENCY_NOT_READY:source:src_qmsyun_program_20261023"
+      ]
+    },
+    {
+      "kind": "program",
+      "id": "program_qm_055",
+      "ready": false,
+      "issues": [
+        "UNVERIFIED",
+        "RIGHTS_NOT_CONFIRMED",
+        "OUTSIDE_VALIDITY_OR_UNKNOWN",
+        "DEPENDENCY_NOT_READY:source:src_qmsyun_program_20261023"
+      ]
+    },
+    {
+      "kind": "program",
+      "id": "program_qm_056",
+      "ready": false,
+      "issues": [
+        "UNVERIFIED",
+        "RIGHTS_NOT_CONFIRMED",
+        "OUTSIDE_VALIDITY_OR_UNKNOWN",
+        "DEPENDENCY_NOT_READY:source:src_qmsyun_program_20261023"
+      ]
+    },
+    {
+      "kind": "program",
+      "id": "program_qm_057",
+      "ready": false,
+      "issues": [
+        "UNVERIFIED",
+        "RIGHTS_NOT_CONFIRMED",
+        "OUTSIDE_VALIDITY_OR_UNKNOWN",
+        "DEPENDENCY_NOT_READY:source:src_qmsyun_program_20261023"
+      ]
+    },
+    {
+      "kind": "program",
+      "id": "program_qm_058",
+      "ready": false,
+      "issues": [
+        "UNVERIFIED",
+        "RIGHTS_NOT_CONFIRMED",
+        "OUTSIDE_VALIDITY_OR_UNKNOWN",
+        "DEPENDENCY_NOT_READY:source:src_qmsyun_program_20261023"
+      ]
+    },
+    {
+      "kind": "program",
+      "id": "program_qm_059",
+      "ready": false,
+      "issues": [
+        "UNVERIFIED",
+        "RIGHTS_NOT_CONFIRMED",
+        "OUTSIDE_VALIDITY_OR_UNKNOWN",
+        "DEPENDENCY_NOT_READY:source:src_qmsyun_program_20261023"
+      ]
+    },
+    {
+      "kind": "program",
+      "id": "program_qm_060",
+      "ready": false,
+      "issues": [
+        "UNVERIFIED",
+        "RIGHTS_NOT_CONFIRMED",
+        "OUTSIDE_VALIDITY_OR_UNKNOWN",
+        "DEPENDENCY_NOT_READY:source:src_qmsyun_program_20261023"
+      ]
+    },
+    {
+      "kind": "program",
+      "id": "program_qm_061",
+      "ready": false,
+      "issues": [
+        "UNVERIFIED",
+        "RIGHTS_NOT_CONFIRMED",
+        "OUTSIDE_VALIDITY_OR_UNKNOWN",
+        "DEPENDENCY_NOT_READY:source:src_qmsyun_program_20261023"
+      ]
+    },
+    {
+      "kind": "program",
+      "id": "program_qm_062",
+      "ready": false,
+      "issues": [
+        "UNVERIFIED",
+        "RIGHTS_NOT_CONFIRMED",
+        "OUTSIDE_VALIDITY_OR_UNKNOWN",
+        "DEPENDENCY_NOT_READY:source:src_qmsyun_program_20261023"
+      ]
+    },
+    {
+      "kind": "program",
+      "id": "program_qm_063",
+      "ready": false,
+      "issues": [
+        "UNVERIFIED",
+        "RIGHTS_NOT_CONFIRMED",
+        "OUTSIDE_VALIDITY_OR_UNKNOWN",
+        "DEPENDENCY_NOT_READY:source:src_qmsyun_program_20261023"
+      ]
+    },
+    {
+      "kind": "program",
+      "id": "program_qm_064",
+      "ready": false,
+      "issues": [
+        "UNVERIFIED",
+        "RIGHTS_NOT_CONFIRMED",
+        "OUTSIDE_VALIDITY_OR_UNKNOWN",
+        "DEPENDENCY_NOT_READY:source:src_qmsyun_program_20261023"
+      ]
+    },
+    {
+      "kind": "program",
+      "id": "program_qm_065",
+      "ready": false,
+      "issues": [
+        "UNVERIFIED",
+        "RIGHTS_NOT_CONFIRMED",
+        "OUTSIDE_VALIDITY_OR_UNKNOWN",
+        "DEPENDENCY_NOT_READY:source:src_qmsyun_program_20261023"
+      ]
+    },
+    {
+      "kind": "program",
+      "id": "program_qm_066",
+      "ready": false,
+      "issues": [
+        "UNVERIFIED",
+        "RIGHTS_NOT_CONFIRMED",
+        "OUTSIDE_VALIDITY_OR_UNKNOWN",
+        "DEPENDENCY_NOT_READY:source:src_qmsyun_program_20261023"
+      ]
+    },
+    {
+      "kind": "program",
+      "id": "program_qm_067",
+      "ready": false,
+      "issues": [
+        "UNVERIFIED",
+        "RIGHTS_NOT_CONFIRMED",
+        "OUTSIDE_VALIDITY_OR_UNKNOWN",
+        "DEPENDENCY_NOT_READY:source:src_qmsyun_program_20261023"
+      ]
+    },
+    {
+      "kind": "program",
+      "id": "program_qm_068",
+      "ready": false,
+      "issues": [
+        "UNVERIFIED",
+        "RIGHTS_NOT_CONFIRMED",
+        "OUTSIDE_VALIDITY_OR_UNKNOWN",
+        "DEPENDENCY_NOT_READY:source:src_qmsyun_program_20261023"
+      ]
+    },
+    {
+      "kind": "program",
+      "id": "program_qm_069",
+      "ready": false,
+      "issues": [
+        "UNVERIFIED",
+        "RIGHTS_NOT_CONFIRMED",
+        "OUTSIDE_VALIDITY_OR_UNKNOWN",
+        "DEPENDENCY_NOT_READY:source:src_qmsyun_program_20261023"
+      ]
+    },
+    {
+      "kind": "program",
+      "id": "program_qm_070",
+      "ready": false,
+      "issues": [
+        "UNVERIFIED",
+        "RIGHTS_NOT_CONFIRMED",
+        "OUTSIDE_VALIDITY_OR_UNKNOWN",
+        "DEPENDENCY_NOT_READY:source:src_qmsyun_program_20261023"
+      ]
+    },
+    {
+      "kind": "program",
+      "id": "program_qm_071",
+      "ready": false,
+      "issues": [
+        "UNVERIFIED",
+        "RIGHTS_NOT_CONFIRMED",
+        "OUTSIDE_VALIDITY_OR_UNKNOWN",
+        "DEPENDENCY_NOT_READY:source:src_qmsyun_program_20261023"
+      ]
+    },
+    {
+      "kind": "program",
+      "id": "program_qm_072",
+      "ready": false,
+      "issues": [
+        "UNVERIFIED",
+        "RIGHTS_NOT_CONFIRMED",
+        "OUTSIDE_VALIDITY_OR_UNKNOWN",
+        "DEPENDENCY_NOT_READY:source:src_qmsyun_program_20261023"
+      ]
+    },
+    {
+      "kind": "program",
+      "id": "program_qm_073",
+      "ready": false,
+      "issues": [
+        "UNVERIFIED",
+        "RIGHTS_NOT_CONFIRMED",
+        "OUTSIDE_VALIDITY_OR_UNKNOWN",
+        "DEPENDENCY_NOT_READY:source:src_qmsyun_program_20261023"
+      ]
+    },
+    {
+      "kind": "program",
+      "id": "program_qm_074",
+      "ready": false,
+      "issues": [
+        "UNVERIFIED",
+        "RIGHTS_NOT_CONFIRMED",
+        "OUTSIDE_VALIDITY_OR_UNKNOWN",
+        "DEPENDENCY_NOT_READY:source:src_qmsyun_program_20261023"
+      ]
+    },
+    {
+      "kind": "program",
+      "id": "program_qm_075",
+      "ready": false,
+      "issues": [
+        "UNVERIFIED",
+        "RIGHTS_NOT_CONFIRMED",
+        "OUTSIDE_VALIDITY_OR_UNKNOWN",
+        "DEPENDENCY_NOT_READY:source:src_qmsyun_program_20261023"
+      ]
+    },
+    {
+      "kind": "program",
+      "id": "program_qm_076",
+      "ready": false,
+      "issues": [
+        "UNVERIFIED",
+        "RIGHTS_NOT_CONFIRMED",
+        "OUTSIDE_VALIDITY_OR_UNKNOWN",
+        "DEPENDENCY_NOT_READY:source:src_qmsyun_program_20261023"
+      ]
+    },
+    {
+      "kind": "program",
+      "id": "program_qm_077",
+      "ready": false,
+      "issues": [
+        "UNVERIFIED",
+        "RIGHTS_NOT_CONFIRMED",
+        "OUTSIDE_VALIDITY_OR_UNKNOWN",
+        "DEPENDENCY_NOT_READY:source:src_qmsyun_program_20261023"
+      ]
+    },
+    {
+      "kind": "program",
+      "id": "program_qm_078",
+      "ready": false,
+      "issues": [
+        "UNVERIFIED",
+        "RIGHTS_NOT_CONFIRMED",
+        "OUTSIDE_VALIDITY_OR_UNKNOWN",
+        "DEPENDENCY_NOT_READY:source:src_qmsyun_program_20261023"
+      ]
+    },
+    {
+      "kind": "program",
+      "id": "program_qm_079",
+      "ready": false,
+      "issues": [
+        "UNVERIFIED",
+        "RIGHTS_NOT_CONFIRMED",
+        "OUTSIDE_VALIDITY_OR_UNKNOWN",
+        "DEPENDENCY_NOT_READY:source:src_qmsyun_program_20261023"
+      ]
+    },
+    {
+      "kind": "program",
+      "id": "program_qm_080",
+      "ready": false,
+      "issues": [
+        "UNVERIFIED",
+        "RIGHTS_NOT_CONFIRMED",
+        "OUTSIDE_VALIDITY_OR_UNKNOWN",
+        "DEPENDENCY_NOT_READY:source:src_qmsyun_program_20261023"
+      ]
+    },
+    {
+      "kind": "program",
+      "id": "program_qm_081",
+      "ready": false,
+      "issues": [
+        "UNVERIFIED",
+        "RIGHTS_NOT_CONFIRMED",
+        "OUTSIDE_VALIDITY_OR_UNKNOWN",
+        "DEPENDENCY_NOT_READY:source:src_qmsyun_program_20261023"
+      ]
+    },
+    {
+      "kind": "program",
+      "id": "program_qm_082",
+      "ready": false,
+      "issues": [
+        "UNVERIFIED",
+        "RIGHTS_NOT_CONFIRMED",
+        "OUTSIDE_VALIDITY_OR_UNKNOWN",
+        "DEPENDENCY_NOT_READY:source:src_qmsyun_program_20261023"
+      ]
+    },
+    {
+      "kind": "program",
+      "id": "program_qm_083",
+      "ready": false,
+      "issues": [
+        "UNVERIFIED",
+        "RIGHTS_NOT_CONFIRMED",
+        "OUTSIDE_VALIDITY_OR_UNKNOWN",
+        "DEPENDENCY_NOT_READY:source:src_qmsyun_program_20261023"
+      ]
+    },
+    {
+      "kind": "program",
+      "id": "program_qm_084",
+      "ready": false,
+      "issues": [
+        "UNVERIFIED",
+        "RIGHTS_NOT_CONFIRMED",
+        "OUTSIDE_VALIDITY_OR_UNKNOWN",
+        "DEPENDENCY_NOT_READY:source:src_qmsyun_program_20261023"
+      ]
+    },
+    {
+      "kind": "program",
+      "id": "program_qm_085",
+      "ready": false,
+      "issues": [
+        "UNVERIFIED",
+        "RIGHTS_NOT_CONFIRMED",
+        "OUTSIDE_VALIDITY_OR_UNKNOWN",
+        "DEPENDENCY_NOT_READY:source:src_qmsyun_program_20261023"
+      ]
+    },
+    {
+      "kind": "program",
+      "id": "program_qm_086",
+      "ready": false,
+      "issues": [
+        "UNVERIFIED",
+        "RIGHTS_NOT_CONFIRMED",
+        "OUTSIDE_VALIDITY_OR_UNKNOWN",
+        "DEPENDENCY_NOT_READY:source:src_qmsyun_program_20261023"
+      ]
+    },
+    {
+      "kind": "program",
+      "id": "program_qm_087",
+      "ready": false,
+      "issues": [
+        "UNVERIFIED",
+        "RIGHTS_NOT_CONFIRMED",
+        "OUTSIDE_VALIDITY_OR_UNKNOWN",
+        "DEPENDENCY_NOT_READY:source:src_qmsyun_program_20261023"
+      ]
+    },
+    {
+      "kind": "program",
+      "id": "program_qm_088",
+      "ready": false,
+      "issues": [
+        "UNVERIFIED",
+        "RIGHTS_NOT_CONFIRMED",
+        "OUTSIDE_VALIDITY_OR_UNKNOWN",
+        "DEPENDENCY_NOT_READY:source:src_qmsyun_program_20261023"
+      ]
+    },
+    {
+      "kind": "program",
+      "id": "program_qm_089",
+      "ready": false,
+      "issues": [
+        "UNVERIFIED",
+        "RIGHTS_NOT_CONFIRMED",
+        "OUTSIDE_VALIDITY_OR_UNKNOWN",
+        "DEPENDENCY_NOT_READY:source:src_qmsyun_program_20261023"
+      ]
+    },
+    {
+      "kind": "program",
+      "id": "program_qm_090",
+      "ready": false,
+      "issues": [
+        "UNVERIFIED",
+        "RIGHTS_NOT_CONFIRMED",
+        "OUTSIDE_VALIDITY_OR_UNKNOWN",
+        "DEPENDENCY_NOT_READY:source:src_qmsyun_program_20261023"
+      ]
+    },
+    {
+      "kind": "program",
+      "id": "program_qm_091",
+      "ready": false,
+      "issues": [
+        "UNVERIFIED",
+        "RIGHTS_NOT_CONFIRMED",
+        "OUTSIDE_VALIDITY_OR_UNKNOWN",
+        "DEPENDENCY_NOT_READY:source:src_qmsyun_program_20261023"
+      ]
+    },
+    {
+      "kind": "program",
+      "id": "program_qm_092",
+      "ready": false,
+      "issues": [
+        "UNVERIFIED",
+        "RIGHTS_NOT_CONFIRMED",
+        "OUTSIDE_VALIDITY_OR_UNKNOWN",
+        "DEPENDENCY_NOT_READY:source:src_qmsyun_program_20261023"
+      ]
+    },
+    {
+      "kind": "program",
+      "id": "program_qm_093",
+      "ready": false,
+      "issues": [
+        "UNVERIFIED",
+        "RIGHTS_NOT_CONFIRMED",
+        "OUTSIDE_VALIDITY_OR_UNKNOWN",
+        "DEPENDENCY_NOT_READY:source:src_qmsyun_program_20261023"
+      ]
+    },
+    {
+      "kind": "program",
+      "id": "program_qm_094",
+      "ready": false,
+      "issues": [
+        "UNVERIFIED",
+        "RIGHTS_NOT_CONFIRMED",
+        "OUTSIDE_VALIDITY_OR_UNKNOWN",
+        "DEPENDENCY_NOT_READY:source:src_qmsyun_program_20261023"
+      ]
+    },
+    {
+      "kind": "program",
+      "id": "program_qm_095",
+      "ready": false,
+      "issues": [
+        "UNVERIFIED",
+        "RIGHTS_NOT_CONFIRMED",
+        "OUTSIDE_VALIDITY_OR_UNKNOWN",
+        "DEPENDENCY_NOT_READY:source:src_qmsyun_program_20261023"
+      ]
+    },
+    {
+      "kind": "program",
+      "id": "program_qm_096",
+      "ready": false,
+      "issues": [
+        "UNVERIFIED",
+        "RIGHTS_NOT_CONFIRMED",
+        "OUTSIDE_VALIDITY_OR_UNKNOWN",
+        "DEPENDENCY_NOT_READY:source:src_qmsyun_program_20261023"
+      ]
+    },
+    {
+      "kind": "program",
+      "id": "program_qm_097",
+      "ready": false,
+      "issues": [
+        "UNVERIFIED",
+        "RIGHTS_NOT_CONFIRMED",
+        "OUTSIDE_VALIDITY_OR_UNKNOWN",
+        "DEPENDENCY_NOT_READY:source:src_qmsyun_program_20261023"
+      ]
+    },
+    {
+      "kind": "program",
+      "id": "program_qm_098",
+      "ready": false,
+      "issues": [
+        "UNVERIFIED",
+        "RIGHTS_NOT_CONFIRMED",
+        "OUTSIDE_VALIDITY_OR_UNKNOWN",
+        "DEPENDENCY_NOT_READY:source:src_qmsyun_program_20261023"
+      ]
+    },
+    {
+      "kind": "program",
+      "id": "program_qm_099",
+      "ready": false,
+      "issues": [
+        "UNVERIFIED",
+        "RIGHTS_NOT_CONFIRMED",
+        "OUTSIDE_VALIDITY_OR_UNKNOWN",
+        "DEPENDENCY_NOT_READY:source:src_qmsyun_program_20261023"
+      ]
+    },
+    {
+      "kind": "program",
+      "id": "program_qm_100",
+      "ready": false,
+      "issues": [
+        "UNVERIFIED",
+        "RIGHTS_NOT_CONFIRMED",
+        "OUTSIDE_VALIDITY_OR_UNKNOWN",
+        "DEPENDENCY_NOT_READY:source:src_qmsyun_program_20261023"
+      ]
+    },
+    {
+      "kind": "program",
+      "id": "program_qm_101",
+      "ready": false,
+      "issues": [
+        "UNVERIFIED",
+        "RIGHTS_NOT_CONFIRMED",
+        "OUTSIDE_VALIDITY_OR_UNKNOWN",
+        "DEPENDENCY_NOT_READY:source:src_qmsyun_program_20261023"
+      ]
+    },
+    {
+      "kind": "program",
+      "id": "program_qm_102",
+      "ready": false,
+      "issues": [
+        "UNVERIFIED",
+        "RIGHTS_NOT_CONFIRMED",
+        "OUTSIDE_VALIDITY_OR_UNKNOWN",
+        "DEPENDENCY_NOT_READY:source:src_qmsyun_program_20261023"
+      ]
+    },
+    {
+      "kind": "program",
+      "id": "program_qm_103",
+      "ready": false,
+      "issues": [
+        "UNVERIFIED",
+        "RIGHTS_NOT_CONFIRMED",
+        "OUTSIDE_VALIDITY_OR_UNKNOWN",
+        "DEPENDENCY_NOT_READY:source:src_qmsyun_program_20261023"
+      ]
+    },
+    {
+      "kind": "program",
+      "id": "program_qm_104",
+      "ready": false,
+      "issues": [
+        "UNVERIFIED",
+        "RIGHTS_NOT_CONFIRMED",
+        "OUTSIDE_VALIDITY_OR_UNKNOWN",
+        "DEPENDENCY_NOT_READY:source:src_qmsyun_program_20261023"
+      ]
+    },
+    {
+      "kind": "program",
+      "id": "program_qm_105",
+      "ready": false,
+      "issues": [
+        "UNVERIFIED",
+        "RIGHTS_NOT_CONFIRMED",
+        "OUTSIDE_VALIDITY_OR_UNKNOWN",
+        "DEPENDENCY_NOT_READY:source:src_qmsyun_program_20261023"
+      ]
+    },
+    {
+      "kind": "program",
+      "id": "program_qm_106",
+      "ready": false,
+      "issues": [
+        "UNVERIFIED",
+        "RIGHTS_NOT_CONFIRMED",
+        "OUTSIDE_VALIDITY_OR_UNKNOWN",
+        "DEPENDENCY_NOT_READY:source:src_qmsyun_program_20261023"
+      ]
+    },
+    {
+      "kind": "program",
+      "id": "program_qm_107",
+      "ready": false,
+      "issues": [
+        "UNVERIFIED",
+        "RIGHTS_NOT_CONFIRMED",
+        "OUTSIDE_VALIDITY_OR_UNKNOWN",
+        "DEPENDENCY_NOT_READY:source:src_qmsyun_program_20261023"
+      ]
+    },
+    {
+      "kind": "program",
+      "id": "program_qm_108",
+      "ready": false,
+      "issues": [
+        "UNVERIFIED",
+        "RIGHTS_NOT_CONFIRMED",
+        "OUTSIDE_VALIDITY_OR_UNKNOWN",
+        "DEPENDENCY_NOT_READY:source:src_qmsyun_program_20261023"
+      ]
+    },
+    {
+      "kind": "program",
+      "id": "program_qm_109",
+      "ready": false,
+      "issues": [
+        "UNVERIFIED",
+        "RIGHTS_NOT_CONFIRMED",
+        "OUTSIDE_VALIDITY_OR_UNKNOWN",
+        "DEPENDENCY_NOT_READY:source:src_qmsyun_program_20261023"
+      ]
+    },
+    {
+      "kind": "program",
+      "id": "program_qm_110",
+      "ready": false,
+      "issues": [
+        "UNVERIFIED",
+        "RIGHTS_NOT_CONFIRMED",
+        "OUTSIDE_VALIDITY_OR_UNKNOWN",
+        "DEPENDENCY_NOT_READY:source:src_qmsyun_program_20261023"
+      ]
+    },
+    {
+      "kind": "program",
+      "id": "program_qm_111",
+      "ready": false,
+      "issues": [
+        "UNVERIFIED",
+        "RIGHTS_NOT_CONFIRMED",
+        "OUTSIDE_VALIDITY_OR_UNKNOWN",
+        "DEPENDENCY_NOT_READY:source:src_qmsyun_program_20261023"
+      ]
+    },
+    {
+      "kind": "program",
+      "id": "program_qm_112",
+      "ready": false,
+      "issues": [
+        "UNVERIFIED",
+        "RIGHTS_NOT_CONFIRMED",
+        "OUTSIDE_VALIDITY_OR_UNKNOWN",
+        "DEPENDENCY_NOT_READY:source:src_qmsyun_program_20261023"
+      ]
+    },
+    {
+      "kind": "program",
+      "id": "program_qm_113",
+      "ready": false,
+      "issues": [
+        "UNVERIFIED",
+        "RIGHTS_NOT_CONFIRMED",
+        "OUTSIDE_VALIDITY_OR_UNKNOWN",
+        "DEPENDENCY_NOT_READY:source:src_qmsyun_program_20261023"
+      ]
+    },
+    {
+      "kind": "program",
+      "id": "program_qm_114",
+      "ready": false,
+      "issues": [
+        "UNVERIFIED",
+        "RIGHTS_NOT_CONFIRMED",
+        "OUTSIDE_VALIDITY_OR_UNKNOWN",
+        "DEPENDENCY_NOT_READY:source:src_qmsyun_program_20261023"
+      ]
+    },
+    {
+      "kind": "program",
+      "id": "program_qm_115",
+      "ready": false,
+      "issues": [
+        "UNVERIFIED",
+        "RIGHTS_NOT_CONFIRMED",
+        "OUTSIDE_VALIDITY_OR_UNKNOWN",
+        "DEPENDENCY_NOT_READY:source:src_qmsyun_program_20261023"
+      ]
+    },
+    {
+      "kind": "program",
+      "id": "program_qm_116",
+      "ready": false,
+      "issues": [
+        "UNVERIFIED",
+        "RIGHTS_NOT_CONFIRMED",
+        "OUTSIDE_VALIDITY_OR_UNKNOWN",
+        "DEPENDENCY_NOT_READY:source:src_qmsyun_program_20261023"
+      ]
+    },
+    {
+      "kind": "program",
+      "id": "program_qm_117",
+      "ready": false,
+      "issues": [
+        "UNVERIFIED",
+        "RIGHTS_NOT_CONFIRMED",
+        "OUTSIDE_VALIDITY_OR_UNKNOWN",
+        "DEPENDENCY_NOT_READY:source:src_qmsyun_program_20261023"
+      ]
+    },
+    {
+      "kind": "program",
+      "id": "program_qm_118",
+      "ready": false,
+      "issues": [
+        "UNVERIFIED",
+        "RIGHTS_NOT_CONFIRMED",
+        "OUTSIDE_VALIDITY_OR_UNKNOWN",
+        "DEPENDENCY_NOT_READY:source:src_qmsyun_program_20261023"
+      ]
+    },
+    {
+      "kind": "program",
+      "id": "program_qm_119",
+      "ready": false,
+      "issues": [
+        "UNVERIFIED",
+        "RIGHTS_NOT_CONFIRMED",
+        "OUTSIDE_VALIDITY_OR_UNKNOWN",
+        "DEPENDENCY_NOT_READY:source:src_qmsyun_program_20261023"
+      ]
+    },
+    {
+      "kind": "program",
+      "id": "program_qm_120",
+      "ready": false,
+      "issues": [
+        "UNVERIFIED",
+        "RIGHTS_NOT_CONFIRMED",
+        "OUTSIDE_VALIDITY_OR_UNKNOWN",
+        "DEPENDENCY_NOT_READY:source:src_qmsyun_program_20261023"
+      ]
+    },
+    {
+      "kind": "program",
+      "id": "program_qm_121",
+      "ready": false,
+      "issues": [
+        "UNVERIFIED",
+        "RIGHTS_NOT_CONFIRMED",
+        "OUTSIDE_VALIDITY_OR_UNKNOWN",
+        "DEPENDENCY_NOT_READY:source:src_qmsyun_program_20261023"
+      ]
+    },
+    {
+      "kind": "program",
+      "id": "program_qm_122",
+      "ready": false,
+      "issues": [
+        "UNVERIFIED",
+        "RIGHTS_NOT_CONFIRMED",
+        "OUTSIDE_VALIDITY_OR_UNKNOWN",
+        "DEPENDENCY_NOT_READY:source:src_qmsyun_program_20261023"
+      ]
+    },
+    {
+      "kind": "program",
+      "id": "program_qm_123",
+      "ready": false,
+      "issues": [
+        "UNVERIFIED",
+        "RIGHTS_NOT_CONFIRMED",
+        "OUTSIDE_VALIDITY_OR_UNKNOWN",
+        "DEPENDENCY_NOT_READY:source:src_qmsyun_program_20261023"
+      ]
+    },
+    {
+      "kind": "program",
+      "id": "program_qm_124",
+      "ready": false,
+      "issues": [
+        "UNVERIFIED",
+        "RIGHTS_NOT_CONFIRMED",
+        "OUTSIDE_VALIDITY_OR_UNKNOWN",
+        "DEPENDENCY_NOT_READY:source:src_qmsyun_program_20261023"
+      ]
+    },
+    {
+      "kind": "program",
+      "id": "program_qm_125",
+      "ready": false,
+      "issues": [
+        "UNVERIFIED",
+        "RIGHTS_NOT_CONFIRMED",
+        "OUTSIDE_VALIDITY_OR_UNKNOWN",
+        "DEPENDENCY_NOT_READY:source:src_qmsyun_program_20261023"
+      ]
+    },
+    {
+      "kind": "program",
+      "id": "program_qm_126",
+      "ready": false,
+      "issues": [
+        "UNVERIFIED",
+        "RIGHTS_NOT_CONFIRMED",
+        "OUTSIDE_VALIDITY_OR_UNKNOWN",
+        "DEPENDENCY_NOT_READY:source:src_qmsyun_program_20261023"
+      ]
+    },
+    {
+      "kind": "program",
+      "id": "program_qm_127",
+      "ready": false,
+      "issues": [
+        "UNVERIFIED",
+        "RIGHTS_NOT_CONFIRMED",
+        "OUTSIDE_VALIDITY_OR_UNKNOWN",
+        "DEPENDENCY_NOT_READY:source:src_qmsyun_program_20261023"
+      ]
+    },
+    {
+      "kind": "program",
+      "id": "program_qm_128",
+      "ready": false,
+      "issues": [
+        "UNVERIFIED",
+        "RIGHTS_NOT_CONFIRMED",
+        "OUTSIDE_VALIDITY_OR_UNKNOWN",
+        "DEPENDENCY_NOT_READY:source:src_qmsyun_program_20261023"
+      ]
+    },
+    {
+      "kind": "program",
+      "id": "program_qm_129",
+      "ready": false,
+      "issues": [
+        "UNVERIFIED",
+        "RIGHTS_NOT_CONFIRMED",
+        "OUTSIDE_VALIDITY_OR_UNKNOWN",
+        "DEPENDENCY_NOT_READY:source:src_qmsyun_program_20261023"
+      ]
+    },
+    {
+      "kind": "program",
+      "id": "program_qm_130",
+      "ready": false,
+      "issues": [
+        "UNVERIFIED",
+        "RIGHTS_NOT_CONFIRMED",
+        "OUTSIDE_VALIDITY_OR_UNKNOWN",
+        "DEPENDENCY_NOT_READY:source:src_qmsyun_program_20261023"
+      ]
+    },
+    {
+      "kind": "program",
+      "id": "program_qm_131",
+      "ready": false,
+      "issues": [
+        "UNVERIFIED",
+        "RIGHTS_NOT_CONFIRMED",
+        "OUTSIDE_VALIDITY_OR_UNKNOWN",
+        "DEPENDENCY_NOT_READY:source:src_qmsyun_program_20261023"
+      ]
+    },
+    {
+      "kind": "program",
+      "id": "program_qm_132",
+      "ready": false,
+      "issues": [
+        "UNVERIFIED",
+        "RIGHTS_NOT_CONFIRMED",
+        "OUTSIDE_VALIDITY_OR_UNKNOWN",
+        "DEPENDENCY_NOT_READY:source:src_qmsyun_program_20261023"
+      ]
+    },
+    {
+      "kind": "program",
+      "id": "program_qm_133",
+      "ready": false,
+      "issues": [
+        "UNVERIFIED",
+        "RIGHTS_NOT_CONFIRMED",
+        "OUTSIDE_VALIDITY_OR_UNKNOWN",
+        "DEPENDENCY_NOT_READY:source:src_qmsyun_program_20261023"
+      ]
+    },
+    {
+      "kind": "program",
+      "id": "program_qm_134",
+      "ready": false,
+      "issues": [
+        "UNVERIFIED",
+        "RIGHTS_NOT_CONFIRMED",
+        "OUTSIDE_VALIDITY_OR_UNKNOWN",
+        "DEPENDENCY_NOT_READY:source:src_qmsyun_program_20261023"
+      ]
+    },
+    {
+      "kind": "program",
+      "id": "program_qm_135",
+      "ready": false,
+      "issues": [
+        "UNVERIFIED",
+        "RIGHTS_NOT_CONFIRMED",
+        "OUTSIDE_VALIDITY_OR_UNKNOWN",
+        "DEPENDENCY_NOT_READY:source:src_qmsyun_program_20261023"
+      ]
+    },
+    {
+      "kind": "program",
+      "id": "program_qm_136",
+      "ready": false,
+      "issues": [
+        "UNVERIFIED",
+        "RIGHTS_NOT_CONFIRMED",
+        "OUTSIDE_VALIDITY_OR_UNKNOWN",
+        "DEPENDENCY_NOT_READY:source:src_qmsyun_program_20261023"
+      ]
+    },
+    {
+      "kind": "program",
+      "id": "program_qm_137",
+      "ready": false,
+      "issues": [
+        "UNVERIFIED",
+        "RIGHTS_NOT_CONFIRMED",
+        "OUTSIDE_VALIDITY_OR_UNKNOWN",
+        "DEPENDENCY_NOT_READY:source:src_qmsyun_program_20261023"
+      ]
+    },
+    {
+      "kind": "program",
+      "id": "program_qm_138",
+      "ready": false,
+      "issues": [
+        "UNVERIFIED",
+        "RIGHTS_NOT_CONFIRMED",
+        "OUTSIDE_VALIDITY_OR_UNKNOWN",
+        "DEPENDENCY_NOT_READY:source:src_qmsyun_program_20261023"
+      ]
+    },
+    {
+      "kind": "program",
+      "id": "program_qm_139",
+      "ready": false,
+      "issues": [
+        "UNVERIFIED",
+        "RIGHTS_NOT_CONFIRMED",
+        "OUTSIDE_VALIDITY_OR_UNKNOWN",
+        "DEPENDENCY_NOT_READY:source:src_qmsyun_program_20261023"
+      ]
+    },
+    {
+      "kind": "program",
+      "id": "program_qm_140",
+      "ready": false,
+      "issues": [
+        "UNVERIFIED",
+        "RIGHTS_NOT_CONFIRMED",
+        "OUTSIDE_VALIDITY_OR_UNKNOWN",
+        "DEPENDENCY_NOT_READY:source:src_qmsyun_program_20261023"
+      ]
+    },
+    {
+      "kind": "program",
+      "id": "program_qm_141",
+      "ready": false,
+      "issues": [
+        "UNVERIFIED",
+        "RIGHTS_NOT_CONFIRMED",
+        "OUTSIDE_VALIDITY_OR_UNKNOWN",
+        "DEPENDENCY_NOT_READY:source:src_qmsyun_program_20261023"
+      ]
+    },
+    {
+      "kind": "program",
+      "id": "program_qm_142",
+      "ready": false,
+      "issues": [
+        "UNVERIFIED",
+        "RIGHTS_NOT_CONFIRMED",
+        "OUTSIDE_VALIDITY_OR_UNKNOWN",
+        "DEPENDENCY_NOT_READY:source:src_qmsyun_program_20261023"
+      ]
+    },
+    {
+      "kind": "program",
+      "id": "program_qm_143",
+      "ready": false,
+      "issues": [
+        "UNVERIFIED",
+        "RIGHTS_NOT_CONFIRMED",
+        "OUTSIDE_VALIDITY_OR_UNKNOWN",
+        "DEPENDENCY_NOT_READY:source:src_qmsyun_program_20261023"
+      ]
+    },
+    {
+      "kind": "program",
+      "id": "program_qm_144",
+      "ready": false,
+      "issues": [
+        "UNVERIFIED",
+        "RIGHTS_NOT_CONFIRMED",
+        "OUTSIDE_VALIDITY_OR_UNKNOWN",
+        "DEPENDENCY_NOT_READY:source:src_qmsyun_program_20261023"
+      ]
+    },
+    {
+      "kind": "program",
+      "id": "program_qm_145",
+      "ready": false,
+      "issues": [
+        "UNVERIFIED",
+        "RIGHTS_NOT_CONFIRMED",
+        "OUTSIDE_VALIDITY_OR_UNKNOWN",
+        "DEPENDENCY_NOT_READY:source:src_qmsyun_program_20261023"
+      ]
+    },
+    {
+      "kind": "program",
+      "id": "program_qm_146",
+      "ready": false,
+      "issues": [
+        "UNVERIFIED",
+        "RIGHTS_NOT_CONFIRMED",
+        "OUTSIDE_VALIDITY_OR_UNKNOWN",
+        "DEPENDENCY_NOT_READY:source:src_qmsyun_program_20261023"
+      ]
+    },
+    {
+      "kind": "program",
+      "id": "program_qm_147",
+      "ready": false,
+      "issues": [
+        "UNVERIFIED",
+        "RIGHTS_NOT_CONFIRMED",
+        "OUTSIDE_VALIDITY_OR_UNKNOWN",
+        "DEPENDENCY_NOT_READY:source:src_qmsyun_program_20261023"
+      ]
+    },
+    {
+      "kind": "program",
+      "id": "program_qm_148",
+      "ready": false,
+      "issues": [
+        "UNVERIFIED",
+        "RIGHTS_NOT_CONFIRMED",
+        "OUTSIDE_VALIDITY_OR_UNKNOWN",
+        "DEPENDENCY_NOT_READY:source:src_qmsyun_program_20261023"
+      ]
+    },
+    {
+      "kind": "program",
+      "id": "program_qm_149",
+      "ready": false,
+      "issues": [
+        "UNVERIFIED",
+        "RIGHTS_NOT_CONFIRMED",
+        "OUTSIDE_VALIDITY_OR_UNKNOWN",
+        "DEPENDENCY_NOT_READY:source:src_qmsyun_program_20261023"
+      ]
+    },
+    {
+      "kind": "program",
+      "id": "program_qm_150",
+      "ready": false,
+      "issues": [
+        "UNVERIFIED",
+        "RIGHTS_NOT_CONFIRMED",
+        "OUTSIDE_VALIDITY_OR_UNKNOWN",
+        "DEPENDENCY_NOT_READY:source:src_qmsyun_program_20261023"
+      ]
+    },
+    {
+      "kind": "program",
+      "id": "program_qm_151",
+      "ready": false,
+      "issues": [
+        "UNVERIFIED",
+        "RIGHTS_NOT_CONFIRMED",
+        "OUTSIDE_VALIDITY_OR_UNKNOWN",
+        "DEPENDENCY_NOT_READY:source:src_qmsyun_program_20261023"
+      ]
+    },
+    {
+      "kind": "program",
+      "id": "program_qm_152",
+      "ready": false,
+      "issues": [
+        "UNVERIFIED",
+        "RIGHTS_NOT_CONFIRMED",
+        "OUTSIDE_VALIDITY_OR_UNKNOWN",
+        "DEPENDENCY_NOT_READY:source:src_qmsyun_program_20261023"
+      ]
+    },
+    {
+      "kind": "program",
+      "id": "program_qm_153",
+      "ready": false,
+      "issues": [
+        "UNVERIFIED",
+        "RIGHTS_NOT_CONFIRMED",
+        "OUTSIDE_VALIDITY_OR_UNKNOWN",
+        "DEPENDENCY_NOT_READY:source:src_qmsyun_program_20261023"
+      ]
+    },
+    {
+      "kind": "program",
+      "id": "program_qm_154",
+      "ready": false,
+      "issues": [
+        "UNVERIFIED",
+        "RIGHTS_NOT_CONFIRMED",
+        "OUTSIDE_VALIDITY_OR_UNKNOWN",
+        "DEPENDENCY_NOT_READY:source:src_qmsyun_program_20261023"
+      ]
+    },
+    {
+      "kind": "food",
+      "id": "food_xiaolong_guantangbao",
+      "ready": false,
+      "issues": [
+        "UNVERIFIED",
+        "RIGHTS_NOT_CONFIRMED",
+        "OUTSIDE_VALIDITY_OR_UNKNOWN",
+        "DEPENDENCY_NOT_READY:source:src_diyilou_mingcai_20261023",
+        "DEPENDENCY_NOT_READY:source:src_kaifeng_gov_diyilou_20261023"
+      ]
+    },
+    {
+      "kind": "food",
+      "id": "food_huanghe_liyu_beimian",
+      "ready": false,
+      "issues": [
+        "UNVERIFIED",
+        "RIGHTS_NOT_CONFIRMED",
+        "OUTSIDE_VALIDITY_OR_UNKNOWN",
+        "DEPENDENCY_NOT_READY:source:src_diyilou_mingcai_20261023"
+      ]
+    },
+    {
+      "kind": "food",
+      "id": "food_tongziji",
+      "ready": false,
+      "issues": [
+        "UNVERIFIED",
+        "RIGHTS_NOT_CONFIRMED",
+        "OUTSIDE_VALIDITY_OR_UNKNOWN",
+        "DEPENDENCY_NOT_READY:source:src_diyilou_mingcai_20261023"
+      ]
+    },
+    {
+      "kind": "food",
+      "id": "food_hongshuni",
+      "ready": false,
+      "issues": [
+        "UNVERIFIED",
+        "RIGHTS_NOT_CONFIRMED",
+        "OUTSIDE_VALIDITY_OR_UNKNOWN",
+        "DEPENDENCY_NOT_READY:source:src_diyilou_mingcai_20261023"
+      ]
+    }
+  ]
+}

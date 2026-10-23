@@ -1,0 +1,38 @@
+{
+  "schema_version": "kaifeng-supply/1",
+  "generated_at": "2026-10-23T19:03:02+08:00",
+  "supplies": [
+    {
+      "supply_id": "supply_candidate_diyilou_guantangbao",
+      "vendor_id": "vendor_diyilou_sihou",
+      "food_id": "food_xiaolong_guantangbao",
+      "evidence_note": "品牌官网名菜页列出小笼灌汤包子；官网/政府介绍证明第一楼品牌与该菜关联，但未证明寺后街店目标日期有售",
+      "proof_type": "brand_level_only",
+      "status": "candidate_not_supply_proof",
+      "source_ids": [
+        "src_diyilou_mingcai_20261023",
+        "src_kaifeng_gov_diyilou_20261023"
+      ],
+      "required_proof": [
+        "带日期和门店名的菜单照片",
+        "商家公开菜单链接+门店字段",
+        "现场确认记录"
+      ]
+    },
+    {
+      "supply_id": "supply_candidate_diyilou_liyu",
+      "vendor_id": "vendor_diyilou_sihou",
+      "food_id": "food_huanghe_liyu_beimian",
+      "evidence_note": "第一楼品牌名菜页列出；标题可识别，但门店供应关系仍未证实",
+      "proof_type": "brand_level_only",
+      "status": "candidate_not_supply_proof",
+      "source_ids": [
+        "src_diyilou_mingcai_20261023"
+      ],
+      "required_proof": [
+        "门店菜单或现场确认"
+      ]
+    }
+  ],
+  "notice": "所有 supply 记录均未达到供应关系验收；不得标为 verified"
+}

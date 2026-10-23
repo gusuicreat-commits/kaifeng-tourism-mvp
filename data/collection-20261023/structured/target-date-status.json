@@ -1,0 +1,29 @@
+{
+  "schema_version": "kaifeng-target-date-status/1",
+  "generated_at": "2026-10-23T19:03:02+08:00",
+  "target_business_date": null,
+  "requested_show": null,
+  "status": "blocked_missing_target_date",
+  "reasons": [
+    "用户没有提供实际游玩日期",
+    "节目单没有结束时刻和逐日取消状态",
+    "城墙当前营业规则仍冲突",
+    "餐饮分店供应没有当前菜单证据"
+  ],
+  "required_inputs": [
+    "目标当地日期",
+    "最早到达时间/最晚离开时间",
+    "是否必须看某一场演出",
+    "是否接受两段式用餐或备选餐厅"
+  ],
+  "prohibited_outputs": [
+    "把 2026-10-23 采集日当作游客游玩日",
+    "把常规节目表直接当作目标日 ShowSession",
+    "把品牌菜名当作门店供应"
+  ],
+  "next_validation": [
+    "向景区/商家按目标日期询价与确认",
+    "现场核对入口、出口、演出结束和离园动线",
+    "用带时间戳的截图/录音/票据留证"
+  ]
+}

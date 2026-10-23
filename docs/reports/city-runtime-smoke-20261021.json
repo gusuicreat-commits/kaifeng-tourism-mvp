@@ -1,0 +1,52 @@
+{
+  "/api/health": {
+    "status": 200,
+    "content_type": "application/json",
+    "body": {
+      "status": "ok",
+      "schema_version": 1,
+      "realtime_monitoring": false
+    }
+  },
+  "/api/city/v1/capabilities": {
+    "status": 200,
+    "content_type": "application/json",
+    "body": {
+      "contract_version": "city-trip/1",
+      "stage": "city_state_and_catalog",
+      "city_planning_available": false,
+      "implemented_primitives": [
+        "typed_city_contracts",
+        "travel_provider_boundary",
+        "connection_time_assessment",
+        "remaining_work_preparation",
+        "city_fact_catalog",
+        "city_trip_persistence",
+        "city_draft_frontend"
+      ],
+      "not_connected": [
+        "joint_city_solver",
+        "production_travel_provider"
+      ],
+      "legacy": {
+        "planning": "/api/plans",
+        "state": "/api/v1/trips",
+        "scope": "single_scenic"
+      },
+      "notice": "城市需求与进度可保存，事实可按来源导入；尚不能生成已核验的城市路线。"
+    }
+  },
+  "/api/city/v1/facts": {
+    "status": 200,
+    "content_type": "application/json",
+    "body": {
+      "items": [],
+      "notice": "候选与可用事实分别标识；ready不代表整条行程已通过路线校验。"
+    }
+  },
+  "/city-trip": {
+    "status": 200,
+    "content_type": "text/html; charset=utf-8",
+    "spa_entry": true
+  }
+}

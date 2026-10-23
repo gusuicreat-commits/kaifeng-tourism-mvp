@@ -1,0 +1,1417 @@
+{
+  "basis": "isolated_mock_control_flow_only",
+  "live_provider_requests": 0,
+  "production_db_access": false,
+  "records": [
+    {
+      "case": "S1-full-name",
+      "input": "开封四味菜有什么特色？",
+      "interface": "POST /api/city/v1/trips/{trip}/agent/tasks + step",
+      "mode": "direct",
+      "status": "needs_data",
+      "tools": 0,
+      "model_calls": 1,
+      "events": [
+        {
+          "tool": "understand",
+          "status": "ok",
+          "fallback": false
+        }
+      ],
+      "decisions": [],
+      "provider_failure_codes": [],
+      "prompt_sha256": "83fad9181f9e15893e265cf41fcd1ecc08b4e52e76c37e2067db16a2ae6f4b1c",
+      "policy": {
+        "forbids_model_memory": true,
+        "requires_query_for_facts": true
+      },
+      "context_keys": [
+        "basket",
+        "current_date",
+        "material_labels",
+        "official_plan",
+        "page_focus",
+        "planning_constraints",
+        "planning_readiness",
+        "progress",
+        "recent_messages",
+        "references",
+        "requirements"
+      ],
+      "page_focus": null,
+      "recent_message_count": 0,
+      "has_prior_tool_trace": false,
+      "fallback": false,
+      "final_reply_component": "deterministic_service",
+      "reply": "这趟旅行还没有正式计算并确认的城市路线，已有草稿不能当作可执行计划。请先补齐要求并生成候选。",
+      "formal_and_workspace_unchanged": true
+    },
+    {
+      "case": "S1-detail",
+      "input": "这道菜有什么特色？",
+      "interface": "POST /api/city/v1/trips/{trip}/agent/tasks + step",
+      "mode": "direct",
+      "status": "needs_data",
+      "tools": 0,
+      "model_calls": 1,
+      "events": [
+        {
+          "tool": "understand",
+          "status": "ok",
+          "fallback": false
+        }
+      ],
+      "decisions": [],
+      "provider_failure_codes": [],
+      "prompt_sha256": "83fad9181f9e15893e265cf41fcd1ecc08b4e52e76c37e2067db16a2ae6f4b1c",
+      "policy": {
+        "forbids_model_memory": true,
+        "requires_query_for_facts": true
+      },
+      "context_keys": [
+        "basket",
+        "current_date",
+        "material_labels",
+        "official_plan",
+        "page_focus",
+        "planning_constraints",
+        "planning_readiness",
+        "progress",
+        "recent_messages",
+        "references",
+        "requirements"
+      ],
+      "page_focus": {
+        "key": "food:siweicai",
+        "kind": "food",
+        "id": "siweicai",
+        "name": "四味菜",
+        "fact_kind": null,
+        "fact_id": null,
+        "parent_place_id": null,
+        "data_status": "pending_addition"
+      },
+      "recent_message_count": 0,
+      "has_prior_tool_trace": false,
+      "fallback": false,
+      "final_reply_component": "deterministic_service",
+      "reply": "四味菜：详细介绍、实景素材及可核验游览/营业资料待添加。已识别当前页面，不会根据主题插画推断时间或路线。",
+      "formal_and_workspace_unchanged": true
+    },
+    {
+      "case": "S2",
+      "input": "四味菜为什么叫四味菜？",
+      "interface": "POST /api/city/v1/trips/{trip}/agent/tasks + step",
+      "mode": "direct",
+      "status": "needs_data",
+      "tools": 0,
+      "model_calls": 1,
+      "events": [
+        {
+          "tool": "understand",
+          "status": "ok",
+          "fallback": false
+        }
+      ],
+      "decisions": [],
+      "provider_failure_codes": [],
+      "prompt_sha256": "83fad9181f9e15893e265cf41fcd1ecc08b4e52e76c37e2067db16a2ae6f4b1c",
+      "policy": {
+        "forbids_model_memory": true,
+        "requires_query_for_facts": true
+      },
+      "context_keys": [
+        "basket",
+        "current_date",
+        "material_labels",
+        "official_plan",
+        "page_focus",
+        "planning_constraints",
+        "planning_readiness",
+        "progress",
+        "recent_messages",
+        "references",
+        "requirements"
+      ],
+      "page_focus": {
+        "key": "food:siweicai",
+        "kind": "food",
+        "id": "siweicai",
+        "name": "四味菜",
+        "fact_kind": null,
+        "fact_id": null,
+        "parent_place_id": null,
+        "data_status": "pending_addition"
+      },
+      "recent_message_count": 0,
+      "has_prior_tool_trace": false,
+      "fallback": false,
+      "final_reply_component": "deterministic_service",
+      "reply": "这趟旅行还没有正式计算并确认的城市路线，已有草稿不能当作可执行计划。请先补齐要求并生成候选。",
+      "formal_and_workspace_unchanged": true
+    },
+    {
+      "case": "S10",
+      "input": "清明上河园为什么叫这个名字？",
+      "interface": "POST /api/city/v1/trips/{trip}/agent/tasks + step",
+      "mode": "direct",
+      "status": "needs_data",
+      "tools": 0,
+      "model_calls": 1,
+      "events": [
+        {
+          "tool": "understand",
+          "status": "ok",
+          "fallback": false
+        }
+      ],
+      "decisions": [],
+      "provider_failure_codes": [],
+      "prompt_sha256": "83fad9181f9e15893e265cf41fcd1ecc08b4e52e76c37e2067db16a2ae6f4b1c",
+      "policy": {
+        "forbids_model_memory": true,
+        "requires_query_for_facts": true
+      },
+      "context_keys": [
+        "basket",
+        "current_date",
+        "material_labels",
+        "official_plan",
+        "page_focus",
+        "planning_constraints",
+        "planning_readiness",
+        "progress",
+        "recent_messages",
+        "references",
+        "requirements"
+      ],
+      "page_focus": {
+        "key": "scenic:qingming",
+        "kind": "scenic",
+        "id": "qingming",
+        "name": "清明上河园",
+        "fact_kind": null,
+        "fact_id": null,
+        "parent_place_id": null,
+        "data_status": "pending_addition"
+      },
+      "recent_message_count": 0,
+      "has_prior_tool_trace": false,
+      "fallback": false,
+      "final_reply_component": "deterministic_service",
+      "reply": "清明上河园：详细介绍、实景素材及可核验游览/营业资料待添加。已识别当前页面，不会根据主题插画推断时间或路线。",
+      "formal_and_workspace_unchanged": true
+    },
+    {
+      "case": "S1-counterfactual",
+      "input": "开封四味菜有什么特色？",
+      "interface": "POST /api/city/v1/trips/{trip}/agent/tasks + step",
+      "mode": "conversation",
+      "status": "answered",
+      "tools": 0,
+      "model_calls": 1,
+      "events": [
+        {
+          "tool": "understand",
+          "status": "ok",
+          "fallback": false
+        }
+      ],
+      "decisions": [],
+      "provider_failure_codes": [],
+      "prompt_sha256": "83fad9181f9e15893e265cf41fcd1ecc08b4e52e76c37e2067db16a2ae6f4b1c",
+      "policy": {
+        "forbids_model_memory": true,
+        "requires_query_for_facts": true
+      },
+      "context_keys": [
+        "basket",
+        "current_date",
+        "material_labels",
+        "official_plan",
+        "page_focus",
+        "planning_constraints",
+        "planning_readiness",
+        "progress",
+        "recent_messages",
+        "references",
+        "requirements"
+      ],
+      "page_focus": {
+        "key": "food:siweicai",
+        "kind": "food",
+        "id": "siweicai",
+        "name": "四味菜",
+        "fact_kind": null,
+        "fact_id": null,
+        "parent_place_id": null,
+        "data_status": "pending_addition"
+      },
+      "recent_message_count": 0,
+      "has_prior_tool_trace": false,
+      "fallback": false,
+      "final_reply_component": "model_conversation",
+      "reply": "[固定模拟知识回答；不代表已核验四味菜知识]",
+      "formal_and_workspace_unchanged": true
+    },
+    {
+      "case": "S3-no-position",
+      "input": "开封府附近现在有没有卖四味菜的店？",
+      "interface": "POST /api/city/v1/trips/{trip}/agent/tasks + step",
+      "mode": "react",
+      "status": "needs_data",
+      "tools": 0,
+      "model_calls": 1,
+      "events": [
+        {
+          "tool": "understand",
+          "status": "ok",
+          "fallback": false
+        }
+      ],
+      "decisions": [],
+      "provider_failure_codes": [],
+      "prompt_sha256": "83fad9181f9e15893e265cf41fcd1ecc08b4e52e76c37e2067db16a2ae6f4b1c",
+      "policy": {
+        "forbids_model_memory": true,
+        "requires_query_for_facts": true
+      },
+      "context_keys": [
+        "basket",
+        "current_date",
+        "material_labels",
+        "official_plan",
+        "page_focus",
+        "planning_constraints",
+        "planning_readiness",
+        "progress",
+        "recent_messages",
+        "references",
+        "requirements"
+      ],
+      "page_focus": {
+        "key": "food:siweicai",
+        "kind": "food",
+        "id": "siweicai",
+        "name": "四味菜",
+        "fact_kind": null,
+        "fact_id": null,
+        "parent_place_id": null,
+        "data_status": "pending_addition"
+      },
+      "recent_message_count": 0,
+      "has_prior_tool_trace": false,
+      "fallback": false,
+      "final_reply_component": "deterministic_service",
+      "reply": "请先手动确认当前已知地点；我没有持续定位你。",
+      "formal_and_workspace_unchanged": true
+    },
+    {
+      "case": "S3-no-candidates",
+      "input": "开封府附近现在有没有卖四味菜的店？",
+      "interface": "POST /api/city/v1/trips/{trip}/agent/tasks + step",
+      "mode": "react",
+      "status": "needs_data",
+      "tools": 1,
+      "model_calls": 3,
+      "events": [
+        {
+          "tool": "understand",
+          "status": "ok",
+          "fallback": false
+        },
+        {
+          "tool": "search_dining",
+          "status": "no_candidates",
+          "result_code": "FOOD_NOT_VERIFIED",
+          "item_count": 0
+        },
+        {
+          "tool": "finish",
+          "status": "needs_data",
+          "result_code": null,
+          "item_count": 0
+        }
+      ],
+      "decisions": [
+        {
+          "source": "diagnosis_mock",
+          "action": {
+            "tool": "search_dining"
+          },
+          "legal": true,
+          "tool_status": "no_candidates",
+          "eligible_tools": [
+            "finish",
+            "clarify",
+            "search_dining",
+            "query_shows"
+          ]
+        },
+        {
+          "source": "diagnosis_mock",
+          "action": {
+            "tool": "finish"
+          },
+          "legal": true,
+          "tool_status": "needs_data",
+          "eligible_tools": [
+            "finish",
+            "clarify",
+            "query_shows"
+          ]
+        }
+      ],
+      "provider_failure_codes": [],
+      "prompt_sha256": "83fad9181f9e15893e265cf41fcd1ecc08b4e52e76c37e2067db16a2ae6f4b1c",
+      "policy": {
+        "forbids_model_memory": true,
+        "requires_query_for_facts": true
+      },
+      "context_keys": [
+        "basket",
+        "current_date",
+        "material_labels",
+        "official_plan",
+        "page_focus",
+        "planning_constraints",
+        "planning_readiness",
+        "progress",
+        "recent_messages",
+        "references",
+        "requirements"
+      ],
+      "page_focus": {
+        "key": "food:siweicai",
+        "kind": "food",
+        "id": "siweicai",
+        "name": "四味菜",
+        "fact_kind": null,
+        "fact_id": null,
+        "parent_place_id": null,
+        "data_status": "pending_addition"
+      },
+      "recent_message_count": 2,
+      "has_prior_tool_trace": false,
+      "fallback": false,
+      "final_reply_component": "deterministic_service",
+      "reply": "现有核验资料不足以给出可确认安排，正式路线未变。",
+      "formal_and_workspace_unchanged": true
+    },
+    {
+      "case": "S4-schema-exclusion",
+      "input": "介绍一下四味菜，再帮我找一家附近的店。",
+      "interface": "POST /api/city/v1/trips/{trip}/agent/tasks + step",
+      "mode": "clarify",
+      "status": "needs_clarification",
+      "tools": 0,
+      "model_calls": 1,
+      "events": [
+        {
+          "tool": "understand",
+          "status": "ok",
+          "fallback": true
+        }
+      ],
+      "decisions": [],
+      "provider_failure_codes": [],
+      "prompt_sha256": "83fad9181f9e15893e265cf41fcd1ecc08b4e52e76c37e2067db16a2ae6f4b1c",
+      "policy": {
+        "forbids_model_memory": true,
+        "requires_query_for_facts": true
+      },
+      "context_keys": [
+        "basket",
+        "current_date",
+        "material_labels",
+        "official_plan",
+        "page_focus",
+        "planning_constraints",
+        "planning_readiness",
+        "progress",
+        "recent_messages",
+        "references",
+        "requirements"
+      ],
+      "page_focus": {
+        "key": "food:siweicai",
+        "kind": "food",
+        "id": "siweicai",
+        "name": "四味菜",
+        "fact_kind": null,
+        "fact_id": null,
+        "parent_place_id": null,
+        "data_status": "pending_addition"
+      },
+      "recent_message_count": 0,
+      "has_prior_tool_trace": false,
+      "fallback": true,
+      "final_reply_component": "deterministic_service",
+      "reply": "请先明确：暂时没能完整理解这段要求，请重试或使用下方选项；条件尚未修改。",
+      "formal_and_workspace_unchanged": true
+    },
+    {
+      "case": "S4-business-only",
+      "input": "介绍一下四味菜，再帮我找一家附近的店。",
+      "interface": "POST /api/city/v1/trips/{trip}/agent/tasks + step",
+      "mode": "react",
+      "status": "needs_data",
+      "tools": 1,
+      "model_calls": 3,
+      "events": [
+        {
+          "tool": "understand",
+          "status": "ok",
+          "fallback": false
+        },
+        {
+          "tool": "search_dining",
+          "status": "no_candidates",
+          "result_code": "FOOD_NOT_VERIFIED",
+          "item_count": 0
+        },
+        {
+          "tool": "finish",
+          "status": "needs_data",
+          "result_code": null,
+          "item_count": 0
+        }
+      ],
+      "decisions": [
+        {
+          "source": "diagnosis_mock",
+          "action": {
+            "tool": "search_dining"
+          },
+          "legal": true,
+          "tool_status": "no_candidates",
+          "eligible_tools": [
+            "finish",
+            "clarify",
+            "search_dining",
+            "query_shows"
+          ]
+        },
+        {
+          "source": "diagnosis_mock",
+          "action": {
+            "tool": "finish"
+          },
+          "legal": true,
+          "tool_status": "needs_data",
+          "eligible_tools": [
+            "finish",
+            "clarify",
+            "query_shows"
+          ]
+        }
+      ],
+      "provider_failure_codes": [],
+      "prompt_sha256": "83fad9181f9e15893e265cf41fcd1ecc08b4e52e76c37e2067db16a2ae6f4b1c",
+      "policy": {
+        "forbids_model_memory": true,
+        "requires_query_for_facts": true
+      },
+      "context_keys": [
+        "basket",
+        "current_date",
+        "material_labels",
+        "official_plan",
+        "page_focus",
+        "planning_constraints",
+        "planning_readiness",
+        "progress",
+        "recent_messages",
+        "references",
+        "requirements"
+      ],
+      "page_focus": {
+        "key": "food:siweicai",
+        "kind": "food",
+        "id": "siweicai",
+        "name": "四味菜",
+        "fact_kind": null,
+        "fact_id": null,
+        "parent_place_id": null,
+        "data_status": "pending_addition"
+      },
+      "recent_message_count": 2,
+      "has_prior_tool_trace": false,
+      "fallback": false,
+      "final_reply_component": "deterministic_service",
+      "reply": "现有核验资料不足以给出可确认安排，正式路线未变。",
+      "formal_and_workspace_unchanged": true
+    },
+    {
+      "case": "S5-first",
+      "input": "把四味菜加入我的美食行程。",
+      "interface": "POST /api/city/v1/trips/{trip}/agent/tasks + step",
+      "mode": "clarify",
+      "status": "needs_clarification",
+      "tools": 0,
+      "model_calls": 1,
+      "events": [
+        {
+          "tool": "understand",
+          "status": "ok",
+          "fallback": false
+        }
+      ],
+      "decisions": [],
+      "provider_failure_codes": [],
+      "prompt_sha256": "83fad9181f9e15893e265cf41fcd1ecc08b4e52e76c37e2067db16a2ae6f4b1c",
+      "policy": {
+        "forbids_model_memory": true,
+        "requires_query_for_facts": true
+      },
+      "context_keys": [
+        "basket",
+        "current_date",
+        "material_labels",
+        "official_plan",
+        "page_focus",
+        "planning_constraints",
+        "planning_readiness",
+        "progress",
+        "recent_messages",
+        "references",
+        "requirements"
+      ],
+      "page_focus": {
+        "key": "food:siweicai",
+        "kind": "food",
+        "id": "siweicai",
+        "name": "四味菜",
+        "fact_kind": null,
+        "fact_id": null,
+        "parent_place_id": null,
+        "data_status": "pending_addition"
+      },
+      "recent_message_count": 0,
+      "has_prior_tool_trace": false,
+      "fallback": false,
+      "final_reply_component": "deterministic_service",
+      "reply": "请先明确：[固定诊断：未执行加入操作]",
+      "formal_and_workspace_unchanged": true
+    },
+    {
+      "case": "S5-followup",
+      "input": "它有什么特色？",
+      "interface": "POST /api/city/v1/trips/{trip}/agent/tasks + step",
+      "mode": "direct",
+      "status": "needs_data",
+      "tools": 0,
+      "model_calls": 1,
+      "events": [
+        {
+          "tool": "understand",
+          "status": "ok",
+          "fallback": false
+        }
+      ],
+      "decisions": [],
+      "provider_failure_codes": [],
+      "prompt_sha256": "83fad9181f9e15893e265cf41fcd1ecc08b4e52e76c37e2067db16a2ae6f4b1c",
+      "policy": {
+        "forbids_model_memory": true,
+        "requires_query_for_facts": true
+      },
+      "context_keys": [
+        "basket",
+        "current_date",
+        "material_labels",
+        "official_plan",
+        "page_focus",
+        "planning_constraints",
+        "planning_readiness",
+        "progress",
+        "recent_messages",
+        "references",
+        "requirements"
+      ],
+      "page_focus": {
+        "key": "food:siweicai",
+        "kind": "food",
+        "id": "siweicai",
+        "name": "四味菜",
+        "fact_kind": null,
+        "fact_id": null,
+        "parent_place_id": null,
+        "data_status": "pending_addition"
+      },
+      "recent_message_count": 2,
+      "has_prior_tool_trace": false,
+      "fallback": false,
+      "final_reply_component": "deterministic_service",
+      "reply": "这趟旅行还没有正式计算并确认的城市路线，已有草稿不能当作可执行计划。请先补齐要求并生成候选。",
+      "formal_and_workspace_unchanged": true
+    },
+    {
+      "case": "S6-no-candidates",
+      "input": "附近找一家卖四味菜的店",
+      "interface": "POST /api/city/v1/trips/{trip}/agent/tasks + step",
+      "mode": "react",
+      "status": "needs_data",
+      "tools": 1,
+      "model_calls": 3,
+      "events": [
+        {
+          "tool": "understand",
+          "status": "ok",
+          "fallback": false
+        },
+        {
+          "tool": "search_dining",
+          "status": "no_candidates",
+          "result_code": "FOOD_NOT_VERIFIED",
+          "item_count": 0
+        },
+        {
+          "tool": "finish",
+          "status": "needs_data",
+          "result_code": null,
+          "item_count": 0
+        }
+      ],
+      "decisions": [
+        {
+          "source": "diagnosis_mock",
+          "action": {
+            "tool": "search_dining"
+          },
+          "legal": true,
+          "tool_status": "no_candidates",
+          "eligible_tools": [
+            "finish",
+            "clarify",
+            "search_dining",
+            "query_shows"
+          ]
+        },
+        {
+          "source": "diagnosis_mock",
+          "action": {
+            "tool": "finish"
+          },
+          "legal": true,
+          "tool_status": "needs_data",
+          "eligible_tools": [
+            "finish",
+            "clarify",
+            "query_shows"
+          ]
+        }
+      ],
+      "provider_failure_codes": [],
+      "prompt_sha256": "83fad9181f9e15893e265cf41fcd1ecc08b4e52e76c37e2067db16a2ae6f4b1c",
+      "policy": {
+        "forbids_model_memory": true,
+        "requires_query_for_facts": true
+      },
+      "context_keys": [
+        "basket",
+        "current_date",
+        "material_labels",
+        "official_plan",
+        "page_focus",
+        "planning_constraints",
+        "planning_readiness",
+        "progress",
+        "recent_messages",
+        "references",
+        "requirements"
+      ],
+      "page_focus": {
+        "key": "food:siweicai",
+        "kind": "food",
+        "id": "siweicai",
+        "name": "四味菜",
+        "fact_kind": null,
+        "fact_id": null,
+        "parent_place_id": null,
+        "data_status": "pending_addition"
+      },
+      "recent_message_count": 0,
+      "has_prior_tool_trace": false,
+      "fallback": false,
+      "final_reply_component": "deterministic_service",
+      "reply": "现有核验资料不足以给出可确认安排，正式路线未变。",
+      "formal_and_workspace_unchanged": true
+    },
+    {
+      "case": "S6-followup",
+      "input": "那四味菜一般是什么做的？",
+      "interface": "POST /api/city/v1/trips/{trip}/agent/tasks + step",
+      "mode": "direct",
+      "status": "answered",
+      "tools": 0,
+      "model_calls": 1,
+      "events": [
+        {
+          "tool": "understand",
+          "status": "ok",
+          "fallback": false
+        }
+      ],
+      "decisions": [],
+      "provider_failure_codes": [],
+      "prompt_sha256": "83fad9181f9e15893e265cf41fcd1ecc08b4e52e76c37e2067db16a2ae6f4b1c",
+      "policy": {
+        "forbids_model_memory": true,
+        "requires_query_for_facts": true
+      },
+      "context_keys": [
+        "basket",
+        "current_date",
+        "material_labels",
+        "official_plan",
+        "page_focus",
+        "planning_constraints",
+        "planning_readiness",
+        "progress",
+        "recent_messages",
+        "references",
+        "requirements"
+      ],
+      "page_focus": {
+        "key": "food:siweicai",
+        "kind": "food",
+        "id": "siweicai",
+        "name": "四味菜",
+        "fact_kind": null,
+        "fact_id": null,
+        "parent_place_id": null,
+        "data_status": "pending_addition"
+      },
+      "recent_message_count": 2,
+      "has_prior_tool_trace": false,
+      "fallback": false,
+      "final_reply_component": "deterministic_service",
+      "reply": "已确认计划中尚未处理的活动：[合成测试]restaurant → [合成测试]stage2。 当前路线需要重新核验，以下仅说明已确认的计划，不代表现在可直接执行。",
+      "formal_and_workspace_unchanged": true
+    },
+    {
+      "case": "S7-validation-missing-quote",
+      "input": "这道菜有什么特色？",
+      "interface": "POST /api/city/v1/trips/{trip}/agent/tasks + step",
+      "mode": "clarify",
+      "status": "needs_clarification",
+      "tools": 0,
+      "model_calls": 1,
+      "events": [
+        {
+          "tool": "understand",
+          "status": "ok",
+          "fallback": true
+        }
+      ],
+      "decisions": [],
+      "provider_failure_codes": [],
+      "prompt_sha256": "83fad9181f9e15893e265cf41fcd1ecc08b4e52e76c37e2067db16a2ae6f4b1c",
+      "policy": {
+        "forbids_model_memory": true,
+        "requires_query_for_facts": true
+      },
+      "context_keys": [
+        "basket",
+        "current_date",
+        "material_labels",
+        "official_plan",
+        "page_focus",
+        "planning_constraints",
+        "planning_readiness",
+        "progress",
+        "recent_messages",
+        "references",
+        "requirements"
+      ],
+      "page_focus": {
+        "key": "food:siweicai",
+        "kind": "food",
+        "id": "siweicai",
+        "name": "四味菜",
+        "fact_kind": null,
+        "fact_id": null,
+        "parent_place_id": null,
+        "data_status": "pending_addition"
+      },
+      "recent_message_count": 0,
+      "has_prior_tool_trace": false,
+      "fallback": true,
+      "final_reply_component": "deterministic_service",
+      "reply": "请先明确：暂时没能完整理解这段要求，请重试或使用下方选项；条件尚未修改。",
+      "formal_and_workspace_unchanged": true
+    },
+    {
+      "case": "S7-validation-invented-quote",
+      "input": "这道菜有什么特色？",
+      "interface": "POST /api/city/v1/trips/{trip}/agent/tasks + step",
+      "mode": "clarify",
+      "status": "needs_clarification",
+      "tools": 0,
+      "model_calls": 1,
+      "events": [
+        {
+          "tool": "understand",
+          "status": "ok",
+          "fallback": true
+        }
+      ],
+      "decisions": [],
+      "provider_failure_codes": [],
+      "prompt_sha256": "83fad9181f9e15893e265cf41fcd1ecc08b4e52e76c37e2067db16a2ae6f4b1c",
+      "policy": {
+        "forbids_model_memory": true,
+        "requires_query_for_facts": true
+      },
+      "context_keys": [
+        "basket",
+        "current_date",
+        "material_labels",
+        "official_plan",
+        "page_focus",
+        "planning_constraints",
+        "planning_readiness",
+        "progress",
+        "recent_messages",
+        "references",
+        "requirements"
+      ],
+      "page_focus": {
+        "key": "food:siweicai",
+        "kind": "food",
+        "id": "siweicai",
+        "name": "四味菜",
+        "fact_kind": null,
+        "fact_id": null,
+        "parent_place_id": null,
+        "data_status": "pending_addition"
+      },
+      "recent_message_count": 0,
+      "has_prior_tool_trace": false,
+      "fallback": true,
+      "final_reply_component": "deterministic_service",
+      "reply": "请先明确：暂时没能完整理解这段要求，请重试或使用下方选项；条件尚未修改。",
+      "formal_and_workspace_unchanged": true
+    },
+    {
+      "case": "S7-validation-exclusive-output",
+      "input": "这道菜有什么特色？",
+      "interface": "POST /api/city/v1/trips/{trip}/agent/tasks + step",
+      "mode": "clarify",
+      "status": "needs_clarification",
+      "tools": 0,
+      "model_calls": 1,
+      "events": [
+        {
+          "tool": "understand",
+          "status": "ok",
+          "fallback": true
+        }
+      ],
+      "decisions": [],
+      "provider_failure_codes": [],
+      "prompt_sha256": "83fad9181f9e15893e265cf41fcd1ecc08b4e52e76c37e2067db16a2ae6f4b1c",
+      "policy": {
+        "forbids_model_memory": true,
+        "requires_query_for_facts": true
+      },
+      "context_keys": [
+        "basket",
+        "current_date",
+        "material_labels",
+        "official_plan",
+        "page_focus",
+        "planning_constraints",
+        "planning_readiness",
+        "progress",
+        "recent_messages",
+        "references",
+        "requirements"
+      ],
+      "page_focus": {
+        "key": "food:siweicai",
+        "kind": "food",
+        "id": "siweicai",
+        "name": "四味菜",
+        "fact_kind": null,
+        "fact_id": null,
+        "parent_place_id": null,
+        "data_status": "pending_addition"
+      },
+      "recent_message_count": 0,
+      "has_prior_tool_trace": false,
+      "fallback": true,
+      "final_reply_component": "deterministic_service",
+      "reply": "请先明确：暂时没能完整理解这段要求，请重试或使用下方选项；条件尚未修改。",
+      "formal_and_workspace_unchanged": true
+    },
+    {
+      "case": "S7-MODEL_HTTP_ERROR",
+      "input": "这道菜有什么特色？",
+      "interface": "POST /api/city/v1/trips/{trip}/agent/tasks + step",
+      "mode": null,
+      "status": "unavailable",
+      "tools": 0,
+      "model_calls": 1,
+      "events": [
+        {
+          "tool": "understand",
+          "status": "failed"
+        }
+      ],
+      "decisions": [],
+      "provider_failure_codes": [
+        "MODEL_HTTP_ERROR"
+      ],
+      "prompt_sha256": "83fad9181f9e15893e265cf41fcd1ecc08b4e52e76c37e2067db16a2ae6f4b1c",
+      "policy": {
+        "forbids_model_memory": true,
+        "requires_query_for_facts": true
+      },
+      "context_keys": [
+        "basket",
+        "current_date",
+        "material_labels",
+        "official_plan",
+        "page_focus",
+        "planning_constraints",
+        "planning_readiness",
+        "progress",
+        "recent_messages",
+        "references",
+        "requirements"
+      ],
+      "page_focus": {
+        "key": "food:siweicai",
+        "kind": "food",
+        "id": "siweicai",
+        "name": "四味菜",
+        "fact_kind": null,
+        "fact_id": null,
+        "parent_place_id": null,
+        "data_status": "pending_addition"
+      },
+      "recent_message_count": 0,
+      "has_prior_tool_trace": false,
+      "fallback": false,
+      "final_reply_component": "deterministic_service",
+      "reply": "任务已停止，正式行程未变。",
+      "formal_and_workspace_unchanged": true
+    },
+    {
+      "case": "S7-MODEL_TRANSPORT_ERROR",
+      "input": "这道菜有什么特色？",
+      "interface": "POST /api/city/v1/trips/{trip}/agent/tasks + step",
+      "mode": "clarify",
+      "status": "unavailable",
+      "tools": 0,
+      "model_calls": 1,
+      "events": [
+        {
+          "tool": "understand",
+          "status": "failed",
+          "fallback": true
+        }
+      ],
+      "decisions": [],
+      "provider_failure_codes": [
+        "MODEL_TRANSPORT_ERROR"
+      ],
+      "prompt_sha256": "83fad9181f9e15893e265cf41fcd1ecc08b4e52e76c37e2067db16a2ae6f4b1c",
+      "policy": {
+        "forbids_model_memory": true,
+        "requires_query_for_facts": true
+      },
+      "context_keys": [
+        "basket",
+        "current_date",
+        "material_labels",
+        "official_plan",
+        "page_focus",
+        "planning_constraints",
+        "planning_readiness",
+        "progress",
+        "recent_messages",
+        "references",
+        "requirements"
+      ],
+      "page_focus": {
+        "key": "food:siweicai",
+        "kind": "food",
+        "id": "siweicai",
+        "name": "四味菜",
+        "fact_kind": null,
+        "fact_id": null,
+        "parent_place_id": null,
+        "data_status": "pending_addition"
+      },
+      "recent_message_count": 0,
+      "has_prior_tool_trace": false,
+      "fallback": true,
+      "final_reply_component": "deterministic_service",
+      "reply": "刚才连接中断了，请再试一次。",
+      "formal_and_workspace_unchanged": true
+    },
+    {
+      "case": "S7-MODEL_OUTPUT_INVALID",
+      "input": "这道菜有什么特色？",
+      "interface": "POST /api/city/v1/trips/{trip}/agent/tasks + step",
+      "mode": "clarify",
+      "status": "unavailable",
+      "tools": 0,
+      "model_calls": 1,
+      "events": [
+        {
+          "tool": "understand",
+          "status": "failed",
+          "fallback": true
+        }
+      ],
+      "decisions": [],
+      "provider_failure_codes": [
+        "MODEL_OUTPUT_INVALID"
+      ],
+      "prompt_sha256": "83fad9181f9e15893e265cf41fcd1ecc08b4e52e76c37e2067db16a2ae6f4b1c",
+      "policy": {
+        "forbids_model_memory": true,
+        "requires_query_for_facts": true
+      },
+      "context_keys": [
+        "basket",
+        "current_date",
+        "material_labels",
+        "official_plan",
+        "page_focus",
+        "planning_constraints",
+        "planning_readiness",
+        "progress",
+        "recent_messages",
+        "references",
+        "requirements"
+      ],
+      "page_focus": {
+        "key": "food:siweicai",
+        "kind": "food",
+        "id": "siweicai",
+        "name": "四味菜",
+        "fact_kind": null,
+        "fact_id": null,
+        "parent_place_id": null,
+        "data_status": "pending_addition"
+      },
+      "recent_message_count": 0,
+      "has_prior_tool_trace": false,
+      "fallback": true,
+      "final_reply_component": "deterministic_service",
+      "reply": "刚才连接中断了，请再试一次。",
+      "formal_and_workspace_unchanged": true
+    },
+    {
+      "case": "S7-local-wait",
+      "input": "这道菜有什么特色？",
+      "interface": "POST /api/city/v1/trips/{trip}/agent/tasks + step",
+      "mode": null,
+      "status": "budget_exhausted",
+      "tools": 0,
+      "model_calls": 0,
+      "events": [],
+      "decisions": [],
+      "provider_failure_codes": [],
+      "prompt_sha256": "83fad9181f9e15893e265cf41fcd1ecc08b4e52e76c37e2067db16a2ae6f4b1c",
+      "policy": {
+        "forbids_model_memory": true,
+        "requires_query_for_facts": true
+      },
+      "context_keys": [
+        "basket",
+        "current_date",
+        "material_labels",
+        "official_plan",
+        "page_focus",
+        "planning_constraints",
+        "planning_readiness",
+        "progress",
+        "recent_messages",
+        "references",
+        "requirements"
+      ],
+      "page_focus": {
+        "key": "food:siweicai",
+        "kind": "food",
+        "id": "siweicai",
+        "name": "四味菜",
+        "fact_kind": null,
+        "fact_id": null,
+        "parent_place_id": null,
+        "data_status": "pending_addition"
+      },
+      "recent_message_count": 0,
+      "has_prior_tool_trace": false,
+      "fallback": false,
+      "final_reply_component": "deterministic_service",
+      "reply": "下一次可用额度已超出本次任务时间预算，正式行程未变。",
+      "formal_and_workspace_unchanged": true
+    },
+    {
+      "case": "S7-tool-timeout",
+      "input": "附近找个吃饭的地方",
+      "interface": "POST /api/city/v1/trips/{trip}/agent/tasks + step",
+      "mode": "react",
+      "status": "unavailable",
+      "tools": 1,
+      "model_calls": 2,
+      "events": [
+        {
+          "tool": "understand",
+          "status": "ok",
+          "fallback": false
+        },
+        {
+          "tool": "search_dining",
+          "status": "running"
+        }
+      ],
+      "decisions": [
+        {
+          "source": "diagnosis_mock",
+          "action": {
+            "tool": "search_dining"
+          },
+          "legal": true,
+          "eligible_tools": [
+            "finish",
+            "clarify",
+            "search_dining",
+            "query_shows"
+          ]
+        }
+      ],
+      "provider_failure_codes": [],
+      "prompt_sha256": "83fad9181f9e15893e265cf41fcd1ecc08b4e52e76c37e2067db16a2ae6f4b1c",
+      "policy": {
+        "forbids_model_memory": true,
+        "requires_query_for_facts": true
+      },
+      "context_keys": [
+        "basket",
+        "current_date",
+        "material_labels",
+        "official_plan",
+        "page_focus",
+        "planning_constraints",
+        "planning_readiness",
+        "progress",
+        "recent_messages",
+        "references",
+        "requirements"
+      ],
+      "page_focus": null,
+      "recent_message_count": 2,
+      "has_prior_tool_trace": false,
+      "fallback": false,
+      "final_reply_component": "deterministic_service",
+      "reply": "工具运行失败或超时，正式行程未变。",
+      "formal_and_workspace_unchanged": true
+    },
+    {
+      "case": "S8",
+      "input": "你今年几岁？",
+      "interface": "POST /api/city/v1/trips/{trip}/agent/tasks + step",
+      "mode": "conversation",
+      "status": "answered",
+      "tools": 0,
+      "model_calls": 1,
+      "events": [
+        {
+          "tool": "understand",
+          "status": "ok",
+          "fallback": false
+        }
+      ],
+      "decisions": [],
+      "provider_failure_codes": [],
+      "prompt_sha256": "83fad9181f9e15893e265cf41fcd1ecc08b4e52e76c37e2067db16a2ae6f4b1c",
+      "policy": {
+        "forbids_model_memory": true,
+        "requires_query_for_facts": true
+      },
+      "context_keys": [
+        "basket",
+        "current_date",
+        "material_labels",
+        "official_plan",
+        "page_focus",
+        "planning_constraints",
+        "planning_readiness",
+        "progress",
+        "recent_messages",
+        "references",
+        "requirements"
+      ],
+      "page_focus": null,
+      "recent_message_count": 0,
+      "has_prior_tool_trace": false,
+      "fallback": false,
+      "final_reply_component": "model_conversation",
+      "reply": "我是旅行助手，没有人的年龄。",
+      "formal_and_workspace_unchanged": true
+    },
+    {
+      "case": "S9-first",
+      "input": "这道菜有什么特色？",
+      "interface": "POST /api/city/v1/trips/{trip}/agent/tasks + step",
+      "mode": "clarify",
+      "status": "needs_clarification",
+      "tools": 0,
+      "model_calls": 1,
+      "events": [
+        {
+          "tool": "understand",
+          "status": "ok",
+          "fallback": true
+        }
+      ],
+      "decisions": [],
+      "provider_failure_codes": [],
+      "prompt_sha256": "83fad9181f9e15893e265cf41fcd1ecc08b4e52e76c37e2067db16a2ae6f4b1c",
+      "policy": {
+        "forbids_model_memory": true,
+        "requires_query_for_facts": true
+      },
+      "context_keys": [
+        "basket",
+        "current_date",
+        "material_labels",
+        "official_plan",
+        "page_focus",
+        "planning_constraints",
+        "planning_readiness",
+        "progress",
+        "recent_messages",
+        "references",
+        "requirements"
+      ],
+      "page_focus": {
+        "key": "food:siweicai",
+        "kind": "food",
+        "id": "siweicai",
+        "name": "四味菜",
+        "fact_kind": null,
+        "fact_id": null,
+        "parent_place_id": null,
+        "data_status": "pending_addition"
+      },
+      "recent_message_count": 0,
+      "has_prior_tool_trace": false,
+      "fallback": true,
+      "final_reply_component": "deterministic_service",
+      "reply": "请先明确：暂时没能完整理解这段要求，请重试或使用下方选项；条件尚未修改。",
+      "formal_and_workspace_unchanged": true
+    },
+    {
+      "case": "S9-unsupported-explanation",
+      "input": "你刚才为什么回答错了？",
+      "interface": "POST /api/city/v1/trips/{trip}/agent/tasks + step",
+      "mode": "conversation",
+      "status": "answered",
+      "tools": 0,
+      "model_calls": 1,
+      "events": [
+        {
+          "tool": "understand",
+          "status": "ok",
+          "fallback": false
+        }
+      ],
+      "decisions": [],
+      "provider_failure_codes": [],
+      "prompt_sha256": "83fad9181f9e15893e265cf41fcd1ecc08b4e52e76c37e2067db16a2ae6f4b1c",
+      "policy": {
+        "forbids_model_memory": true,
+        "requires_query_for_facts": true
+      },
+      "context_keys": [
+        "basket",
+        "current_date",
+        "material_labels",
+        "official_plan",
+        "page_focus",
+        "planning_constraints",
+        "planning_readiness",
+        "progress",
+        "recent_messages",
+        "references",
+        "requirements"
+      ],
+      "page_focus": {
+        "key": "food:siweicai",
+        "kind": "food",
+        "id": "siweicai",
+        "name": "四味菜",
+        "fact_kind": null,
+        "fact_id": null,
+        "parent_place_id": null,
+        "data_status": "pending_addition"
+      },
+      "recent_message_count": 2,
+      "has_prior_tool_trace": false,
+      "fallback": false,
+      "final_reply_component": "model_conversation",
+      "reply": "刚才系统没把四味菜的资料调出来。",
+      "formal_and_workspace_unchanged": true
+    },
+    {
+      "case": "boundary-free-text",
+      "input": "介绍四味菜",
+      "interface": "POST /api/city/v1/trips/{trip}/agent/tasks + step",
+      "mode": "conversation",
+      "status": "answered",
+      "tools": 0,
+      "model_calls": 1,
+      "events": [
+        {
+          "tool": "understand",
+          "status": "ok",
+          "fallback": false
+        }
+      ],
+      "decisions": [],
+      "provider_failure_codes": [],
+      "prompt_sha256": "83fad9181f9e15893e265cf41fcd1ecc08b4e52e76c37e2067db16a2ae6f4b1c",
+      "policy": {
+        "forbids_model_memory": true,
+        "requires_query_for_facts": true
+      },
+      "context_keys": [
+        "basket",
+        "current_date",
+        "material_labels",
+        "official_plan",
+        "page_focus",
+        "planning_constraints",
+        "planning_readiness",
+        "progress",
+        "recent_messages",
+        "references",
+        "requirements"
+      ],
+      "page_focus": {
+        "key": "food:siweicai",
+        "kind": "food",
+        "id": "siweicai",
+        "name": "四味菜",
+        "fact_kind": null,
+        "fact_id": null,
+        "parent_place_id": null,
+        "data_status": "pending_addition"
+      },
+      "recent_message_count": 0,
+      "has_prior_tool_trace": false,
+      "fallback": false,
+      "final_reply_component": "model_conversation",
+      "reply": "[合成诊断商家]现在营业，步行只要一分钟。",
+      "formal_and_workspace_unchanged": true
+    }
+  ]
+}

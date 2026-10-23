@@ -1,0 +1,18 @@
+no,category,status,evidence_files,remaining,formal_acceptance,verified
+1,首批服务范围,expanded_scope_candidate: 24 A-level + stations + restaurants + markets,a-level-directory-expanded.json; places-expanded.json,需要用户确定游玩日期、必看演出、预算/用餐偏好；24 个不是全部开封点位,false,false
+2,地点基本信息,names_and_some_addresses_partial,places-expanded.json,多数 A 级景区只有名录名称；地址、别名、边界和坐标未核验,false,false
+3,实际出入口,named_gate_candidates_plus_unresolved,entrances-expanded.json,无门点坐标、方向、通行限制和现场证据；车站出口未知,false,false
+4,开放时间,conflicting_candidates,opening-rule-candidates-expanded.json; conflicts-expanded.json,目标日规则缺失；多个景区页面内部/不同来源冲突,false,false
+5,门票与预约规则,ticket_candidates_not_target_date,ticket-rules-expanded.json,目标日可购票种、实名/预约、联票权益和出园再入未闭环,false,false
+6,园内必要道路,not_obtained,conflicts-expanded.json,入口—目标舞台—出口的通行道路和耗时未取得,false,false
+7,演出资料,catalog_only_no_sessions,program-catalog-expanded.json; opening-rule-candidates-expanded.json,缺目标日期、结束时间、提前到场、取消与舞台坐标,false,false
+8,菜品介绍,cultural_descriptions_partial,foods-expanded.json,完整配料和可靠过敏原说明未取得；不能推断适合忌口人群,false,false
+9,真实餐馆,branch_candidates_platform_data,vendors-food-candidates-expanded.json,当前营业、最后接单、预约、准确入口未由商家确认,false,false
+10,餐馆与菜品对应,platform_leads_only,supply-candidates-expanded.json,0 条供应证明；平台推荐菜不能作为当前菜单,false,false
+11,用餐时间和费用,platform_estimates_only,meal-costs-expanded.csv,用餐时长/排队未实测；人均为平台口径,false,false
+12,城市转场,schedule_candidates_no_live_route,transport-expanded.json,缺目标日公交/旅游专线适用性、车站出口和高德现时查询；不能生成可执行路线,false,false
+13,休息与便民点,not_expanded_this_round,places-expanded.json,仅有少量首批游客中心文字；厕所/饮水点/座位及开放限制未取得,false,false
+14,图片与地图素材,not_acquired_rights_unknown,source-manifest-expanded.json,未取得可商用图片/导览图授权；只保留链接和文本,false,false
+15,每条资料的依据,sources_with_hashes_limits,source-manifest-expanded.json; conflicts-expanded.json,部分页面是搜索摘要/直读失败；核验人、有效日期和完整页码仍缺,false,false
+16,更新负责人,not_assigned,maintenance-expanded.json,没有真实负责人；不能声称已有更新责任链,false,false
+17,真实走查记录,not_performed,field-walkthrough-expanded.json,0 次完整现场走查；正式验收必需,false,false

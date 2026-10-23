@@ -1,0 +1,697 @@
+{
+  "$defs": {
+    "Action": {
+      "additionalProperties": false,
+      "properties": {
+        "kind": {
+          "enum": [
+            "query",
+            "search_dining",
+            "modify",
+            "preference",
+            "cancel",
+            "progress",
+            "position"
+          ],
+          "title": "Kind",
+          "type": "string"
+        },
+        "quote": {
+          "maxLength": 500,
+          "minLength": 1,
+          "title": "Quote",
+          "type": "string"
+        },
+        "target_name": {
+          "anyOf": [
+            {
+              "maxLength": 120,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Target Name"
+        }
+      },
+      "required": [
+        "kind",
+        "quote"
+      ],
+      "title": "Action",
+      "type": "object"
+    },
+    "AdvanceTask": {
+      "additionalProperties": false,
+      "properties": {
+        "request_id": {
+          "format": "uuid",
+          "title": "Request Id",
+          "type": "string"
+        },
+        "expected_step": {
+          "maximum": 12,
+          "minimum": 0,
+          "title": "Expected Step",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "request_id",
+        "expected_step"
+      ],
+      "title": "AdvanceTask",
+      "type": "object"
+    },
+    "Budget": {
+      "additionalProperties": false,
+      "properties": {
+        "max_tools": {
+          "default": 4,
+          "maximum": 4,
+          "minimum": 1,
+          "title": "Max Tools",
+          "type": "integer"
+        },
+        "max_model_calls": {
+          "default": 6,
+          "maximum": 6,
+          "minimum": 1,
+          "title": "Max Model Calls",
+          "type": "integer"
+        },
+        "max_seconds": {
+          "default": 45,
+          "maximum": 240,
+          "minimum": 1,
+          "title": "Max Seconds",
+          "type": "number"
+        },
+        "max_repairs": {
+          "default": 1,
+          "maximum": 1,
+          "minimum": 0,
+          "title": "Max Repairs",
+          "type": "integer"
+        }
+      },
+      "title": "Budget",
+      "type": "object"
+    },
+    "Constraint": {
+      "additionalProperties": false,
+      "properties": {
+        "field": {
+          "enum": [
+            "food",
+            "preserve_shows",
+            "walking_seconds",
+            "return_by",
+            "meal_at",
+            "visit_at",
+            "objective",
+            "pace"
+          ],
+          "title": "Field",
+          "type": "string"
+        },
+        "strength": {
+          "enum": [
+            "hard",
+            "soft",
+            "optional",
+            "unknown"
+          ],
+          "title": "Strength",
+          "type": "string"
+        },
+        "value": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Value"
+        },
+        "quote": {
+          "maxLength": 500,
+          "minLength": 1,
+          "title": "Quote",
+          "type": "string"
+        }
+      },
+      "required": [
+        "field",
+        "strength",
+        "quote"
+      ],
+      "title": "Constraint",
+      "type": "object"
+    },
+    "Conversation": {
+      "additionalProperties": false,
+      "properties": {
+        "reply": {
+          "maxLength": 1200,
+          "minLength": 1,
+          "title": "Reply",
+          "type": "string"
+        }
+      },
+      "required": [
+        "reply"
+      ],
+      "title": "Conversation",
+      "type": "object"
+    },
+    "Correction": {
+      "additionalProperties": false,
+      "properties": {
+        "before": {
+          "maxLength": 200,
+          "title": "Before",
+          "type": "string"
+        },
+        "after": {
+          "maxLength": 200,
+          "title": "After",
+          "type": "string"
+        },
+        "quote": {
+          "maxLength": 500,
+          "minLength": 1,
+          "title": "Quote",
+          "type": "string"
+        }
+      },
+      "required": [
+        "before",
+        "after",
+        "quote"
+      ],
+      "title": "Correction",
+      "type": "object"
+    },
+    "Decision": {
+      "additionalProperties": false,
+      "properties": {
+        "tool": {
+          "enum": [
+            "search_dining",
+            "query_shows",
+            "verify_travel",
+            "preview_plan",
+            "search_locations",
+            "query_reference_route",
+            "finish",
+            "clarify"
+          ],
+          "title": "Tool",
+          "type": "string"
+        },
+        "place_id": {
+          "anyOf": [
+            {
+              "maxLength": 100,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Place Id"
+        },
+        "relax_optional_food": {
+          "default": false,
+          "title": "Relax Optional Food",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "tool"
+      ],
+      "title": "Decision",
+      "type": "object"
+    },
+    "MaterialChoice": {
+      "additionalProperties": false,
+      "properties": {
+        "name": {
+          "maxLength": 120,
+          "minLength": 1,
+          "title": "Name",
+          "type": "string"
+        },
+        "priority": {
+          "enum": [
+            "must",
+            "want",
+            "optional"
+          ],
+          "title": "Priority",
+          "type": "string"
+        },
+        "status": {
+          "default": "pending",
+          "enum": [
+            "pending",
+            "standby"
+          ],
+          "title": "Status",
+          "type": "string"
+        },
+        "quote": {
+          "maxLength": 500,
+          "minLength": 1,
+          "title": "Quote",
+          "type": "string"
+        }
+      },
+      "required": [
+        "name",
+        "priority",
+        "quote"
+      ],
+      "title": "MaterialChoice",
+      "type": "object"
+    },
+    "ObjectRef": {
+      "additionalProperties": false,
+      "properties": {
+        "kind": {
+          "enum": [
+            "scenic",
+            "food",
+            "place",
+            "poi",
+            "show",
+            "vendor",
+            "program"
+          ],
+          "title": "Kind",
+          "type": "string"
+        },
+        "object_id": {
+          "maxLength": 120,
+          "minLength": 1,
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]*$",
+          "title": "Object Id",
+          "type": "string"
+        }
+      },
+      "required": [
+        "kind",
+        "object_id"
+      ],
+      "title": "ObjectRef",
+      "type": "object"
+    },
+    "PlanningField": {
+      "additionalProperties": false,
+      "properties": {
+        "field": {
+          "enum": [
+            "city",
+            "date",
+            "start_time",
+            "end_time",
+            "origin",
+            "destination",
+            "pace",
+            "objective",
+            "mode",
+            "budget_fen"
+          ],
+          "title": "Field",
+          "type": "string"
+        },
+        "value": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "integer"
+            }
+          ],
+          "title": "Value"
+        },
+        "quote": {
+          "maxLength": 500,
+          "minLength": 1,
+          "title": "Quote",
+          "type": "string"
+        }
+      },
+      "required": [
+        "field",
+        "value",
+        "quote"
+      ],
+      "title": "PlanningField",
+      "type": "object"
+    },
+    "PlanningIntent": {
+      "additionalProperties": false,
+      "properties": {
+        "operation": {
+          "default": "update",
+          "enum": [
+            "update",
+            "continue"
+          ],
+          "title": "Operation",
+          "type": "string"
+        },
+        "quote": {
+          "maxLength": 500,
+          "minLength": 1,
+          "title": "Quote",
+          "type": "string"
+        },
+        "fields": {
+          "default": [],
+          "items": {
+            "$ref": "#/$defs/PlanningField"
+          },
+          "maxItems": 12,
+          "title": "Fields",
+          "type": "array"
+        },
+        "choices": {
+          "default": [],
+          "items": {
+            "$ref": "#/$defs/MaterialChoice"
+          },
+          "maxItems": 12,
+          "title": "Choices",
+          "type": "array"
+        }
+      },
+      "required": [
+        "quote"
+      ],
+      "title": "PlanningIntent",
+      "type": "object"
+    },
+    "ReferenceRouteIntent": {
+      "additionalProperties": false,
+      "properties": {
+        "quote": {
+          "maxLength": 500,
+          "minLength": 1,
+          "title": "Quote",
+          "type": "string"
+        },
+        "origin": {
+          "anyOf": [
+            {
+              "maxLength": 80,
+              "minLength": 1,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Origin"
+        },
+        "destination": {
+          "maxLength": 80,
+          "minLength": 1,
+          "title": "Destination",
+          "type": "string"
+        },
+        "use_current_position": {
+          "default": false,
+          "title": "Use Current Position",
+          "type": "boolean"
+        },
+        "mode": {
+          "default": "walking",
+          "enum": [
+            "walking",
+            "driving",
+            "transit"
+          ],
+          "title": "Mode",
+          "type": "string"
+        }
+      },
+      "required": [
+        "quote",
+        "destination"
+      ],
+      "title": "ReferenceRouteIntent",
+      "type": "object"
+    },
+    "ReferenceSelection": {
+      "additionalProperties": false,
+      "properties": {
+        "request_id": {
+          "format": "uuid",
+          "title": "Request Id",
+          "type": "string"
+        },
+        "expected_step": {
+          "maximum": 12,
+          "minimum": 0,
+          "title": "Expected Step",
+          "type": "integer"
+        },
+        "role": {
+          "enum": [
+            "origin",
+            "destination"
+          ],
+          "title": "Role",
+          "type": "string"
+        },
+        "resolution_id": {
+          "format": "uuid",
+          "title": "Resolution Id",
+          "type": "string"
+        },
+        "candidate_id": {
+          "maxLength": 160,
+          "minLength": 1,
+          "title": "Candidate Id",
+          "type": "string"
+        }
+      },
+      "required": [
+        "request_id",
+        "expected_step",
+        "role",
+        "resolution_id",
+        "candidate_id"
+      ],
+      "title": "ReferenceSelection",
+      "type": "object"
+    },
+    "StartTask": {
+      "additionalProperties": false,
+      "properties": {
+        "request_id": {
+          "format": "uuid",
+          "title": "Request Id",
+          "type": "string"
+        },
+        "text": {
+          "maxLength": 2000,
+          "minLength": 1,
+          "title": "Text",
+          "type": "string"
+        },
+        "expected_version": {
+          "minimum": 1,
+          "title": "Expected Version",
+          "type": "integer"
+        },
+        "expected_route_version": {
+          "minimum": 0,
+          "title": "Expected Route Version",
+          "type": "integer"
+        },
+        "page_focus": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/ObjectRef"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        }
+      },
+      "required": [
+        "request_id",
+        "text",
+        "expected_version",
+        "expected_route_version"
+      ],
+      "title": "StartTask",
+      "type": "object"
+    },
+    "Understanding": {
+      "additionalProperties": false,
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "conversation": {
+                "type": "object"
+              }
+            },
+            "required": [
+              "conversation"
+            ]
+          },
+          "then": {
+            "properties": {
+              "route_query": {
+                "type": "null"
+              },
+              "planning": {
+                "type": "null"
+              },
+              "constraints": {
+                "maxItems": 0
+              },
+              "corrections": {
+                "maxItems": 0
+              },
+              "unresolved": {
+                "maxItems": 0
+              },
+              "actions": {
+                "maxItems": 0
+              }
+            }
+          }
+        }
+      ],
+      "properties": {
+        "schema_version": {
+          "const": "travel-intent/3.1",
+          "default": "travel-intent/3.1",
+          "title": "Schema Version",
+          "type": "string"
+        },
+        "actions": {
+          "default": [],
+          "items": {
+            "$ref": "#/$defs/Action"
+          },
+          "maxItems": 8,
+          "title": "Actions",
+          "type": "array"
+        },
+        "constraints": {
+          "default": [],
+          "items": {
+            "$ref": "#/$defs/Constraint"
+          },
+          "maxItems": 16,
+          "title": "Constraints",
+          "type": "array"
+        },
+        "corrections": {
+          "default": [],
+          "items": {
+            "$ref": "#/$defs/Correction"
+          },
+          "maxItems": 4,
+          "title": "Corrections",
+          "type": "array"
+        },
+        "unresolved": {
+          "default": [],
+          "items": {
+            "type": "string"
+          },
+          "maxItems": 8,
+          "title": "Unresolved",
+          "type": "array"
+        },
+        "planning": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/PlanningIntent"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "conversation": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Conversation"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "route_query": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/ReferenceRouteIntent"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        }
+      },
+      "title": "Understanding",
+      "type": "object"
+    }
+  },
+  "properties": {
+    "start": {
+      "$ref": "#/$defs/StartTask"
+    },
+    "advance": {
+      "$ref": "#/$defs/AdvanceTask"
+    },
+    "reference_location_selection": {
+      "$ref": "#/$defs/ReferenceSelection"
+    },
+    "understanding": {
+      "$ref": "#/$defs/Understanding"
+    },
+    "model_decision_not_write_permission": {
+      "$ref": "#/$defs/Decision"
+    },
+    "limits": {
+      "$ref": "#/$defs/Budget"
+    }
+  },
+  "required": [
+    "start",
+    "advance",
+    "reference_location_selection",
+    "understanding",
+    "model_decision_not_write_permission",
+    "limits"
+  ],
+  "title": "Contracts",
+  "type": "object"
+}

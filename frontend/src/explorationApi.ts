@@ -1,0 +1,18 @@
+import {request,mutate} from './api'
+export interface PlanningConstraints{business_date:string|null;starts_at:string|null;ends_at:string|null;origin_place_id:string|null;destination_place_id:string|null;origin_text?:string|null;destination_text?:string|null;pace:'relaxed'|'standard'|'compact';objective:'balanced'|'less_walking'|'less_waiting'|'lower_cost';modes:('walking'|'driving'|'transit')[];budget_fen:number|null}
+export interface PlannedActivity{goal_id:string;place_id:string;session_id:string|null;kind:string;starts_at:string;departs_at:string;duration_seconds:number;required:boolean}
+export interface ScheduledLeg{departs_at:string;arrives_at:string;journey:{travel:{origin_place_id:string;destination_place_id:string;mode:string}}}
+export interface RouteSnapshot{trip_id:string;version:number;route_version:number;itinerary:Itinerary|null;stale?:boolean;issues?:{message:string}[];notice?:string}
+export interface Itinerary{ongoing?:{stop_id:string;place_id?:string;starts_at?:string;ends_at?:string;original_activity?:PlannedActivity}|null;legs:ScheduledLeg[];activities:PlannedActivity[];total_seconds:number;travel_seconds:number;walking_distance_m:number;known_cost_upper_fen:number;cost_unknown:boolean;returns_at:string;evidence_mode:string}
+export interface PlanChanges{added:string[];removed:string[];reordered:string[];start_changes?:{goal_id:string;before:string;after:string}[];target_changes?:{goal_id:string;before_place:string;after_place:string;before_session:string|null;after_session:string|null}[]}
+export interface PlanningResult{planning_version:number;rounds:number;status:'feasible'|'infeasible'|'unknown';reply:string;issues:{code:string;message:string;affected_ids:string[]}[];options:{id:string;kind:'priority'|'constraints';object_key?:string;priority?:'want';label:string;requires_consent:boolean}[];constraints:PlanningConstraints;basket_version:number;trip_version:number;goal_keys?:Record<string,string>;activity_names?:Record<string,string>;planning:null|{candidate_id:string|null;base_version:number;result:{status:string;itineraries:Itinerary[];warnings:string[];metrics:Record<string,unknown>};changes?:PlanChanges;alternative_changes?:PlanChanges[]}}
+export interface PlanningWorkspace{version:number;constraints:PlanningConstraints|null;result:PlanningResult|null;rounds:number}
+const prefix=(id:string)=>'/city/v1/trips/'+encodeURIComponent(id)
+export const explorationApi={
+ constraints:(id:string)=>request<PlanningWorkspace>(prefix(id)+'/exploration/constraints'),
+ preview:(id:string,tripVersion:number,basketVersion:number,constraints:PlanningConstraints,planningVersion:number)=>mutate<PlanningResult>(prefix(id)+'/exploration/preview',{expected_version:tripVersion,basket_version:basketVersion,constraints,planning_version:planningVersion}),
+ answer:(id:string,tripVersion:number,basketVersion:number,planningVersion:number,reply:{option_id?:string;text?:string})=>mutate<PlanningWorkspace>(prefix(id)+'/exploration/answer',{expected_version:tripVersion,basket_version:basketVersion,planning_version:planningVersion,...reply}),
+ cancel:(id:string,tripVersion:number,basketVersion:number,planningVersion:number)=>mutate<PlanningWorkspace>(prefix(id)+'/exploration/cancel',{expected_version:tripVersion,basket_version:basketVersion,planning_version:planningVersion}),
+ confirm:(id:string,version:number,candidate_id:string,alternative_index:number)=>mutate(prefix(id)+'/engine/confirm',{expected_version:version,candidate_id,alternative_index}),
+ current:(id:string)=>request<RouteSnapshot>(prefix(id)+'/engine/current')
+}

@@ -1,0 +1,143 @@
+{
+  "schema_version": "kaifeng-coverage/1",
+  "generated_at": "2026-10-23T19:03:02+08:00",
+  "categories": [
+    {
+      "no": 1,
+      "category": "首批服务范围",
+      "status": "candidate_scope_prepared",
+      "evidence": "first-batch-scope.json",
+      "remaining": "需要确定目标日期和是否纳入演出/城墙",
+      "formal_acceptance": false
+    },
+    {
+      "no": 2,
+      "category": "地点基本信息",
+      "status": "candidate_names_addresses_partial",
+      "evidence": "places.json",
+      "remaining": "坐标、官方地址、别名和地点边界待核验",
+      "formal_acceptance": false
+    },
+    {
+      "no": 3,
+      "category": "实际出入口",
+      "status": "official_names_third_party_access_candidates",
+      "evidence": "entrance-candidates.json",
+      "remaining": "无门点坐标、现场通行/方向证据；车站出口与集合点未确认",
+      "formal_acceptance": false
+    },
+    {
+      "no": 4,
+      "category": "开放时间",
+      "status": "conflicting_unverified_candidates",
+      "evidence": "opening-rule-candidates.json",
+      "remaining": "城墙适用季节/停检时间冲突；清明上河园目标日规则待确认",
+      "formal_acceptance": false
+    },
+    {
+      "no": 5,
+      "category": "门票与预约规则",
+      "status": "partial_official_candidates",
+      "evidence": "source-manifest.json / qmsyun song banquet",
+      "remaining": "普通票、目标日预约、出园再入、城墙票种未统一确认；不采集个人订单/身份证",
+      "formal_acceptance": false
+    },
+    {
+      "no": 6,
+      "category": "园内必要道路",
+      "status": "not_obtained",
+      "evidence": "no route geometry or passability evidence in this batch",
+      "remaining": "入口—目标舞台—出口必要道路未走查，不能作正式导航",
+      "formal_acceptance": false
+    },
+    {
+      "no": 7,
+      "category": "演出资料",
+      "status": "catalog_no_target_date_sessions",
+      "evidence": "program-catalog.json / target-date-status.json",
+      "remaining": "缺目标日期、结束时间、舞台精确点位、提前到场与取消状态",
+      "formal_acceptance": false
+    },
+    {
+      "no": 8,
+      "category": "菜品介绍",
+      "status": "brand_level_candidates",
+      "evidence": "foods.json",
+      "remaining": "完整食材、过敏原与可靠饮食提示未获得",
+      "formal_acceptance": false
+    },
+    {
+      "no": 9,
+      "category": "真实餐馆",
+      "status": "official_address_third_party_hours",
+      "evidence": "vendor-candidates.json",
+      "remaining": "分店营业、最后接单、预约和坐标未由门店确认",
+      "formal_acceptance": false
+    },
+    {
+      "no": 10,
+      "category": "餐馆与菜品对应",
+      "status": "brand_level_only_not_supply_proof",
+      "evidence": "supply-candidates.json",
+      "remaining": "缺寺后街店当前菜单/现场确认；不把品牌菜名当供应关系",
+      "formal_acceptance": false
+    },
+    {
+      "no": 11,
+      "category": "用餐时间和费用",
+      "status": "partial_estimates",
+      "evidence": "vendor-candidates.json",
+      "remaining": "人均有冲突/口径为第三方；用餐时长和排队未实测",
+      "formal_acceptance": false
+    },
+    {
+      "no": 12,
+      "category": "城市转场",
+      "status": "historical_route_candidates",
+      "evidence": "transport-candidates.json",
+      "remaining": "需按目标时间查高德并加出入口/步行/缓冲；线路时效未核验",
+      "formal_acceptance": false
+    },
+    {
+      "no": 13,
+      "category": "休息与便民点",
+      "status": "official_text_no_coordinates",
+      "evidence": "service-facilities.json / qmsyun_q_secret_20261023.json",
+      "remaining": "已保存官网文字，但缺位置坐标、开放时段和使用限制",
+      "formal_acceptance": false
+    },
+    {
+      "no": 14,
+      "category": "图片与地图素材",
+      "status": "link_only_rights_unknown",
+      "evidence": "media-assets.json",
+      "remaining": "无授权素材；不能以网页可见当商用许可",
+      "formal_acceptance": false
+    },
+    {
+      "no": 15,
+      "category": "每条资料的依据",
+      "status": "manifest_with_hashes_and_limitations",
+      "evidence": "source-manifest.json",
+      "remaining": "部分线索未保存原文；核验人/有效日期仍缺",
+      "formal_acceptance": false
+    },
+    {
+      "no": 16,
+      "category": "更新负责人",
+      "status": "proposed_not_assigned",
+      "evidence": "responsibilities.json",
+      "remaining": "需指定真实负责人并承担复核",
+      "formal_acceptance": false
+    },
+    {
+      "no": 17,
+      "category": "真实走查记录",
+      "status": "not_performed",
+      "evidence": "field-walkthrough.json",
+      "remaining": "正式验收必需；当前 0 次完整走查",
+      "formal_acceptance": false
+    }
+  ],
+  "overall_status": "candidate_catalog_only_not_executable"
+}

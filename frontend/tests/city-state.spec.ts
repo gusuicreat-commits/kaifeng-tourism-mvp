@@ -1,0 +1,118 @@
+import {expect,test} from '@playwright/test'
+import type {Page} from '@playwright/test'
+
+test.skip(!process.env.E2E_CITY_FACTS,'需要显式开启临时库的合成事实夹具')
+async function save(page:Page){
+ const response=page.waitForResponse(r=>/\/api\/city\/v1\/trips(?:\/[\w-]+)?$/.test(r.url())&&['POST','PATCH'].includes(r.request().method()))
+ await page.getByRole('button',{name:'保存城市安排',exact:true}).click()
+ const result=await response;expect(result.status()).toBeLessThan(300)
+ const trip=await result.json();await page.goto('/city-trip/manage/'+trip.id);return trip
+}
+async function basics(page:Page){
+ await page.goto('/city-trip/manage')
+ await expect(page.getByRole('combobox',{name:'出发地点',exact:true}).locator('option')).toHaveCount(6)
+ await page.getByLabel('游玩日期',{exact:true}).fill('2026-10-21')
+ await page.getByLabel('开始时间',{exact:true}).fill('09:00')
+ await page.getByLabel('结束时间',{exact:true}).fill('21:00')
+ await page.getByRole('combobox',{name:'出发地点',exact:true}).selectOption('test:gate')
+ await page.getByRole('combobox',{name:'返程终点',exact:true}).selectOption('test:hotel')
+}
+async function meal(page:Page){
+ await page.getByRole('combobox',{name:'活动类型',exact:true}).selectOption('dining')
+ await page.getByRole('combobox',{name:'活动地点',exact:true}).selectOption('test:restaurant')
+ await page.getByRole('button',{name:'添加到草稿',exact:true}).click()
+}
+
+test('城市安排：没有事实数据时仍可保存日期和时间，刷新后不丢失',async({page})=>{
+ await page.route('**/api/city/v1/facts',route=>route.fulfill({json:{items:[]}}))
+ await page.goto('/city-trip/manage')
+ await expect(page.getByText('地点与餐饮资料正在核验，当前可以先保存日期和时间。暂不提供城市路线。',{exact:true})).toBeVisible()
+ await page.getByLabel('游玩日期',{exact:true}).fill('2026-10-21')
+ await page.getByLabel('开始时间',{exact:true}).fill('13:00')
+ const t=await save(page)
+ expect(t.readiness.missing_fields).toContain('origin_place_id')
+ await page.reload();await expect(page.getByLabel('开始时间',{exact:true})).toHaveValue('13:00')
+ await expect(page.locator('.city-stops > li')).toHaveCount(0)
+})
+
+test('城市安排：保存后刷新恢复，记录页与导出读取同一行程',async({page})=>{
+ await basics(page);await meal(page)
+ await page.getByLabel('[测试]菜品',{exact:true}).check()
+ const trip=await save(page)
+ await expect(page).toHaveURL('/city-trip/manage/'+trip.id)
+ await page.reload();await expect(page.getByLabel('开始时间',{exact:true})).toHaveValue('09:00')
+ await expect(page.locator('.city-stops')).toContainText('[测试]餐馆')
+ await expect(page.getByLabel('[测试]菜品',{exact:true})).toBeChecked()
+ expect(trip.readiness.planning_available).toBe(false)
+ await page.getByRole('link',{name:'返回游览记录',exact:true}).click()
+ await expect(page.getByRole('link',{name:'继续城市安排',exact:true})).toBeVisible()
+ const exported=await (await page.request.get('/api/v1/memory/export')).json()
+ expect(exported.city_trips[0].id).toBe(trip.id)
+ expect(exported.city_trips[0].draft.dish_interest_ids).toEqual(['test:food'])
+})
+
+test('城市安排：删除必看演出先展示影响，确认前不改变保存版本',async({page})=>{
+ await basics(page);await meal(page)
+ await page.getByRole('combobox',{name:'活动类型',exact:true}).selectOption('show')
+ await page.getByRole('combobox',{name:'具体场次',exact:true}).selectOption('test:session')
+ await page.getByRole('button',{name:'添加到草稿',exact:true}).click()
+ await page.locator('.city-stops > li').nth(1).getByLabel('必须保留',{exact:true}).check()
+ const trip=await save(page)
+ await page.locator('.city-stops > li').nth(1).getByRole('button',{name:'移除活动',exact:true}).click()
+ await page.getByRole('button',{name:'保存城市安排',exact:true}).click()
+ await expect(page.locator('.memory-proposal')).toContainText('影响未完成的必选活动：[测试]舞台')
+ const before=await (await page.request.get('/api/city/v1/trips/'+trip.id)).json()
+ expect(before.version).toBe(1);expect(before.draft.stops).toHaveLength(2)
+ await page.getByRole('button',{name:'确认保存修改',exact:true}).click()
+ await expect(page.getByRole('status')).toContainText('修改已确认并保存')
+ const after=await (await page.request.get('/api/city/v1/trips/'+trip.id)).json()
+ expect(after.version).toBe(2);expect(after.draft.stops).toHaveLength(1)
+ expect(after.route_version).toBe(0)
+})
+
+test('城市安排：旧标签页不能覆盖另一标签页的新版本',async({page,context})=>{
+ await basics(page);const trip=await save(page)
+ const other=await context.newPage();await other.goto('/city-trip/manage/'+trip.id)
+ await expect(other.getByLabel('[测试]菜品',{exact:true})).toBeVisible()
+ await page.getByLabel('[测试]菜品',{exact:true}).check();await save(page)
+ await other.getByRole('button',{name:'保存城市安排',exact:true}).click()
+ await expect(other.getByRole('alert')).toContainText('另一请求修改')
+ const current=await (await page.request.get('/api/city/v1/trips/'+trip.id)).json()
+ expect(current.version).toBe(2);expect(current.draft.dish_interest_ids).toEqual(['test:food'])
+})
+
+test('城市安排：删除清除另一标签页的草稿与服务端所有城市对象',async({page,context})=>{
+ await basics(page);await meal(page);const trip=await save(page)
+ const other=await context.newPage();await other.goto('/memory')
+ await other.getByRole('button',{name:'删除我的本次记录',exact:true}).click()
+ await other.getByRole('button',{name:'确认删除本次记录',exact:true}).click()
+ await expect(page.getByRole('alert')).toContainText('记录已删除')
+ await expect(page.locator('.city-stops > li')).toHaveCount(0)
+ await expect(page.getByLabel('游玩日期',{exact:true})).toHaveValue('')
+ expect((await page.request.get('/api/city/v1/trips/'+trip.id)).status()).toBe(401)
+})
+
+test('城市安排：320px 可操作，完成记录和手动当前位置可以恢复',async({page})=>{
+ await page.setViewportSize({width:320,height:844});await basics(page);await meal(page)
+ const now=new Date();const day=new Intl.DateTimeFormat('sv-SE',{timeZone:'Asia/Shanghai'}).format(now)
+ await page.getByLabel('游玩日期',{exact:true}).fill(day)
+ await page.getByLabel('开始时间',{exact:true}).fill('00:00');await page.getByLabel('结束时间',{exact:true}).fill('23:59')
+ const trip=await save(page)
+ await page.getByRole('button',{name:'开始记录游玩',exact:true}).click()
+ await expect(page.getByRole('button',{name:'记录下一活动完成',exact:true})).toBeVisible()
+ await page.getByRole('button',{name:'记录下一活动完成',exact:true}).click()
+ const local=(d:Date)=>d.toLocaleString('sv-SE',{timeZone:'Asia/Shanghai'}).replace(' ','T').slice(0,16)
+ const midnight=new Date(day+'T00:00:00+08:00').getTime()
+ await page.getByLabel('实际开始',{exact:true}).fill(local(new Date(Math.max(midnight,Date.now()-600000))))
+ await page.getByLabel('实际结束',{exact:true}).fill(local(new Date(Math.max(midnight,Date.now()-300000))))
+ await page.getByRole('button',{name:'确认完成记录',exact:true}).click()
+ await expect(page.locator('.city-stops')).toContainText('已完成')
+ await page.getByRole('combobox',{name:'我在这里',exact:true}).selectOption('test:restaurant')
+ await page.getByRole('button',{name:'确认当前位置',exact:true}).click()
+ await expect(page.locator('.city-trip-page')).toContainText('最后确认位置：[测试]餐馆')
+ await page.reload();await expect(page.locator('.city-stops')).toContainText('已完成')
+ expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true)
+ const result=await (await page.request.get('/api/city/v1/trips/'+trip.id)).json()
+ expect(result.anchor.place_id).toBe('test:restaurant');expect(result.draft.stops[0].progress).toBe('completed')
+ await page.screenshot({path:'../docs/screenshots/city-state-mobile.png',fullPage:true})
+})

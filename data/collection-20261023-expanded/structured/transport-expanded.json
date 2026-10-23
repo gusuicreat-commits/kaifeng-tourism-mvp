@@ -1,0 +1,141 @@
+{
+  "schema_version": "kaifeng-transport-expanded/1",
+  "generated_at": "2026-10-23T19:46:51+08:00",
+  "routes": [
+    {
+      "route_id": "tr_small_loop_1",
+      "name": "小环线 1 号线",
+      "schedule_candidate": "08:00-20:00；平均发车间隔 10-15 分钟",
+      "status": "third_party_current_service_context",
+      "from_place_id": null,
+      "to_place_id": null,
+      "duration_minutes": null,
+      "source_ids": [
+        "src_search_wansuishan_20261023"
+      ],
+      "caveats": [
+        "来源为万岁山交通攻略的 2026-09 服务语境",
+        "未取得运营方线路/站点/目标日公告",
+        "站点与出口步行未核验",
+        "必须按目标时间向高德查询",
+        "本文件不含可执行路线"
+      ]
+    },
+    {
+      "route_id": "tr_small_loop_2",
+      "name": "小环线 2 号夜线",
+      "schedule_candidate": "20:00-23:30；平均发车间隔 10-15 分钟",
+      "status": "third_party_current_service_context",
+      "from_place_id": null,
+      "to_place_id": null,
+      "duration_minutes": null,
+      "source_ids": [
+        "src_search_wansuishan_20261023"
+      ],
+      "caveats": [
+        "来源为万岁山交通攻略的 2026-09 服务语境",
+        "目标日夜间是否运营未知",
+        "末班/站点未核验",
+        "必须按目标时间向高德查询",
+        "本文件不含可执行路线"
+      ]
+    },
+    {
+      "route_id": "tr_scenic_direct_lines",
+      "name": "景区直达线 1/3/5 号线",
+      "schedule_candidate": "线路名见 2026-09 交通攻略；无完整时刻",
+      "status": "third_party_line_name_only",
+      "from_place_id": null,
+      "to_place_id": null,
+      "duration_minutes": null,
+      "source_ids": [
+        "src_search_wansuishan_20261023"
+      ],
+      "caveats": [
+        "只有线路名，没有班次、票价、起终点",
+        "不能生成集合点或路线",
+        "必须按目标时间向高德查询",
+        "本文件不含可执行路线"
+      ]
+    },
+    {
+      "route_id": "tr_bus_8_21_35_52_53",
+      "name": "8/21/35/52/53 路与开封北站相关",
+      "schedule_candidate": "2022 政府线网存在性；非 2026 时刻",
+      "status": "historical_official_route_candidate",
+      "from_place_id": null,
+      "to_place_id": null,
+      "duration_minutes": null,
+      "source_ids": [
+        "src_kaifeng_bus_2022_20261023"
+      ],
+      "caveats": [
+        "线路/站点当前状态待核",
+        "不能给真实导航",
+        "必须按目标时间向高德查询",
+        "本文件不含可执行路线"
+      ]
+    },
+    {
+      "route_id": "tr_station_1",
+      "name": "开封站至清明上河园普通公交候选",
+      "schedule_candidate": "1 路 2022 政府站序存在；首末班 05:55-20:30；不等于旅游专线",
+      "status": "historical_official_route_candidate",
+      "from_place_id": null,
+      "to_place_id": null,
+      "duration_minutes": null,
+      "source_ids": [
+        "src_kaifeng_bus_2022_20261023"
+      ],
+      "caveats": [
+        "2026 班次/站点状态待核",
+        "景区下车站到入口步行未核验",
+        "不能把普通 1 路写成旅游公交 1 号线",
+        "必须按目标时间向高德查询",
+        "本文件不含可执行路线"
+      ]
+    },
+    {
+      "route_id": "tr_station_35",
+      "name": "开封北站至开封站方向 35 路候选",
+      "schedule_candidate": "2022 政府站序存在；首末班 06:00-19:00",
+      "status": "historical_official_route_candidate",
+      "from_place_id": null,
+      "to_place_id": null,
+      "duration_minutes": null,
+      "source_ids": [
+        "src_kaifeng_bus_2022_20261023"
+      ],
+      "caveats": [
+        "2026 班次/站点状态待核",
+        "不等于北站直达景区专线",
+        "必须按目标时间向高德查询",
+        "本文件不含可执行路线"
+      ]
+    },
+    {
+      "route_id": "tr_station_52",
+      "name": "宋城路站至开封北站 52 路候选",
+      "schedule_candidate": "2022 政府站序存在；首末班 07:00-18:30",
+      "status": "historical_official_route_candidate",
+      "from_place_id": null,
+      "to_place_id": null,
+      "duration_minutes": null,
+      "source_ids": [
+        "src_kaifeng_bus_2022_20261023"
+      ],
+      "caveats": [
+        "2026 班次/站点状态待核",
+        "不能证明与景区入口衔接",
+        "必须按目标时间向高德查询",
+        "本文件不含可执行路线"
+      ]
+    }
+  ],
+  "station_exit_status": {
+    "kf_station": "no reliable current railway exit number",
+    "kf_north_station": "no reliable current railway exit number",
+    "kf_north_bus_stop": "not verified to be at station exit"
+  },
+  "notice": "2025 清明/2022 线网资料不是 2026 目标日实时班次；不提供虚构集合点或步行路线。"
+}

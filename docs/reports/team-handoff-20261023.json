@@ -1,0 +1,176 @@
+{
+  "date": "2026-10-23",
+  "scope": "internal_team_development_handoff",
+  "target_os": "Windows x64",
+  "executed_os": "macOS arm64",
+  "python": "3.13.15",
+  "node": "26.3.0",
+  "clean_install": {
+    "result": "passed",
+    "copied_dotenv": false,
+    "copied_venv": false,
+    "copied_node_modules": false,
+    "copied_runtime_database": false,
+    "dependencies_installed_from_manifests": true,
+    "pip_check": "passed",
+    "frontend_build": "passed"
+  },
+  "python_tests": {
+    "passed": 747,
+    "warnings": 1,
+    "seconds": 47.58,
+    "paths": [
+      "backend/tests",
+      "collector/tests"
+    ]
+  },
+  "browser_suites": {
+    "default": {
+      "startTime": "2026-10-23T15:45:11.001Z",
+      "duration": 96821.596,
+      "expected": 84,
+      "skipped": 1,
+      "unexpected": 4,
+      "flaky": 0
+    },
+    "reference": {
+      "startTime": "2026-10-23T15:46:48.127Z",
+      "duration": 3355.765,
+      "expected": 4,
+      "skipped": 0,
+      "unexpected": 0,
+      "flaky": 0
+    },
+    "map": {
+      "startTime": "2026-10-23T15:48:47.249Z",
+      "duration": 10734.82,
+      "expected": 12,
+      "skipped": 1,
+      "unexpected": 0,
+      "flaky": 0
+    },
+    "agent": {
+      "startTime": "2026-10-23T15:49:31.088Z",
+      "duration": 7015.023,
+      "expected": 7,
+      "skipped": 0,
+      "unexpected": 0,
+      "flaky": 0
+    }
+  },
+  "agent_initial": {
+    "stats": {
+      "startTime": "2026-10-23T15:46:51.741Z",
+      "duration": 115188.845,
+      "expected": 0,
+      "skipped": 0,
+      "unexpected": 7,
+      "flaky": 0
+    },
+    "cause": "test server forced a missing local .test-results/agent-v3-dist directory"
+  },
+  "agent_final": {
+    "startTime": "2026-10-23T15:49:31.088Z",
+    "duration": 7015.023,
+    "expected": 7,
+    "skipped": 0,
+    "unexpected": 0,
+    "flaky": 0
+  },
+  "default_failures": [
+    {
+      "title": "城市安排：保存后刷新恢复，记录页与导出读取同一行程",
+      "file": "city-state.spec.ts",
+      "line": 38,
+      "errors": [
+        "Error: expect(locator).toBeVisible() failed\n\nLocator: getByRole('link', { name: '继续城市安排', exact: true })\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n  - Expect \"toBeVisible\" getByRole('link', { name: '继续城市安排', exact: true }) with timeout 5000ms\n  - waiting for getByRole('link', { name: '继续城市安排', exact: true })\n"
+      ]
+    },
+    {
+      "title": "景区直达、详情点位、外部地图降级与手机导航",
+      "file": "flows.spec.ts",
+      "line": 6,
+      "errors": [
+        "Error: expect(locator).toBeVisible() failed\n\nLocator: getByText('在高德地图查看位置和前往路线。')\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n  - Expect \"toBeVisible\" getByText('在高德地图查看位置和前往路线。') with timeout 5000ms\n  - waiting for getByText('在高德地图查看位置和前往路线。')\n"
+      ]
+    },
+    {
+      "title": "景区地图默认没有模拟场次或热力，显式演示才出现示例路线",
+      "file": "guide.spec.ts",
+      "line": 2,
+      "errors": [
+        "Error: expect(locator).toBeVisible() failed\n\nLocator: getByRole('img', { name: /宋风浅立体景区示意地图/ })\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n  - Expect \"toBeVisible\" getByRole('img', { name: /宋风浅立体景区示意地图/ }) with timeout 5000ms\n  - waiting for getByRole('img', { name: /宋风浅立体景区示意地图/ })\n"
+      ]
+    },
+    {
+      "title": "空行程只保留明确下一步，助手入口绑定当前行程，设置不重复列行程",
+      "file": "journey.spec.ts",
+      "line": 61,
+      "errors": [
+        "Error: expect(page).toHaveURL(expected) failed\n\nExpected pattern: /city_trip=undefined/\nReceived string:  \"http://127.0.0.1:8018/assistant?context=city\"\nTimeout: 5000ms\n\nCall log:\n  - Expect \"toHaveURL\" with timeout 5000ms\n    14 × locator resolved to <html lang=\"zh-CN\">…</html>\n       - unexpected value \"http://127.0.0.1:8018/assistant?context=cit"
+      ]
+    }
+  ],
+  "smoke": {
+    "health": {
+      "status": "ok",
+      "schema_version": 1,
+      "realtime_monitoring": false
+    },
+    "pages": [
+      {
+        "route": "/",
+        "status": 200,
+        "overflow": false
+      },
+      {
+        "route": "/assistant",
+        "status": 200,
+        "overflow": false
+      },
+      {
+        "route": "/city-trip",
+        "status": 200,
+        "overflow": false
+      },
+      {
+        "route": "/basket",
+        "status": 200,
+        "overflow": false
+      },
+      {
+        "route": "/guide",
+        "status": 200,
+        "overflow": false
+      },
+      {
+        "route": "/me",
+        "status": 200,
+        "overflow": false
+      }
+    ],
+    "errors": []
+  },
+  "windows_dependency_resolution": {
+    "result": "passed",
+    "python": "3.13",
+    "platform": "win_amd64",
+    "items": 47,
+    "tzdata": "2025.2",
+    "limitation": "cross-platform wheel/metadata resolution on macOS, not Windows installation or execution"
+  },
+  "workbook_conversion": {
+    "received": 469,
+    "dry_run": "passed",
+    "ready": 0,
+    "applied_to_runtime_database": false
+  },
+  "windows_execution": "not_run",
+  "production_data_or_services_modified": false,
+  "remaining": [
+    "default browser suite has four failures",
+    "workbook original evidence directory is missing",
+    "real city data and field acceptance remain pending",
+    "no remote repository created or pushed"
+  ]
+}

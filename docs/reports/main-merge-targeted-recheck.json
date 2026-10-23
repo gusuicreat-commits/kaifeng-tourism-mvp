@@ -1,0 +1,479 @@
+{
+  "config": {
+    "argv": [
+      "/Users/mac/.local/share/nodejs/node-v26.3.0-darwin-arm64/bin/node",
+      "/Users/mac/Desktop/大挑/kaifeng-main-merge-stage-20261023-161200/frontend/node_modules/.bin/playwright",
+      "test",
+      "itinerary-flow.spec.ts",
+      "location-resolution.spec.ts",
+      "--reporter=list,json"
+    ],
+    "configFile": "/Users/mac/Desktop/大挑/kaifeng-main-merge-stage-20261023-161200/frontend/playwright.config.ts",
+    "rootDir": "/Users/mac/Desktop/大挑/kaifeng-main-merge-stage-20261023-161200/frontend/tests",
+    "failOnFlakyTests": false,
+    "forbidOnly": false,
+    "fullyParallel": false,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "actualWorkers": 1
+    },
+    "preserveOutput": "always",
+    "projects": [
+      {
+        "outputDir": "/Users/mac/Desktop/大挑/kaifeng-main-merge-stage-20261023-161200/.test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "",
+        "name": "",
+        "testDir": "/Users/mac/Desktop/大挑/kaifeng-main-merge-stage-20261023-161200/frontend/tests",
+        "testIgnore": [
+          "agent-v3.spec.ts",
+          "assistant-reference.spec.ts"
+        ],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 30000
+      }
+    ],
+    "filteredProjects": [
+      {
+        "grep": {},
+        "grepInvert": null,
+        "outputDir": "/Users/mac/Desktop/大挑/kaifeng-main-merge-stage-20261023-161200/.test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "name": "",
+        "testDir": "/Users/mac/Desktop/大挑/kaifeng-main-merge-stage-20261023-161200/frontend/tests",
+        "snapshotDir": "/Users/mac/Desktop/大挑/kaifeng-main-merge-stage-20261023-161200/frontend/tests",
+        "testIgnore": [
+          "agent-v3.spec.ts",
+          "assistant-reference.spec.ts"
+        ],
+        "testMatch": "**/*.@(spec|test).?(c|m)[jt]s?(x)",
+        "timeout": 30000,
+        "use": {
+          "baseURL": "http://127.0.0.1:8051",
+          "viewport": {
+            "width": 1440,
+            "height": 1000
+          },
+          "headless": true,
+          "launchOptions": {
+            "args": [
+              "--use-fake-ui-for-media-stream",
+              "--use-fake-device-for-media-stream"
+            ],
+            "executablePath": "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome"
+          }
+        },
+        "dependencies": [],
+        "ignoreSnapshots": false,
+        "__projectId": ""
+      }
+    ],
+    "quiet": false,
+    "reporter": [
+      [
+        "list"
+      ],
+      [
+        "json"
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "shard": null,
+    "tags": [],
+    "updateSnapshots": "default",
+    "updateSourceMethod": "patch",
+    "version": "1.64.1",
+    "workers": 1,
+    "webServer": {
+      "command": "../.venv/bin/python ../scripts/browser_server.py",
+      "url": "http://127.0.0.1:8051/api/health",
+      "reuseExistingServer": false,
+      "timeout": 20000
+    }
+  },
+  "suites": [
+    {
+      "title": "itinerary-flow.spec.ts",
+      "file": "itinerary-flow.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "确认路线按起点、活动、分段交通和返程连接，手机及桌面可读",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 528,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-23T08:29:19.331Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "43a2fca8a7cbe1fd3f3b-1042366b19389206e81d",
+          "file": "itinerary-flow.spec.ts",
+          "line": 32,
+          "column": 1
+        },
+        {
+          "title": "重新规划保留完成记录和正在进行的活动，不把历史转场当新路段",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 169,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-23T08:29:20.460Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "43a2fca8a7cbe1fd3f3b-5f340e0f458673c286f3",
+          "file": "itinerary-flow.spec.ts",
+          "line": 58,
+          "column": 1
+        },
+        {
+          "title": "链式展示遵守unconfirmed资料状态",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 155,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-23T08:29:20.637Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "43a2fca8a7cbe1fd3f3b-e7bcad61b41f81724638",
+          "file": "itinerary-flow.spec.ts",
+          "line": 72,
+          "column": 84
+        },
+        {
+          "title": "链式展示遵守stale资料状态",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 162,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-23T08:29:20.798Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "43a2fca8a7cbe1fd3f3b-78788b66aeb3738e54d2",
+          "file": "itinerary-flow.spec.ts",
+          "line": 72,
+          "column": 84
+        },
+        {
+          "title": "链式展示遵守expired资料状态",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 166,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-23T08:29:20.967Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "43a2fca8a7cbe1fd3f3b-a04e81f7b32fc26c4165",
+          "file": "itinerary-flow.spec.ts",
+          "line": 72,
+          "column": 84
+        },
+        {
+          "title": "链式展示遵守wrong-version资料状态",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 158,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-23T08:29:21.138Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "43a2fca8a7cbe1fd3f3b-7d3b86dbfbd7d7d726b0",
+          "file": "itinerary-flow.spec.ts",
+          "line": 72,
+          "column": 84
+        },
+        {
+          "title": "链式展示遵守missing-leg资料状态",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 168,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-23T08:29:21.305Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "43a2fca8a7cbe1fd3f3b-ab08ae098da2463ec831",
+          "file": "itinerary-flow.spec.ts",
+          "line": 72,
+          "column": 84
+        }
+      ]
+    },
+    {
+      "title": "location-resolution.spec.ts",
+      "file": "location-resolution.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "地点候选须明确确认，确认后仍保留资料缺口与正式路线版本",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 437,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-23T08:29:21.486Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "f1d89cf59ebc8fd4036f-ee028c9b23e991cc3a8f",
+          "file": "location-resolution.spec.ts",
+          "line": 5,
+          "column": 1
+        },
+        {
+          "title": "历史凌晨时段需游客确认，浏览器UTC时区不会改变北京时间",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 328,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-23T08:29:21.928Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "f1d89cf59ebc8fd4036f-64e0597b6b886ca11af7",
+          "file": "location-resolution.spec.ts",
+          "line": 35,
+          "column": 1
+        },
+        {
+          "title": "已有核验绑定时使用正式地点ID，仍经原规划器核验且不自动提交",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 390,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-23T08:29:22.265Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "f1d89cf59ebc8fd4036f-f398d09a5b75e46b6946",
+          "file": "location-resolution.spec.ts",
+          "line": 49,
+          "column": 1
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-10-23T08:29:18.260Z",
+    "duration": 4539.0599999999995,
+    "expected": 10,
+    "skipped": 0,
+    "unexpected": 0,
+    "flaky": 0
+  }
+}

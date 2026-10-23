@@ -1,0 +1,665 @@
+{
+  "schema_version": "agent-v34-acceptance/1",
+  "date": "2026-10-22",
+  "acceptance": "PASS",
+  "scope": "One real Kimi bounded ReAct chain with explicit synthetic-user confirmation in disposable synthetic DB; not real Kaifeng navigation validation.",
+  "answers": {
+    "rpm_vs_timeout": "Product task remains 45s; no-permit returns immediately. Isolated acceptance allows 240s with unchanged tools/model/repairs.",
+    "shared_scheduler": "All application Kimi generation paths share model_schedule.request within one Python process.",
+    "visitor_forced_long_wait": false,
+    "complete_real_react_tasks": 1,
+    "observation_driven": "A and B received current observations; B chose a distinct relaxed food search after no candidates and stopped at tool cap.",
+    "user_confirmation_required": true,
+    "agent_architecture_next": "Freeze MVP Agent architecture; prioritize verified real data and product acceptance."
+  },
+  "rate_limit_evidence": {
+    "rpm": 3,
+    "basis": "Prior actual rate_limit_reached_error with organization max RPM 3 in previous report",
+    "current_run_429_count": 0,
+    "tpm": null,
+    "tpd": null
+  },
+  "audit": {
+    "current_entrypoints": [
+      "backend/app/language.py -> model_schedule.request",
+      "backend/app/city/agent/provider.py -> model_schedule.request",
+      "scripts/check_kimi_connection.py uses language._call"
+    ],
+    "client": "direct httpx",
+    "sdk_automatic_retries": 0,
+    "redirects_followed": false,
+    "deployment": "single-process compatible; cross-process/global coordination not implemented"
+  },
+  "scheduler": {
+    "scope": "single_python_process",
+    "organization_global": false,
+    "rpm": 3,
+    "interval_seconds": 25.0,
+    "concurrency_limit": 1,
+    "tpm": null,
+    "tpd": null,
+    "token_basis": "conservative_utf8_reservation_then_usage",
+    "unknown_provider_token_limits": true,
+    "automatic_retries": 0,
+    "attempts": 11,
+    "inflight": false,
+    "stopped": null,
+    "algorithm": "minimum spacing + sliding window + concurrency 1",
+    "blocking_sleep_in_server": false,
+    "on_429": "No automatic resend; cooldown >= max(60s, Retry-After)",
+    "cross_process_upgrade": "future shared DB atomic lease/counters; not implemented"
+  },
+  "profiles": {
+    "product": {
+      "task_seconds": 45,
+      "no_permit": "model_busy terminal, no long wait"
+    },
+    "live_acceptance": {
+      "task_seconds": 240,
+      "explicit_isolated_test_only": true,
+      "no_permit": "running waiting_model with next_allowed_at"
+    },
+    "unchanged_limits": {
+      "tools": 4,
+      "model_calls": 6,
+      "repairs": 1,
+      "network_timeout_seconds": 12
+    }
+  },
+  "live": {
+    "report": "docs/reports/agent-v34-kimi-live-20261022.json",
+    "actual_requests": 11,
+    "success_responses": 11,
+    "http_429_count": 0,
+    "automatic_retries": 0,
+    "max_concurrency": 1,
+    "interval_min_seconds": 25.035664,
+    "interval_max_seconds": 25.090742,
+    "known_usage": {
+      "prompt_tokens": 7819,
+      "completion_tokens": 405,
+      "total_tokens": 8224
+    },
+    "cost_cny": null,
+    "waiting_seconds": 194.44541,
+    "full_task_successes": 1,
+    "formal_mutations_without_confirmation": 0,
+    "primary": {
+      "status": "needs_confirmation",
+      "model_calls": 5,
+      "tools": 4,
+      "complete_live_chain": true,
+      "confirmation": {
+        "status": "passed",
+        "http_status": 200,
+        "actor": "explicit_synthetic_test_user",
+        "version_before": 5,
+        "version_after": 6,
+        "route_version_before": 1,
+        "route_version_after": 2,
+        "completed_history_preserved": true,
+        "objective_after": "less_walking",
+        "protected_show_retained": true,
+        "idempotent_replay": true
+      },
+      "safety_controls": {
+        "source": "deterministic_test_driver_after_confirmation",
+        "cancelled_candidate_http": 409,
+        "stale_candidate_http": 409,
+        "route_version_unchanged_after_controls": true
+      },
+      "decisions": [
+        {
+          "request_sequence": 2,
+          "eligible_actions": [
+            {
+              "tool": "finish"
+            },
+            {
+              "tool": "clarify"
+            },
+            {
+              "tool": "search_dining"
+            },
+            {
+              "tool": "query_shows"
+            }
+          ],
+          "source": "live_model",
+          "fallback": false,
+          "legal": true,
+          "observations": {},
+          "provider": {
+            "source": "live_model",
+            "model": "kimi-k2.6",
+            "endpoint_host": "api.moonshot.cn",
+            "http_attempts": 1,
+            "automatic_retries": 0,
+            "usage": {
+              "prompt_tokens": 463,
+              "completion_tokens": 22,
+              "total_tokens": 485
+            },
+            "cost_cny": null,
+            "cost_basis": "not_calculated_no_price_snapshot",
+            "schedule": {
+              "request_sequence": 3,
+              "started_at": "2026-10-22T02:54:18.606778+00:00",
+              "scope": "single_python_process"
+            },
+            "upstream_status": 200,
+            "request_id": null,
+            "elapsed_ms": 4914.22,
+            "evaluation_request_sequence": 3
+          },
+          "action": {
+            "tool": "search_dining"
+          },
+          "validation": "valid_schema",
+          "tool_status": "ok"
+        },
+        {
+          "request_sequence": 3,
+          "eligible_actions": [
+            {
+              "tool": "finish"
+            },
+            {
+              "tool": "clarify"
+            },
+            {
+              "tool": "query_shows"
+            }
+          ],
+          "source": "live_model",
+          "fallback": false,
+          "legal": true,
+          "observations": {
+            "search_dining": {
+              "status": "ok",
+              "code": null,
+              "item_count": 1
+            }
+          },
+          "provider": {
+            "source": "live_model",
+            "model": "kimi-k2.6",
+            "endpoint_host": "api.moonshot.cn",
+            "http_attempts": 1,
+            "automatic_retries": 0,
+            "usage": {
+              "prompt_tokens": 496,
+              "completion_tokens": 10,
+              "total_tokens": 506
+            },
+            "cost_cny": null,
+            "cost_basis": "not_calculated_no_price_snapshot",
+            "schedule": {
+              "request_sequence": 4,
+              "started_at": "2026-10-22T02:54:43.697520+00:00",
+              "scope": "single_python_process"
+            },
+            "upstream_status": 200,
+            "request_id": null,
+            "elapsed_ms": 4521.93,
+            "evaluation_request_sequence": 4
+          },
+          "action": {
+            "tool": "query_shows"
+          },
+          "validation": "valid_schema",
+          "tool_status": "ok"
+        },
+        {
+          "request_sequence": 4,
+          "eligible_actions": [
+            {
+              "tool": "finish"
+            },
+            {
+              "tool": "clarify"
+            },
+            {
+              "tool": "verify_travel",
+              "place_id": "restaurant"
+            }
+          ],
+          "source": "live_model",
+          "fallback": false,
+          "legal": true,
+          "observations": {
+            "search_dining": {
+              "status": "ok",
+              "code": null,
+              "item_count": 1
+            },
+            "query_shows": {
+              "status": "ok",
+              "code": null,
+              "item_count": 1
+            }
+          },
+          "provider": {
+            "source": "live_model",
+            "model": "kimi-k2.6",
+            "endpoint_host": "api.moonshot.cn",
+            "http_attempts": 1,
+            "automatic_retries": 0,
+            "usage": {
+              "prompt_tokens": 692,
+              "completion_tokens": 23,
+              "total_tokens": 715
+            },
+            "cost_cny": null,
+            "cost_basis": "not_calculated_no_price_snapshot",
+            "schedule": {
+              "request_sequence": 5,
+              "started_at": "2026-10-22T02:55:08.744892+00:00",
+              "scope": "single_python_process"
+            },
+            "upstream_status": 200,
+            "request_id": null,
+            "elapsed_ms": 4986.83,
+            "evaluation_request_sequence": 5
+          },
+          "action": {
+            "tool": "verify_travel",
+            "place_id": "restaurant"
+          },
+          "validation": "valid_schema",
+          "tool_status": "ok"
+        },
+        {
+          "request_sequence": 5,
+          "eligible_actions": [
+            {
+              "tool": "finish"
+            },
+            {
+              "tool": "clarify"
+            },
+            {
+              "tool": "preview_plan",
+              "place_id": "restaurant"
+            }
+          ],
+          "source": "live_model",
+          "fallback": false,
+          "legal": true,
+          "observations": {
+            "search_dining": {
+              "status": "ok",
+              "code": null,
+              "item_count": 1
+            },
+            "query_shows": {
+              "status": "ok",
+              "code": null,
+              "item_count": 1
+            },
+            "verify_travel": {
+              "status": "ok",
+              "code": null,
+              "item_count": 0
+            }
+          },
+          "provider": {
+            "source": "live_model",
+            "model": "kimi-k2.6",
+            "endpoint_host": "api.moonshot.cn",
+            "http_attempts": 1,
+            "automatic_retries": 0,
+            "usage": {
+              "prompt_tokens": 937,
+              "completion_tokens": 15,
+              "total_tokens": 952
+            },
+            "cost_cny": null,
+            "cost_basis": "not_calculated_no_price_snapshot",
+            "schedule": {
+              "request_sequence": 6,
+              "started_at": "2026-10-22T02:55:33.780556+00:00",
+              "scope": "single_python_process"
+            },
+            "upstream_status": 200,
+            "request_id": null,
+            "elapsed_ms": 5200.23,
+            "evaluation_request_sequence": 6
+          },
+          "action": {
+            "tool": "preview_plan",
+            "place_id": "restaurant"
+          },
+          "validation": "valid_schema",
+          "tool_status": "needs_confirmation"
+        }
+      ]
+    },
+    "contrast": {
+      "status": "budget_exhausted",
+      "model_calls": 5,
+      "tools": 4,
+      "complete_live_chain": false,
+      "no_preview_or_confirmation": true,
+      "formal_state_unchanged": true,
+      "decisions": [
+        {
+          "request_sequence": 2,
+          "eligible_actions": [
+            {
+              "tool": "finish"
+            },
+            {
+              "tool": "clarify"
+            },
+            {
+              "tool": "search_dining"
+            },
+            {
+              "tool": "query_shows"
+            }
+          ],
+          "source": "live_model",
+          "fallback": false,
+          "legal": true,
+          "observations": {},
+          "provider": {
+            "source": "live_model",
+            "model": "kimi-k2.6",
+            "endpoint_host": "api.moonshot.cn",
+            "http_attempts": 1,
+            "automatic_retries": 0,
+            "usage": {
+              "prompt_tokens": 463,
+              "completion_tokens": 22,
+              "total_tokens": 485
+            },
+            "cost_cny": null,
+            "cost_basis": "not_calculated_no_price_snapshot",
+            "schedule": {
+              "request_sequence": 8,
+              "started_at": "2026-10-22T02:56:23.872266+00:00",
+              "scope": "single_python_process"
+            },
+            "upstream_status": 200,
+            "request_id": null,
+            "elapsed_ms": 5093.44,
+            "evaluation_request_sequence": 8
+          },
+          "action": {
+            "tool": "search_dining"
+          },
+          "validation": "valid_schema",
+          "tool_status": "no_candidates"
+        },
+        {
+          "request_sequence": 3,
+          "eligible_actions": [
+            {
+              "tool": "finish"
+            },
+            {
+              "tool": "clarify"
+            },
+            {
+              "tool": "search_dining",
+              "relax_optional_food": true
+            },
+            {
+              "tool": "query_shows"
+            }
+          ],
+          "source": "live_model",
+          "fallback": false,
+          "legal": true,
+          "observations": {
+            "search_dining": {
+              "status": "no_candidates",
+              "code": "NO_VERIFIED_SUPPLY_OR_OPENING",
+              "item_count": 0
+            }
+          },
+          "provider": {
+            "source": "live_model",
+            "model": "kimi-k2.6",
+            "endpoint_host": "api.moonshot.cn",
+            "http_attempts": 1,
+            "automatic_retries": 0,
+            "usage": {
+              "prompt_tokens": 499,
+              "completion_tokens": 10,
+              "total_tokens": 509
+            },
+            "cost_cny": null,
+            "cost_basis": "not_calculated_no_price_snapshot",
+            "schedule": {
+              "request_sequence": 9,
+              "started_at": "2026-10-22T02:56:48.930405+00:00",
+              "scope": "single_python_process"
+            },
+            "upstream_status": 200,
+            "request_id": null,
+            "elapsed_ms": 5179.95,
+            "evaluation_request_sequence": 9
+          },
+          "action": {
+            "tool": "query_shows"
+          },
+          "validation": "valid_schema",
+          "tool_status": "ok"
+        },
+        {
+          "request_sequence": 4,
+          "eligible_actions": [
+            {
+              "tool": "finish"
+            },
+            {
+              "tool": "clarify"
+            },
+            {
+              "tool": "search_dining",
+              "relax_optional_food": true
+            }
+          ],
+          "source": "live_model",
+          "fallback": false,
+          "legal": true,
+          "observations": {
+            "search_dining": {
+              "status": "no_candidates",
+              "code": "NO_VERIFIED_SUPPLY_OR_OPENING",
+              "item_count": 0
+            },
+            "query_shows": {
+              "status": "ok",
+              "code": null,
+              "item_count": 1
+            }
+          },
+          "provider": {
+            "source": "live_model",
+            "model": "kimi-k2.6",
+            "endpoint_host": "api.moonshot.cn",
+            "http_attempts": 1,
+            "automatic_retries": 0,
+            "usage": {
+              "prompt_tokens": 674,
+              "completion_tokens": 17,
+              "total_tokens": 691
+            },
+            "cost_cny": null,
+            "cost_basis": "not_calculated_no_price_snapshot",
+            "schedule": {
+              "request_sequence": 10,
+              "started_at": "2026-10-22T02:57:13.992215+00:00",
+              "scope": "single_python_process"
+            },
+            "upstream_status": 200,
+            "request_id": null,
+            "elapsed_ms": 5136.4,
+            "evaluation_request_sequence": 10
+          },
+          "action": {
+            "tool": "search_dining",
+            "relax_optional_food": true
+          },
+          "validation": "valid_schema",
+          "tool_status": "ok"
+        },
+        {
+          "request_sequence": 5,
+          "eligible_actions": [
+            {
+              "tool": "finish"
+            },
+            {
+              "tool": "clarify"
+            },
+            {
+              "tool": "verify_travel",
+              "place_id": "restaurant"
+            }
+          ],
+          "source": "live_model",
+          "fallback": false,
+          "legal": true,
+          "observations": {
+            "search_dining": {
+              "status": "ok",
+              "code": null,
+              "item_count": 1
+            },
+            "query_shows": {
+              "status": "ok",
+              "code": null,
+              "item_count": 1
+            }
+          },
+          "provider": {
+            "source": "live_model",
+            "model": "kimi-k2.6",
+            "endpoint_host": "api.moonshot.cn",
+            "http_attempts": 1,
+            "automatic_retries": 0,
+            "usage": {
+              "prompt_tokens": 690,
+              "completion_tokens": 16,
+              "total_tokens": 706
+            },
+            "cost_cny": null,
+            "cost_basis": "not_calculated_no_price_snapshot",
+            "schedule": {
+              "request_sequence": 11,
+              "started_at": "2026-10-22T02:57:39.032238+00:00",
+              "scope": "single_python_process"
+            },
+            "upstream_status": 200,
+            "request_id": null,
+            "elapsed_ms": 4658.92,
+            "evaluation_request_sequence": 11
+          },
+          "action": {
+            "tool": "verify_travel",
+            "place_id": "restaurant"
+          },
+          "validation": "valid_schema",
+          "tool_status": "ok"
+        }
+      ]
+    }
+  },
+  "validation": {
+    "baseline_backend_passed": 399,
+    "final_backend_passed": 428,
+    "warnings": 1,
+    "focused_new_or_affected_tests_passed": 134,
+    "contracts": "all passed",
+    "language_corpus": "80/80 field and route regression",
+    "isolated_vite_build": "passed",
+    "browser": {
+      "passed": 5,
+      "elapsed_seconds": 7.3,
+      "model": "disabled",
+      "database": "temporary synthetic",
+      "port": 8021
+    },
+    "compileall": "passed"
+  },
+  "protection": {
+    "runtime_8017_restarted": false,
+    "production_database_used": false,
+    "frontend_source_edited_by_this_task": false,
+    "frontend_dist_replaced_by_this_task": false,
+    "external_parallel_frontend_changes_detected": [
+      "frontend/src/cityApi.ts",
+      "frontend/src/explorationApi.ts",
+      "frontend/src/details.css",
+      "frontend/src/components/BasketPlanning.vue",
+      "frontend/src/components/CityAgentChat.vue",
+      "frontend/dist/index.html",
+      "frontend/dist/assets/index-KsddBVlL.js",
+      "frontend/dist/assets/index-9yofI6R3.css"
+    ],
+    "key_or_account_changed": false,
+    "model_changed": false,
+    "paid_resources_purchased": false,
+    "api_key_cookie_auth_header_logged": false
+  },
+  "modified_files": [
+    "AGENTS.md",
+    "backend/app/language.py",
+    "backend/app/city/agent/provider.py",
+    "backend/app/city/agent/understand.py",
+    "backend/app/city/agent/service.py",
+    "backend/app/city/agent/models.py",
+    "backend/tests/conftest.py",
+    "backend/tests/test_city_agent.py",
+    "backend/tests/test_agent_live_budget.py",
+    "scripts/agent_live_diagnostics.py",
+    "scripts/check_kimi_connection.py",
+    "docs/contracts/city-agent-v3.schema.json",
+    "docs/CITY_AGENT_V3.md"
+  ],
+  "added_files": [
+    "backend/app/model_schedule.py",
+    "backend/tests/test_model_schedule.py",
+    "scripts/evaluate_agent_v34.py",
+    "docs/reference/AGENT_V3_4_TASK.md",
+    "docs/AGENT_V3_RATE_LIMIT_AND_LIVE_ACCEPTANCE.md",
+    "docs/reports/agent-v3-rate-limit-and-live-acceptance.json",
+    "docs/reports/agent-v34-kimi-live-20261022.json",
+    "docs/reports/agent-v34-offline-20261022.json",
+    "docs/reports/agent-v34-corpus-offline-20261022.json"
+  ],
+  "limitations": [
+    "Single-process limiter only; no distributed organization-wide guarantee.",
+    "TPM/TPD not confirmed by supplier in current run.",
+    "3 RPM complex chain exceeds ordinary 45s product budget.",
+    "B contrast exhausted tool budget; no second complete plan.",
+    "No real Kaifeng operational data or field navigation/user study."
+  ],
+  "run_command": ".venv/bin/python scripts/evaluate_agent_v34.py --live --request-cap 12 --interval 25 --acceptance-seconds 240 --output docs/reports/agent-v34-live-new.json",
+  "official_references": [
+    "https://www.kimi.com/help/kimi-api/api-troubleshooting",
+    "https://www.kimi.ai/help/kimi-api/api-rate-limits"
+  ],
+  "source_sha256": {
+    "AGENTS.md": "d45c740dde3fb10d0fd24325ba54fc998324857d6bda6b81c580e1e6d8af8eee",
+    "backend/app/language.py": "6082b950410295fc37e5e39c74f61290b0bf8abed1f3853d57e1347a3378cb1e",
+    "backend/app/city/agent/provider.py": "c2f2d86b83cd79aeff5cf3a97127e479ad6e181417cf17289b93ee4f9358e2c3",
+    "backend/app/city/agent/understand.py": "14107dbd8121129a94892683e072f0d23b02c1f5f75bce93ed634994336b72dd",
+    "backend/app/city/agent/service.py": "466825f4fd00ba59150d6e2d981b5ad09acd5f4e552f4bb53747323ee1fb24bf",
+    "backend/app/city/agent/models.py": "40a1195a357a35af12f245bdc335e6352458683368475d49d27b9ed48c4372d0",
+    "backend/tests/conftest.py": "179d040b2b21f261a9c7d00fad068118895d5fd1bda10674dd82be815ec62546",
+    "backend/tests/test_city_agent.py": "e48149a6c6fd61758cb8f361f0d3d6f172ad186fe9f7b646105fa9eec48a5a96",
+    "backend/tests/test_agent_live_budget.py": "aa897a57f82824269f5686a9717a36a1481a376af26b821d15e5fae2abf36441",
+    "scripts/agent_live_diagnostics.py": "9d59c368c428f7a2dea217bc10bb867b6f018b1f93f5ea4dbfbdce28a8703383",
+    "scripts/check_kimi_connection.py": "ea07a280f1df43756ef9667949cf3f1d39cf1dcc937958a8d3fd8dfe8a4bde06",
+    "docs/contracts/city-agent-v3.schema.json": "be7285de70410416b93318483d2dc5b0a752d5ceff9439262f0b681e9b0e8e1f",
+    "docs/CITY_AGENT_V3.md": "081948633be6be7bf64f643c429d623e20fa30fb0ea52980bf90a2d1653fcf4a",
+    "backend/app/model_schedule.py": "416da89c64f90a6d5ebd9d43f998506688424f13343436c9121a45dc5ba4d628",
+    "backend/tests/test_model_schedule.py": "dacdf93d843de098301c7880c7ff70c0b0e23e9ba1d1cf040921d53e222bd6a1",
+    "scripts/evaluate_agent_v34.py": "58f950a468cb1dcb93fefc61defcb6bef76e05bd129df2c495bce8a35d2d15ec"
+  }
+}

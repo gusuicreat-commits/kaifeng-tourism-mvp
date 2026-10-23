@@ -1,0 +1,341 @@
+{
+  "schema_version": "agent-v33-acceptance/1",
+  "date": "2026-10-21",
+  "acceptance": "BLOCKED",
+  "scope": "Real Kimi API with isolated synthetic tourism data; not real Kaifeng business validation",
+  "answers": {
+    "previous_429": "Historical logs omitted error.type; exact old causes cannot be established. This run confirms organization rate limit, max RPM 3.",
+    "premature_preview": "A model-proposed action violated prerequisites. Server guards rejected it; dynamic eligible_actions and schema remain mandatory.",
+    "fixes": "Added sanitized typed provider diagnostics, execution provenance, guarded decision traces, one-attempt counting and stop-on-failure serial evaluation.",
+    "full_live_react_completed": false,
+    "safe_confirmation": "Verified in deterministic, Mock and browser tests only; no live-generated candidate this run.",
+    "next_gate": "Resolve organization throughput/model access on the same official account, then explicitly repeat live A/B and confirmation."
+  },
+  "audit": {
+    "client": "direct httpx.Client",
+    "api": "/chat/completions",
+    "model": "kimi-k2.6",
+    "endpoint_host": "api.moonshot.cn",
+    "openai_sdk_used": false,
+    "automatic_retries": 0,
+    "max_concurrency_in_evaluation": 1,
+    "current_limits": {
+      "tools": 4,
+      "model_calls_per_task": 6,
+      "task_seconds": 45,
+      "single_request_timeout_seconds": 12,
+      "repairs": 1
+    },
+    "limits_changed": false,
+    "model_or_account_changed": false
+  },
+  "live": {
+    "report": "docs/reports/agent-v3-kimi-live-run-20261021.json",
+    "request_count": 4,
+    "request_count_excludes_historical_runs": true,
+    "success_responses": 3,
+    "http_429_count": 1,
+    "error_type": "rate_limit_reached_error",
+    "limit_metric": "RPM",
+    "limit_value": 3,
+    "retry_after_seconds": 1,
+    "request_id": null,
+    "min_interval_seconds": 2,
+    "known_usage": {
+      "prompt_tokens": 1910,
+      "completion_tokens": 154,
+      "total_tokens": 2064
+    },
+    "usage_missing_calls": 1,
+    "cost_cny": null,
+    "cost_basis": "No verified price/billing snapshot; no invented usage for rejected call",
+    "completed_stages": [
+      "health_preflight",
+      "structured_understanding_validated",
+      "live_selection_search_dining",
+      "synthetic_tool_result_one_candidate"
+    ],
+    "unverified_stages": [
+      "live_decision_after_observation",
+      "show_query",
+      "transport_check",
+      "planning_preview",
+      "explicit_confirmation_of_live_candidate",
+      "live_A_B_comparison"
+    ],
+    "real_model_task_status": "unavailable",
+    "task_elapsed_ms": 7413.19,
+    "fallback_used_in_this_live_task": false,
+    "formal_mutations_without_confirmation": 0,
+    "fail_fast_after_429": true,
+    "trace": [
+      {
+        "sequence": 1,
+        "case": "preflight",
+        "source": "live_model",
+        "phase": "preflight",
+        "started_at": "2026-10-21T15:00:00.427052+00:00",
+        "interval_since_previous_start_ms": null,
+        "status": "passed",
+        "eligible_actions": [],
+        "model": "kimi-k2.6",
+        "endpoint_host": "api.moonshot.cn",
+        "http_attempts": 1,
+        "automatic_retries": 0,
+        "usage": {
+          "prompt_tokens": 29,
+          "completion_tokens": 8,
+          "total_tokens": 37
+        },
+        "cost_cny": null,
+        "cost_basis": "not_calculated_no_price_snapshot",
+        "upstream_status": 200,
+        "request_id": null,
+        "elapsed_ms": 974.86,
+        "evaluation_request_sequence": 1
+      },
+      {
+        "sequence": 2,
+        "case": "A_success",
+        "source": "live_model",
+        "phase": "understand",
+        "started_at": "2026-10-21T15:00:02.432094+00:00",
+        "interval_since_previous_start_ms": 2005.04,
+        "status": "passed",
+        "eligible_actions": [],
+        "model": "kimi-k2.6",
+        "endpoint_host": "api.moonshot.cn",
+        "http_attempts": 1,
+        "automatic_retries": 0,
+        "usage": {
+          "prompt_tokens": 1418,
+          "completion_tokens": 131,
+          "total_tokens": 1549
+        },
+        "cost_cny": null,
+        "cost_basis": "not_calculated_no_price_snapshot",
+        "upstream_status": 200,
+        "request_id": null,
+        "elapsed_ms": 4256.6,
+        "evaluation_request_sequence": 2
+      },
+      {
+        "sequence": 3,
+        "case": "A_success",
+        "source": "live_model",
+        "phase": "decision",
+        "started_at": "2026-10-21T15:00:06.721278+00:00",
+        "interval_since_previous_start_ms": 4289.26,
+        "status": "passed",
+        "eligible_actions": [
+          {
+            "tool": "finish"
+          },
+          {
+            "tool": "clarify"
+          },
+          {
+            "tool": "search_dining"
+          },
+          {
+            "tool": "query_shows"
+          }
+        ],
+        "model": "kimi-k2.6",
+        "endpoint_host": "api.moonshot.cn",
+        "http_attempts": 1,
+        "automatic_retries": 0,
+        "usage": {
+          "prompt_tokens": 463,
+          "completion_tokens": 15,
+          "total_tokens": 478
+        },
+        "cost_cny": null,
+        "cost_basis": "not_calculated_no_price_snapshot",
+        "upstream_status": 200,
+        "request_id": null,
+        "elapsed_ms": 1281.93,
+        "evaluation_request_sequence": 3,
+        "returned_action": {
+          "tool": "search_dining",
+          "place_id": null
+        }
+      },
+      {
+        "sequence": 4,
+        "case": "A_success",
+        "source": "live_model",
+        "phase": "decision",
+        "started_at": "2026-10-21T15:00:08.726289+00:00",
+        "interval_since_previous_start_ms": 2005.03,
+        "status": "failed",
+        "eligible_actions": [
+          {
+            "tool": "finish"
+          },
+          {
+            "tool": "clarify"
+          },
+          {
+            "tool": "query_shows"
+          }
+        ],
+        "elapsed_ms": 336.64,
+        "failure": {
+          "code": "MODEL_HTTP_ERROR",
+          "source": "live_model",
+          "model": "kimi-k2.6",
+          "endpoint_host": "api.moonshot.cn",
+          "http_attempts": 1,
+          "automatic_retries": 0,
+          "usage": {},
+          "cost_cny": null,
+          "cost_basis": "not_calculated_no_price_snapshot",
+          "upstream_status": 429,
+          "request_id": null,
+          "error_type": "rate_limit_reached_error",
+          "error_summary": "Your account [redacted]<[redacted]> request reached organization max RPM: 3, please try again after 1 seconds",
+          "retry_after": "1",
+          "retry_after_seconds": 1,
+          "limit_classification": "rate_limit",
+          "elapsed_ms": 336.2,
+          "limit_metric": "RPM",
+          "limit_value": 3
+        },
+        "usage": {},
+        "upstream_status": 429,
+        "error_type": "rate_limit_reached_error",
+        "request_id": null,
+        "retry_after": "1",
+        "retry_after_seconds": 1,
+        "limit_classification": "rate_limit"
+      }
+    ]
+  },
+  "validation": {
+    "baseline_backend": {
+      "passed": 374,
+      "warnings": 1
+    },
+    "final_backend": {
+      "passed": 390,
+      "warnings": 1,
+      "elapsed_seconds": 16.01
+    },
+    "focused_provider_agent_budget": {
+      "passed": 59
+    },
+    "request_budget_recheck": {
+      "passed": 4
+    },
+    "contracts": {
+      "agent": "passed",
+      "engine": "passed",
+      "city_assistant": "passed"
+    },
+    "language_corpus": {
+      "count": 80,
+      "field_coverage_cases": 80,
+      "route_expected_cases": 80,
+      "label_source": "developer-curated synthetic, not real users"
+    },
+    "offline_AB": {
+      "status": "passed",
+      "model_calls": 0,
+      "formal_mutations_without_confirmation": 0,
+      "A_status": "needs_confirmation",
+      "explicit_user_confirmation": "passed",
+      "trip_version": "5 -> 6",
+      "route_version": "1 -> 2",
+      "completed_history_preserved": true,
+      "protected_show_retained": true,
+      "objective": "less_walking",
+      "B_status": "needs_data"
+    },
+    "mock_failures": [
+      "three_typed_429",
+      "unknown_429",
+      "401",
+      "timeout",
+      "invalid_json",
+      "incomplete_output",
+      "native_tool_rejected",
+      "early_preview_rejected",
+      "repeated_tool_stopped",
+      "observation_driven_different_action",
+      "request_cap",
+      "version_change_candidate_409",
+      "cancelled_candidate_409"
+    ],
+    "frontend_typecheck": "passed",
+    "isolated_vite_build": "passed",
+    "browser": {
+      "passed": 4,
+      "elapsed_seconds": 4.6,
+      "model_source": "deterministic_fallback",
+      "database": "temporary synthetic",
+      "port": 8021,
+      "initial_sandbox_bind_denied": true,
+      "rerun_with_local_execution_permission": "passed"
+    },
+    "compileall": "passed"
+  },
+  "protection": {
+    "runtime_8017_restarted": false,
+    "production_database_used": false,
+    "deletion_ledger_restored": false,
+    "frontend_source_edited_by_this_task": false,
+    "frontend_dist_replaced_by_this_task": false,
+    "frontend_changes_detected_before_validation": "External parallel changes preserved; no backup restore",
+    "frontend_changes_during_validation": [],
+    "key_cookie_or_auth_header_logged": false,
+    "frontend_test_build": ".test-results/agent-v3-dist"
+  },
+  "modified_files": [
+    "backend/app/city/agent/provider.py",
+    "backend/app/city/agent/understand.py",
+    "backend/app/city/agent/service.py",
+    "scripts/evaluate_agent_v3.py",
+    "backend/tests/test_agent_provider.py",
+    "backend/tests/test_city_agent.py",
+    "docs/CITY_AGENT_V3.md"
+  ],
+  "added_files": [
+    "scripts/agent_live_diagnostics.py",
+    "scripts/evaluate_agent_v33.py",
+    "backend/tests/test_agent_live_budget.py",
+    "docs/reference/AGENT_V3_3_TASK.md",
+    "docs/AGENT_V3_LIVE_ACCEPTANCE.md",
+    "docs/reports/agent-v3-kimi-live-acceptance.json",
+    "docs/reports/agent-v3-kimi-live-run-20261021.json",
+    "docs/reports/agent-v33-offline-20261021.json",
+    "docs/reports/agent-v33-corpus-offline-20261021.json"
+  ],
+  "generated_test_artifact": "docs/screenshots/agent-v3-synthetic-preview-mobile.png",
+  "limitations": [
+    "Historical 429 types cannot be reconstructed.",
+    "This live run did not reach candidate or confirmation.",
+    "Provider returned no supported request-id header.",
+    "Live capture stored validation metadata rather than the complete parsed intent; future evaluator now includes it.",
+    "Diagnostic redaction, numeric-limit extraction and report fields were finalized after live run and rechecked offline; no additional live requests.",
+    "No reliable real-business, crowd prediction or real-user accuracy claims."
+  ],
+  "retest": {
+    "condition": "Organization limits can support about five requests within one 45-second task, plus preflight and other shared traffic; do not assume Retry-After alone resolves RPM.",
+    "command": ".venv/bin/python scripts/evaluate_agent_v33.py --live --request-cap 12 --interval 2 --output docs/reports/agent-v3-kimi-live-new-run.json",
+    "background_retry_scheduled": false
+  },
+  "official_diagnostic_reference": "https://www.kimi.com/help/kimi-api/api-troubleshooting",
+  "source_sha256": {
+    "backend/app/city/agent/provider.py": "b2f5f6833be86cae40c6e477df07d30427639a675d0e8ceeffcf8863d9b7f8aa",
+    "backend/app/city/agent/understand.py": "339c5ef32500d43acecf5b7ee3b5162ffa6ef642ccbffe499efc202273bf6cc8",
+    "backend/app/city/agent/service.py": "77481a06cf57f51f181b3121efee81e1f0445040a099bd6b1fce6b2b7e0467ca",
+    "scripts/evaluate_agent_v3.py": "005de6c753492e8ffc0b0e923535dbc4efe38681a1076553006540eddafd7a03",
+    "backend/tests/test_agent_provider.py": "808c1f529000d1888256fe23ac12a783152223c5b9ac677b2963bd5ac7c77418",
+    "backend/tests/test_city_agent.py": "c88d001746f2c9aaadacea08c4e994c1f36c7dabe9f41a74618c1342b049d30b",
+    "docs/CITY_AGENT_V3.md": "9a6845a3a5d09c38877846371ee0698ec2671e7c5b852fdec7ee51cf07987aac",
+    "scripts/agent_live_diagnostics.py": "0fba25334bf3918e10cc576b18ef70e9f7ea4a62d42f6cdaeb27ef793e832f99",
+    "scripts/evaluate_agent_v33.py": "8c4a0f7fa83c592fceb8c83c8230061885b30b433bf3eaf5a0ff7f0a8218ca87",
+    "backend/tests/test_agent_live_budget.py": "8fbc6a1c8f08c05516507b56ae77d8a3d2731cd2527abd9686d4fd7ad9f70235"
+  }
+}

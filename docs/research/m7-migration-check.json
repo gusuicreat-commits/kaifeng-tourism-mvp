@@ -1,0 +1,31 @@
+{
+  "backup_created_before_migration": true,
+  "original_tables": {
+    "scenic": {
+      "before_rows": 5,
+      "after_rows": 5,
+      "missing_or_changed_original_rows": 0
+    },
+    "networks": {
+      "before_rows": 2,
+      "after_rows": 2,
+      "missing_or_changed_original_rows": 0
+    },
+    "observations": {
+      "before_rows": 504,
+      "after_rows": 504,
+      "missing_or_changed_original_rows": 0
+    },
+    "schedule_facts": {
+      "before_rows": 0,
+      "after_rows": 0,
+      "missing_or_changed_original_rows": 0
+    },
+    "plans": {
+      "before_rows": 4,
+      "after_rows": 4,
+      "missing_or_changed_original_rows": 0
+    }
+  },
+  "all_original_rows_preserved": true
+}

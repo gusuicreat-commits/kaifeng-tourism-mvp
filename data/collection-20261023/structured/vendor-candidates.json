@@ -1,0 +1,70 @@
+{
+  "schema_version": "kaifeng-vendors/1",
+  "generated_at": "2026-10-23T19:03:02+08:00",
+  "vendors": [
+    {
+      "vendor_id": "vendor_diyilou_sihou",
+      "place_id": "diyilou_sihou",
+      "name": "第一楼（寺后街店）",
+      "address": "开封市寺后街8号",
+      "phone_candidates": [
+        "0371-25998655",
+        "0371-25998666",
+        "0371-25998699"
+      ],
+      "hours_candidates": [
+        {
+          "value": "10:30-14:00,17:30-21:00",
+          "source_id": "src_qunar_diyilou_20261023",
+          "basis": "third_party"
+        },
+        {
+          "value": "10:30开始营业",
+          "source_id": "src_ctrip_diyilou_20261023",
+          "basis": "third_party_partial"
+        },
+        {
+          "value": "10:00-21:00",
+          "source_id": "historical_cncn_not_saved",
+          "basis": "unsaved_third_party_lead_only"
+        }
+      ],
+      "last_order": null,
+      "reservation": "unknown",
+      "average_spend_candidates": [
+        {
+          "value": 60,
+          "currency": "CNY",
+          "basis": "ctrip_user_feedback"
+        },
+        {
+          "value": 63,
+          "currency": "CNY",
+          "basis": "ctrip_page"
+        },
+        {
+          "value": 64,
+          "currency": "CNY",
+          "basis": "ctrip_other_view"
+        }
+      ],
+      "meal_duration": null,
+      "queue_time": null,
+      "evidence_status": "official_address_third_party_operations",
+      "source_ids": [
+        "src_diyilou_home_20261023",
+        "src_qunar_diyilou_20261023",
+        "src_ctrip_diyilou_20261023"
+      ],
+      "missing": [
+        "current branch menu with photo/date",
+        "last order",
+        "branch-specific reservation",
+        "measured meal duration",
+        "measured queue",
+        "allergen confirmation"
+      ],
+      "note": "同名不同分店分开；不能把街区或品牌页当成本店供应证据"
+    }
+  ]
+}

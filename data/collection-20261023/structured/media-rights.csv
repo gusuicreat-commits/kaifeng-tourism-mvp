@@ -1,0 +1,4 @@
+asset_id,asset_type,owner_claim,rights_status,usage,commercial_use,source_ids,note
+asset_qm_program_page,web_text,清明上河园,unknown,internal_research_only,False,['src_qmsyun_program_20261023'],不复制图片/长文案到对外物料
+asset_wall_weimeng_page,web_text,开封市宋都城墙景区,unknown,internal_research_only,False,['src_kfcqjq_weimeng_20261023'],网页公开可见不等于可商用
+asset_diyilou_photos,photo,待授权,not_obtained,none,False,[],尚无自拍或书面授权素材

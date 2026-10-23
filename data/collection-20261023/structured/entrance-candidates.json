@@ -1,0 +1,56 @@
+{
+  "schema_version": "kaifeng-entrances/1",
+  "generated_at": "2026-10-23T19:03:02+08:00",
+  "entrances": [
+    {
+      "entrance_relation_id": "ent_qm_yingbin_entry",
+      "place_id": "qingming",
+      "entrance_place_id": "qm_gate_yingbin",
+      "direction": "entry",
+      "evidence_status": "seasonal_official_candidate",
+      "applicable_period": "2023 五一假期，具体日期待查",
+      "source_ids": [
+        "src_qmsyun_gate_channels_20261023"
+      ],
+      "note": "2023 攻略明确列为假期入园通道；不能外推为任意日期开放"
+    },
+    {
+      "entrance_relation_id": "ent_qm_jinshui_entry",
+      "place_id": "qingming",
+      "entrance_place_id": "qm_gate_jinshui",
+      "direction": "entry",
+      "evidence_status": "seasonal_and_product_specific_candidate",
+      "applicable_period": "2023 五一及宋宴购票问答（后者无发布日期）",
+      "source_ids": [
+        "src_qmsyun_gate_channels_20261023",
+        "src_qmsyun_song_banquet_20261023"
+      ],
+      "note": "宋宴页只说官方小程序购票后可从此入院；普通门票/其他平台是否适用未确认"
+    },
+    {
+      "entrance_relation_id": "ent_qm_duan_entry",
+      "place_id": "qingming",
+      "entrance_place_id": "qm_gate_duan",
+      "direction": "entry",
+      "evidence_status": "seasonal_and_product_specific_candidate",
+      "applicable_period": "2023 五一及宋宴购票问答（后者无发布日期）",
+      "source_ids": [
+        "src_qmsyun_gate_channels_20261023",
+        "src_qmsyun_song_banquet_20261023"
+      ],
+      "note": "端门相对位置、普通门票适用性和出口方向均未确认"
+    },
+    {
+      "entrance_relation_id": "ent_wall_daliang_entry",
+      "place_id": "wall_daliang_scenic",
+      "entrance_place_id": "wall_daliang",
+      "direction": "entry",
+      "evidence_status": "third_party_candidate",
+      "applicable_period": "2026-08-13 文章（建议以景区最新安排为准）",
+      "source_ids": [
+        "src_kf_wall_entrances_20260813"
+      ],
+      "note": "只能作为候选入口；未确认当前是否仍可进、是否有临时改道"
+    }
+  ]
+}

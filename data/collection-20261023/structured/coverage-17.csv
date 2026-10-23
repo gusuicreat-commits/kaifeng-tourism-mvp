@@ -1,0 +1,18 @@
+no,category,status,evidence,remaining,formal_acceptance
+1,首批服务范围,candidate_scope_prepared,first-batch-scope.json,需要确定目标日期和是否纳入演出/城墙,False
+2,地点基本信息,candidate_names_addresses_partial,places.json,坐标、官方地址、别名和地点边界待核验,False
+3,实际出入口,official_names_third_party_access_candidates,entrance-candidates.json,无门点坐标、现场通行/方向证据；车站出口与集合点未确认,False
+4,开放时间,conflicting_unverified_candidates,opening-rule-candidates.json,城墙适用季节/停检时间冲突；清明上河园目标日规则待确认,False
+5,门票与预约规则,partial_official_candidates,source-manifest.json / qmsyun song banquet,普通票、目标日预约、出园再入、城墙票种未统一确认；不采集个人订单/身份证,False
+6,园内必要道路,not_obtained,no route geometry or passability evidence in this batch,入口—目标舞台—出口必要道路未走查，不能作正式导航,False
+7,演出资料,catalog_no_target_date_sessions,program-catalog.json / target-date-status.json,缺目标日期、结束时间、舞台精确点位、提前到场与取消状态,False
+8,菜品介绍,brand_level_candidates,foods.json,完整食材、过敏原与可靠饮食提示未获得,False
+9,真实餐馆,official_address_third_party_hours,vendor-candidates.json,分店营业、最后接单、预约和坐标未由门店确认,False
+10,餐馆与菜品对应,brand_level_only_not_supply_proof,supply-candidates.json,缺寺后街店当前菜单/现场确认；不把品牌菜名当供应关系,False
+11,用餐时间和费用,partial_estimates,vendor-candidates.json,人均有冲突/口径为第三方；用餐时长和排队未实测,False
+12,城市转场,historical_route_candidates,transport-candidates.json,需按目标时间查高德并加出入口/步行/缓冲；线路时效未核验,False
+13,休息与便民点,official_text_no_coordinates,service-facilities.json / qmsyun_q_secret_20261023.json,已保存官网文字，但缺位置坐标、开放时段和使用限制,False
+14,图片与地图素材,link_only_rights_unknown,media-assets.json,无授权素材；不能以网页可见当商用许可,False
+15,每条资料的依据,manifest_with_hashes_and_limitations,source-manifest.json,部分线索未保存原文；核验人/有效日期仍缺,False
+16,更新负责人,proposed_not_assigned,responsibilities.json,需指定真实负责人并承担复核,False
+17,真实走查记录,not_performed,field-walkthrough.json,正式验收必需；当前 0 次完整走查,False

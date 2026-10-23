@@ -1,0 +1,18 @@
+{
+  "schema_version": "kaifeng-field-walk-expanded/1",
+  "generated_at": "2026-10-23T19:46:51+08:00",
+  "status": "not_performed",
+  "walks": [],
+  "walk_count": 0,
+  "required_evidence": [
+    "目标日期与实际到达/离开时间",
+    "铁路/公交出站口到上客点",
+    "入口换票/安检/步行耗时",
+    "演出实际开始/结束/提前到场",
+    "餐厅点单/等餐/用餐/离店",
+    "临时休息/跳过一站/改线记录",
+    "照片/票据/时间戳"
+  ],
+  "formal_acceptance": false,
+  "notice": "未开展现场走查；不得用平台距离替代实测。"
+}

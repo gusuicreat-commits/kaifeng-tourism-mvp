@@ -1,0 +1,338 @@
+{
+  "run_id": "run_1d70ae0fdd19",
+  "task_id": "task_48340a3da120",
+  "run_dir": "/Users/mac/Desktop/大挑/kaifeng-tourism-mvp/data/collection-runs/run_1d70ae0fdd19",
+  "ingested": [
+    {
+      "source_key": "src_kfsbwg_tips_openinfo",
+      "raw_path": "/Users/mac/Desktop/大挑/kaifeng-tourism-mvp/data/collection-runs/run_1d70ae0fdd19/raw/kfsbwg_api_tips_text.html",
+      "sha256": "97d8156dd27540ad4684b8ca3fa634933037f257b8fc2a6ee67b8b81b967c819"
+    },
+    {
+      "source_key": "src_kfsbwg_news_list",
+      "raw_path": "/Users/mac/Desktop/大挑/kaifeng-tourism-mvp/data/collection-runs/run_1d70ae0fdd19/raw/kfsbwg_api_news_list.html",
+      "sha256": "62304abca3322e77dadceaf9ad374de9b2d6f4694d03c0b79e2dd7ec421442bd"
+    },
+    {
+      "source_key": "src_kfsfq_museum_directory",
+      "raw_path": "/Users/mac/Desktop/大挑/kaifeng-tourism-mvp/data/collection-runs/run_1d70ae0fdd19/raw/kfsfq_museum_directory.html",
+      "sha256": "7480dc23496c74b5e4ea65ebd74f8841836688e98f7cc2201b6550df123481d9"
+    },
+    {
+      "source_key": "src_kfsfq_culture_directory",
+      "raw_path": "/Users/mac/Desktop/大挑/kaifeng-tourism-mvp/data/collection-runs/run_1d70ae0fdd19/raw/kfsfq_culture_directory.html",
+      "sha256": "1e5ffe6644f065a6bf3d968b7401542185ae143953a15bf7e2b45614b141b6c3"
+    },
+    {
+      "source_key": "src_gulou_shudianjie",
+      "raw_path": "/Users/mac/Desktop/大挑/kaifeng-tourism-mvp/data/collection-runs/run_1d70ae0fdd19/raw/gulou_shudianjie.html",
+      "sha256": "a66c44ed8b740db2641110cfab8f9819bfe939a6a8bd80eb2fa01ef644bfb278"
+    },
+    {
+      "source_key": "src_gulou_night_market",
+      "raw_path": "/Users/mac/Desktop/大挑/kaifeng-tourism-mvp/data/collection-runs/run_1d70ae0fdd19/raw/gulou_night_market.html",
+      "sha256": "6c19b393fc72d9f4598d1af6f92913ce5f92c72a3c133b43bbbfb9c283d0a671"
+    },
+    {
+      "source_key": "src_bendibao_xisi_night",
+      "raw_path": "/Users/mac/Desktop/大挑/kaifeng-tourism-mvp/data/collection-runs/run_1d70ae0fdd19/raw/bendibao_xisi_night.html",
+      "sha256": "a5504d21a3e0adce9a0095037fee800647f5945f2bb06e723d7adeadb652df06"
+    },
+    {
+      "source_key": "src_kaifeng_gov_street_tour",
+      "raw_path": "/Users/mac/Desktop/大挑/kaifeng-tourism-mvp/data/collection-runs/run_1d70ae0fdd19/raw/kaifeng_gov_street_tour.html",
+      "sha256": "268e0644e521337fafaf2c7a006c97cc3b6a4154ceb490376acc2c7e596c0ff2"
+    },
+    {
+      "source_key": "src_bendibao_kfsbwg_address",
+      "raw_path": "/Users/mac/Desktop/大挑/kaifeng-tourism-mvp/data/collection-runs/run_1d70ae0fdd19/raw/bendibao_kfsbwg_address.html",
+      "sha256": "2958c03c3b5a2c47fe04f9c8b012dec171999ade4c3ccb12c44e2034d14b8ca3"
+    },
+    {
+      "source_key": "src_bendibao_library_hours",
+      "raw_path": "/Users/mac/Desktop/大挑/kaifeng-tourism-mvp/data/collection-runs/run_1d70ae0fdd19/raw/bendibao_library_hours.html",
+      "sha256": "34b98cc4c6e89ae0672ba093eb0bfb8f48aa0a4324cf08e324ff87e6f4de3e2b"
+    },
+    {
+      "source_key": "src_bendibao_kfsbwg_intro",
+      "raw_path": "/Users/mac/Desktop/大挑/kaifeng-tourism-mvp/data/collection-runs/run_1d70ae0fdd19/raw/bendibao_kfsbwg_intro.html",
+      "sha256": "7fe2f80704bf515f7252c5fd482371ab2d6c950f44a1db2d93715e3bd2d5c036"
+    },
+    {
+      "source_key": "src_kfgov_night_market_plan_2020",
+      "raw_path": "/Users/mac/Desktop/大挑/kaifeng-tourism-mvp/data/collection-runs/run_1d70ae0fdd19/raw/kfgov_night_market_plan_2020.html",
+      "sha256": "024aa7f1abfdbc03cfd7ccbb60173f708861bacc2c88a6b325949d263b3f91dd"
+    },
+    {
+      "source_key": "src_gulou_food_guide",
+      "raw_path": "/Users/mac/Desktop/大挑/kaifeng-tourism-mvp/data/collection-runs/run_1d70ae0fdd19/raw/gulou_food_guide.html",
+      "sha256": "c1c5939b4d1e6696c4cb9f7ea2b76dc9aed9494872d8352355e91b108503fa1f"
+    },
+    {
+      "source_key": "src_kfgov_night_market_kiosk",
+      "raw_path": "/Users/mac/Desktop/大挑/kaifeng-tourism-mvp/data/collection-runs/run_1d70ae0fdd19/raw/kfgov_night_market_kiosk.html",
+      "sha256": "5a8d536c709ae6bd88f6963151258c5d4c0ba66f484f9b939d69b47ecd0bea9c"
+    },
+    {
+      "source_key": "src_search_huangjia_20261023",
+      "raw_path": "/Users/mac/Desktop/大挑/kaifeng-tourism-mvp/data/collection-runs/run_1d70ae0fdd19/raw/search_huangjia_20261023.json",
+      "sha256": "f7189a5524da06fdaf3c6f12247f9b6107baf4e6571807d7ae02b2758731dac5"
+    },
+    {
+      "source_key": "src_search_xingjia_20261023",
+      "raw_path": "/Users/mac/Desktop/大挑/kaifeng-tourism-mvp/data/collection-runs/run_1d70ae0fdd19/raw/search_xingjia_20261023.json",
+      "sha256": "1d7a76a3966a1adfcef76cb82242c172806ed7e768e6deba21c22bde7a646471"
+    },
+    {
+      "source_key": "src_search_heyuan_20261023",
+      "raw_path": "/Users/mac/Desktop/大挑/kaifeng-tourism-mvp/data/collection-runs/run_1d70ae0fdd19/raw/search_heyuan_20261023.json",
+      "sha256": "a67d1349b33e615a09dc76bd086a09be62b7b2bc3c1f44fb234694ff1df213d5"
+    },
+    {
+      "source_key": "src_search_louzhonglou_20261023",
+      "raw_path": "/Users/mac/Desktop/大挑/kaifeng-tourism-mvp/data/collection-runs/run_1d70ae0fdd19/raw/search_louzhonglou_20261023.json",
+      "sha256": "5b1c88110f1aa5bba2d20ca9da7ae03ed7f1f9c21d65dc31f66d831048fb17a6"
+    },
+    {
+      "source_key": "src_search_night_market_20261023",
+      "raw_path": "/Users/mac/Desktop/大挑/kaifeng-tourism-mvp/data/collection-runs/run_1d70ae0fdd19/raw/search_night_market_20261023.json",
+      "sha256": "5f697dd1e223b96d7fe780be621e8f3675930850611aad0acfb116303cea67ad"
+    },
+    {
+      "source_key": "src_search_food_kaifeng_snacks_20261023",
+      "raw_path": "/Users/mac/Desktop/大挑/kaifeng-tourism-mvp/data/collection-runs/run_1d70ae0fdd19/raw/search_food_kaifeng_snacks_20261023.json",
+      "sha256": "50adb79749b4035cefa4159a1fcd3796ef78ebbf11ab77bf093ddc6ec0fb586d"
+    },
+    {
+      "source_key": "src_search_food_siwei_20261023",
+      "raw_path": "/Users/mac/Desktop/大挑/kaifeng-tourism-mvp/data/collection-runs/run_1d70ae0fdd19/raw/search_food_siwei_20261023.json",
+      "sha256": "fe66faf541a4f4d17cf4eed9b4f77861c9c4a8ff5f2f9ff960aa02bc5d3066e9"
+    },
+    {
+      "source_key": "src_search_xiaosong_20261023",
+      "raw_path": "/Users/mac/Desktop/大挑/kaifeng-tourism-mvp/data/collection-runs/run_1d70ae0fdd19/raw/search_xiaosong_20261023.json",
+      "sha256": "0d0953beba22aa4640dbb0bf4199763209a919ab6e0219c4b80870191b5cfca3"
+    },
+    {
+      "source_key": "src_search_shanshangan_20261023",
+      "raw_path": "/Users/mac/Desktop/大挑/kaifeng-tourism-mvp/data/collection-runs/run_1d70ae0fdd19/raw/search_shanshangan_20261023.json",
+      "sha256": "de4fa4728d0b104ff39ebf296c9d2a767e5a6d4b09bdd0a8662c987095c3d46e"
+    },
+    {
+      "source_key": "src_search_daxiangguosi_20261023",
+      "raw_path": "/Users/mac/Desktop/大挑/kaifeng-tourism-mvp/data/collection-runs/run_1d70ae0fdd19/raw/search_daxiangguosi_20261023.json",
+      "sha256": "b29a5560d3a317a84a20ef2d7c22e8b2499e90c63afcb4077b60253d94f006cd"
+    },
+    {
+      "source_key": "src_search_baogongci_20261023",
+      "raw_path": "/Users/mac/Desktop/大挑/kaifeng-tourism-mvp/data/collection-runs/run_1d70ae0fdd19/raw/search_baogongci_20261023.json",
+      "sha256": "5f89f42ed67f8b81af58a38d437a09a312fd95ace54a36aba514434d491ccd65"
+    }
+  ],
+  "fetched": [],
+  "extracted": [
+    {
+      "record_id": "place_kfsbwg",
+      "category": "museum"
+    },
+    {
+      "record_id": "place_kfsbwg_newgate",
+      "category": "entrance"
+    },
+    {
+      "record_id": "place_shanshangan_museum",
+      "category": "museum"
+    },
+    {
+      "record_id": "place_liuqingxia",
+      "category": "museum"
+    },
+    {
+      "record_id": "place_liushaoki",
+      "category": "museum"
+    },
+    {
+      "record_id": "place_jingcha_museum",
+      "category": "museum"
+    },
+    {
+      "record_id": "place_baogongfa_museum",
+      "category": "museum"
+    },
+    {
+      "record_id": "place_bianliang_hunshu_museum",
+      "category": "museum"
+    },
+    {
+      "record_id": "place_changming_gudeng_museum",
+      "category": "museum"
+    },
+    {
+      "record_id": "place_yigutang_museum",
+      "category": "museum"
+    },
+    {
+      "record_id": "place_shengquan_qianbi_museum",
+      "category": "museum"
+    },
+    {
+      "record_id": "place_dezhuang_ceramic_museum",
+      "category": "museum"
+    },
+    {
+      "record_id": "place_dianzi_xianweijing_museum",
+      "category": "museum"
+    },
+    {
+      "record_id": "place_baozhi_museum",
+      "category": "museum"
+    },
+    {
+      "record_id": "place_zhishan_weiqi_museum",
+      "category": "museum"
+    },
+    {
+      "record_id": "place_yuzhe_tea_museum",
+      "category": "museum"
+    },
+    {
+      "record_id": "place_kaifeng_culture_hall_new",
+      "category": "museum"
+    },
+    {
+      "record_id": "place_kaifeng_culture_hall_old",
+      "category": "museum"
+    },
+    {
+      "record_id": "place_gulou_culture_center",
+      "category": "museum"
+    },
+    {
+      "record_id": "place_shunhe_culture_hall",
+      "category": "museum"
+    },
+    {
+      "record_id": "place_yuwangtai_culture_hall",
+      "category": "museum"
+    },
+    {
+      "record_id": "place_longting_culture_hall",
+      "category": "museum"
+    },
+    {
+      "record_id": "place_kaifeng_library",
+      "category": "museum"
+    },
+    {
+      "record_id": "place_shudianjie",
+      "category": "street_block"
+    },
+    {
+      "record_id": "place_gulou_night_market",
+      "category": "night_market"
+    },
+    {
+      "record_id": "place_xisi_night_market",
+      "category": "night_market"
+    },
+    {
+      "record_id": "place_laoheda_night_market",
+      "category": "night_market"
+    },
+    {
+      "record_id": "place_xiaosongcheng",
+      "category": "night_market"
+    },
+    {
+      "record_id": "place_shudianjie_night_market",
+      "category": "night_market"
+    },
+    {
+      "record_id": "place_huangjia_xisi",
+      "category": "restaurant"
+    },
+    {
+      "record_id": "place_huangjia_dalianglu",
+      "category": "restaurant"
+    },
+    {
+      "record_id": "place_huangjia_jinanlu",
+      "category": "restaurant"
+    },
+    {
+      "record_id": "place_huangjia_zhongshanlu",
+      "category": "restaurant"
+    },
+    {
+      "record_id": "place_huangjia_gulou_shifang",
+      "category": "restaurant"
+    },
+    {
+      "record_id": "place_xingjia_daliangmen",
+      "category": "restaurant"
+    },
+    {
+      "record_id": "place_xingjia_jinmingguangchang",
+      "category": "restaurant"
+    },
+    {
+      "record_id": "place_heyuan_hanxing",
+      "category": "restaurant"
+    },
+    {
+      "record_id": "place_heyuan_jinxiang",
+      "category": "restaurant"
+    },
+    {
+      "record_id": "place_heyuan_dingli",
+      "category": "restaurant"
+    },
+    {
+      "record_id": "place_louzhonglou_xiaosong",
+      "category": "restaurant"
+    },
+    {
+      "record_id": "place_diyilou_sihou",
+      "category": "restaurant"
+    },
+    {
+      "record_id": "food_guantangbao",
+      "category": "food"
+    },
+    {
+      "record_id": "food_siweicai",
+      "category": "food"
+    },
+    {
+      "record_id": "food_liyu_beimian",
+      "category": "food"
+    },
+    {
+      "record_id": "food_tongziji",
+      "category": "food"
+    },
+    {
+      "record_id": "food_chaoliangfen",
+      "category": "food"
+    },
+    {
+      "record_id": "food_yangrou_kangmo",
+      "category": "food"
+    },
+    {
+      "record_id": "food_xingrencha",
+      "category": "food"
+    }
+  ],
+  "records": 48,
+  "duplicates": 0,
+  "conflicts": 0,
+  "review_tasks": 14,
+  "failures": [],
+  "bundle_path": "/Users/mac/Desktop/大挑/kaifeng-tourism-mvp/data/collection-runs/run_1d70ae0fdd19/bundle/city-facts-candidate.json",
+  "dry_run": {
+    "status": "dry_run",
+    "received": 71,
+    "changed": 71
+  }
+}

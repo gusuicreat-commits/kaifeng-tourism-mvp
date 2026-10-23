@@ -1,0 +1,2710 @@
+{
+  "schema_version": "kaifeng-program-expanded/1",
+  "generated_at": "2026-10-23T19:46:51+08:00",
+  "qingming": [
+    {
+      "program_name": "中华巨马展演（每周一检修）",
+      "stage_label": "迎宾门外广场",
+      "listed_times": "08:40,09:40,11:30,15:10,17:10,18:00,19:40,20:40",
+      "parsed_start_times": [
+        "08:40",
+        "09:40",
+        "11:30",
+        "15:10",
+        "17:10",
+        "18:00",
+        "19:40",
+        "20:40"
+      ],
+      "business_date": null,
+      "ends_at": null,
+      "admission_deadline": null,
+      "status": "undated_catalog_only",
+      "source_id": "src_qmsyun_program_20261023",
+      "limitation": "无目标日期、结束时刻、取消状态；不得导入为 ShowSession"
+    },
+    {
+      "program_name": "大宋百戏•迎宾互动演出",
+      "stage_label": "迎宾门外广场",
+      "listed_times": "08:40,10:10,15:20,16:50,18:10",
+      "parsed_start_times": [
+        "08:40",
+        "10:10",
+        "15:20",
+        "16:50",
+        "18:10"
+      ],
+      "business_date": null,
+      "ends_at": null,
+      "admission_deadline": null,
+      "status": "undated_catalog_only",
+      "source_id": "src_qmsyun_program_20261023",
+      "limitation": "无目标日期、结束时刻、取消状态；不得导入为 ShowSession"
+    },
+    {
+      "program_name": "御剑飞行飞天秀",
+      "stage_label": "东京码头上方",
+      "listed_times": "08:50,10:10,12:00,12:30,13:20,14:40,15:00,15:30,17:30",
+      "parsed_start_times": [
+        "08:50",
+        "10:10",
+        "12:00",
+        "12:30",
+        "13:20",
+        "14:40",
+        "15:00",
+        "15:30",
+        "17:30"
+      ],
+      "business_date": null,
+      "ends_at": null,
+      "admission_deadline": null,
+      "status": "undated_catalog_only",
+      "source_id": "src_qmsyun_program_20261023",
+      "limitation": "无目标日期、结束时刻、取消状态；不得导入为 ShowSession"
+    },
+    {
+      "program_name": "包公迎宾",
+      "stage_label": "迎宾门外广场",
+      "listed_times": "09:00",
+      "parsed_start_times": [
+        "09:00"
+      ],
+      "business_date": null,
+      "ends_at": null,
+      "admission_deadline": null,
+      "status": "undated_catalog_only",
+      "source_id": "src_qmsyun_program_20261023",
+      "limitation": "无目标日期、结束时刻、取消状态；不得导入为 ShowSession"
+    },
+    {
+      "program_name": "大宋百戏•快乐小丑",
+      "stage_label": "端门内广场",
+      "listed_times": "09:00,10:30,14:00,15:15,16:30,18:00",
+      "parsed_start_times": [
+        "09:00",
+        "10:30",
+        "14:00",
+        "15:15",
+        "16:30",
+        "18:00"
+      ],
+      "business_date": null,
+      "ends_at": null,
+      "admission_deadline": null,
+      "status": "undated_catalog_only",
+      "source_id": "src_qmsyun_program_20261023",
+      "limitation": "无目标日期、结束时刻、取消状态；不得导入为 ShowSession"
+    },
+    {
+      "program_name": "球幕影院《飞越清明上河图》",
+      "stage_label": "球幕影院《飞越清明上河图》",
+      "listed_times": "09:00",
+      "parsed_start_times": [
+        "09:00"
+      ],
+      "business_date": null,
+      "ends_at": null,
+      "admission_deadline": null,
+      "status": "undated_catalog_only",
+      "source_id": "src_qmsyun_program_20261023",
+      "limitation": "无目标日期、结束时刻、取消状态；不得导入为 ShowSession"
+    },
+    {
+      "program_name": "大宋百戏·水上漂",
+      "stage_label": "九龙桥西南水面",
+      "listed_times": "09:00,10:30,11:20,14:00,15:30,16:20",
+      "parsed_start_times": [
+        "09:00",
+        "10:30",
+        "11:20",
+        "14:00",
+        "15:30",
+        "16:20"
+      ],
+      "business_date": null,
+      "ends_at": null,
+      "admission_deadline": null,
+      "status": "undated_catalog_only",
+      "source_id": "src_qmsyun_program_20261023",
+      "limitation": "无目标日期、结束时刻、取消状态；不得导入为 ShowSession"
+    },
+    {
+      "program_name": "《清明上河图》沉浸式NPC互动",
+      "stage_label": "东京码头至虹桥",
+      "listed_times": "09:00,11:00,15:00,17:00",
+      "parsed_start_times": [
+        "09:00",
+        "11:00",
+        "15:00",
+        "17:00"
+      ],
+      "business_date": null,
+      "ends_at": null,
+      "admission_deadline": null,
+      "status": "undated_catalog_only",
+      "source_id": "src_qmsyun_program_20261023",
+      "limitation": "无目标日期、结束时刻、取消状态；不得导入为 ShowSession"
+    },
+    {
+      "program_name": "盘鼓（迎宾门内广场）",
+      "stage_label": "迎宾门内广场",
+      "listed_times": "09:05",
+      "parsed_start_times": [
+        "09:05"
+      ],
+      "business_date": null,
+      "ends_at": null,
+      "admission_deadline": null,
+      "status": "undated_catalog_only",
+      "source_id": "src_qmsyun_program_20261023",
+      "limitation": "无目标日期、结束时刻、取消状态；不得导入为 ShowSession"
+    },
+    {
+      "program_name": "气功喷火",
+      "stage_label": "东京食坊南口",
+      "listed_times": "09:10,10:05,11:10,12:50,14:40,15:30,16:50,17:40",
+      "parsed_start_times": [
+        "09:10",
+        "10:05",
+        "11:10",
+        "12:50",
+        "14:40",
+        "15:30",
+        "16:50",
+        "17:40"
+      ],
+      "business_date": null,
+      "ends_at": null,
+      "admission_deadline": null,
+      "status": "undated_catalog_only",
+      "source_id": "src_qmsyun_program_20261023",
+      "limitation": "无目标日期、结束时刻、取消状态；不得导入为 ShowSession"
+    },
+    {
+      "program_name": "大宋百戏·群宠献艺",
+      "stage_label": "傀儡文化广场",
+      "listed_times": "09:10,11:40,15:00,18:20",
+      "parsed_start_times": [
+        "09:10",
+        "11:40",
+        "15:00",
+        "18:20"
+      ],
+      "business_date": null,
+      "ends_at": null,
+      "admission_deadline": null,
+      "status": "undated_catalog_only",
+      "source_id": "src_qmsyun_program_20261023",
+      "limitation": "无目标日期、结束时刻、取消状态；不得导入为 ShowSession"
+    },
+    {
+      "program_name": "天女散花飞天秀",
+      "stage_label": "东京码头上方",
+      "listed_times": "09:10,10:40,11:20,13:00,13:50,14:20,15:55,16:30,17:10",
+      "parsed_start_times": [
+        "09:10",
+        "10:40",
+        "11:20",
+        "13:00",
+        "13:50",
+        "14:20",
+        "15:55",
+        "16:30",
+        "17:10"
+      ],
+      "business_date": null,
+      "ends_at": null,
+      "admission_deadline": null,
+      "status": "undated_catalog_only",
+      "source_id": "src_qmsyun_program_20261023",
+      "limitation": "无目标日期、结束时刻、取消状态；不得导入为 ShowSession"
+    },
+    {
+      "program_name": "机甲武士展演",
+      "stage_label": "大宋沉浸式体验馆",
+      "listed_times": "09:10,11:00,12:40,14:20,15:40,16:50",
+      "parsed_start_times": [
+        "09:10",
+        "11:00",
+        "12:40",
+        "14:20",
+        "15:40",
+        "16:50"
+      ],
+      "business_date": null,
+      "ends_at": null,
+      "admission_deadline": null,
+      "status": "undated_catalog_only",
+      "source_id": "src_qmsyun_program_20261023",
+      "limitation": "无目标日期、结束时刻、取消状态；不得导入为 ShowSession"
+    },
+    {
+      "program_name": "大宋百戏·高空叠凳",
+      "stage_label": "主题演艺广场",
+      "listed_times": "09:15,11:25,14:00,16:15",
+      "parsed_start_times": [
+        "09:15",
+        "11:25",
+        "14:00",
+        "16:15"
+      ],
+      "business_date": null,
+      "ends_at": null,
+      "admission_deadline": null,
+      "status": "undated_catalog_only",
+      "source_id": "src_qmsyun_program_20261023",
+      "limitation": "无目标日期、结束时刻、取消状态；不得导入为 ShowSession"
+    },
+    {
+      "program_name": "包公巡视汴河漕运",
+      "stage_label": "虹桥两侧水面",
+      "listed_times": "09:20",
+      "parsed_start_times": [
+        "09:20"
+      ],
+      "business_date": null,
+      "ends_at": null,
+      "admission_deadline": null,
+      "status": "undated_catalog_only",
+      "source_id": "src_qmsyun_program_20261023",
+      "limitation": "无目标日期、结束时刻、取消状态；不得导入为 ShowSession"
+    },
+    {
+      "program_name": "真人秀提线木偶",
+      "stage_label": "大宋沉浸式体验馆",
+      "listed_times": "09:20,11:10,12:50,14:30,15:50,17:00",
+      "parsed_start_times": [
+        "09:20",
+        "11:10",
+        "12:50",
+        "14:30",
+        "15:50",
+        "17:00"
+      ],
+      "business_date": null,
+      "ends_at": null,
+      "admission_deadline": null,
+      "status": "undated_catalog_only",
+      "source_id": "src_qmsyun_program_20261023",
+      "limitation": "无目标日期、结束时刻、取消状态；不得导入为 ShowSession"
+    },
+    {
+      "program_name": "大宋招兵买马（互动）",
+      "stage_label": "四方院",
+      "listed_times": "09:20,12:40,14:00,17:25",
+      "parsed_start_times": [
+        "09:20",
+        "12:40",
+        "14:00",
+        "17:25"
+      ],
+      "business_date": null,
+      "ends_at": null,
+      "admission_deadline": null,
+      "status": "undated_catalog_only",
+      "source_id": "src_qmsyun_program_20261023",
+      "limitation": "无目标日期、结束时刻、取消状态；不得导入为 ShowSession"
+    },
+    {
+      "program_name": "小丑嘉年华",
+      "stage_label": "骕骦千里前",
+      "listed_times": "09:20,11:50,13:10,15:45,17:10,18:30",
+      "parsed_start_times": [
+        "09:20",
+        "11:50",
+        "13:10",
+        "15:45",
+        "17:10",
+        "18:30"
+      ],
+      "business_date": null,
+      "ends_at": null,
+      "admission_deadline": null,
+      "status": "undated_catalog_only",
+      "source_id": "src_qmsyun_program_20261023",
+      "limitation": "无目标日期、结束时刻、取消状态；不得导入为 ShowSession"
+    },
+    {
+      "program_name": "大宋百戏·高杆杂技",
+      "stage_label": "九龙桥西侧水面",
+      "listed_times": "09:20,10:50,11:40,14:20,15:50,16:40",
+      "parsed_start_times": [
+        "09:20",
+        "10:50",
+        "11:40",
+        "14:20",
+        "15:50",
+        "16:40"
+      ],
+      "business_date": null,
+      "ends_at": null,
+      "admission_deadline": null,
+      "status": "undated_catalog_only",
+      "source_id": "src_qmsyun_program_20261023",
+      "limitation": "无目标日期、结束时刻、取消状态；不得导入为 ShowSession"
+    },
+    {
+      "program_name": "撂地摊",
+      "stage_label": "上善门",
+      "listed_times": "09:20,11:20,13:30,17:20",
+      "parsed_start_times": [
+        "09:20",
+        "11:20",
+        "13:30",
+        "17:20"
+      ],
+      "business_date": null,
+      "ends_at": null,
+      "admission_deadline": null,
+      "status": "undated_catalog_only",
+      "source_id": "src_qmsyun_program_20261023",
+      "limitation": "无目标日期、结束时刻、取消状态；不得导入为 ShowSession"
+    },
+    {
+      "program_name": "傀儡木偶",
+      "stage_label": "大宋沉浸式体验馆",
+      "listed_times": "09:25,11:15,12:55,14:35,15:55,17:05",
+      "parsed_start_times": [
+        "09:25",
+        "11:15",
+        "12:55",
+        "14:35",
+        "15:55",
+        "17:05"
+      ],
+      "business_date": null,
+      "ends_at": null,
+      "admission_deadline": null,
+      "status": "undated_catalog_only",
+      "source_id": "src_qmsyun_program_20261023",
+      "limitation": "无目标日期、结束时刻、取消状态；不得导入为 ShowSession"
+    },
+    {
+      "program_name": "凤舞九天（三期火凤凰）",
+      "stage_label": "大宋·皇家乐园",
+      "listed_times": "09:30",
+      "parsed_start_times": [
+        "09:30"
+      ],
+      "business_date": null,
+      "ends_at": null,
+      "admission_deadline": null,
+      "status": "undated_catalog_only",
+      "source_id": "src_qmsyun_program_20261023",
+      "limitation": "无目标日期、结束时刻、取消状态；不得导入为 ShowSession"
+    },
+    {
+      "program_name": "骕骦千里（三期旋转木马）",
+      "stage_label": "大宋·皇家乐园",
+      "listed_times": "09:30",
+      "parsed_start_times": [
+        "09:30"
+      ],
+      "business_date": null,
+      "ends_at": null,
+      "admission_deadline": null,
+      "status": "undated_catalog_only",
+      "source_id": "src_qmsyun_program_20261023",
+      "limitation": "无目标日期、结束时刻、取消状态；不得导入为 ShowSession"
+    },
+    {
+      "program_name": "花灯初上（三期逍遥花灯）",
+      "stage_label": "大宋·皇家乐园",
+      "listed_times": "09:30",
+      "parsed_start_times": [
+        "09:30"
+      ],
+      "business_date": null,
+      "ends_at": null,
+      "admission_deadline": null,
+      "status": "undated_catalog_only",
+      "source_id": "src_qmsyun_program_20261023",
+      "limitation": "无目标日期、结束时刻、取消状态；不得导入为 ShowSession"
+    },
+    {
+      "program_name": "神舟出海（三期海盗船）",
+      "stage_label": "大宋·皇家乐园",
+      "listed_times": "09:30",
+      "parsed_start_times": [
+        "09:30"
+      ],
+      "business_date": null,
+      "ends_at": null,
+      "admission_deadline": null,
+      "status": "undated_catalog_only",
+      "source_id": "src_qmsyun_program_20261023",
+      "limitation": "无目标日期、结束时刻、取消状态；不得导入为 ShowSession"
+    },
+    {
+      "program_name": "龙腾鼓舞（三期过山车）",
+      "stage_label": "大宋·皇家乐园",
+      "listed_times": "09:30",
+      "parsed_start_times": [
+        "09:30"
+      ],
+      "business_date": null,
+      "ends_at": null,
+      "admission_deadline": null,
+      "status": "undated_catalog_only",
+      "source_id": "src_qmsyun_program_20261023",
+      "limitation": "无目标日期、结束时刻、取消状态；不得导入为 ShowSession"
+    },
+    {
+      "program_name": "高跷",
+      "stage_label": "主题演艺广场",
+      "listed_times": "09:30,11:00,12:00,15:00,16:00",
+      "parsed_start_times": [
+        "09:30",
+        "11:00",
+        "12:00",
+        "15:00",
+        "16:00"
+      ],
+      "business_date": null,
+      "ends_at": null,
+      "admission_deadline": null,
+      "status": "undated_catalog_only",
+      "source_id": "src_qmsyun_program_20261023",
+      "limitation": "无目标日期、结束时刻、取消状态；不得导入为 ShowSession"
+    },
+    {
+      "program_name": "大宋百戏·力王争霸",
+      "stage_label": "东京码头",
+      "listed_times": "09:35,14:00,15:40",
+      "parsed_start_times": [
+        "09:35",
+        "14:00",
+        "15:40"
+      ],
+      "business_date": null,
+      "ends_at": null,
+      "admission_deadline": null,
+      "status": "undated_catalog_only",
+      "source_id": "src_qmsyun_program_20261023",
+      "limitation": "无目标日期、结束时刻、取消状态；不得导入为 ShowSession"
+    },
+    {
+      "program_name": "斗鸡",
+      "stage_label": "大师坊",
+      "listed_times": "09:40,10:40,13:40,14:40,16:20,17:40",
+      "parsed_start_times": [
+        "09:40",
+        "10:40",
+        "13:40",
+        "14:40",
+        "16:20",
+        "17:40"
+      ],
+      "business_date": null,
+      "ends_at": null,
+      "admission_deadline": null,
+      "status": "undated_catalog_only",
+      "source_id": "src_qmsyun_program_20261023",
+      "limitation": "无目标日期、结束时刻、取消状态；不得导入为 ShowSession"
+    },
+    {
+      "program_name": "小丑",
+      "stage_label": "虹桥南至上善门",
+      "listed_times": "09:40,17:20",
+      "parsed_start_times": [
+        "09:40",
+        "17:20"
+      ],
+      "business_date": null,
+      "ends_at": null,
+      "admission_deadline": null,
+      "status": "undated_catalog_only",
+      "source_id": "src_qmsyun_program_20261023",
+      "limitation": "无目标日期、结束时刻、取消状态；不得导入为 ShowSession"
+    },
+    {
+      "program_name": "跳绳",
+      "stage_label": "丹台宫西侧",
+      "listed_times": "09:40,11:00,14:15,16:00,17:15",
+      "parsed_start_times": [
+        "09:40",
+        "11:00",
+        "14:15",
+        "16:00",
+        "17:15"
+      ],
+      "business_date": null,
+      "ends_at": null,
+      "admission_deadline": null,
+      "status": "undated_catalog_only",
+      "source_id": "src_qmsyun_program_20261023",
+      "limitation": "无目标日期、结束时刻、取消状态；不得导入为 ShowSession"
+    },
+    {
+      "program_name": "大宋百戏·走钢丝",
+      "stage_label": "音乐广场",
+      "listed_times": "09:40,14:20",
+      "parsed_start_times": [
+        "09:40",
+        "14:20"
+      ],
+      "business_date": null,
+      "ends_at": null,
+      "admission_deadline": null,
+      "status": "undated_catalog_only",
+      "source_id": "src_qmsyun_program_20261023",
+      "limitation": "无目标日期、结束时刻、取消状态；不得导入为 ShowSession"
+    },
+    {
+      "program_name": "民俗绝活",
+      "stage_label": "勾栏瓦肆",
+      "listed_times": "09:45,10:50,14:15,16:05,18:00",
+      "parsed_start_times": [
+        "09:45",
+        "10:50",
+        "14:15",
+        "16:05",
+        "18:00"
+      ],
+      "business_date": null,
+      "ends_at": null,
+      "admission_deadline": null,
+      "status": "undated_catalog_only",
+      "source_id": "src_qmsyun_program_20261023",
+      "limitation": "无目标日期、结束时刻、取消状态；不得导入为 ShowSession"
+    },
+    {
+      "program_name": "剑上侠客行",
+      "stage_label": "东京码头",
+      "listed_times": "09:50,16:10",
+      "parsed_start_times": [
+        "09:50",
+        "16:10"
+      ],
+      "business_date": null,
+      "ends_at": null,
+      "admission_deadline": null,
+      "status": "undated_catalog_only",
+      "source_id": "src_qmsyun_program_20261023",
+      "limitation": "无目标日期、结束时刻、取消状态；不得导入为 ShowSession"
+    },
+    {
+      "program_name": "动感呼啦圈",
+      "stage_label": "丹台宫内欧洲馆西侧舞台",
+      "listed_times": "09:50,11:10,14:25,15:00,15:45,17:25",
+      "parsed_start_times": [
+        "09:50",
+        "11:10",
+        "14:25",
+        "15:00",
+        "15:45",
+        "17:25"
+      ],
+      "business_date": null,
+      "ends_at": null,
+      "admission_deadline": null,
+      "status": "undated_catalog_only",
+      "source_id": "src_qmsyun_program_20261023",
+      "limitation": "无目标日期、结束时刻、取消状态；不得导入为 ShowSession"
+    },
+    {
+      "program_name": "大宋百戏·软丝凌云技",
+      "stage_label": "禧墙",
+      "listed_times": "09:50,10:50,13:50,16:10",
+      "parsed_start_times": [
+        "09:50",
+        "10:50",
+        "13:50",
+        "16:10"
+      ],
+      "business_date": null,
+      "ends_at": null,
+      "admission_deadline": null,
+      "status": "undated_catalog_only",
+      "source_id": "src_qmsyun_program_20261023",
+      "limitation": "无目标日期、结束时刻、取消状态；不得导入为 ShowSession"
+    },
+    {
+      "program_name": "大宋百戏·豫剧清唱",
+      "stage_label": "东京食坊街口",
+      "listed_times": "09:55,10:55,16:10",
+      "parsed_start_times": [
+        "09:55",
+        "10:55",
+        "16:10"
+      ],
+      "business_date": null,
+      "ends_at": null,
+      "admission_deadline": null,
+      "status": "undated_catalog_only",
+      "source_id": "src_qmsyun_program_20261023",
+      "limitation": "无目标日期、结束时刻、取消状态；不得导入为 ShowSession"
+    },
+    {
+      "program_name": "大宋·东京保卫战",
+      "stage_label": "九龙桥西南水面",
+      "listed_times": "10:00,13:30,17:20",
+      "parsed_start_times": [
+        "10:00",
+        "13:30",
+        "17:20"
+      ],
+      "business_date": null,
+      "ends_at": null,
+      "admission_deadline": null,
+      "status": "undated_catalog_only",
+      "source_id": "src_qmsyun_program_20261023",
+      "limitation": "无目标日期、结束时刻、取消状态；不得导入为 ShowSession"
+    },
+    {
+      "program_name": "大宋百戏•飞刀秀",
+      "stage_label": "勾栏瓦肆",
+      "listed_times": "10:00,11:15,12:05,14:30,17:00",
+      "parsed_start_times": [
+        "10:00",
+        "11:15",
+        "12:05",
+        "14:30",
+        "17:00"
+      ],
+      "business_date": null,
+      "ends_at": null,
+      "admission_deadline": null,
+      "status": "undated_catalog_only",
+      "source_id": "src_qmsyun_program_20261023",
+      "limitation": "无目标日期、结束时刻、取消状态；不得导入为 ShowSession"
+    },
+    {
+      "program_name": "大宋百戏·灵猴献艺",
+      "stage_label": "大师坊",
+      "listed_times": "10:10,11:40,14:10,15:50,16:45",
+      "parsed_start_times": [
+        "10:10",
+        "11:40",
+        "14:10",
+        "15:50",
+        "16:45"
+      ],
+      "business_date": null,
+      "ends_at": null,
+      "admission_deadline": null,
+      "status": "undated_catalog_only",
+      "source_id": "src_qmsyun_program_20261023",
+      "limitation": "无目标日期、结束时刻、取消状态；不得导入为 ShowSession"
+    },
+    {
+      "program_name": "大宋百戏·变脸",
+      "stage_label": "勾栏瓦肆",
+      "listed_times": "10:10,14:40,18:50",
+      "parsed_start_times": [
+        "10:10",
+        "14:40",
+        "18:50"
+      ],
+      "business_date": null,
+      "ends_at": null,
+      "admission_deadline": null,
+      "status": "undated_catalog_only",
+      "source_id": "src_qmsyun_program_20261023",
+      "limitation": "无目标日期、结束时刻、取消状态；不得导入为 ShowSession"
+    },
+    {
+      "program_name": "大宋百戏·快板",
+      "stage_label": "东京食坊街口",
+      "listed_times": "10:10,11:30,17:15,18:15",
+      "parsed_start_times": [
+        "10:10",
+        "11:30",
+        "17:15",
+        "18:15"
+      ],
+      "business_date": null,
+      "ends_at": null,
+      "admission_deadline": null,
+      "status": "undated_catalog_only",
+      "source_id": "src_qmsyun_program_20261023",
+      "limitation": "无目标日期、结束时刻、取消状态；不得导入为 ShowSession"
+    },
+    {
+      "program_name": "布袋木偶",
+      "stage_label": "赵太丞家对面",
+      "listed_times": "10:15,11:10,14:50,16:55",
+      "parsed_start_times": [
+        "10:15",
+        "11:10",
+        "14:50",
+        "16:55"
+      ],
+      "business_date": null,
+      "ends_at": null,
+      "admission_deadline": null,
+      "status": "undated_catalog_only",
+      "source_id": "src_qmsyun_program_20261023",
+      "limitation": "无目标日期、结束时刻、取消状态；不得导入为 ShowSession"
+    },
+    {
+      "program_name": "天空之城",
+      "stage_label": "主题演艺广场（清明文化广场）",
+      "listed_times": "10:15,11:15,14:20,15:15",
+      "parsed_start_times": [
+        "10:15",
+        "11:15",
+        "14:20",
+        "15:15"
+      ],
+      "business_date": null,
+      "ends_at": null,
+      "admission_deadline": null,
+      "status": "undated_catalog_only",
+      "source_id": "src_qmsyun_program_20261023",
+      "limitation": "无目标日期、结束时刻、取消状态；不得导入为 ShowSession"
+    },
+    {
+      "program_name": "宋廷梦乐",
+      "stage_label": "宣德殿二层",
+      "listed_times": "10:20,11:40,14:50,16:35",
+      "parsed_start_times": [
+        "10:20",
+        "11:40",
+        "14:50",
+        "16:35"
+      ],
+      "business_date": null,
+      "ends_at": null,
+      "admission_deadline": null,
+      "status": "undated_catalog_only",
+      "source_id": "src_qmsyun_program_20261023",
+      "limitation": "无目标日期、结束时刻、取消状态；不得导入为 ShowSession"
+    },
+    {
+      "program_name": "大宋百戏·水上飞人",
+      "stage_label": "虹桥西侧水面",
+      "listed_times": "10:20,11:40,12:40,15:20,17:50",
+      "parsed_start_times": [
+        "10:20",
+        "11:40",
+        "12:40",
+        "15:20",
+        "17:50"
+      ],
+      "business_date": null,
+      "ends_at": null,
+      "admission_deadline": null,
+      "status": "undated_catalog_only",
+      "source_id": "src_qmsyun_program_20261023",
+      "limitation": "无目标日期、结束时刻、取消状态；不得导入为 ShowSession"
+    },
+    {
+      "program_name": "大宋百戏·舞中幡",
+      "stage_label": "《飞越清明上河图》球幕影院北侧",
+      "listed_times": "10:20,14:50,16:20",
+      "parsed_start_times": [
+        "10:20",
+        "14:50",
+        "16:20"
+      ],
+      "business_date": null,
+      "ends_at": null,
+      "admission_deadline": null,
+      "status": "undated_catalog_only",
+      "source_id": "src_qmsyun_program_20261023",
+      "limitation": "无目标日期、结束时刻、取消状态；不得导入为 ShowSession"
+    },
+    {
+      "program_name": "水流星",
+      "stage_label": "丹凤门内广场",
+      "listed_times": "10:20,11:20,13:50,16:00,16:50",
+      "parsed_start_times": [
+        "10:20",
+        "11:20",
+        "13:50",
+        "16:00",
+        "16:50"
+      ],
+      "business_date": null,
+      "ends_at": null,
+      "admission_deadline": null,
+      "status": "undated_catalog_only",
+      "source_id": "src_qmsyun_program_20261023",
+      "limitation": "无目标日期、结束时刻、取消状态；不得导入为 ShowSession"
+    },
+    {
+      "program_name": "群丑闹东京（虹桥南广场）",
+      "stage_label": "虹桥南广场",
+      "listed_times": "10:20",
+      "parsed_start_times": [
+        "10:20"
+      ],
+      "business_date": null,
+      "ends_at": null,
+      "admission_deadline": null,
+      "status": "undated_catalog_only",
+      "source_id": "src_qmsyun_program_20261023",
+      "limitation": "无目标日期、结束时刻、取消状态；不得导入为 ShowSession"
+    },
+    {
+      "program_name": "绛州鼓乐·牛斗虎",
+      "stage_label": "四方院",
+      "listed_times": "10:20,11:20,12:15,13:20,16:10,17:15,18:30,20:30",
+      "parsed_start_times": [
+        "10:20",
+        "11:20",
+        "12:15",
+        "13:20",
+        "16:10",
+        "17:15",
+        "18:30",
+        "20:30"
+      ],
+      "business_date": null,
+      "ends_at": null,
+      "admission_deadline": null,
+      "status": "undated_catalog_only",
+      "source_id": "src_qmsyun_program_20261023",
+      "limitation": "无目标日期、结束时刻、取消状态；不得导入为 ShowSession"
+    },
+    {
+      "program_name": "大宋百戏·相声",
+      "stage_label": "勾栏瓦肆",
+      "listed_times": "10:25,15:25,16:40,19:00,20:00",
+      "parsed_start_times": [
+        "10:25",
+        "15:25",
+        "16:40",
+        "19:00",
+        "20:00"
+      ],
+      "business_date": null,
+      "ends_at": null,
+      "admission_deadline": null,
+      "status": "undated_catalog_only",
+      "source_id": "src_qmsyun_program_20261023",
+      "limitation": "无目标日期、结束时刻、取消状态；不得导入为 ShowSession"
+    },
+    {
+      "program_name": "大宋百戏·扛竿",
+      "stage_label": "《飞越清明上河图》球幕影院北侧",
+      "listed_times": "10:25,14:55,16:25",
+      "parsed_start_times": [
+        "10:25",
+        "14:55",
+        "16:25"
+      ],
+      "business_date": null,
+      "ends_at": null,
+      "admission_deadline": null,
+      "status": "undated_catalog_only",
+      "source_id": "src_qmsyun_program_20261023",
+      "limitation": "无目标日期、结束时刻、取消状态；不得导入为 ShowSession"
+    },
+    {
+      "program_name": "大宋百戏·豫剧反串",
+      "stage_label": "东京食坊街口",
+      "listed_times": "10:25,11:45,15:55,16:40",
+      "parsed_start_times": [
+        "10:25",
+        "11:45",
+        "15:55",
+        "16:40"
+      ],
+      "business_date": null,
+      "ends_at": null,
+      "admission_deadline": null,
+      "status": "undated_catalog_only",
+      "source_id": "src_qmsyun_program_20261023",
+      "limitation": "无目标日期、结束时刻、取消状态；不得导入为 ShowSession"
+    },
+    {
+      "program_name": "大宋百戏·上刀山",
+      "stage_label": "《飞越清明上河图》球幕影院北侧",
+      "listed_times": "10:30,15:00,16:30",
+      "parsed_start_times": [
+        "10:30",
+        "15:00",
+        "16:30"
+      ],
+      "business_date": null,
+      "ends_at": null,
+      "admission_deadline": null,
+      "status": "undated_catalog_only",
+      "source_id": "src_qmsyun_program_20261023",
+      "limitation": "无目标日期、结束时刻、取消状态；不得导入为 ShowSession"
+    },
+    {
+      "program_name": "大宋百戏·高空花式扁带",
+      "stage_label": "仰圣山瀑布",
+      "listed_times": "10:30,11:30,13:30,14:30,15:45,16:20",
+      "parsed_start_times": [
+        "10:30",
+        "11:30",
+        "13:30",
+        "14:30",
+        "15:45",
+        "16:20"
+      ],
+      "business_date": null,
+      "ends_at": null,
+      "admission_deadline": null,
+      "status": "undated_catalog_only",
+      "source_id": "src_qmsyun_program_20261023",
+      "limitation": "无目标日期、结束时刻、取消状态；不得导入为 ShowSession"
+    },
+    {
+      "program_name": "舞龙",
+      "stage_label": "主题演艺广场",
+      "listed_times": "10:30,11:35,15:25,18:35",
+      "parsed_start_times": [
+        "10:30",
+        "11:35",
+        "15:25",
+        "18:35"
+      ],
+      "business_date": null,
+      "ends_at": null,
+      "admission_deadline": null,
+      "status": "undated_catalog_only",
+      "source_id": "src_qmsyun_program_20261023",
+      "limitation": "无目标日期、结束时刻、取消状态；不得导入为 ShowSession"
+    },
+    {
+      "program_name": "大宋百戏·豫剧清唱（梁山面馆）",
+      "stage_label": "梁山面馆",
+      "listed_times": "10:30,12:00,13:30,17:00,18:45",
+      "parsed_start_times": [
+        "10:30",
+        "12:00",
+        "13:30",
+        "17:00",
+        "18:45"
+      ],
+      "business_date": null,
+      "ends_at": null,
+      "admission_deadline": null,
+      "status": "undated_catalog_only",
+      "source_id": "src_qmsyun_program_20261023",
+      "limitation": "无目标日期、结束时刻、取消状态；不得导入为 ShowSession"
+    },
+    {
+      "program_name": "雄狮争霸",
+      "stage_label": "水上商业街",
+      "listed_times": "10:40,11:40,15:30,16:30",
+      "parsed_start_times": [
+        "10:40",
+        "11:40",
+        "15:30",
+        "16:30"
+      ],
+      "business_date": null,
+      "ends_at": null,
+      "admission_deadline": null,
+      "status": "undated_catalog_only",
+      "source_id": "src_qmsyun_program_20261023",
+      "limitation": "无目标日期、结束时刻、取消状态；不得导入为 ShowSession"
+    },
+    {
+      "program_name": "大宋百戏·河南坠子",
+      "stage_label": "东京食坊街口",
+      "listed_times": "10:40,13:00,16:25,17:35,18:45,20:30",
+      "parsed_start_times": [
+        "10:40",
+        "13:00",
+        "16:25",
+        "17:35",
+        "18:45",
+        "20:30"
+      ],
+      "business_date": null,
+      "ends_at": null,
+      "admission_deadline": null,
+      "status": "undated_catalog_only",
+      "source_id": "src_qmsyun_program_20261023",
+      "limitation": "无目标日期、结束时刻、取消状态；不得导入为 ShowSession"
+    },
+    {
+      "program_name": "大宋百戏·奇幻魔术",
+      "stage_label": "上善门前",
+      "listed_times": "10:45,13:30,15:30,16:20",
+      "parsed_start_times": [
+        "10:45",
+        "13:30",
+        "15:30",
+        "16:20"
+      ],
+      "business_date": null,
+      "ends_at": null,
+      "admission_deadline": null,
+      "status": "undated_catalog_only",
+      "source_id": "src_qmsyun_program_20261023",
+      "limitation": "无目标日期、结束时刻、取消状态；不得导入为 ShowSession"
+    },
+    {
+      "program_name": "魔幻大轮",
+      "stage_label": "九龙桥东侧",
+      "listed_times": "10:45,11:20,13:30,15:30,17:10",
+      "parsed_start_times": [
+        "10:45",
+        "11:20",
+        "13:30",
+        "15:30",
+        "17:10"
+      ],
+      "business_date": null,
+      "ends_at": null,
+      "admission_deadline": null,
+      "status": "undated_catalog_only",
+      "source_id": "src_qmsyun_program_20261023",
+      "limitation": "无目标日期、结束时刻、取消状态；不得导入为 ShowSession"
+    },
+    {
+      "program_name": "岳飞枪挑小梁王",
+      "stage_label": "大宋·校场",
+      "listed_times": "10:50,16:10",
+      "parsed_start_times": [
+        "10:50",
+        "16:10"
+      ],
+      "business_date": null,
+      "ends_at": null,
+      "admission_deadline": null,
+      "status": "undated_catalog_only",
+      "source_id": "src_qmsyun_program_20261023",
+      "limitation": "无目标日期、结束时刻、取消状态；不得导入为 ShowSession"
+    },
+    {
+      "program_name": "草帽飞舞",
+      "stage_label": "丹台宫欧洲馆西侧",
+      "listed_times": "10:50,12:20,13:55,15:35,16:35",
+      "parsed_start_times": [
+        "10:50",
+        "12:20",
+        "13:55",
+        "15:35",
+        "16:35"
+      ],
+      "business_date": null,
+      "ends_at": null,
+      "admission_deadline": null,
+      "status": "undated_catalog_only",
+      "source_id": "src_qmsyun_program_20261023",
+      "limitation": "无目标日期、结束时刻、取消状态；不得导入为 ShowSession"
+    },
+    {
+      "program_name": "《决战汴梁城·五鼠闹东京》实景高空威亚秀",
+      "stage_label": "上善门",
+      "listed_times": "10:55,15:40",
+      "parsed_start_times": [
+        "10:55",
+        "15:40"
+      ],
+      "business_date": null,
+      "ends_at": null,
+      "admission_deadline": null,
+      "status": "undated_catalog_only",
+      "source_id": "src_qmsyun_program_20261023",
+      "limitation": "无目标日期、结束时刻、取消状态；不得导入为 ShowSession"
+    },
+    {
+      "program_name": "大宋百戏·耍把戏",
+      "stage_label": "傀儡文化广场",
+      "listed_times": "11:00,13:45,17:30,19:10",
+      "parsed_start_times": [
+        "11:00",
+        "13:45",
+        "17:30",
+        "19:10"
+      ],
+      "business_date": null,
+      "ends_at": null,
+      "admission_deadline": null,
+      "status": "undated_catalog_only",
+      "source_id": "src_qmsyun_program_20261023",
+      "limitation": "无目标日期、结束时刻、取消状态；不得导入为 ShowSession"
+    },
+    {
+      "program_name": "双头人",
+      "stage_label": "虹桥北广场",
+      "listed_times": "11:00,12:00,15:00,16:00,17:00",
+      "parsed_start_times": [
+        "11:00",
+        "12:00",
+        "15:00",
+        "16:00",
+        "17:00"
+      ],
+      "business_date": null,
+      "ends_at": null,
+      "admission_deadline": null,
+      "status": "undated_catalog_only",
+      "source_id": "src_qmsyun_program_20261023",
+      "limitation": "无目标日期、结束时刻、取消状态；不得导入为 ShowSession"
+    },
+    {
+      "program_name": "舞中幡互动秀",
+      "stage_label": "球幕广场",
+      "listed_times": "11:00,16:15",
+      "parsed_start_times": [
+        "11:00",
+        "16:15"
+      ],
+      "business_date": null,
+      "ends_at": null,
+      "admission_deadline": null,
+      "status": "undated_catalog_only",
+      "source_id": "src_qmsyun_program_20261023",
+      "limitation": "无目标日期、结束时刻、取消状态；不得导入为 ShowSession"
+    },
+    {
+      "program_name": "游戏子弟",
+      "stage_label": "虹桥南广场",
+      "listed_times": "11:00",
+      "parsed_start_times": [
+        "11:00"
+      ],
+      "business_date": null,
+      "ends_at": null,
+      "admission_deadline": null,
+      "status": "undated_catalog_only",
+      "source_id": "src_qmsyun_program_20261023",
+      "limitation": "无目标日期、结束时刻、取消状态；不得导入为 ShowSession"
+    },
+    {
+      "program_name": "吊球技巧",
+      "stage_label": "丹凤门内广场",
+      "listed_times": "11:00,12:05,13:20,14:05,15:45,16:20",
+      "parsed_start_times": [
+        "11:00",
+        "12:05",
+        "13:20",
+        "14:05",
+        "15:45",
+        "16:20"
+      ],
+      "business_date": null,
+      "ends_at": null,
+      "admission_deadline": null,
+      "status": "undated_catalog_only",
+      "source_id": "src_qmsyun_program_20261023",
+      "limitation": "无目标日期、结束时刻、取消状态；不得导入为 ShowSession"
+    },
+    {
+      "program_name": "宋廷队舞",
+      "stage_label": "宣德殿二楼",
+      "listed_times": "11:00,15:50",
+      "parsed_start_times": [
+        "11:00",
+        "15:50"
+      ],
+      "business_date": null,
+      "ends_at": null,
+      "admission_deadline": null,
+      "status": "undated_catalog_only",
+      "source_id": "src_qmsyun_program_20261023",
+      "limitation": "无目标日期、结束时刻、取消状态；不得导入为 ShowSession"
+    },
+    {
+      "program_name": "大宋百戏·快板（梁山面馆）",
+      "stage_label": "梁山面馆",
+      "listed_times": "11:00,13:00,13:45,19:00",
+      "parsed_start_times": [
+        "11:00",
+        "13:00",
+        "13:45",
+        "19:00"
+      ],
+      "business_date": null,
+      "ends_at": null,
+      "admission_deadline": null,
+      "status": "undated_catalog_only",
+      "source_id": "src_qmsyun_program_20261023",
+      "limitation": "无目标日期、结束时刻、取消状态；不得导入为 ShowSession"
+    },
+    {
+      "program_name": "水傀儡",
+      "stage_label": "水傀儡馆",
+      "listed_times": "11:10,12:10,14:30,16:00",
+      "parsed_start_times": [
+        "11:10",
+        "12:10",
+        "14:30",
+        "16:00"
+      ],
+      "business_date": null,
+      "ends_at": null,
+      "admission_deadline": null,
+      "status": "undated_catalog_only",
+      "source_id": "src_qmsyun_program_20261023",
+      "limitation": "无目标日期、结束时刻、取消状态；不得导入为 ShowSession"
+    },
+    {
+      "program_name": "大宋百戏·顶龙凳",
+      "stage_label": "音乐广场",
+      "listed_times": "11:10,12:40,15:10,18:05",
+      "parsed_start_times": [
+        "11:10",
+        "12:40",
+        "15:10",
+        "18:05"
+      ],
+      "business_date": null,
+      "ends_at": null,
+      "admission_deadline": null,
+      "status": "undated_catalog_only",
+      "source_id": "src_qmsyun_program_20261023",
+      "limitation": "无目标日期、结束时刻、取消状态；不得导入为 ShowSession"
+    },
+    {
+      "program_name": "大宋百戏·杂技抖杠",
+      "stage_label": "王员外家",
+      "listed_times": "11:10,16:30",
+      "parsed_start_times": [
+        "11:10",
+        "16:30"
+      ],
+      "business_date": null,
+      "ends_at": null,
+      "admission_deadline": null,
+      "status": "undated_catalog_only",
+      "source_id": "src_qmsyun_program_20261023",
+      "limitation": "无目标日期、结束时刻、取消状态；不得导入为 ShowSession"
+    },
+    {
+      "program_name": "大宋百戏·变脸互动秀",
+      "stage_label": "勾栏瓦肆",
+      "listed_times": "11:10,15:50,19:45",
+      "parsed_start_times": [
+        "11:10",
+        "15:50",
+        "19:45"
+      ],
+      "business_date": null,
+      "ends_at": null,
+      "admission_deadline": null,
+      "status": "undated_catalog_only",
+      "source_id": "src_qmsyun_program_20261023",
+      "limitation": "无目标日期、结束时刻、取消状态；不得导入为 ShowSession"
+    },
+    {
+      "program_name": "群丑闹东京（巡游）",
+      "stage_label": "虹桥广场至《清明上河·宋宴》门口",
+      "listed_times": "11:10,16:20,17:20",
+      "parsed_start_times": [
+        "11:10",
+        "16:20",
+        "17:20"
+      ],
+      "business_date": null,
+      "ends_at": null,
+      "admission_deadline": null,
+      "status": "undated_catalog_only",
+      "source_id": "src_qmsyun_program_20261023",
+      "limitation": "无目标日期、结束时刻、取消状态；不得导入为 ShowSession"
+    },
+    {
+      "program_name": "手彩魔术",
+      "stage_label": "丹台宫内欧洲馆西则舞台",
+      "listed_times": "11:10,14:10,15:20,16:10,17:30,18:30",
+      "parsed_start_times": [
+        "11:10",
+        "14:10",
+        "15:20",
+        "16:10",
+        "17:30",
+        "18:30"
+      ],
+      "business_date": null,
+      "ends_at": null,
+      "admission_deadline": null,
+      "status": "undated_catalog_only",
+      "source_id": "src_qmsyun_program_20261023",
+      "limitation": "无目标日期、结束时刻、取消状态；不得导入为 ShowSession"
+    },
+    {
+      "program_name": "大宋百戏·跳跳龙",
+      "stage_label": "东京梦华主舞台",
+      "listed_times": "11:10,16:40",
+      "parsed_start_times": [
+        "11:10",
+        "16:40"
+      ],
+      "business_date": null,
+      "ends_at": null,
+      "admission_deadline": null,
+      "status": "undated_catalog_only",
+      "source_id": "src_qmsyun_program_20261023",
+      "limitation": "无目标日期、结束时刻、取消状态；不得导入为 ShowSession"
+    },
+    {
+      "program_name": "大宋百戏·宋韵大鼓",
+      "stage_label": "东京食坊街口",
+      "listed_times": "11:15,13:20,15:10,16:55,19:30,20:50",
+      "parsed_start_times": [
+        "11:15",
+        "13:20",
+        "15:10",
+        "16:55",
+        "19:30",
+        "20:50"
+      ],
+      "business_date": null,
+      "ends_at": null,
+      "admission_deadline": null,
+      "status": "undated_catalog_only",
+      "source_id": "src_qmsyun_program_20261023",
+      "limitation": "无目标日期、结束时刻、取消状态；不得导入为 ShowSession"
+    },
+    {
+      "program_name": "大宋百戏·杂技空山竹语",
+      "stage_label": "音乐广场",
+      "listed_times": "11:20,14:05,16:00,17:15",
+      "parsed_start_times": [
+        "11:20",
+        "14:05",
+        "16:00",
+        "17:15"
+      ],
+      "business_date": null,
+      "ends_at": null,
+      "admission_deadline": null,
+      "status": "undated_catalog_only",
+      "source_id": "src_qmsyun_program_20261023",
+      "limitation": "无目标日期、结束时刻、取消状态；不得导入为 ShowSession"
+    },
+    {
+      "program_name": "大宋百戏•相声（梁山书场）",
+      "stage_label": "梁山书场",
+      "listed_times": "11:25",
+      "parsed_start_times": [
+        "11:25"
+      ],
+      "business_date": null,
+      "ends_at": null,
+      "admission_deadline": null,
+      "status": "undated_catalog_only",
+      "source_id": "src_qmsyun_program_20261023",
+      "limitation": "无目标日期、结束时刻、取消状态；不得导入为 ShowSession"
+    },
+    {
+      "program_name": "皇家宫廷·武戏法",
+      "stage_label": "宣和殿一层",
+      "listed_times": "11:30,12:10,13:10,13:50,14:25,15:20,17:00",
+      "parsed_start_times": [
+        "11:30",
+        "12:10",
+        "13:10",
+        "13:50",
+        "14:25",
+        "15:20",
+        "17:00"
+      ],
+      "business_date": null,
+      "ends_at": null,
+      "admission_deadline": null,
+      "status": "undated_catalog_only",
+      "source_id": "src_qmsyun_program_20261023",
+      "limitation": "无目标日期、结束时刻、取消状态；不得导入为 ShowSession"
+    },
+    {
+      "program_name": "大宋百戏•乐舞秀",
+      "stage_label": "音乐广场",
+      "listed_times": "11:30,17:30",
+      "parsed_start_times": [
+        "11:30",
+        "17:30"
+      ],
+      "business_date": null,
+      "ends_at": null,
+      "admission_deadline": null,
+      "status": "undated_catalog_only",
+      "source_id": "src_qmsyun_program_20261023",
+      "limitation": "无目标日期、结束时刻、取消状态；不得导入为 ShowSession"
+    },
+    {
+      "program_name": "草帽吊球",
+      "stage_label": "丹台宫欧洲馆西侧舞台",
+      "listed_times": "11:30,14:30,16:30,17:00",
+      "parsed_start_times": [
+        "11:30",
+        "14:30",
+        "16:30",
+        "17:00"
+      ],
+      "business_date": null,
+      "ends_at": null,
+      "admission_deadline": null,
+      "status": "undated_catalog_only",
+      "source_id": "src_qmsyun_program_20261023",
+      "limitation": "无目标日期、结束时刻、取消状态；不得导入为 ShowSession"
+    },
+    {
+      "program_name": "大宋科举",
+      "stage_label": "四方院",
+      "listed_times": "11:40,15:40",
+      "parsed_start_times": [
+        "11:40",
+        "15:40"
+      ],
+      "business_date": null,
+      "ends_at": null,
+      "admission_deadline": null,
+      "status": "undated_catalog_only",
+      "source_id": "src_qmsyun_program_20261023",
+      "limitation": "无目标日期、结束时刻、取消状态；不得导入为 ShowSession"
+    },
+    {
+      "program_name": "非遗绝活互动秀",
+      "stage_label": "勾栏瓦肆",
+      "listed_times": "11:40,17:50,21:05",
+      "parsed_start_times": [
+        "11:40",
+        "17:50",
+        "21:05"
+      ],
+      "business_date": null,
+      "ends_at": null,
+      "admission_deadline": null,
+      "status": "undated_catalog_only",
+      "source_id": "src_qmsyun_program_20261023",
+      "limitation": "无目标日期、结束时刻、取消状态；不得导入为 ShowSession"
+    },
+    {
+      "program_name": "大宋斗舞",
+      "stage_label": "十千脚店",
+      "listed_times": "11:40,15:20",
+      "parsed_start_times": [
+        "11:40",
+        "15:20"
+      ],
+      "business_date": null,
+      "ends_at": null,
+      "admission_deadline": null,
+      "status": "undated_catalog_only",
+      "source_id": "src_qmsyun_program_20261023",
+      "limitation": "无目标日期、结束时刻、取消状态；不得导入为 ShowSession"
+    },
+    {
+      "program_name": "王员外招婿",
+      "stage_label": "王员外家",
+      "listed_times": "11:45,15:40,16:50",
+      "parsed_start_times": [
+        "11:45",
+        "15:40",
+        "16:50"
+      ],
+      "business_date": null,
+      "ends_at": null,
+      "admission_deadline": null,
+      "status": "undated_catalog_only",
+      "source_id": "src_qmsyun_program_20261023",
+      "limitation": "无目标日期、结束时刻、取消状态；不得导入为 ShowSession"
+    },
+    {
+      "program_name": "大宋百戏·力撼山河",
+      "stage_label": "禧墙",
+      "listed_times": "11:45,15:50",
+      "parsed_start_times": [
+        "11:45",
+        "15:50"
+      ],
+      "business_date": null,
+      "ends_at": null,
+      "admission_deadline": null,
+      "status": "undated_catalog_only",
+      "source_id": "src_qmsyun_program_20261023",
+      "limitation": "无目标日期、结束时刻、取消状态；不得导入为 ShowSession"
+    },
+    {
+      "program_name": "古代幻术",
+      "stage_label": "勾栏瓦肆",
+      "listed_times": "11:50,15:05,17:10",
+      "parsed_start_times": [
+        "11:50",
+        "15:05",
+        "17:10"
+      ],
+      "business_date": null,
+      "ends_at": null,
+      "admission_deadline": null,
+      "status": "undated_catalog_only",
+      "source_id": "src_qmsyun_program_20261023",
+      "limitation": "无目标日期、结束时刻、取消状态；不得导入为 ShowSession"
+    },
+    {
+      "program_name": "大宋百戏·太空漫步",
+      "stage_label": "主题演艺广场",
+      "listed_times": "11:50",
+      "parsed_start_times": [
+        "11:50"
+      ],
+      "business_date": null,
+      "ends_at": null,
+      "admission_deadline": null,
+      "status": "undated_catalog_only",
+      "source_id": "src_qmsyun_program_20261023",
+      "limitation": "无目标日期、结束时刻、取消状态；不得导入为 ShowSession"
+    },
+    {
+      "program_name": "大宋·杨门女将",
+      "stage_label": "《大宋·东京梦华》主舞台",
+      "listed_times": "11:50,14:50",
+      "parsed_start_times": [
+        "11:50",
+        "14:50"
+      ],
+      "business_date": null,
+      "ends_at": null,
+      "admission_deadline": null,
+      "status": "undated_catalog_only",
+      "source_id": "src_qmsyun_program_20261023",
+      "limitation": "无目标日期、结束时刻、取消状态；不得导入为 ShowSession"
+    },
+    {
+      "program_name": "大宋舞王",
+      "stage_label": "王员外家",
+      "listed_times": "12:00,14:10",
+      "parsed_start_times": [
+        "12:00",
+        "14:10"
+      ],
+      "business_date": null,
+      "ends_at": null,
+      "admission_deadline": null,
+      "status": "undated_catalog_only",
+      "source_id": "src_qmsyun_program_20261023",
+      "limitation": "无目标日期、结束时刻、取消状态；不得导入为 ShowSession"
+    },
+    {
+      "program_name": "梁山好汉劫囚车",
+      "stage_label": "东京食坊街口",
+      "listed_times": "12:10",
+      "parsed_start_times": [
+        "12:10"
+      ],
+      "business_date": null,
+      "ends_at": null,
+      "admission_deadline": null,
+      "status": "undated_catalog_only",
+      "source_id": "src_qmsyun_program_20261023",
+      "limitation": "无目标日期、结束时刻、取消状态；不得导入为 ShowSession"
+    },
+    {
+      "program_name": "比武招亲",
+      "stage_label": "主题演艺广场",
+      "listed_times": "12:15",
+      "parsed_start_times": [
+        "12:15"
+      ],
+      "business_date": null,
+      "ends_at": null,
+      "admission_deadline": null,
+      "status": "undated_catalog_only",
+      "source_id": "src_qmsyun_program_20261023",
+      "limitation": "无目标日期、结束时刻、取消状态；不得导入为 ShowSession"
+    },
+    {
+      "program_name": "大宋百戏·豫剧反串（梁山面馆）",
+      "stage_label": "梁山面馆",
+      "listed_times": "12:15,13:15,14:00,19:20",
+      "parsed_start_times": [
+        "12:15",
+        "13:15",
+        "14:00",
+        "19:20"
+      ],
+      "business_date": null,
+      "ends_at": null,
+      "admission_deadline": null,
+      "status": "undated_catalog_only",
+      "source_id": "src_qmsyun_program_20261023",
+      "limitation": "无目标日期、结束时刻、取消状态；不得导入为 ShowSession"
+    },
+    {
+      "program_name": "大宋百戏·书场坠子",
+      "stage_label": "梁山书场",
+      "listed_times": "12:30,18:00",
+      "parsed_start_times": [
+        "12:30",
+        "18:00"
+      ],
+      "business_date": null,
+      "ends_at": null,
+      "admission_deadline": null,
+      "status": "undated_catalog_only",
+      "source_id": "src_qmsyun_program_20261023",
+      "limitation": "无目标日期、结束时刻、取消状态；不得导入为 ShowSession"
+    },
+    {
+      "program_name": "大宋百戏·书场大鼓",
+      "stage_label": "梁山书场",
+      "listed_times": "12:45,18:25",
+      "parsed_start_times": [
+        "12:45",
+        "18:25"
+      ],
+      "business_date": null,
+      "ends_at": null,
+      "admission_deadline": null,
+      "status": "undated_catalog_only",
+      "source_id": "src_qmsyun_program_20261023",
+      "limitation": "无目标日期、结束时刻、取消状态；不得导入为 ShowSession"
+    },
+    {
+      "program_name": "大宋歌王",
+      "stage_label": "王员外家",
+      "listed_times": "13:00,15:10",
+      "parsed_start_times": [
+        "13:00",
+        "15:10"
+      ],
+      "business_date": null,
+      "ends_at": null,
+      "admission_deadline": null,
+      "status": "undated_catalog_only",
+      "source_id": "src_qmsyun_program_20261023",
+      "limitation": "无目标日期、结束时刻、取消状态；不得导入为 ShowSession"
+    },
+    {
+      "program_name": "清明上河园大巡游",
+      "stage_label": "虹桥南广场至双宣殿",
+      "listed_times": "14:00",
+      "parsed_start_times": [
+        "14:00"
+      ],
+      "business_date": null,
+      "ends_at": null,
+      "admission_deadline": null,
+      "status": "undated_catalog_only",
+      "source_id": "src_qmsyun_program_20261023",
+      "limitation": "无目标日期、结束时刻、取消状态；不得导入为 ShowSession"
+    },
+    {
+      "program_name": "爱雅宋",
+      "stage_label": "禧墙",
+      "listed_times": "14:10,17:05",
+      "parsed_start_times": [
+        "14:10",
+        "17:05"
+      ],
+      "business_date": null,
+      "ends_at": null,
+      "admission_deadline": null,
+      "status": "undated_catalog_only",
+      "source_id": "src_qmsyun_program_20261023",
+      "limitation": "无目标日期、结束时刻、取消状态；不得导入为 ShowSession"
+    },
+    {
+      "program_name": "大宋百戏·古彩戏法",
+      "stage_label": "上善门北侧",
+      "listed_times": "14:20,15:20,16:20,17:45,19:40,20:30",
+      "parsed_start_times": [
+        "14:20",
+        "15:20",
+        "16:20",
+        "17:45",
+        "19:40",
+        "20:30"
+      ],
+      "business_date": null,
+      "ends_at": null,
+      "admission_deadline": null,
+      "status": "undated_catalog_only",
+      "source_id": "src_qmsyun_program_20261023",
+      "limitation": "无目标日期、结束时刻、取消状态；不得导入为 ShowSession"
+    },
+    {
+      "program_name": "群丑闹东京（上善门）",
+      "stage_label": "上善门",
+      "listed_times": "14:30",
+      "parsed_start_times": [
+        "14:30"
+      ],
+      "business_date": null,
+      "ends_at": null,
+      "admission_deadline": null,
+      "status": "undated_catalog_only",
+      "source_id": "src_qmsyun_program_20261023",
+      "limitation": "无目标日期、结束时刻、取消状态；不得导入为 ShowSession"
+    },
+    {
+      "program_name": "燕青打擂",
+      "stage_label": "四方院",
+      "listed_times": "14:30,18:10",
+      "parsed_start_times": [
+        "14:30",
+        "18:10"
+      ],
+      "business_date": null,
+      "ends_at": null,
+      "admission_deadline": null,
+      "status": "undated_catalog_only",
+      "source_id": "src_qmsyun_program_20261023",
+      "limitation": "无目标日期、结束时刻、取消状态；不得导入为 ShowSession"
+    },
+    {
+      "program_name": "盘鼓",
+      "stage_label": "主题演艺广场",
+      "listed_times": "14:35,15:40,18:10",
+      "parsed_start_times": [
+        "14:35",
+        "15:40",
+        "18:10"
+      ],
+      "business_date": null,
+      "ends_at": null,
+      "admission_deadline": null,
+      "status": "undated_catalog_only",
+      "source_id": "src_qmsyun_program_20261023",
+      "limitation": "无目标日期、结束时刻、取消状态；不得导入为 ShowSession"
+    },
+    {
+      "program_name": "黄袍加身",
+      "stage_label": "四方院",
+      "listed_times": "14:50",
+      "parsed_start_times": [
+        "14:50"
+      ],
+      "business_date": null,
+      "ends_at": null,
+      "admission_deadline": null,
+      "status": "undated_catalog_only",
+      "source_id": "src_qmsyun_program_20261023",
+      "limitation": "无目标日期、结束时刻、取消状态；不得导入为 ShowSession"
+    },
+    {
+      "program_name": "大宋百戏·快闪秀",
+      "stage_label": "东京食坊街口",
+      "listed_times": "14:55,15:55,21:15",
+      "parsed_start_times": [
+        "14:55",
+        "15:55",
+        "21:15"
+      ],
+      "business_date": null,
+      "ends_at": null,
+      "admission_deadline": null,
+      "status": "undated_catalog_only",
+      "source_id": "src_qmsyun_program_20261023",
+      "limitation": "无目标日期、结束时刻、取消状态；不得导入为 ShowSession"
+    },
+    {
+      "program_name": "龙马花车巡游",
+      "stage_label": "丹凤门—音乐广场",
+      "listed_times": "15:00,16:50",
+      "parsed_start_times": [
+        "15:00",
+        "16:50"
+      ],
+      "business_date": null,
+      "ends_at": null,
+      "admission_deadline": null,
+      "status": "undated_catalog_only",
+      "source_id": "src_qmsyun_program_20261023",
+      "limitation": "无目标日期、结束时刻、取消状态；不得导入为 ShowSession"
+    },
+    {
+      "program_name": "非遗滚灯舞",
+      "stage_label": "禧墙",
+      "listed_times": "15:20",
+      "parsed_start_times": [
+        "15:20"
+      ],
+      "business_date": null,
+      "ends_at": null,
+      "admission_deadline": null,
+      "status": "undated_catalog_only",
+      "source_id": "src_qmsyun_program_20261023",
+      "limitation": "无目标日期、结束时刻、取消状态；不得导入为 ShowSession"
+    },
+    {
+      "program_name": "群丑闹东京（东京食坊南口）",
+      "stage_label": "东京食坊南口",
+      "listed_times": "15:25",
+      "parsed_start_times": [
+        "15:25"
+      ],
+      "business_date": null,
+      "ends_at": null,
+      "admission_deadline": null,
+      "status": "undated_catalog_only",
+      "source_id": "src_qmsyun_program_20261023",
+      "limitation": "无目标日期、结束时刻、取消状态；不得导入为 ShowSession"
+    },
+    {
+      "program_name": "龙马花车巡游（音乐广场）",
+      "stage_label": "音乐广场—丹凤门",
+      "listed_times": "15:50,17:50",
+      "parsed_start_times": [
+        "15:50",
+        "17:50"
+      ],
+      "business_date": null,
+      "ends_at": null,
+      "admission_deadline": null,
+      "status": "undated_catalog_only",
+      "source_id": "src_qmsyun_program_20261023",
+      "limitation": "无目标日期、结束时刻、取消状态；不得导入为 ShowSession"
+    },
+    {
+      "program_name": "大宋不倒翁（虞美人桥南侧）",
+      "stage_label": "大宋·皇家乐园西侧（虞美人桥南侧）",
+      "listed_times": "16:00,17:00,18:00,19:00",
+      "parsed_start_times": [
+        "16:00",
+        "17:00",
+        "18:00",
+        "19:00"
+      ],
+      "business_date": null,
+      "ends_at": null,
+      "admission_deadline": null,
+      "status": "undated_catalog_only",
+      "source_id": "src_qmsyun_program_20261023",
+      "limitation": "无目标日期、结束时刻、取消状态；不得导入为 ShowSession"
+    },
+    {
+      "program_name": "丝路行歌花车巡游",
+      "stage_label": "双宣殿至音乐广场",
+      "listed_times": "16:20",
+      "parsed_start_times": [
+        "16:20"
+      ],
+      "business_date": null,
+      "ends_at": null,
+      "admission_deadline": null,
+      "status": "undated_catalog_only",
+      "source_id": "src_qmsyun_program_20261023",
+      "limitation": "无目标日期、结束时刻、取消状态；不得导入为 ShowSession"
+    },
+    {
+      "program_name": "《决战汴梁城·跟着岳飞打金贼》攻城抗金实景互动",
+      "stage_label": "上善门",
+      "listed_times": "16:30",
+      "parsed_start_times": [
+        "16:30"
+      ],
+      "business_date": null,
+      "ends_at": null,
+      "admission_deadline": null,
+      "status": "undated_catalog_only",
+      "source_id": "src_qmsyun_program_20261023",
+      "limitation": "无目标日期、结束时刻、取消状态；不得导入为 ShowSession"
+    },
+    {
+      "program_name": "玉面佳人执扇舞",
+      "stage_label": "主题演艺广场",
+      "listed_times": "16:30,19:50",
+      "parsed_start_times": [
+        "16:30",
+        "19:50"
+      ],
+      "business_date": null,
+      "ends_at": null,
+      "admission_deadline": null,
+      "status": "undated_catalog_only",
+      "source_id": "src_qmsyun_program_20261023",
+      "limitation": "无目标日期、结束时刻、取消状态；不得导入为 ShowSession"
+    },
+    {
+      "program_name": "玉面书生大巡游",
+      "stage_label": "主题演艺广场",
+      "listed_times": "16:35,19:55",
+      "parsed_start_times": [
+        "16:35",
+        "19:55"
+      ],
+      "business_date": null,
+      "ends_at": null,
+      "admission_deadline": null,
+      "status": "undated_catalog_only",
+      "source_id": "src_qmsyun_program_20261023",
+      "limitation": "无目标日期、结束时刻、取消状态；不得导入为 ShowSession"
+    },
+    {
+      "program_name": "大宋也疯狂",
+      "stage_label": "主题演艺广场",
+      "listed_times": "16:40,21:10",
+      "parsed_start_times": [
+        "16:40",
+        "21:10"
+      ],
+      "business_date": null,
+      "ends_at": null,
+      "admission_deadline": null,
+      "status": "undated_catalog_only",
+      "source_id": "src_qmsyun_program_20261023",
+      "limitation": "无目标日期、结束时刻、取消状态；不得导入为 ShowSession"
+    },
+    {
+      "program_name": "大型魔术秀",
+      "stage_label": "音乐广场",
+      "listed_times": "17:00",
+      "parsed_start_times": [
+        "17:00"
+      ],
+      "business_date": null,
+      "ends_at": null,
+      "admission_deadline": null,
+      "status": "undated_catalog_only",
+      "source_id": "src_qmsyun_program_20261023",
+      "limitation": "无目标日期、结束时刻、取消状态；不得导入为 ShowSession"
+    },
+    {
+      "program_name": "大宋百戏•变脸（梁山书场）",
+      "stage_label": "梁山书场",
+      "listed_times": "17:20",
+      "parsed_start_times": [
+        "17:20"
+      ],
+      "business_date": null,
+      "ends_at": null,
+      "admission_deadline": null,
+      "status": "undated_catalog_only",
+      "source_id": "src_qmsyun_program_20261023",
+      "limitation": "无目标日期、结束时刻、取消状态；不得导入为 ShowSession"
+    },
+    {
+      "program_name": "高杆不倒翁",
+      "stage_label": "平桥",
+      "listed_times": "17:30,17:50,18:10,18:30,18:50,19:10,19:30,19:50,20:10,20:30,21:20,22:05",
+      "parsed_start_times": [
+        "17:30",
+        "17:50",
+        "18:10",
+        "18:30",
+        "18:50",
+        "19:10",
+        "19:30",
+        "19:50",
+        "20:10",
+        "20:30",
+        "21:20",
+        "22:05"
+      ],
+      "business_date": null,
+      "ends_at": null,
+      "admission_deadline": null,
+      "status": "undated_catalog_only",
+      "source_id": "src_qmsyun_program_20261023",
+      "limitation": "无目标日期、结束时刻、取消状态；不得导入为 ShowSession"
+    },
+    {
+      "program_name": "大宋歌友会",
+      "stage_label": "禧墙",
+      "listed_times": "17:30",
+      "parsed_start_times": [
+        "17:30"
+      ],
+      "business_date": null,
+      "ends_at": null,
+      "admission_deadline": null,
+      "status": "undated_catalog_only",
+      "source_id": "src_qmsyun_program_20261023",
+      "limitation": "无目标日期、结束时刻、取消状态；不得导入为 ShowSession"
+    },
+    {
+      "program_name": "大宋不夜城·开市迎宾",
+      "stage_label": "迎宾门外广场",
+      "listed_times": "18:00",
+      "parsed_start_times": [
+        "18:00"
+      ],
+      "business_date": null,
+      "ends_at": null,
+      "admission_deadline": null,
+      "status": "undated_catalog_only",
+      "source_id": "src_qmsyun_program_20261023",
+      "limitation": "无目标日期、结束时刻、取消状态；不得导入为 ShowSession"
+    },
+    {
+      "program_name": "千人打跳",
+      "stage_label": "东京食坊街口",
+      "listed_times": "18:00",
+      "parsed_start_times": [
+        "18:00"
+      ],
+      "business_date": null,
+      "ends_at": null,
+      "admission_deadline": null,
+      "status": "undated_catalog_only",
+      "source_id": "src_qmsyun_program_20261023",
+      "limitation": "无目标日期、结束时刻、取消状态；不得导入为 ShowSession"
+    },
+    {
+      "program_name": "我在宋朝点霓裳",
+      "stage_label": "禧墙",
+      "listed_times": "18:00",
+      "parsed_start_times": [
+        "18:00"
+      ],
+      "business_date": null,
+      "ends_at": null,
+      "admission_deadline": null,
+      "status": "undated_catalog_only",
+      "source_id": "src_qmsyun_program_20261023",
+      "limitation": "无目标日期、结束时刻、取消状态；不得导入为 ShowSession"
+    },
+    {
+      "program_name": "金莲茶馆那些事儿",
+      "stage_label": "虹桥广场",
+      "listed_times": "18:10",
+      "parsed_start_times": [
+        "18:10"
+      ],
+      "business_date": null,
+      "ends_at": null,
+      "admission_deadline": null,
+      "status": "undated_catalog_only",
+      "source_id": "src_qmsyun_program_20261023",
+      "limitation": "无目标日期、结束时刻、取消状态；不得导入为 ShowSession"
+    },
+    {
+      "program_name": "鱼灯巡游",
+      "stage_label": "主题演艺广场至上善门",
+      "listed_times": "18:20",
+      "parsed_start_times": [
+        "18:20"
+      ],
+      "business_date": null,
+      "ends_at": null,
+      "admission_deadline": null,
+      "status": "undated_catalog_only",
+      "source_id": "src_qmsyun_program_20261023",
+      "limitation": "无目标日期、结束时刻、取消状态；不得导入为 ShowSession"
+    },
+    {
+      "program_name": "大宋拍卖会",
+      "stage_label": "勾栏瓦肆",
+      "listed_times": "18:25",
+      "parsed_start_times": [
+        "18:25"
+      ],
+      "business_date": null,
+      "ends_at": null,
+      "admission_deadline": null,
+      "status": "undated_catalog_only",
+      "source_id": "src_qmsyun_program_20261023",
+      "limitation": "无目标日期、结束时刻、取消状态；不得导入为 ShowSession"
+    },
+    {
+      "program_name": "国风大巡游",
+      "stage_label": "虹桥南至孙羊正店前",
+      "listed_times": "18:30",
+      "parsed_start_times": [
+        "18:30"
+      ],
+      "business_date": null,
+      "ends_at": null,
+      "admission_deadline": null,
+      "status": "undated_catalog_only",
+      "source_id": "src_qmsyun_program_20261023",
+      "limitation": "无目标日期、结束时刻、取消状态；不得导入为 ShowSession"
+    },
+    {
+      "program_name": "汴梁凤舞",
+      "stage_label": "上善门",
+      "listed_times": "18:30,19:30",
+      "parsed_start_times": [
+        "18:30",
+        "19:30"
+      ],
+      "business_date": null,
+      "ends_at": null,
+      "admission_deadline": null,
+      "status": "undated_catalog_only",
+      "source_id": "src_qmsyun_program_20261023",
+      "limitation": "无目标日期、结束时刻、取消状态；不得导入为 ShowSession"
+    },
+    {
+      "program_name": "口吐火龙",
+      "stage_label": "东京食坊街口",
+      "listed_times": "18:45,20:50",
+      "parsed_start_times": [
+        "18:45",
+        "20:50"
+      ],
+      "business_date": null,
+      "ends_at": null,
+      "admission_deadline": null,
+      "status": "undated_catalog_only",
+      "source_id": "src_qmsyun_program_20261023",
+      "limitation": "无目标日期、结束时刻、取消状态；不得导入为 ShowSession"
+    },
+    {
+      "program_name": "欢乐宋",
+      "stage_label": "东京食坊街口",
+      "listed_times": "19:00",
+      "parsed_start_times": [
+        "19:00"
+      ],
+      "business_date": null,
+      "ends_at": null,
+      "admission_deadline": null,
+      "status": "undated_catalog_only",
+      "source_id": "src_qmsyun_program_20261023",
+      "limitation": "无目标日期、结束时刻、取消状态；不得导入为 ShowSession"
+    },
+    {
+      "program_name": "月影霓裳",
+      "stage_label": "东京码头上方",
+      "listed_times": "19:00,21:10",
+      "parsed_start_times": [
+        "19:00",
+        "21:10"
+      ],
+      "business_date": null,
+      "ends_at": null,
+      "admission_deadline": null,
+      "status": "undated_catalog_only",
+      "source_id": "src_qmsyun_program_20261023",
+      "limitation": "无目标日期、结束时刻、取消状态；不得导入为 ShowSession"
+    },
+    {
+      "program_name": "菊美人",
+      "stage_label": "主题演艺广场",
+      "listed_times": "19:10",
+      "parsed_start_times": [
+        "19:10"
+      ],
+      "business_date": null,
+      "ends_at": null,
+      "admission_deadline": null,
+      "status": "undated_catalog_only",
+      "source_id": "src_qmsyun_program_20261023",
+      "limitation": "无目标日期、结束时刻、取消状态；不得导入为 ShowSession"
+    },
+    {
+      "program_name": "大宋·国潮民乐秀",
+      "stage_label": "王员外家",
+      "listed_times": "19:20,20:20",
+      "parsed_start_times": [
+        "19:20",
+        "20:20"
+      ],
+      "business_date": null,
+      "ends_at": null,
+      "admission_deadline": null,
+      "status": "undated_catalog_only",
+      "source_id": "src_qmsyun_program_20261023",
+      "limitation": "无目标日期、结束时刻、取消状态；不得导入为 ShowSession"
+    },
+    {
+      "program_name": "大宋九品官途快闪秀",
+      "stage_label": "大宋皇家乐园——骕骦千里前",
+      "listed_times": "19:20,21:30",
+      "parsed_start_times": [
+        "19:20",
+        "21:30"
+      ],
+      "business_date": null,
+      "ends_at": null,
+      "admission_deadline": null,
+      "status": "undated_catalog_only",
+      "source_id": "src_qmsyun_program_20261023",
+      "limitation": "无目标日期、结束时刻、取消状态；不得导入为 ShowSession"
+    },
+    {
+      "program_name": "火裙舞",
+      "stage_label": "四方院",
+      "listed_times": "19:20",
+      "parsed_start_times": [
+        "19:20"
+      ],
+      "business_date": null,
+      "ends_at": null,
+      "admission_deadline": null,
+      "status": "undated_catalog_only",
+      "source_id": "src_qmsyun_program_20261023",
+      "limitation": "无目标日期、结束时刻、取消状态；不得导入为 ShowSession"
+    },
+    {
+      "program_name": "药发傀儡•盛世焰歌",
+      "stage_label": "四方院",
+      "listed_times": "19:20",
+      "parsed_start_times": [
+        "19:20"
+      ],
+      "business_date": null,
+      "ends_at": null,
+      "admission_deadline": null,
+      "status": "undated_catalog_only",
+      "source_id": "src_qmsyun_program_20261023",
+      "limitation": "无目标日期、结束时刻、取消状态；不得导入为 ShowSession"
+    },
+    {
+      "program_name": "丝路行歌花车巡游（音乐广场）",
+      "stage_label": "音乐广场至双宣殿",
+      "listed_times": "19:20",
+      "parsed_start_times": [
+        "19:20"
+      ],
+      "business_date": null,
+      "ends_at": null,
+      "admission_deadline": null,
+      "status": "undated_catalog_only",
+      "source_id": "src_qmsyun_program_20261023",
+      "limitation": "无目标日期、结束时刻、取消状态；不得导入为 ShowSession"
+    },
+    {
+      "program_name": "大宋绝技",
+      "stage_label": "勾栏瓦肆",
+      "listed_times": "19:30,20:50",
+      "parsed_start_times": [
+        "19:30",
+        "20:50"
+      ],
+      "business_date": null,
+      "ends_at": null,
+      "admission_deadline": null,
+      "status": "undated_catalog_only",
+      "source_id": "src_qmsyun_program_20261023",
+      "limitation": "无目标日期、结束时刻、取消状态；不得导入为 ShowSession"
+    },
+    {
+      "program_name": "大宋舞王（音乐广场）",
+      "stage_label": "音乐广场",
+      "listed_times": "19:30",
+      "parsed_start_times": [
+        "19:30"
+      ],
+      "business_date": null,
+      "ends_at": null,
+      "admission_deadline": null,
+      "status": "undated_catalog_only",
+      "source_id": "src_qmsyun_program_20261023",
+      "limitation": "无目标日期、结束时刻、取消状态；不得导入为 ShowSession"
+    },
+    {
+      "program_name": "杨志卖刀",
+      "stage_label": "虹桥广场",
+      "listed_times": "19:40",
+      "parsed_start_times": [
+        "19:40"
+      ],
+      "business_date": null,
+      "ends_at": null,
+      "admission_deadline": null,
+      "status": "undated_catalog_only",
+      "source_id": "src_qmsyun_program_20261023",
+      "limitation": "无目标日期、结束时刻、取消状态；不得导入为 ShowSession"
+    },
+    {
+      "program_name": "大宋歌王（音乐广场）",
+      "stage_label": "音乐广场",
+      "listed_times": "19:45",
+      "parsed_start_times": [
+        "19:45"
+      ],
+      "business_date": null,
+      "ends_at": null,
+      "admission_deadline": null,
+      "status": "undated_catalog_only",
+      "source_id": "src_qmsyun_program_20261023",
+      "limitation": "无目标日期、结束时刻、取消状态；不得导入为 ShowSession"
+    },
+    {
+      "program_name": "铁花庆归航",
+      "stage_label": "虹桥西水面",
+      "listed_times": "20:00",
+      "parsed_start_times": [
+        "20:00"
+      ],
+      "business_date": null,
+      "ends_at": null,
+      "admission_deadline": null,
+      "status": "undated_catalog_only",
+      "source_id": "src_qmsyun_program_20261023",
+      "limitation": "无目标日期、结束时刻、取消状态；不得导入为 ShowSession"
+    },
+    {
+      "program_name": "宋潮朋友圈音乐派对",
+      "stage_label": "音乐广场",
+      "listed_times": "20:00",
+      "parsed_start_times": [
+        "20:00"
+      ],
+      "business_date": null,
+      "ends_at": null,
+      "admission_deadline": null,
+      "status": "undated_catalog_only",
+      "source_id": "src_qmsyun_program_20261023",
+      "limitation": "无目标日期、结束时刻、取消状态；不得导入为 ShowSession"
+    },
+    {
+      "program_name": "凤舞九天飞天秀",
+      "stage_label": "东京码头上方",
+      "listed_times": "20:00",
+      "parsed_start_times": [
+        "20:00"
+      ],
+      "business_date": null,
+      "ends_at": null,
+      "admission_deadline": null,
+      "status": "undated_catalog_only",
+      "source_id": "src_qmsyun_program_20261023",
+      "limitation": "无目标日期、结束时刻、取消状态；不得导入为 ShowSession"
+    },
+    {
+      "program_name": "王小姐抛绣球",
+      "stage_label": "王员外家",
+      "listed_times": "20:05",
+      "parsed_start_times": [
+        "20:05"
+      ],
+      "business_date": null,
+      "ends_at": null,
+      "admission_deadline": null,
+      "status": "undated_catalog_only",
+      "source_id": "src_qmsyun_program_20261023",
+      "limitation": "无目标日期、结束时刻、取消状态；不得导入为 ShowSession"
+    },
+    {
+      "program_name": "飞马送福",
+      "stage_label": "东京码头上方",
+      "listed_times": "20:30,21:35",
+      "parsed_start_times": [
+        "20:30",
+        "21:35"
+      ],
+      "business_date": null,
+      "ends_at": null,
+      "admission_deadline": null,
+      "status": "undated_catalog_only",
+      "source_id": "src_qmsyun_program_20261023",
+      "limitation": "无目标日期、结束时刻、取消状态；不得导入为 ShowSession"
+    },
+    {
+      "program_name": "打铁花之盛世大宋",
+      "stage_label": "九龙桥西南水面",
+      "listed_times": "20:40",
+      "parsed_start_times": [
+        "20:40"
+      ],
+      "business_date": null,
+      "ends_at": null,
+      "admission_deadline": null,
+      "status": "undated_catalog_only",
+      "source_id": "src_qmsyun_program_20261023",
+      "limitation": "无目标日期、结束时刻、取消状态；不得导入为 ShowSession"
+    },
+    {
+      "program_name": "菊舞千年实景威亚秀",
+      "stage_label": "上善门",
+      "listed_times": "20:40",
+      "parsed_start_times": [
+        "20:40"
+      ],
+      "business_date": null,
+      "ends_at": null,
+      "admission_deadline": null,
+      "status": "undated_catalog_only",
+      "source_id": "src_qmsyun_program_20261023",
+      "limitation": "无目标日期、结束时刻、取消状态；不得导入为 ShowSession"
+    },
+    {
+      "program_name": "岳飞·郾城大捷",
+      "stage_label": "大宋·校场",
+      "listed_times": "21:00",
+      "parsed_start_times": [
+        "21:00"
+      ],
+      "business_date": null,
+      "ends_at": null,
+      "admission_deadline": null,
+      "status": "undated_catalog_only",
+      "source_id": "src_qmsyun_program_20261023",
+      "limitation": "无目标日期、结束时刻、取消状态；不得导入为 ShowSession"
+    },
+    {
+      "program_name": "大宋市井狂欢秀",
+      "stage_label": "十千脚店",
+      "listed_times": "21:00",
+      "parsed_start_times": [
+        "21:00"
+      ],
+      "business_date": null,
+      "ends_at": null,
+      "admission_deadline": null,
+      "status": "undated_catalog_only",
+      "source_id": "src_qmsyun_program_20261023",
+      "limitation": "无目标日期、结束时刻、取消状态；不得导入为 ShowSession"
+    },
+    {
+      "program_name": "凤舞九天实景威亚秀",
+      "stage_label": "上善门",
+      "listed_times": "21:50",
+      "parsed_start_times": [
+        "21:50"
+      ],
+      "business_date": null,
+      "ends_at": null,
+      "admission_deadline": null,
+      "status": "undated_catalog_only",
+      "source_id": "src_qmsyun_program_20261023",
+      "limitation": "无目标日期、结束时刻、取消状态；不得导入为 ShowSession"
+    },
+    {
+      "program_name": "《千里共婵娟》答谢仪式",
+      "stage_label": "虹桥南广场",
+      "listed_times": "22:30",
+      "parsed_start_times": [
+        "22:30"
+      ],
+      "business_date": null,
+      "ends_at": null,
+      "admission_deadline": null,
+      "status": "undated_catalog_only",
+      "source_id": "src_qmsyun_program_20261023",
+      "limitation": "无目标日期、结束时刻、取消状态；不得导入为 ShowSession"
+    },
+    {
+      "program_name": "大宋·东京梦华",
+      "stage_label": "景龙湖水面",
+      "listed_times": "以景区公示为准",
+      "parsed_start_times": [],
+      "business_date": null,
+      "ends_at": null,
+      "admission_deadline": null,
+      "status": "undated_catalog_only",
+      "source_id": "src_qmsyun_program_20261023",
+      "limitation": "无目标日期、结束时刻、取消状态；不得导入为 ShowSession"
+    }
+  ],
+  "kaifengfu": [
+    {
+      "program_name": "开衙迎宾",
+      "stage_label": "见页面原文",
+      "listed_times": "页面仅给起始时间",
+      "business_date": null,
+      "ends_at": null,
+      "admission_deadline": null,
+      "status": "undated_catalog_only",
+      "source_id": "src_read_kaifengfu_guide_20261023"
+    },
+    {
+      "program_name": "包公断案（铡美案）",
+      "stage_label": "见页面原文",
+      "listed_times": "页面仅给起始时间",
+      "business_date": null,
+      "ends_at": null,
+      "admission_deadline": null,
+      "status": "undated_catalog_only",
+      "source_id": "src_read_kaifengfu_guide_20261023"
+    },
+    {
+      "program_name": "《闸口盘车案》影院版",
+      "stage_label": "见页面原文",
+      "listed_times": "页面仅给起始时间",
+      "business_date": null,
+      "ends_at": null,
+      "admission_deadline": null,
+      "status": "undated_catalog_only",
+      "source_id": "src_read_kaifengfu_guide_20261023"
+    },
+    {
+      "program_name": "太子迎驾",
+      "stage_label": "见页面原文",
+      "listed_times": "页面仅给起始时间",
+      "business_date": null,
+      "ends_at": null,
+      "admission_deadline": null,
+      "status": "undated_catalog_only",
+      "source_id": "src_read_kaifengfu_guide_20261023"
+    },
+    {
+      "program_name": "榜前捉婿",
+      "stage_label": "见页面原文",
+      "listed_times": "页面仅给起始时间",
+      "business_date": null,
+      "ends_at": null,
+      "admission_deadline": null,
+      "status": "undated_catalog_only",
+      "source_id": "src_read_kaifengfu_guide_20261023"
+    },
+    {
+      "program_name": "《闸口盘车案》剧场版",
+      "stage_label": "见页面原文",
+      "listed_times": "页面仅给起始时间",
+      "business_date": null,
+      "ends_at": null,
+      "admission_deadline": null,
+      "status": "undated_catalog_only",
+      "source_id": "src_read_kaifengfu_guide_20261023"
+    },
+    {
+      "program_name": "太极功夫",
+      "stage_label": "见页面原文",
+      "listed_times": "页面仅给起始时间",
+      "business_date": null,
+      "ends_at": null,
+      "admission_deadline": null,
+      "status": "undated_catalog_only",
+      "source_id": "src_read_kaifengfu_guide_20261023"
+    },
+    {
+      "program_name": "演武迎宾",
+      "stage_label": "见页面原文",
+      "listed_times": "页面仅给起始时间",
+      "business_date": null,
+      "ends_at": null,
+      "admission_deadline": null,
+      "status": "undated_catalog_only",
+      "source_id": "src_read_kaifengfu_guide_20261023"
+    },
+    {
+      "program_name": "包公巡衙之巧遇苏轼",
+      "stage_label": "见页面原文",
+      "listed_times": "页面仅给起始时间",
+      "business_date": null,
+      "ends_at": null,
+      "admission_deadline": null,
+      "status": "undated_catalog_only",
+      "source_id": "src_read_kaifengfu_guide_20261023"
+    },
+    {
+      "program_name": "包公断案（铡赵王）",
+      "stage_label": "见页面原文",
+      "listed_times": "页面仅给起始时间",
+      "business_date": null,
+      "ends_at": null,
+      "admission_deadline": null,
+      "status": "undated_catalog_only",
+      "source_id": "src_read_kaifengfu_guide_20261023"
+    },
+    {
+      "program_name": "校场竞技",
+      "stage_label": "见页面原文",
+      "listed_times": "页面仅给起始时间",
+      "business_date": null,
+      "ends_at": null,
+      "admission_deadline": null,
+      "status": "undated_catalog_only",
+      "source_id": "src_read_kaifengfu_guide_20261023"
+    },
+    {
+      "program_name": "竹竿子之题名记碑",
+      "stage_label": "见页面原文",
+      "listed_times": "页面仅给起始时间",
+      "business_date": null,
+      "ends_at": null,
+      "admission_deadline": null,
+      "status": "undated_catalog_only",
+      "source_id": "src_read_kaifengfu_guide_20261023"
+    },
+    {
+      "program_name": "火场惩顽",
+      "stage_label": "见页面原文",
+      "listed_times": "页面仅给起始时间",
+      "business_date": null,
+      "ends_at": null,
+      "admission_deadline": null,
+      "status": "undated_catalog_only",
+      "source_id": "src_read_kaifengfu_guide_20261023"
+    },
+    {
+      "program_name": "梅花堂前说四雅",
+      "stage_label": "见页面原文",
+      "listed_times": "页面仅给起始时间",
+      "business_date": null,
+      "ends_at": null,
+      "admission_deadline": null,
+      "status": "undated_catalog_only",
+      "source_id": "src_read_kaifengfu_guide_20261023"
+    },
+    {
+      "program_name": "苏轼罢灯",
+      "stage_label": "见页面原文",
+      "listed_times": "页面仅给起始时间",
+      "business_date": null,
+      "ends_at": null,
+      "admission_deadline": null,
+      "status": "undated_catalog_only",
+      "source_id": "src_read_kaifengfu_guide_20261023"
+    },
+    {
+      "program_name": "漫说苏颂",
+      "stage_label": "见页面原文",
+      "listed_times": "页面仅给起始时间",
+      "business_date": null,
+      "ends_at": null,
+      "admission_deadline": null,
+      "status": "undated_catalog_only",
+      "source_id": "src_read_kaifengfu_guide_20261023"
+    },
+    {
+      "program_name": "水月云天舞+音乐喷泉秀",
+      "stage_label": "见页面原文",
+      "listed_times": "页面仅给起始时间",
+      "business_date": null,
+      "ends_at": null,
+      "admission_deadline": null,
+      "status": "undated_catalog_only",
+      "source_id": "src_read_kaifengfu_guide_20261023"
+    },
+    {
+      "program_name": "东京幻市",
+      "stage_label": "见页面原文",
+      "listed_times": "页面仅给起始时间",
+      "business_date": null,
+      "ends_at": null,
+      "admission_deadline": null,
+      "status": "undated_catalog_only",
+      "source_id": "src_read_kaifengfu_guide_20261023"
+    },
+    {
+      "program_name": "一盏灯.光启千年",
+      "stage_label": "见页面原文",
+      "listed_times": "页面仅给起始时间",
+      "business_date": null,
+      "ends_at": null,
+      "admission_deadline": null,
+      "status": "undated_catalog_only",
+      "source_id": "src_read_kaifengfu_guide_20261023"
+    },
+    {
+      "program_name": "一座府.天下首府",
+      "stage_label": "见页面原文",
+      "listed_times": "页面仅给起始时间",
+      "business_date": null,
+      "ends_at": null,
+      "admission_deadline": null,
+      "status": "undated_catalog_only",
+      "source_id": "src_read_kaifengfu_guide_20261023"
+    },
+    {
+      "program_name": "崇正招军",
+      "stage_label": "见页面原文",
+      "listed_times": "页面仅给起始时间",
+      "business_date": null,
+      "ends_at": null,
+      "admission_deadline": null,
+      "status": "undated_catalog_only",
+      "source_id": "src_read_kaifengfu_guide_20261023"
+    },
+    {
+      "program_name": "一台武.侠义家国",
+      "stage_label": "见页面原文",
+      "listed_times": "页面仅给起始时间",
+      "business_date": null,
+      "ends_at": null,
+      "admission_deadline": null,
+      "status": "undated_catalog_only",
+      "source_id": "src_read_kaifengfu_guide_20261023"
+    },
+    {
+      "program_name": "一科举.千年魁榜",
+      "stage_label": "见页面原文",
+      "listed_times": "页面仅给起始时间",
+      "business_date": null,
+      "ends_at": null,
+      "admission_deadline": null,
+      "status": "undated_catalog_only",
+      "source_id": "src_read_kaifengfu_guide_20261023"
+    },
+    {
+      "program_name": "一雅集.遇见苏轼",
+      "stage_label": "见页面原文",
+      "listed_times": "页面仅给起始时间",
+      "business_date": null,
+      "ends_at": null,
+      "admission_deadline": null,
+      "status": "undated_catalog_only",
+      "source_id": "src_read_kaifengfu_guide_20261023"
+    }
+  ],
+  "notice": "两个景区的节目都只有目录/起始时间，没有目标日期、结束时刻、取消状态，不能生成 ShowSession。"
+}

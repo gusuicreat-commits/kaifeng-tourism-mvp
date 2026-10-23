@@ -1,0 +1,2 @@
+owner_id,scope,owner_name,role,cadence_days,event_day_check,assigned,evidence_location,note
+owner_pending,首批景区/餐馆/城墙资料,,项目数据维护者（待指定）,7,True,False,,没有真实负责人，不得标记为已验证

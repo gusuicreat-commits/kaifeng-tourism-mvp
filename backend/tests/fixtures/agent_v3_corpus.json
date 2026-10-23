@@ -1,0 +1,725 @@
+{
+  "provenance": "Developer-curated synthetic visitor-style regression cases, NOT real tourist logs or independently human-annotated evaluation.",
+  "cases": [
+    {
+      "id": "read-01",
+      "group": "read",
+      "text": "下一站去哪？",
+      "expected_fields": [],
+      "expected_mode": "direct"
+    },
+    {
+      "id": "read-02",
+      "group": "read",
+      "text": "我下一站去哪？",
+      "expected_fields": [],
+      "expected_mode": "direct"
+    },
+    {
+      "id": "read-03",
+      "group": "read",
+      "text": "下一步是什么？",
+      "expected_fields": [],
+      "expected_mode": "direct"
+    },
+    {
+      "id": "read-04",
+      "group": "read",
+      "text": "接下来去哪？",
+      "expected_fields": [],
+      "expected_mode": "direct"
+    },
+    {
+      "id": "read-05",
+      "group": "read",
+      "text": "下一站安排了什么？",
+      "expected_fields": [],
+      "expected_mode": "direct"
+    },
+    {
+      "id": "read-06",
+      "group": "read",
+      "text": "下一站是哪一个？",
+      "expected_fields": [],
+      "expected_mode": "direct"
+    },
+    {
+      "id": "read-07",
+      "group": "read",
+      "text": "今天还有几个景点？",
+      "expected_fields": [],
+      "expected_mode": "direct"
+    },
+    {
+      "id": "read-08",
+      "group": "read",
+      "text": "今天还剩几个活动？",
+      "expected_fields": [],
+      "expected_mode": "direct"
+    },
+    {
+      "id": "read-09",
+      "group": "read",
+      "text": "还剩多少活动？",
+      "expected_fields": [],
+      "expected_mode": "direct"
+    },
+    {
+      "id": "read-10",
+      "group": "read",
+      "text": "今天都安排了什么？",
+      "expected_fields": [],
+      "expected_mode": "direct"
+    },
+    {
+      "id": "search-01",
+      "group": "search",
+      "text": "附近找个吃饭的地方。",
+      "expected_fields": [],
+      "expected_mode": "react"
+    },
+    {
+      "id": "search-02",
+      "group": "search",
+      "text": "帮我找个吃饭的地方。",
+      "expected_fields": [],
+      "expected_mode": "react"
+    },
+    {
+      "id": "search-03",
+      "group": "search",
+      "text": "找一家餐厅。",
+      "expected_fields": [],
+      "expected_mode": "react"
+    },
+    {
+      "id": "search-04",
+      "group": "search",
+      "text": "附近找个餐饮商家。",
+      "expected_fields": [],
+      "expected_mode": "react"
+    },
+    {
+      "id": "search-05",
+      "group": "search",
+      "text": "搜一下附近餐厅。",
+      "expected_fields": [],
+      "expected_mode": "react"
+    },
+    {
+      "id": "search-06",
+      "group": "search",
+      "text": "想吃点东西，找个餐厅。",
+      "expected_fields": [],
+      "expected_mode": "react"
+    },
+    {
+      "id": "search-07",
+      "group": "search",
+      "text": "找个地方吃午饭。",
+      "expected_fields": [],
+      "expected_mode": "react"
+    },
+    {
+      "id": "search-08",
+      "group": "search",
+      "text": "附近找一家饭店。",
+      "expected_fields": [],
+      "expected_mode": "react"
+    },
+    {
+      "id": "search-09",
+      "group": "search",
+      "text": "帮我找个吃饭的地方，最好近点。",
+      "expected_fields": [],
+      "expected_mode": "react"
+    },
+    {
+      "id": "search-10",
+      "group": "search",
+      "text": "附近找个吃饭的地方，尽量少走路。",
+      "expected_fields": [],
+      "expected_mode": "react"
+    },
+    {
+      "id": "walk-01",
+      "group": "walk",
+      "text": "找个吃饭的地方，演出必须看，步行不能超过1分钟。",
+      "expected_fields": [
+        "preserve_shows",
+        "walking_seconds"
+      ],
+      "expected_mode": "react"
+    },
+    {
+      "id": "walk-02",
+      "group": "walk",
+      "text": "找个吃饭的地方，演出必须看，步行不能超过2分钟。",
+      "expected_fields": [
+        "preserve_shows",
+        "walking_seconds"
+      ],
+      "expected_mode": "react"
+    },
+    {
+      "id": "walk-03",
+      "group": "walk",
+      "text": "找个吃饭的地方，演出必须看，步行不能超过3分钟。",
+      "expected_fields": [
+        "preserve_shows",
+        "walking_seconds"
+      ],
+      "expected_mode": "react"
+    },
+    {
+      "id": "walk-04",
+      "group": "walk",
+      "text": "找个吃饭的地方，演出必须看，步行不能超过4分钟。",
+      "expected_fields": [
+        "preserve_shows",
+        "walking_seconds"
+      ],
+      "expected_mode": "react"
+    },
+    {
+      "id": "walk-05",
+      "group": "walk",
+      "text": "找个吃饭的地方，演出必须看，步行不能超过5分钟。",
+      "expected_fields": [
+        "preserve_shows",
+        "walking_seconds"
+      ],
+      "expected_mode": "react"
+    },
+    {
+      "id": "walk-06",
+      "group": "walk",
+      "text": "找个吃饭的地方，演出必须看，步行不能超过6分钟。",
+      "expected_fields": [
+        "preserve_shows",
+        "walking_seconds"
+      ],
+      "expected_mode": "react"
+    },
+    {
+      "id": "walk-07",
+      "group": "walk",
+      "text": "找个吃饭的地方，演出必须看，步行不能超过7分钟。",
+      "expected_fields": [
+        "preserve_shows",
+        "walking_seconds"
+      ],
+      "expected_mode": "react"
+    },
+    {
+      "id": "walk-08",
+      "group": "walk",
+      "text": "找个吃饭的地方，演出必须看，步行不能超过8分钟。",
+      "expected_fields": [
+        "preserve_shows",
+        "walking_seconds"
+      ],
+      "expected_mode": "react"
+    },
+    {
+      "id": "walk-09",
+      "group": "walk",
+      "text": "找个吃饭的地方，演出必须看，步行不能超过9分钟。",
+      "expected_fields": [
+        "preserve_shows",
+        "walking_seconds"
+      ],
+      "expected_mode": "react"
+    },
+    {
+      "id": "walk-10",
+      "group": "walk",
+      "text": "找个吃饭的地方，演出必须看，步行不能超过10分钟。",
+      "expected_fields": [
+        "preserve_shows",
+        "walking_seconds"
+      ],
+      "expected_mode": "react"
+    },
+    {
+      "id": "vague-01",
+      "group": "vague",
+      "text": "晚上别太晚回酒店。",
+      "expected_fields": [
+        "return_by"
+      ],
+      "expected_mode": "clarify"
+    },
+    {
+      "id": "vague-02",
+      "group": "vague",
+      "text": "晚上早点回酒店。",
+      "expected_fields": [
+        "return_by"
+      ],
+      "expected_mode": "clarify"
+    },
+    {
+      "id": "vague-03",
+      "group": "vague",
+      "text": "我希望别太晚回去。",
+      "expected_fields": [
+        "return_by"
+      ],
+      "expected_mode": "clarify"
+    },
+    {
+      "id": "vague-04",
+      "group": "vague",
+      "text": "晚上早点回来。",
+      "expected_fields": [
+        "return_by"
+      ],
+      "expected_mode": "clarify"
+    },
+    {
+      "id": "vague-05",
+      "group": "vague",
+      "text": "吃完早点返程。",
+      "expected_fields": [
+        "return_by"
+      ],
+      "expected_mode": "clarify"
+    },
+    {
+      "id": "vague-06",
+      "group": "vague",
+      "text": "最好早点回酒店。",
+      "expected_fields": [
+        "return_by"
+      ],
+      "expected_mode": "clarify"
+    },
+    {
+      "id": "vague-07",
+      "group": "vague",
+      "text": "别让我太晚回去。",
+      "expected_fields": [
+        "return_by"
+      ],
+      "expected_mode": "clarify"
+    },
+    {
+      "id": "vague-08",
+      "group": "vague",
+      "text": "安排早点返程。",
+      "expected_fields": [
+        "return_by"
+      ],
+      "expected_mode": "clarify"
+    },
+    {
+      "id": "vague-09",
+      "group": "vague",
+      "text": "晚上提前回酒店。",
+      "expected_fields": [
+        "return_by"
+      ],
+      "expected_mode": "clarify"
+    },
+    {
+      "id": "vague-10",
+      "group": "vague",
+      "text": "我晚上别太晚回来。",
+      "expected_fields": [
+        "return_by"
+      ],
+      "expected_mode": "clarify"
+    },
+    {
+      "id": "return-01",
+      "group": "return",
+      "text": "14点前回酒店。",
+      "expected_fields": [
+        "return_by"
+      ],
+      "expected_mode": "workflow"
+    },
+    {
+      "id": "return-02",
+      "group": "return",
+      "text": "15点前回酒店。",
+      "expected_fields": [
+        "return_by"
+      ],
+      "expected_mode": "workflow"
+    },
+    {
+      "id": "return-03",
+      "group": "return",
+      "text": "16点前回酒店。",
+      "expected_fields": [
+        "return_by"
+      ],
+      "expected_mode": "workflow"
+    },
+    {
+      "id": "return-04",
+      "group": "return",
+      "text": "17点前回酒店。",
+      "expected_fields": [
+        "return_by"
+      ],
+      "expected_mode": "workflow"
+    },
+    {
+      "id": "return-05",
+      "group": "return",
+      "text": "18点前回酒店。",
+      "expected_fields": [
+        "return_by"
+      ],
+      "expected_mode": "workflow"
+    },
+    {
+      "id": "return-06",
+      "group": "return",
+      "text": "19点前回酒店。",
+      "expected_fields": [
+        "return_by"
+      ],
+      "expected_mode": "workflow"
+    },
+    {
+      "id": "return-07",
+      "group": "return",
+      "text": "20点前回酒店。",
+      "expected_fields": [
+        "return_by"
+      ],
+      "expected_mode": "workflow"
+    },
+    {
+      "id": "return-08",
+      "group": "return",
+      "text": "21点前回酒店。",
+      "expected_fields": [
+        "return_by"
+      ],
+      "expected_mode": "workflow"
+    },
+    {
+      "id": "return-09",
+      "group": "return",
+      "text": "22点前回酒店。",
+      "expected_fields": [
+        "return_by"
+      ],
+      "expected_mode": "workflow"
+    },
+    {
+      "id": "return-10",
+      "group": "return",
+      "text": "23点前回酒店。",
+      "expected_fields": [
+        "return_by"
+      ],
+      "expected_mode": "workflow"
+    },
+    {
+      "id": "correction-01",
+      "group": "correction",
+      "text": "午饭下午1点吃，算了，还是2点吧。",
+      "expected_fields": [
+        "meal_at"
+      ],
+      "expected_mode": "workflow"
+    },
+    {
+      "id": "correction-02",
+      "group": "correction",
+      "text": "午饭下午2点吃，算了，还是3点吧。",
+      "expected_fields": [
+        "meal_at"
+      ],
+      "expected_mode": "workflow"
+    },
+    {
+      "id": "correction-03",
+      "group": "correction",
+      "text": "午饭下午3点吃，算了，还是4点吧。",
+      "expected_fields": [
+        "meal_at"
+      ],
+      "expected_mode": "workflow"
+    },
+    {
+      "id": "correction-04",
+      "group": "correction",
+      "text": "午饭下午4点吃，算了，还是5点吧。",
+      "expected_fields": [
+        "meal_at"
+      ],
+      "expected_mode": "workflow"
+    },
+    {
+      "id": "correction-05",
+      "group": "correction",
+      "text": "午饭下午5点吃，算了，还是6点吧。",
+      "expected_fields": [
+        "meal_at"
+      ],
+      "expected_mode": "workflow"
+    },
+    {
+      "id": "correction-06",
+      "group": "correction",
+      "text": "午饭下午6点吃，算了，还是7点吧。",
+      "expected_fields": [
+        "meal_at"
+      ],
+      "expected_mode": "workflow"
+    },
+    {
+      "id": "correction-07",
+      "group": "correction",
+      "text": "午饭下午7点吃，算了，还是8点吧。",
+      "expected_fields": [
+        "meal_at"
+      ],
+      "expected_mode": "workflow"
+    },
+    {
+      "id": "correction-08",
+      "group": "correction",
+      "text": "午饭下午8点吃，算了，还是9点吧。",
+      "expected_fields": [
+        "meal_at"
+      ],
+      "expected_mode": "workflow"
+    },
+    {
+      "id": "correction-09",
+      "group": "correction",
+      "text": "午饭下午9点吃，算了，还是10点吧。",
+      "expected_fields": [
+        "meal_at"
+      ],
+      "expected_mode": "workflow"
+    },
+    {
+      "id": "correction-10",
+      "group": "correction",
+      "text": "午饭下午10点吃，算了，还是11点吧。",
+      "expected_fields": [
+        "meal_at"
+      ],
+      "expected_mode": "workflow"
+    },
+    {
+      "id": "optional-01",
+      "group": "optional",
+      "text": "找个吃饭的地方，有灌汤包最好，没有也行。",
+      "expected_fields": [
+        "food"
+      ],
+      "expected_mode": "react"
+    },
+    {
+      "id": "optional-02",
+      "group": "optional",
+      "text": "附近找个餐厅，有灌汤包最好，没有也行。",
+      "expected_fields": [
+        "food"
+      ],
+      "expected_mode": "react"
+    },
+    {
+      "id": "optional-03",
+      "group": "optional",
+      "text": "搜一家饭店，有灌汤包最好，没有也行。",
+      "expected_fields": [
+        "food"
+      ],
+      "expected_mode": "react"
+    },
+    {
+      "id": "optional-04",
+      "group": "optional",
+      "text": "帮我找个餐厅，有灌汤包最好，没有也行。",
+      "expected_fields": [
+        "food"
+      ],
+      "expected_mode": "react"
+    },
+    {
+      "id": "optional-05",
+      "group": "optional",
+      "text": "附近找个吃饭的地方，有灌汤包最好，没有也行。",
+      "expected_fields": [
+        "food"
+      ],
+      "expected_mode": "react"
+    },
+    {
+      "id": "optional-06",
+      "group": "optional",
+      "text": "找个地方吃午饭，有灌汤包最好，没有也行。",
+      "expected_fields": [
+        "food"
+      ],
+      "expected_mode": "react"
+    },
+    {
+      "id": "optional-07",
+      "group": "optional",
+      "text": "找一家餐厅，有灌汤包最好，没有也行。",
+      "expected_fields": [
+        "food"
+      ],
+      "expected_mode": "react"
+    },
+    {
+      "id": "optional-08",
+      "group": "optional",
+      "text": "帮我搜一家餐厅，有灌汤包最好，没有也行。",
+      "expected_fields": [
+        "food"
+      ],
+      "expected_mode": "react"
+    },
+    {
+      "id": "optional-09",
+      "group": "optional",
+      "text": "附近找一家饭店，有灌汤包最好，没有也行。",
+      "expected_fields": [
+        "food"
+      ],
+      "expected_mode": "react"
+    },
+    {
+      "id": "optional-10",
+      "group": "optional",
+      "text": "找个餐饮商家，有灌汤包最好，没有也行。",
+      "expected_fields": [
+        "food"
+      ],
+      "expected_mode": "react"
+    },
+    {
+      "id": "multi-01",
+      "group": "multi",
+      "text": "附近找个吃饭的地方，下午演出别动，最好少走一点，步行最好不超过1分钟，18点前回酒店。",
+      "expected_fields": [
+        "preserve_shows",
+        "objective",
+        "walking_seconds",
+        "return_by"
+      ],
+      "expected_mode": "react"
+    },
+    {
+      "id": "multi-02",
+      "group": "multi",
+      "text": "附近找个吃饭的地方，下午演出别动，最好少走一点，步行最好不超过2分钟，18点前回酒店。",
+      "expected_fields": [
+        "preserve_shows",
+        "objective",
+        "walking_seconds",
+        "return_by"
+      ],
+      "expected_mode": "react"
+    },
+    {
+      "id": "multi-03",
+      "group": "multi",
+      "text": "附近找个吃饭的地方，下午演出别动，最好少走一点，步行最好不超过3分钟，18点前回酒店。",
+      "expected_fields": [
+        "preserve_shows",
+        "objective",
+        "walking_seconds",
+        "return_by"
+      ],
+      "expected_mode": "react"
+    },
+    {
+      "id": "multi-04",
+      "group": "multi",
+      "text": "附近找个吃饭的地方，下午演出别动，最好少走一点，步行最好不超过4分钟，18点前回酒店。",
+      "expected_fields": [
+        "preserve_shows",
+        "objective",
+        "walking_seconds",
+        "return_by"
+      ],
+      "expected_mode": "react"
+    },
+    {
+      "id": "multi-05",
+      "group": "multi",
+      "text": "附近找个吃饭的地方，下午演出别动，最好少走一点，步行最好不超过5分钟，18点前回酒店。",
+      "expected_fields": [
+        "preserve_shows",
+        "objective",
+        "walking_seconds",
+        "return_by"
+      ],
+      "expected_mode": "react"
+    },
+    {
+      "id": "multi-06",
+      "group": "multi",
+      "text": "附近找个吃饭的地方，下午演出别动，最好少走一点，步行最好不超过6分钟，18点前回酒店。",
+      "expected_fields": [
+        "preserve_shows",
+        "objective",
+        "walking_seconds",
+        "return_by"
+      ],
+      "expected_mode": "react"
+    },
+    {
+      "id": "multi-07",
+      "group": "multi",
+      "text": "附近找个吃饭的地方，下午演出别动，最好少走一点，步行最好不超过7分钟，18点前回酒店。",
+      "expected_fields": [
+        "preserve_shows",
+        "objective",
+        "walking_seconds",
+        "return_by"
+      ],
+      "expected_mode": "react"
+    },
+    {
+      "id": "multi-08",
+      "group": "multi",
+      "text": "附近找个吃饭的地方，下午演出别动，最好少走一点，步行最好不超过8分钟，18点前回酒店。",
+      "expected_fields": [
+        "preserve_shows",
+        "objective",
+        "walking_seconds",
+        "return_by"
+      ],
+      "expected_mode": "react"
+    },
+    {
+      "id": "multi-09",
+      "group": "multi",
+      "text": "附近找个吃饭的地方，下午演出别动，最好少走一点，步行最好不超过9分钟，18点前回酒店。",
+      "expected_fields": [
+        "preserve_shows",
+        "objective",
+        "walking_seconds",
+        "return_by"
+      ],
+      "expected_mode": "react"
+    },
+    {
+      "id": "multi-10",
+      "group": "multi",
+      "text": "附近找个吃饭的地方，下午演出别动，最好少走一点，步行最好不超过10分钟，18点前回酒店。",
+      "expected_fields": [
+        "preserve_shows",
+        "objective",
+        "walking_seconds",
+        "return_by"
+      ],
+      "expected_mode": "react"
+    }
+  ]
+}

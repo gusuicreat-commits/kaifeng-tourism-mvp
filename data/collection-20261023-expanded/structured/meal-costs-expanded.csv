@@ -1,0 +1,8 @@
+vendor_id,name,average_spend_candidates,meal_duration,queue_time,last_order,evidence,formal_acceptance
+vendor_huangjia_xisi,黄家老店（西司店）,¥55 人均（平台）,,,,platform candidate only,false
+vendor_huangjia_daliang,黄家老店（大梁路店）,未取得,,,,platform candidate only,false
+vendor_xingjia_daliangmen,邢家锅贴老店（大梁门总店）,¥53-57 人均（平台）,,,,platform candidate only,false
+vendor_louzhonglou,楼中楼酒店（汴梁小宋城店）,¥61 人均（平台）,,,,platform candidate only,false
+vendor_heyuan_hanxing,宋都禾源·灌汤包子（汉兴路直营店）,¥54 人均（平台）,,,,platform candidate only,false
+vendor_heyuan_jinxiang,禾源灌汤包子（金祥路直营店）,¥67 人均（平台）,,,,platform candidate only,false
+vendor_diyilou_sihou,第一楼（寺后街店）,约 ¥55-66 人均（平台）,,,,platform candidate only,false

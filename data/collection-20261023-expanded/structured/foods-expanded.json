@@ -1,0 +1,132 @@
+{
+  "schema_version": "kaifeng-foods-expanded/1",
+  "generated_at": "2026-10-23T19:46:51+08:00",
+  "foods": [
+    {
+      "food_id": "food_guantangbao",
+      "name": "小笼灌汤包子",
+      "aliases": [
+        "灌汤包",
+        "开封小笼包"
+      ],
+      "brief": "皮薄馅多、汤汁丰富；具体配料与过敏原需门店确认",
+      "allergen_note": "通常含小麦面皮和猪肉馅，但这只是通用说明，不能用于个体忌口判断",
+      "source_ids": [
+        "src_search_food_kaifeng_snacks_20261023"
+      ],
+      "evidence_status": "cultural_description_candidate",
+      "supply_proof": false
+    },
+    {
+      "food_id": "food_liyu_beimian",
+      "name": "黄河鲤鱼焙面",
+      "aliases": [
+        "鲤鱼焙面",
+        "糖醋软熘鲤鱼带焙面"
+      ],
+      "brief": "鲤鱼与细面搭配，酸甜/酥脆口感；不是每家店都供应",
+      "allergen_note": "含鱼、小麦、可能含蛋/乳/糖，需门店确认",
+      "source_ids": [
+        "src_search_food_kaifeng_snacks_20261023"
+      ],
+      "evidence_status": "cultural_description_candidate",
+      "supply_proof": false
+    },
+    {
+      "food_id": "food_tongziji",
+      "name": "桶子鸡",
+      "aliases": [
+        "汴梁桶子鸡"
+      ],
+      "brief": "开封传统熟食，常见为整鸡卤制、咸香耐嚼",
+      "allergen_note": "通常为禽肉；具体卤料和过敏原未知",
+      "source_ids": [
+        "src_search_food_kaifeng_snacks_20261023"
+      ],
+      "evidence_status": "cultural_description_candidate",
+      "supply_proof": false
+    },
+    {
+      "food_id": "food_siwei_cai",
+      "name": "四味菜",
+      "aliases": [
+        "四味烩菜",
+        "四味菜羊汤"
+      ],
+      "brief": "常见组合为牛肉丁/丸子、面筋、黄花菜等，加羊汤；不同店家配方不完全相同",
+      "allergen_note": "含肉、麸质（面筋）等可能成分，必须问店家；不能断定清真/低敏",
+      "source_ids": [
+        "src_search_food_siwei_20261023"
+      ],
+      "evidence_status": "cultural_description_candidate",
+      "supply_proof": false
+    },
+    {
+      "food_id": "food_chaoliangfen",
+      "name": "炒凉粉",
+      "aliases": [
+        "开封炒凉粉"
+      ],
+      "brief": "红薯凉粉配豆豉/蒜/葱等炒制，外焦内嫩",
+      "allergen_note": "配料和辣度因摊点而异，过敏原未知",
+      "source_ids": [
+        "src_search_food_kaifeng_snacks_20261023"
+      ],
+      "evidence_status": "cultural_description_candidate",
+      "supply_proof": false
+    },
+    {
+      "food_id": "food_yangrou_kangmo",
+      "name": "羊肉炕馍",
+      "aliases": [],
+      "brief": "薄面饼夹羊肉末，煎至焦香",
+      "allergen_note": "含小麦、羊肉；具体调料未知",
+      "source_ids": [
+        "src_search_food_kaifeng_snacks_20261023"
+      ],
+      "evidence_status": "cultural_description_candidate",
+      "supply_proof": false
+    },
+    {
+      "food_id": "food_guotie",
+      "name": "锅贴",
+      "aliases": [
+        "开封锅贴"
+      ],
+      "brief": "煎制面点，常见鲜肉韭黄/素馅，不等于每家都有同一馅料",
+      "allergen_note": "馅料需门店确认；通常含小麦",
+      "source_ids": [
+        "src_search_xingjia_20261023"
+      ],
+      "evidence_status": "cultural_description_candidate",
+      "supply_proof": false
+    },
+    {
+      "food_id": "food_taohuasuni",
+      "name": "炒红薯泥",
+      "aliases": [
+        "红薯泥"
+      ],
+      "brief": "红薯蒸熟后炒制，甜口，可能有蜂蜜/糖",
+      "allergen_note": "糖分较高；过敏原与配方需门店确认",
+      "source_ids": [
+        "src_search_huangjia_20261023"
+      ],
+      "evidence_status": "cultural_description_candidate",
+      "supply_proof": false
+    },
+    {
+      "food_id": "food_sanhen_tang",
+      "name": "三狠汤",
+      "aliases": [],
+      "brief": "开封常见酸辣汤类菜，配方因店而异",
+      "allergen_note": "可能含蛋、醋、胡椒、肉类等，需门店确认",
+      "source_ids": [
+        "src_search_xingjia_20261023"
+      ],
+      "evidence_status": "cultural_description_candidate",
+      "supply_proof": false
+    }
+  ],
+  "notice": "菜品文化资料不等于任一门店当前供应；过敏原不能用通用配方猜。"
+}

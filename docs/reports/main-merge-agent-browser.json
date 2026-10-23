@@ -1,0 +1,358 @@
+{
+  "config": {
+    "argv": [
+      "/Users/mac/.local/share/nodejs/node-v26.3.0-darwin-arm64/bin/node",
+      "/Users/mac/Desktop/大挑/kaifeng-main-merge-stage-20261023-161200/frontend/node_modules/.bin/playwright",
+      "test",
+      "--config=playwright.agent.config.ts",
+      "--reporter=list,json"
+    ],
+    "configFile": "/Users/mac/Desktop/大挑/kaifeng-main-merge-stage-20261023-161200/frontend/playwright.agent.config.ts",
+    "rootDir": "/Users/mac/Desktop/大挑/kaifeng-main-merge-stage-20261023-161200/frontend/tests",
+    "failOnFlakyTests": false,
+    "forbidOnly": false,
+    "fullyParallel": false,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "actualWorkers": 1
+    },
+    "preserveOutput": "always",
+    "projects": [
+      {
+        "outputDir": "/Users/mac/Desktop/大挑/kaifeng-main-merge-stage-20261023-161200/.test-results/agent-v3-browser",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "",
+        "name": "",
+        "testDir": "/Users/mac/Desktop/大挑/kaifeng-main-merge-stage-20261023-161200/frontend/tests",
+        "testIgnore": [],
+        "testMatch": [
+          "agent-v3.spec.ts"
+        ],
+        "timeout": 30000
+      }
+    ],
+    "filteredProjects": [
+      {
+        "grep": {},
+        "grepInvert": null,
+        "outputDir": "/Users/mac/Desktop/大挑/kaifeng-main-merge-stage-20261023-161200/.test-results/agent-v3-browser",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "name": "",
+        "testDir": "/Users/mac/Desktop/大挑/kaifeng-main-merge-stage-20261023-161200/frontend/tests",
+        "snapshotDir": "/Users/mac/Desktop/大挑/kaifeng-main-merge-stage-20261023-161200/frontend/tests",
+        "testIgnore": [],
+        "testMatch": "agent-v3.spec.ts",
+        "timeout": 30000,
+        "use": {
+          "baseURL": "http://127.0.0.1:8021",
+          "viewport": {
+            "width": 375,
+            "height": 812
+          },
+          "headless": true,
+          "launchOptions": {
+            "executablePath": "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome"
+          }
+        },
+        "dependencies": [],
+        "ignoreSnapshots": false,
+        "__projectId": ""
+      }
+    ],
+    "quiet": false,
+    "reporter": [
+      [
+        "list"
+      ],
+      [
+        "json"
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "shard": null,
+    "tags": [],
+    "updateSnapshots": "default",
+    "updateSourceMethod": "patch",
+    "version": "1.64.1",
+    "workers": 1,
+    "webServer": {
+      "command": "../.venv/bin/python ../scripts/agent_test_server.py",
+      "url": "http://127.0.0.1:8021/api/health",
+      "reuseExistingServer": false,
+      "timeout": 20000
+    }
+  },
+  "suites": [
+    {
+      "title": "agent-v3.spec.ts",
+      "file": "agent-v3.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "city task runs through actual APIs and confirms the shared route version",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1731,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-23T08:34:09.059Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "1df049c2e44636079ba1-ad098f8b5ba3ce970120",
+          "file": "agent-v3.spec.ts",
+          "line": 21,
+          "column": 1
+        },
+        {
+          "title": "discard candidate leaves official city state unchanged",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 665,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-23T08:34:11.092Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "1df049c2e44636079ba1-fb473a9f87891f6362bb",
+          "file": "agent-v3.spec.ts",
+          "line": 41,
+          "column": 1
+        },
+        {
+          "title": "vague return time asks for clarification without a route candidate",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 427,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-23T08:34:11.769Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "1df049c2e44636079ba1-e306eca6904c91f30817",
+          "file": "agent-v3.spec.ts",
+          "line": 51,
+          "column": 1
+        },
+        {
+          "title": "unknown food supply never creates a restaurant or executable route",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 404,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-23T08:34:12.204Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "1df049c2e44636079ba1-04de25abe2ba11cd4e93",
+          "file": "agent-v3.spec.ts",
+          "line": 60,
+          "column": 1
+        },
+        {
+          "title": "basket planning uses the existing engine, blocks stale preview, then confirms one official route",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1295,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-23T08:34:12.614Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "1df049c2e44636079ba1-4275376d11224856fab0",
+          "file": "agent-v3.spec.ts",
+          "line": 69,
+          "column": 1
+        },
+        {
+          "title": "conflict negotiation persists a structured choice across refresh, recomputes, and only confirms on request",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1574,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-23T08:34:13.917Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "1df049c2e44636079ba1-2fe85ccddddef4f9a9d0",
+          "file": "agent-v3.spec.ts",
+          "line": 93,
+          "column": 1
+        },
+        {
+          "title": "changing date while a candidate is visible preserves the official trip and invalidates the old candidate",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 479,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-23T08:34:15.501Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "1df049c2e44636079ba1-d1637b26b78bc12f2c10",
+          "file": "agent-v3.spec.ts",
+          "line": 130,
+          "column": 1
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-10-23T08:34:07.921Z",
+    "duration": 8202.646999999999,
+    "expected": 7,
+    "skipped": 0,
+    "unexpected": 0,
+    "flaky": 0
+  }
+}

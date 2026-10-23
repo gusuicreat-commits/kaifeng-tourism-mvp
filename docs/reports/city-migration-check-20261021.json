@@ -1,0 +1,52 @@
+{
+  "date": "2026-10-21",
+  "source": "before.sqlite3: pre-change consistent backup",
+  "method": "init_memory on pre-city backup copy; compare every original column and row against migrated copy AND current runtime database",
+  "original_rows_preserved_in_copy_and_runtime": true,
+  "deletion_ledger_unchanged_during_check": true,
+  "original_table_counts": {
+    "consent_records": 0,
+    "conversation_messages": 0,
+    "conversation_sessions": 1,
+    "m7_metadata": 1,
+    "m7_plan_owners": 0,
+    "m7_proposals": 0,
+    "m7_receipts": 1,
+    "memory_deletion_jobs": 0,
+    "networks": 2,
+    "observations": 504,
+    "plans": 4,
+    "saved_trips": 0,
+    "scenic": 5,
+    "schedule_facts": 0,
+    "schema_version": 1,
+    "trip_events": 1,
+    "trip_states": 1,
+    "user_preferences": 0
+  },
+  "new_tables": [
+    "city_fact_revisions",
+    "city_facts",
+    "city_proposals",
+    "city_receipts",
+    "city_trip_events",
+    "city_trip_states"
+  ],
+  "added_column": "conversation_sessions.active_city_trip_id",
+  "runtime_new_table_counts": {
+    "city_fact_revisions": 0,
+    "city_facts": 0,
+    "city_receipts": 0,
+    "city_proposals": 0,
+    "city_trip_events": 0,
+    "city_trip_states": 0
+  },
+  "foreign_key_violations": [],
+  "integrity_check": "ok",
+  "notes": [
+    "Runtime already has additive city tables; all are empty",
+    "No test facts imported into runtime",
+    "Deletion ledger never restored or replaced",
+    "Copy check does not perform TTL cleanup"
+  ]
+}

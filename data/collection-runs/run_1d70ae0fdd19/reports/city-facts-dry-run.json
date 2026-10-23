@@ -1,0 +1,825 @@
+{
+  "status": "dry_run",
+  "received": 71,
+  "changed": 71,
+  "unchanged": 0,
+  "records": [
+    {
+      "kind": "place",
+      "id": "place_kfsbwg",
+      "ready": false,
+      "issues": [
+        "UNVERIFIED",
+        "RIGHTS_NOT_CONFIRMED",
+        "OUTSIDE_VALIDITY_OR_UNKNOWN",
+        "LOCATION_UNKNOWN",
+        "DEPENDENCY_NOT_READY:source:src_bendibao_kfsbwg_address",
+        "DEPENDENCY_NOT_READY:source:src_bendibao_kfsbwg_intro",
+        "DEPENDENCY_NOT_READY:source:src_kfsbwg_tips_openinfo",
+        "DEPENDENCY_NOT_READY:source:src_kfsfq_museum_directory"
+      ]
+    },
+    {
+      "kind": "place",
+      "id": "place_kfsbwg_newgate",
+      "ready": false,
+      "issues": [
+        "UNVERIFIED",
+        "RIGHTS_NOT_CONFIRMED",
+        "OUTSIDE_VALIDITY_OR_UNKNOWN",
+        "LOCATION_UNKNOWN",
+        "DEPENDENCY_NOT_READY:source:src_bendibao_kfsbwg_address"
+      ]
+    },
+    {
+      "kind": "place",
+      "id": "place_shanshangan_museum",
+      "ready": false,
+      "issues": [
+        "UNVERIFIED",
+        "RIGHTS_NOT_CONFIRMED",
+        "OUTSIDE_VALIDITY_OR_UNKNOWN",
+        "LOCATION_UNKNOWN",
+        "DEPENDENCY_NOT_READY:source:src_kfsfq_museum_directory",
+        "DEPENDENCY_NOT_READY:source:src_search_shanshangan_20261023"
+      ]
+    },
+    {
+      "kind": "place",
+      "id": "place_liuqingxia",
+      "ready": false,
+      "issues": [
+        "UNVERIFIED",
+        "RIGHTS_NOT_CONFIRMED",
+        "OUTSIDE_VALIDITY_OR_UNKNOWN",
+        "LOCATION_UNKNOWN",
+        "DEPENDENCY_NOT_READY:source:src_kfsfq_museum_directory"
+      ]
+    },
+    {
+      "kind": "place",
+      "id": "place_liushaoki",
+      "ready": false,
+      "issues": [
+        "UNVERIFIED",
+        "RIGHTS_NOT_CONFIRMED",
+        "OUTSIDE_VALIDITY_OR_UNKNOWN",
+        "LOCATION_UNKNOWN",
+        "DEPENDENCY_NOT_READY:source:src_kfsfq_museum_directory"
+      ]
+    },
+    {
+      "kind": "place",
+      "id": "place_jingcha_museum",
+      "ready": false,
+      "issues": [
+        "UNVERIFIED",
+        "RIGHTS_NOT_CONFIRMED",
+        "OUTSIDE_VALIDITY_OR_UNKNOWN",
+        "LOCATION_UNKNOWN",
+        "DEPENDENCY_NOT_READY:source:src_kfsfq_museum_directory"
+      ]
+    },
+    {
+      "kind": "place",
+      "id": "place_baogongfa_museum",
+      "ready": false,
+      "issues": [
+        "UNVERIFIED",
+        "RIGHTS_NOT_CONFIRMED",
+        "OUTSIDE_VALIDITY_OR_UNKNOWN",
+        "LOCATION_UNKNOWN",
+        "DEPENDENCY_NOT_READY:source:src_kfsfq_museum_directory",
+        "DEPENDENCY_NOT_READY:source:src_search_baogongci_20261023"
+      ]
+    },
+    {
+      "kind": "place",
+      "id": "place_bianliang_hunshu_museum",
+      "ready": false,
+      "issues": [
+        "UNVERIFIED",
+        "RIGHTS_NOT_CONFIRMED",
+        "OUTSIDE_VALIDITY_OR_UNKNOWN",
+        "LOCATION_UNKNOWN",
+        "DEPENDENCY_NOT_READY:source:src_kfsfq_museum_directory"
+      ]
+    },
+    {
+      "kind": "place",
+      "id": "place_changming_gudeng_museum",
+      "ready": false,
+      "issues": [
+        "UNVERIFIED",
+        "RIGHTS_NOT_CONFIRMED",
+        "OUTSIDE_VALIDITY_OR_UNKNOWN",
+        "LOCATION_UNKNOWN",
+        "DEPENDENCY_NOT_READY:source:src_kfsfq_museum_directory"
+      ]
+    },
+    {
+      "kind": "place",
+      "id": "place_yigutang_museum",
+      "ready": false,
+      "issues": [
+        "UNVERIFIED",
+        "RIGHTS_NOT_CONFIRMED",
+        "OUTSIDE_VALIDITY_OR_UNKNOWN",
+        "LOCATION_UNKNOWN",
+        "DEPENDENCY_NOT_READY:source:src_kfsfq_museum_directory"
+      ]
+    },
+    {
+      "kind": "place",
+      "id": "place_shengquan_qianbi_museum",
+      "ready": false,
+      "issues": [
+        "UNVERIFIED",
+        "RIGHTS_NOT_CONFIRMED",
+        "OUTSIDE_VALIDITY_OR_UNKNOWN",
+        "LOCATION_UNKNOWN",
+        "DEPENDENCY_NOT_READY:source:src_kfsfq_museum_directory"
+      ]
+    },
+    {
+      "kind": "place",
+      "id": "place_dezhuang_ceramic_museum",
+      "ready": false,
+      "issues": [
+        "UNVERIFIED",
+        "RIGHTS_NOT_CONFIRMED",
+        "OUTSIDE_VALIDITY_OR_UNKNOWN",
+        "LOCATION_UNKNOWN",
+        "DEPENDENCY_NOT_READY:source:src_kfsfq_museum_directory"
+      ]
+    },
+    {
+      "kind": "place",
+      "id": "place_dianzi_xianweijing_museum",
+      "ready": false,
+      "issues": [
+        "UNVERIFIED",
+        "RIGHTS_NOT_CONFIRMED",
+        "OUTSIDE_VALIDITY_OR_UNKNOWN",
+        "LOCATION_UNKNOWN",
+        "DEPENDENCY_NOT_READY:source:src_kfsfq_museum_directory"
+      ]
+    },
+    {
+      "kind": "place",
+      "id": "place_baozhi_museum",
+      "ready": false,
+      "issues": [
+        "UNVERIFIED",
+        "RIGHTS_NOT_CONFIRMED",
+        "OUTSIDE_VALIDITY_OR_UNKNOWN",
+        "LOCATION_UNKNOWN",
+        "DEPENDENCY_NOT_READY:source:src_kfsfq_museum_directory"
+      ]
+    },
+    {
+      "kind": "place",
+      "id": "place_zhishan_weiqi_museum",
+      "ready": false,
+      "issues": [
+        "UNVERIFIED",
+        "RIGHTS_NOT_CONFIRMED",
+        "OUTSIDE_VALIDITY_OR_UNKNOWN",
+        "LOCATION_UNKNOWN",
+        "DEPENDENCY_NOT_READY:source:src_kfsfq_museum_directory"
+      ]
+    },
+    {
+      "kind": "place",
+      "id": "place_yuzhe_tea_museum",
+      "ready": false,
+      "issues": [
+        "UNVERIFIED",
+        "RIGHTS_NOT_CONFIRMED",
+        "OUTSIDE_VALIDITY_OR_UNKNOWN",
+        "LOCATION_UNKNOWN",
+        "DEPENDENCY_NOT_READY:source:src_kfsfq_museum_directory"
+      ]
+    },
+    {
+      "kind": "place",
+      "id": "place_kaifeng_culture_hall_new",
+      "ready": false,
+      "issues": [
+        "UNVERIFIED",
+        "RIGHTS_NOT_CONFIRMED",
+        "OUTSIDE_VALIDITY_OR_UNKNOWN",
+        "LOCATION_UNKNOWN",
+        "DEPENDENCY_NOT_READY:source:src_kfsfq_culture_directory"
+      ]
+    },
+    {
+      "kind": "place",
+      "id": "place_kaifeng_culture_hall_old",
+      "ready": false,
+      "issues": [
+        "UNVERIFIED",
+        "RIGHTS_NOT_CONFIRMED",
+        "OUTSIDE_VALIDITY_OR_UNKNOWN",
+        "LOCATION_UNKNOWN",
+        "DEPENDENCY_NOT_READY:source:src_kfsfq_culture_directory"
+      ]
+    },
+    {
+      "kind": "place",
+      "id": "place_gulou_culture_center",
+      "ready": false,
+      "issues": [
+        "UNVERIFIED",
+        "RIGHTS_NOT_CONFIRMED",
+        "OUTSIDE_VALIDITY_OR_UNKNOWN",
+        "LOCATION_UNKNOWN",
+        "DEPENDENCY_NOT_READY:source:src_kfsfq_culture_directory"
+      ]
+    },
+    {
+      "kind": "place",
+      "id": "place_shunhe_culture_hall",
+      "ready": false,
+      "issues": [
+        "UNVERIFIED",
+        "RIGHTS_NOT_CONFIRMED",
+        "OUTSIDE_VALIDITY_OR_UNKNOWN",
+        "LOCATION_UNKNOWN",
+        "DEPENDENCY_NOT_READY:source:src_kfsfq_culture_directory"
+      ]
+    },
+    {
+      "kind": "place",
+      "id": "place_yuwangtai_culture_hall",
+      "ready": false,
+      "issues": [
+        "UNVERIFIED",
+        "RIGHTS_NOT_CONFIRMED",
+        "OUTSIDE_VALIDITY_OR_UNKNOWN",
+        "LOCATION_UNKNOWN",
+        "DEPENDENCY_NOT_READY:source:src_kfsfq_culture_directory"
+      ]
+    },
+    {
+      "kind": "place",
+      "id": "place_longting_culture_hall",
+      "ready": false,
+      "issues": [
+        "UNVERIFIED",
+        "RIGHTS_NOT_CONFIRMED",
+        "OUTSIDE_VALIDITY_OR_UNKNOWN",
+        "LOCATION_UNKNOWN",
+        "DEPENDENCY_NOT_READY:source:src_kfsfq_culture_directory"
+      ]
+    },
+    {
+      "kind": "place",
+      "id": "place_kaifeng_library",
+      "ready": false,
+      "issues": [
+        "UNVERIFIED",
+        "RIGHTS_NOT_CONFIRMED",
+        "OUTSIDE_VALIDITY_OR_UNKNOWN",
+        "LOCATION_UNKNOWN",
+        "DEPENDENCY_NOT_READY:source:src_bendibao_library_hours"
+      ]
+    },
+    {
+      "kind": "place",
+      "id": "place_shudianjie",
+      "ready": false,
+      "issues": [
+        "UNVERIFIED",
+        "RIGHTS_NOT_CONFIRMED",
+        "OUTSIDE_VALIDITY_OR_UNKNOWN",
+        "LOCATION_UNKNOWN",
+        "DEPENDENCY_NOT_READY:source:src_gulou_shudianjie",
+        "DEPENDENCY_NOT_READY:source:src_kaifeng_gov_street_tour"
+      ]
+    },
+    {
+      "kind": "place",
+      "id": "place_gulou_night_market",
+      "ready": false,
+      "issues": [
+        "UNVERIFIED",
+        "RIGHTS_NOT_CONFIRMED",
+        "OUTSIDE_VALIDITY_OR_UNKNOWN",
+        "LOCATION_UNKNOWN",
+        "DEPENDENCY_NOT_READY:source:src_gulou_night_market",
+        "DEPENDENCY_NOT_READY:source:src_kfgov_night_market_kiosk",
+        "DEPENDENCY_NOT_READY:source:src_kfgov_night_market_plan_2020",
+        "DEPENDENCY_NOT_READY:source:src_search_night_market_20261023"
+      ]
+    },
+    {
+      "kind": "place",
+      "id": "place_xisi_night_market",
+      "ready": false,
+      "issues": [
+        "UNVERIFIED",
+        "RIGHTS_NOT_CONFIRMED",
+        "OUTSIDE_VALIDITY_OR_UNKNOWN",
+        "LOCATION_UNKNOWN",
+        "DEPENDENCY_NOT_READY:source:src_bendibao_xisi_night",
+        "DEPENDENCY_NOT_READY:source:src_kfgov_night_market_kiosk",
+        "DEPENDENCY_NOT_READY:source:src_search_night_market_20261023"
+      ]
+    },
+    {
+      "kind": "place",
+      "id": "place_laoheda_night_market",
+      "ready": false,
+      "issues": [
+        "UNVERIFIED",
+        "RIGHTS_NOT_CONFIRMED",
+        "OUTSIDE_VALIDITY_OR_UNKNOWN",
+        "LOCATION_UNKNOWN",
+        "DEPENDENCY_NOT_READY:source:src_kfgov_night_market_kiosk",
+        "DEPENDENCY_NOT_READY:source:src_search_night_market_20261023"
+      ]
+    },
+    {
+      "kind": "place",
+      "id": "place_xiaosongcheng",
+      "ready": false,
+      "issues": [
+        "UNVERIFIED",
+        "RIGHTS_NOT_CONFIRMED",
+        "OUTSIDE_VALIDITY_OR_UNKNOWN",
+        "LOCATION_UNKNOWN",
+        "DEPENDENCY_NOT_READY:source:src_search_xiaosong_20261023"
+      ]
+    },
+    {
+      "kind": "place",
+      "id": "place_shudianjie_night_market",
+      "ready": false,
+      "issues": [
+        "UNVERIFIED",
+        "RIGHTS_NOT_CONFIRMED",
+        "OUTSIDE_VALIDITY_OR_UNKNOWN",
+        "LOCATION_UNKNOWN",
+        "DEPENDENCY_NOT_READY:source:src_search_night_market_20261023"
+      ]
+    },
+    {
+      "kind": "place",
+      "id": "place_huangjia_xisi",
+      "ready": false,
+      "issues": [
+        "UNVERIFIED",
+        "RIGHTS_NOT_CONFIRMED",
+        "OUTSIDE_VALIDITY_OR_UNKNOWN",
+        "LOCATION_UNKNOWN",
+        "DEPENDENCY_NOT_READY:source:src_search_huangjia_20261023"
+      ]
+    },
+    {
+      "kind": "place",
+      "id": "place_huangjia_dalianglu",
+      "ready": false,
+      "issues": [
+        "UNVERIFIED",
+        "RIGHTS_NOT_CONFIRMED",
+        "OUTSIDE_VALIDITY_OR_UNKNOWN",
+        "LOCATION_UNKNOWN",
+        "DEPENDENCY_NOT_READY:source:src_search_huangjia_20261023"
+      ]
+    },
+    {
+      "kind": "place",
+      "id": "place_huangjia_jinanlu",
+      "ready": false,
+      "issues": [
+        "UNVERIFIED",
+        "RIGHTS_NOT_CONFIRMED",
+        "OUTSIDE_VALIDITY_OR_UNKNOWN",
+        "LOCATION_UNKNOWN",
+        "DEPENDENCY_NOT_READY:source:src_search_huangjia_20261023"
+      ]
+    },
+    {
+      "kind": "place",
+      "id": "place_huangjia_zhongshanlu",
+      "ready": false,
+      "issues": [
+        "UNVERIFIED",
+        "RIGHTS_NOT_CONFIRMED",
+        "OUTSIDE_VALIDITY_OR_UNKNOWN",
+        "LOCATION_UNKNOWN",
+        "DEPENDENCY_NOT_READY:source:src_search_huangjia_20261023"
+      ]
+    },
+    {
+      "kind": "place",
+      "id": "place_huangjia_gulou_shifang",
+      "ready": false,
+      "issues": [
+        "UNVERIFIED",
+        "RIGHTS_NOT_CONFIRMED",
+        "OUTSIDE_VALIDITY_OR_UNKNOWN",
+        "LOCATION_UNKNOWN",
+        "DEPENDENCY_NOT_READY:source:src_search_huangjia_20261023"
+      ]
+    },
+    {
+      "kind": "place",
+      "id": "place_xingjia_daliangmen",
+      "ready": false,
+      "issues": [
+        "UNVERIFIED",
+        "RIGHTS_NOT_CONFIRMED",
+        "OUTSIDE_VALIDITY_OR_UNKNOWN",
+        "LOCATION_UNKNOWN",
+        "DEPENDENCY_NOT_READY:source:src_search_xingjia_20261023"
+      ]
+    },
+    {
+      "kind": "place",
+      "id": "place_xingjia_jinmingguangchang",
+      "ready": false,
+      "issues": [
+        "UNVERIFIED",
+        "RIGHTS_NOT_CONFIRMED",
+        "OUTSIDE_VALIDITY_OR_UNKNOWN",
+        "LOCATION_UNKNOWN",
+        "DEPENDENCY_NOT_READY:source:src_search_xingjia_20261023"
+      ]
+    },
+    {
+      "kind": "place",
+      "id": "place_heyuan_hanxing",
+      "ready": false,
+      "issues": [
+        "UNVERIFIED",
+        "RIGHTS_NOT_CONFIRMED",
+        "OUTSIDE_VALIDITY_OR_UNKNOWN",
+        "LOCATION_UNKNOWN",
+        "DEPENDENCY_NOT_READY:source:src_search_heyuan_20261023"
+      ]
+    },
+    {
+      "kind": "place",
+      "id": "place_heyuan_jinxiang",
+      "ready": false,
+      "issues": [
+        "UNVERIFIED",
+        "RIGHTS_NOT_CONFIRMED",
+        "OUTSIDE_VALIDITY_OR_UNKNOWN",
+        "LOCATION_UNKNOWN",
+        "DEPENDENCY_NOT_READY:source:src_search_heyuan_20261023"
+      ]
+    },
+    {
+      "kind": "place",
+      "id": "place_heyuan_dingli",
+      "ready": false,
+      "issues": [
+        "UNVERIFIED",
+        "RIGHTS_NOT_CONFIRMED",
+        "OUTSIDE_VALIDITY_OR_UNKNOWN",
+        "LOCATION_UNKNOWN",
+        "DEPENDENCY_NOT_READY:source:src_search_heyuan_20261023"
+      ]
+    },
+    {
+      "kind": "place",
+      "id": "place_louzhonglou_xiaosong",
+      "ready": false,
+      "issues": [
+        "UNVERIFIED",
+        "RIGHTS_NOT_CONFIRMED",
+        "OUTSIDE_VALIDITY_OR_UNKNOWN",
+        "LOCATION_UNKNOWN",
+        "DEPENDENCY_NOT_READY:source:src_search_louzhonglou_20261023"
+      ]
+    },
+    {
+      "kind": "place",
+      "id": "place_diyilou_sihou",
+      "ready": false,
+      "issues": [
+        "UNVERIFIED",
+        "RIGHTS_NOT_CONFIRMED",
+        "OUTSIDE_VALIDITY_OR_UNKNOWN",
+        "LOCATION_UNKNOWN",
+        "DEPENDENCY_NOT_READY:source:src_gulou_food_guide"
+      ]
+    },
+    {
+      "kind": "food",
+      "id": "food_guantangbao",
+      "ready": false,
+      "issues": [
+        "UNVERIFIED",
+        "RIGHTS_NOT_CONFIRMED",
+        "OUTSIDE_VALIDITY_OR_UNKNOWN",
+        "DEPENDENCY_NOT_READY:source:src_gulou_food_guide",
+        "DEPENDENCY_NOT_READY:source:src_search_food_kaifeng_snacks_20261023"
+      ]
+    },
+    {
+      "kind": "food",
+      "id": "food_siweicai",
+      "ready": false,
+      "issues": [
+        "UNVERIFIED",
+        "RIGHTS_NOT_CONFIRMED",
+        "OUTSIDE_VALIDITY_OR_UNKNOWN",
+        "DEPENDENCY_NOT_READY:source:src_gulou_food_guide",
+        "DEPENDENCY_NOT_READY:source:src_search_food_siwei_20261023"
+      ]
+    },
+    {
+      "kind": "food",
+      "id": "food_liyu_beimian",
+      "ready": false,
+      "issues": [
+        "UNVERIFIED",
+        "RIGHTS_NOT_CONFIRMED",
+        "OUTSIDE_VALIDITY_OR_UNKNOWN",
+        "DEPENDENCY_NOT_READY:source:src_gulou_food_guide",
+        "DEPENDENCY_NOT_READY:source:src_search_food_kaifeng_snacks_20261023"
+      ]
+    },
+    {
+      "kind": "food",
+      "id": "food_tongziji",
+      "ready": false,
+      "issues": [
+        "UNVERIFIED",
+        "RIGHTS_NOT_CONFIRMED",
+        "OUTSIDE_VALIDITY_OR_UNKNOWN",
+        "DEPENDENCY_NOT_READY:source:src_gulou_food_guide",
+        "DEPENDENCY_NOT_READY:source:src_search_food_kaifeng_snacks_20261023"
+      ]
+    },
+    {
+      "kind": "food",
+      "id": "food_chaoliangfen",
+      "ready": false,
+      "issues": [
+        "UNVERIFIED",
+        "RIGHTS_NOT_CONFIRMED",
+        "OUTSIDE_VALIDITY_OR_UNKNOWN",
+        "DEPENDENCY_NOT_READY:source:src_search_food_kaifeng_snacks_20261023"
+      ]
+    },
+    {
+      "kind": "food",
+      "id": "food_yangrou_kangmo",
+      "ready": false,
+      "issues": [
+        "UNVERIFIED",
+        "RIGHTS_NOT_CONFIRMED",
+        "OUTSIDE_VALIDITY_OR_UNKNOWN",
+        "DEPENDENCY_NOT_READY:source:src_search_louzhonglou_20261023",
+        "DEPENDENCY_NOT_READY:source:src_search_xingjia_20261023"
+      ]
+    },
+    {
+      "kind": "food",
+      "id": "food_xingrencha",
+      "ready": false,
+      "issues": [
+        "UNVERIFIED",
+        "RIGHTS_NOT_CONFIRMED",
+        "OUTSIDE_VALIDITY_OR_UNKNOWN",
+        "DEPENDENCY_NOT_READY:source:src_search_huangjia_20261023",
+        "DEPENDENCY_NOT_READY:source:src_search_louzhonglou_20261023"
+      ]
+    },
+    {
+      "kind": "source",
+      "id": "src_bendibao_kfsbwg_address",
+      "ready": false,
+      "issues": [
+        "UNVERIFIED",
+        "RIGHTS_NOT_CONFIRMED",
+        "OUTSIDE_VALIDITY_OR_UNKNOWN"
+      ]
+    },
+    {
+      "kind": "source",
+      "id": "src_bendibao_kfsbwg_intro",
+      "ready": false,
+      "issues": [
+        "UNVERIFIED",
+        "RIGHTS_NOT_CONFIRMED",
+        "OUTSIDE_VALIDITY_OR_UNKNOWN"
+      ]
+    },
+    {
+      "kind": "source",
+      "id": "src_bendibao_library_hours",
+      "ready": false,
+      "issues": [
+        "UNVERIFIED",
+        "RIGHTS_NOT_CONFIRMED",
+        "OUTSIDE_VALIDITY_OR_UNKNOWN"
+      ]
+    },
+    {
+      "kind": "source",
+      "id": "src_bendibao_xisi_night",
+      "ready": false,
+      "issues": [
+        "UNVERIFIED",
+        "RIGHTS_NOT_CONFIRMED",
+        "OUTSIDE_VALIDITY_OR_UNKNOWN"
+      ]
+    },
+    {
+      "kind": "source",
+      "id": "src_gulou_food_guide",
+      "ready": false,
+      "issues": [
+        "UNVERIFIED",
+        "RIGHTS_NOT_CONFIRMED",
+        "OUTSIDE_VALIDITY_OR_UNKNOWN"
+      ]
+    },
+    {
+      "kind": "source",
+      "id": "src_gulou_night_market",
+      "ready": false,
+      "issues": [
+        "UNVERIFIED",
+        "RIGHTS_NOT_CONFIRMED",
+        "OUTSIDE_VALIDITY_OR_UNKNOWN"
+      ]
+    },
+    {
+      "kind": "source",
+      "id": "src_gulou_shudianjie",
+      "ready": false,
+      "issues": [
+        "UNVERIFIED",
+        "RIGHTS_NOT_CONFIRMED",
+        "OUTSIDE_VALIDITY_OR_UNKNOWN"
+      ]
+    },
+    {
+      "kind": "source",
+      "id": "src_kaifeng_gov_street_tour",
+      "ready": false,
+      "issues": [
+        "UNVERIFIED",
+        "RIGHTS_NOT_CONFIRMED",
+        "OUTSIDE_VALIDITY_OR_UNKNOWN"
+      ]
+    },
+    {
+      "kind": "source",
+      "id": "src_kfgov_night_market_kiosk",
+      "ready": false,
+      "issues": [
+        "UNVERIFIED",
+        "RIGHTS_NOT_CONFIRMED",
+        "OUTSIDE_VALIDITY_OR_UNKNOWN"
+      ]
+    },
+    {
+      "kind": "source",
+      "id": "src_kfgov_night_market_plan_2020",
+      "ready": false,
+      "issues": [
+        "UNVERIFIED",
+        "RIGHTS_NOT_CONFIRMED",
+        "OUTSIDE_VALIDITY_OR_UNKNOWN"
+      ]
+    },
+    {
+      "kind": "source",
+      "id": "src_kfsbwg_tips_openinfo",
+      "ready": false,
+      "issues": [
+        "UNVERIFIED",
+        "RIGHTS_NOT_CONFIRMED",
+        "OUTSIDE_VALIDITY_OR_UNKNOWN"
+      ]
+    },
+    {
+      "kind": "source",
+      "id": "src_kfsfq_culture_directory",
+      "ready": false,
+      "issues": [
+        "UNVERIFIED",
+        "RIGHTS_NOT_CONFIRMED",
+        "OUTSIDE_VALIDITY_OR_UNKNOWN"
+      ]
+    },
+    {
+      "kind": "source",
+      "id": "src_kfsfq_museum_directory",
+      "ready": false,
+      "issues": [
+        "UNVERIFIED",
+        "RIGHTS_NOT_CONFIRMED",
+        "OUTSIDE_VALIDITY_OR_UNKNOWN"
+      ]
+    },
+    {
+      "kind": "source",
+      "id": "src_search_baogongci_20261023",
+      "ready": false,
+      "issues": [
+        "UNVERIFIED",
+        "RIGHTS_NOT_CONFIRMED",
+        "OUTSIDE_VALIDITY_OR_UNKNOWN"
+      ]
+    },
+    {
+      "kind": "source",
+      "id": "src_search_food_kaifeng_snacks_20261023",
+      "ready": false,
+      "issues": [
+        "UNVERIFIED",
+        "RIGHTS_NOT_CONFIRMED",
+        "OUTSIDE_VALIDITY_OR_UNKNOWN"
+      ]
+    },
+    {
+      "kind": "source",
+      "id": "src_search_food_siwei_20261023",
+      "ready": false,
+      "issues": [
+        "UNVERIFIED",
+        "RIGHTS_NOT_CONFIRMED",
+        "OUTSIDE_VALIDITY_OR_UNKNOWN"
+      ]
+    },
+    {
+      "kind": "source",
+      "id": "src_search_heyuan_20261023",
+      "ready": false,
+      "issues": [
+        "UNVERIFIED",
+        "RIGHTS_NOT_CONFIRMED",
+        "OUTSIDE_VALIDITY_OR_UNKNOWN"
+      ]
+    },
+    {
+      "kind": "source",
+      "id": "src_search_huangjia_20261023",
+      "ready": false,
+      "issues": [
+        "UNVERIFIED",
+        "RIGHTS_NOT_CONFIRMED",
+        "OUTSIDE_VALIDITY_OR_UNKNOWN"
+      ]
+    },
+    {
+      "kind": "source",
+      "id": "src_search_louzhonglou_20261023",
+      "ready": false,
+      "issues": [
+        "UNVERIFIED",
+        "RIGHTS_NOT_CONFIRMED",
+        "OUTSIDE_VALIDITY_OR_UNKNOWN"
+      ]
+    },
+    {
+      "kind": "source",
+      "id": "src_search_night_market_20261023",
+      "ready": false,
+      "issues": [
+        "UNVERIFIED",
+        "RIGHTS_NOT_CONFIRMED",
+        "OUTSIDE_VALIDITY_OR_UNKNOWN"
+      ]
+    },
+    {
+      "kind": "source",
+      "id": "src_search_shanshangan_20261023",
+      "ready": false,
+      "issues": [
+        "UNVERIFIED",
+        "RIGHTS_NOT_CONFIRMED",
+        "OUTSIDE_VALIDITY_OR_UNKNOWN"
+      ]
+    },
+    {
+      "kind": "source",
+      "id": "src_search_xiaosong_20261023",
+      "ready": false,
+      "issues": [
+        "UNVERIFIED",
+        "RIGHTS_NOT_CONFIRMED",
+        "OUTSIDE_VALIDITY_OR_UNKNOWN"
+      ]
+    },
+    {
+      "kind": "source",
+      "id": "src_search_xingjia_20261023",
+      "ready": false,
+      "issues": [
+        "UNVERIFIED",
+        "RIGHTS_NOT_CONFIRMED",
+        "OUTSIDE_VALIDITY_OR_UNKNOWN"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,29 @@
+{
+  "schema_version": "kaifeng-media/1",
+  "generated_at": "2026-10-23T19:03:02+08:00",
+  "assets": [
+    {
+      "media_id": "media_qm_program_text",
+      "asset_type": "text",
+      "title": "清明上河园节目表",
+      "url": "http://www.qmsyun.com/Mobile_page/o_program.php",
+      "publisher": "清明上河园",
+      "rights_status": "unknown",
+      "usage_decision": "link_only",
+      "source_id": "src_qmsyun_program_20261023",
+      "note": "可用于内部研究；不得直接把网页图片/文案用于商用宣传"
+    },
+    {
+      "media_id": "media_wall_weimeng",
+      "asset_type": "text",
+      "title": "微梦大梁门介绍与演出时段",
+      "url": "http://www.kfcqjq.com/www/weimeng/index.html",
+      "publisher": "开封市宋都城墙景区",
+      "rights_status": "unknown",
+      "usage_decision": "link_only",
+      "source_id": "src_kfcqjq_weimeng_20261023",
+      "note": "未保存本批原始响应；演出时段无适用日期，不能当营业规则"
+    }
+  ],
+  "notice": "网页可访问不等于获得图片/导览图商用授权。基础素材需自拍或书面授权。"
+}

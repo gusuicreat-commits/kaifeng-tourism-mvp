@@ -1,0 +1,40 @@
+{
+  "status": "dry_run",
+  "received": 188,
+  "changed": 188,
+  "unchanged": 0,
+  "all_records_ready": false,
+  "ready_count": 0,
+  "record_kinds": {
+    "entrance": 4,
+    "food": 4,
+    "place": 9,
+    "program": 154,
+    "source": 17
+  },
+  "issue_counts": {
+    "OUTSIDE_VALIDITY_OR_UNKNOWN": 188,
+    "RIGHTS_NOT_CONFIRMED": 188,
+    "UNVERIFIED": 188,
+    "DEPENDENCY_NOT_READY:source:src_qmsyun_program_20261023": 161,
+    "LOCATION_UNKNOWN": 9,
+    "DEPENDENCY_NOT_READY:source:src_qmsyun_architecture_20261023": 7,
+    "DEPENDENCY_NOT_READY:place:qingming": 6,
+    "DEPENDENCY_NOT_READY:source:src_qmsyun_gate_channels_20261023": 6,
+    "DEPENDENCY_NOT_READY:source:src_diyilou_mingcai_20261023": 4,
+    "DEPENDENCY_NOT_READY:source:src_qmsyun_song_banquet_20261023": 4,
+    "DEPENDENCY_NOT_READY:source:src_kf_wall_entrances_20260813": 3,
+    "DEPENDENCY_NOT_READY:source:src_kfwt_wall_2022_20261023": 3,
+    "DEPENDENCY_NOT_READY:place:wall_daliang_scenic": 2,
+    "DEPENDENCY_NOT_READY:source:src_kaifeng_bus_2022_20261023": 2,
+    "DEPENDENCY_NOT_READY:source:src_kf_wall_closure_20260104": 2,
+    "DEPENDENCY_NOT_READY:place:qm_gate_duan": 1,
+    "DEPENDENCY_NOT_READY:place:qm_gate_jinshui": 1,
+    "DEPENDENCY_NOT_READY:place:qm_gate_yingbin": 1,
+    "DEPENDENCY_NOT_READY:place:wall_daliang": 1,
+    "DEPENDENCY_NOT_READY:source:src_diyilou_home_20261023": 1,
+    "DEPENDENCY_NOT_READY:source:src_kaifeng_gov_diyilou_20261023": 1,
+    "DEPENDENCY_NOT_READY:source:src_qunar_diyilou_20261023": 1
+  },
+  "note": "逐条校验结果保存在 city-facts-dry-run.json；此文件仅提供汇总，便于人工审阅。"
+}

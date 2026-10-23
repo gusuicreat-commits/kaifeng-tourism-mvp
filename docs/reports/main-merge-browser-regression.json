@@ -1,0 +1,3417 @@
+{
+  "config": {
+    "argv": [
+      "/Users/mac/.local/share/nodejs/node-v26.3.0-darwin-arm64/bin/node",
+      "/Users/mac/Desktop/大挑/kaifeng-main-merge-stage-20261023-161200/frontend/node_modules/.bin/playwright",
+      "test",
+      "--reporter=list,json"
+    ],
+    "configFile": "/Users/mac/Desktop/大挑/kaifeng-main-merge-stage-20261023-161200/frontend/playwright.config.ts",
+    "rootDir": "/Users/mac/Desktop/大挑/kaifeng-main-merge-stage-20261023-161200/frontend/tests",
+    "failOnFlakyTests": false,
+    "forbidOnly": false,
+    "fullyParallel": false,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "actualWorkers": 1
+    },
+    "preserveOutput": "always",
+    "projects": [
+      {
+        "outputDir": "/Users/mac/Desktop/大挑/kaifeng-main-merge-stage-20261023-161200/.test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "",
+        "name": "",
+        "testDir": "/Users/mac/Desktop/大挑/kaifeng-main-merge-stage-20261023-161200/frontend/tests",
+        "testIgnore": [
+          "agent-v3.spec.ts",
+          "assistant-reference.spec.ts"
+        ],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 30000
+      }
+    ],
+    "filteredProjects": [
+      {
+        "grep": {},
+        "grepInvert": null,
+        "outputDir": "/Users/mac/Desktop/大挑/kaifeng-main-merge-stage-20261023-161200/.test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "name": "",
+        "testDir": "/Users/mac/Desktop/大挑/kaifeng-main-merge-stage-20261023-161200/frontend/tests",
+        "snapshotDir": "/Users/mac/Desktop/大挑/kaifeng-main-merge-stage-20261023-161200/frontend/tests",
+        "testIgnore": [
+          "agent-v3.spec.ts",
+          "assistant-reference.spec.ts"
+        ],
+        "testMatch": "**/*.@(spec|test).?(c|m)[jt]s?(x)",
+        "timeout": 30000,
+        "use": {
+          "baseURL": "http://127.0.0.1:8051",
+          "viewport": {
+            "width": 1440,
+            "height": 1000
+          },
+          "headless": true,
+          "launchOptions": {
+            "args": [
+              "--use-fake-ui-for-media-stream",
+              "--use-fake-device-for-media-stream"
+            ],
+            "executablePath": "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome"
+          }
+        },
+        "dependencies": [],
+        "ignoreSnapshots": false,
+        "__projectId": ""
+      }
+    ],
+    "quiet": false,
+    "reporter": [
+      [
+        "list"
+      ],
+      [
+        "json"
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "shard": null,
+    "tags": [],
+    "updateSnapshots": "default",
+    "updateSourceMethod": "patch",
+    "version": "1.64.1",
+    "workers": 1,
+    "webServer": {
+      "command": "../.venv/bin/python ../scripts/browser_server.py",
+      "url": "http://127.0.0.1:8051/api/health",
+      "reuseExistingServer": false,
+      "timeout": 20000
+    }
+  },
+  "suites": [
+    {
+      "title": "algorithms.spec.ts",
+      "file": "algorithms.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "日期分钟进入实际求解，地图与行程刷新保持同一结果",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1049,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-23T08:24:21.629Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "2948b0f313179efa5504-bac50a4a9018ac21232f",
+          "file": "algorithms.spec.ts",
+          "line": 4,
+          "column": 1
+        },
+        {
+          "title": "自然语言只产生待确认建议，服务失败仍能选择回答",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1012,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-23T08:24:23.403Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "2948b0f313179efa5504-84a7cc1601762e05024b",
+          "file": "algorithms.spec.ts",
+          "line": 18,
+          "column": 1
+        }
+      ]
+    },
+    {
+      "title": "amap-map.spec.ts",
+      "file": "amap-map.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "375px: formal markers, next/completed/locked, unknown points omitted, three real map views",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 330,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-23T08:24:24.433Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "d4a87de9451731925e17-16bc8780796079b493dd",
+          "file": "amap-map.spec.ts",
+          "line": 34,
+          "column": 1
+        },
+        {
+          "title": "single active geolocation, coordinates/accuracy/source and route plugins, no automatic persistence",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1394,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-23T08:24:24.768Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "d4a87de9451731925e17-61dd37835c1693312a47",
+          "file": "amap-map.spec.ts",
+          "line": 53,
+          "column": 1
+        },
+        {
+          "title": "permission denied then manual map click requires explicit confirmation",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1217,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-23T08:24:26.171Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "d4a87de9451731925e17-6c86d73c5b39b4fed607",
+          "file": "amap-map.spec.ts",
+          "line": 73,
+          "column": 1
+        },
+        {
+          "title": "coarse IP never becomes precise GPS or a usable route origin",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 350,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-23T08:24:27.401Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "d4a87de9451731925e17-aad4439426e608d65db7",
+          "file": "amap-map.spec.ts",
+          "line": 85,
+          "column": 1
+        },
+        {
+          "title": "no JS key: graceful fallback, known-place search still usable",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 190,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-23T08:24:27.769Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "d4a87de9451731925e17-08bb8f25f2d3bed31531",
+          "file": "amap-map.spec.ts",
+          "line": 92,
+          "column": 1
+        },
+        {
+          "title": "route failure and stale delayed response cannot replace changed destination",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 2643,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-23T08:24:27.966Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "d4a87de9451731925e17-5dec00969395174a1631",
+          "file": "amap-map.spec.ts",
+          "line": 99,
+          "column": 1
+        },
+        {
+          "title": "unavailable route clears query state",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1695,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-23T08:24:30.615Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "d4a87de9451731925e17-e28c5c8212c519b4f92b",
+          "file": "amap-map.spec.ts",
+          "line": 109,
+          "column": 1
+        },
+        {
+          "title": "REAL SDK: online city tiles and at most three plugin queries (explicit opt-in)",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [
+                {
+                  "type": "skip",
+                  "description": "真实在线验收只显式运行",
+                  "location": {
+                    "file": "/Users/mac/Desktop/大挑/kaifeng-main-merge-stage-20261023-161200/frontend/tests/amap-map.spec.ts",
+                    "line": 114,
+                    "column": 7
+                  }
+                }
+              ],
+              "expectedStatus": "skipped",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "skipped",
+                  "duration": 129,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-23T08:24:32.325Z",
+                  "annotations": [
+                    {
+                      "type": "skip",
+                      "description": "真实在线验收只显式运行",
+                      "location": {
+                        "file": "/Users/mac/Desktop/大挑/kaifeng-main-merge-stage-20261023-161200/frontend/tests/amap-map.spec.ts",
+                        "line": 114,
+                        "column": 7
+                      }
+                    }
+                  ],
+                  "attachments": []
+                }
+              ],
+              "status": "skipped"
+            }
+          ],
+          "id": "d4a87de9451731925e17-bfd165bc2866c7c5eb87",
+          "file": "amap-map.spec.ts",
+          "line": 113,
+          "column": 1
+        },
+        {
+          "title": "formal state utilities reject stale, wrong-version, demo, cancelled and unsupported coordinates",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-23T08:24:32.465Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "d4a87de9451731925e17-425d013fe435ac4c5fe8",
+          "file": "amap-map.spec.ts",
+          "line": 160,
+          "column": 1
+        },
+        {
+          "title": "ongoing activity stored outside remaining activities is visible and next stays distinct",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 0,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-23T08:24:32.470Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "d4a87de9451731925e17-42488a41f1d3e98f0153",
+          "file": "amap-map.spec.ts",
+          "line": 168,
+          "column": 1
+        },
+        {
+          "title": "position freshness, coarse accuracy, coordinate conversion and navigation encoding boundaries",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 3,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-23T08:24:32.474Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "d4a87de9451731925e17-46196f40109ccae5939b",
+          "file": "amap-map.spec.ts",
+          "line": 175,
+          "column": 1
+        },
+        {
+          "title": "SDK network failure remains recoverable without duplicate scripts or automatic location",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 311,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-23T08:24:32.480Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "d4a87de9451731925e17-bdd5348b16ef670fbbc7",
+          "file": "amap-map.spec.ts",
+          "line": 189,
+          "column": 1
+        },
+        {
+          "title": "only explicit known-place save uses existing CAS API; temporary coordinates are absent",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 342,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-23T08:24:32.797Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "d4a87de9451731925e17-2878b449898569fd9273",
+          "file": "amap-map.spec.ts",
+          "line": 196,
+          "column": 1
+        }
+      ]
+    },
+    {
+      "title": "assistant-dialogue.spec.ts",
+      "file": "assistant-dialogue.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "书笺聊天独立滚动，翻旧记录保留位置且输入区不被遮挡",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 615,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-23T08:24:33.153Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "c23a8c4e8ec0c018b2a4-fa4e7f8af534dcdd6549",
+          "file": "assistant-dialogue.spec.ts",
+          "line": 3,
+          "column": 1
+        },
+        {
+          "title": "同地往返话语进入现有规划表单，刷新后仍保留两个地点意向",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 402,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-23T08:24:33.772Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "c23a8c4e8ec0c018b2a4-5c8baf56475d63c79bc8",
+          "file": "assistant-dialogue.spec.ts",
+          "line": 42,
+          "column": 1
+        },
+        {
+          "title": "手机连续问答走对话分支，刷新恢复且不改写规划条件",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 569,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-23T08:24:34.180Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "c23a8c4e8ec0c018b2a4-e307a5680faff69adfa4",
+          "file": "assistant-dialogue.spec.ts",
+          "line": 57,
+          "column": 1
+        },
+        {
+          "title": "首次模型等待到时继续，不重复提交或提前终止",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 541,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-23T08:24:34.754Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "c23a8c4e8ec0c018b2a4-dae4e1dc98660eb798a5",
+          "file": "assistant-dialogue.spec.ts",
+          "line": 89,
+          "column": 34
+        },
+        {
+          "title": "首次模型等待可以取消，不重复提交或提前终止",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 804,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-23T08:24:35.300Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "c23a8c4e8ec0c018b2a4-b6a93e7f4e43387644b3",
+          "file": "assistant-dialogue.spec.ts",
+          "line": 89,
+          "column": 34
+        }
+      ]
+    },
+    {
+      "title": "city-state.spec.ts",
+      "file": "city-state.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "城市安排：没有事实数据时仍可保存日期和时间，刷新后不丢失",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 362,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-23T08:24:36.125Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "df232d6036615a902b72-448247ec3c6952ad4b68",
+          "file": "city-state.spec.ts",
+          "line": 26,
+          "column": 1
+        },
+        {
+          "title": "城市安排：保存后刷新恢复，记录页与导出读取同一行程",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 5459,
+                  "error": {
+                    "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByRole('link', { name: '继续城市安排', exact: true })\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" getByRole('link', { name: '继续城市安排', exact: true }) with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('link', { name: '继续城市安排', exact: true })\u001b[22m\n",
+                    "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByRole('link', { name: '继续城市安排', exact: true })\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" getByRole('link', { name: '继续城市安排', exact: true }) with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('link', { name: '继续城市安排', exact: true })\u001b[22m\n\n    at /Users/mac/Desktop/大挑/kaifeng-main-merge-stage-20261023-161200/frontend/tests/city-state.spec.ts:48:66",
+                    "location": {
+                      "file": "/Users/mac/Desktop/大挑/kaifeng-main-merge-stage-20261023-161200/frontend/tests/city-state.spec.ts",
+                      "column": 66,
+                      "line": 48
+                    },
+                    "snippet": "  46 |  expect(trip.readiness.planning_available).toBe(false)\n  47 |  await page.getByRole('link',{name:'返回游览记录',exact:true}).click()\n> 48 |  await expect(page.getByRole('link',{name:'继续城市安排',exact:true})).toBeVisible()\n     |                                                                  ^\n  49 |  const exported=await (await page.request.get('/api/v1/memory/export')).json()\n  50 |  expect(exported.city_trips[0].id).toBe(trip.id)\n  51 |  expect(exported.city_trips[0].draft.dish_interest_ids).toEqual(['test:food'])"
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "/Users/mac/Desktop/大挑/kaifeng-main-merge-stage-20261023-161200/frontend/tests/city-state.spec.ts",
+                        "column": 66,
+                        "line": 48
+                      },
+                      "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByRole('link', { name: '继续城市安排', exact: true })\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" getByRole('link', { name: '继续城市安排', exact: true }) with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('link', { name: '继续城市安排', exact: true })\u001b[22m\n\n\n  46 |  expect(trip.readiness.planning_available).toBe(false)\n  47 |  await page.getByRole('link',{name:'返回游览记录',exact:true}).click()\n> 48 |  await expect(page.getByRole('link',{name:'继续城市安排',exact:true})).toBeVisible()\n     |                                                                  ^\n  49 |  const exported=await (await page.request.get('/api/v1/memory/export')).json()\n  50 |  expect(exported.city_trips[0].id).toBe(trip.id)\n  51 |  expect(exported.city_trips[0].draft.dish_interest_ids).toEqual(['test:food'])\n    at /Users/mac/Desktop/大挑/kaifeng-main-merge-stage-20261023-161200/frontend/tests/city-state.spec.ts:48:66"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-23T08:24:36.491Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "/Users/mac/Desktop/大挑/kaifeng-main-merge-stage-20261023-161200/.test-results/city-state-城市安排：保存后刷新恢复，记录页与导出读取同一行程/error-context.md"
+                    }
+                  ],
+                  "errorLocation": {
+                    "file": "/Users/mac/Desktop/大挑/kaifeng-main-merge-stage-20261023-161200/frontend/tests/city-state.spec.ts",
+                    "column": 66,
+                    "line": 48
+                  }
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "df232d6036615a902b72-714ae6db62d5936642a9",
+          "file": "city-state.spec.ts",
+          "line": 38,
+          "column": 1
+        },
+        {
+          "title": "城市安排：删除必看演出先展示影响，确认前不改变保存版本",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 666,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-23T08:24:42.314Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "df232d6036615a902b72-d1ff20a03b4d20f2d4b3",
+          "file": "city-state.spec.ts",
+          "line": 54,
+          "column": 1
+        },
+        {
+          "title": "城市安排：旧标签页不能覆盖另一标签页的新版本",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 626,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-23T08:24:43.323Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "df232d6036615a902b72-d1a7e06490e0c3e49804",
+          "file": "city-state.spec.ts",
+          "line": 73,
+          "column": 1
+        },
+        {
+          "title": "城市安排：删除清除另一标签页的草稿与服务端所有城市对象",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 496,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-23T08:24:43.957Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "df232d6036615a902b72-8fdd5135db38cddcc78d",
+          "file": "city-state.spec.ts",
+          "line": 84,
+          "column": 1
+        },
+        {
+          "title": "城市安排：320px 可操作，完成记录和手动当前位置可以恢复",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 816,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-23T08:24:44.461Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "df232d6036615a902b72-cbbc9db25e6ee69f5946",
+          "file": "city-state.spec.ts",
+          "line": 95,
+          "column": 1
+        }
+      ]
+    },
+    {
+      "title": "detail-basket.spec.ts",
+      "file": "detail-basket.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "景区和美食详情展示媒体占位，商家骨架不伪造名称地址或播放按钮",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1039,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-23T08:24:45.294Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "f1c4dec054093a32e847-b547bdd3924ef33f248f",
+          "file": "detail-basket.spec.ts",
+          "line": 3,
+          "column": 1
+        },
+        {
+          "title": "快捷加入跨页同步、优先级备注候补刷新、移除撤销且不改变正式路线",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 620,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-23T08:24:46.337Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "f1c4dec054093a32e847-5e3e2454c44c56c51c4d",
+          "file": "detail-basket.spec.ts",
+          "line": 18,
+          "column": 1
+        },
+        {
+          "title": "详情提问携带稳定对象引用，切换对象后不串话，素材篮规划缺数据诚实降级",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 577,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-23T08:24:46.964Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "f1c4dec054093a32e847-a2f969774c6ab77f91b9",
+          "file": "detail-basket.spec.ts",
+          "line": 35,
+          "column": 1
+        },
+        {
+          "title": "旧旅程和新旅程素材不混用，切换后刷新仍绑定所选旅程",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 529,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-23T08:24:47.547Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "f1c4dec054093a32e847-26e7a91d17ed42e56095",
+          "file": "detail-basket.spec.ts",
+          "line": 47,
+          "column": 1
+        },
+        {
+          "title": "当前旅程读取失败不另建旅程，条件初始化期间不能抢先规划",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 520,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-23T08:24:48.084Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "f1c4dec054093a32e847-308274d1f1d0d9045192",
+          "file": "detail-basket.spec.ts",
+          "line": 57,
+          "column": 1
+        },
+        {
+          "title": "手机从素材接着问缺项，同一输入框回答、逐步保存，刷新不重问",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 927,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-23T08:24:48.610Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "f1c4dec054093a32e847-456e6363beaeeb4a1ac5",
+          "file": "detail-basket.spec.ts",
+          "line": 72,
+          "column": 1
+        },
+        {
+          "title": "明确日期时段和节奏可以一次回答，无效时段不写入条件",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 628,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-23T08:24:49.544Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "f1c4dec054093a32e847-f80375c61a7a95f30f55",
+          "file": "detail-basket.spec.ts",
+          "line": 100,
+          "column": 1
+        },
+        {
+          "title": "没有素材时完整日期表达经过后端理解接上规划，等待初始化后保存",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 352,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-23T08:24:50.182Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "f1c4dec054093a32e847-06fb963b85c79934a517",
+          "file": "detail-basket.spec.ts",
+          "line": 117,
+          "column": 1
+        },
+        {
+          "title": "缺地点资料时可填写起终点，刷新保留且不生成正式路线",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1221,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-23T08:24:50.540Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "f1c4dec054093a32e847-50eca38ed103ceb55df1",
+          "file": "detail-basket.spec.ts",
+          "line": 131,
+          "column": 1
+        },
+        {
+          "title": "结构化规划输入必须属于当前旅程，相同版本也不能串写",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 357,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-23T08:24:51.769Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "f1c4dec054093a32e847-9597d4d40e0ec91f417b",
+          "file": "detail-basket.spec.ts",
+          "line": 169,
+          "column": 1
+        }
+      ]
+    },
+    {
+      "title": "flows.spec.ts",
+      "file": "flows.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "景区直达、详情点位、外部地图降级与手机导航",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 5659,
+                  "error": {
+                    "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByText('在高德地图查看位置和前往路线。')\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" getByText('在高德地图查看位置和前往路线。') with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByText('在高德地图查看位置和前往路线。')\u001b[22m\n",
+                    "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByText('在高德地图查看位置和前往路线。')\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" getByText('在高德地图查看位置和前往路线。') with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByText('在高德地图查看位置和前往路线。')\u001b[22m\n\n    at /Users/mac/Desktop/大挑/kaifeng-main-merge-stage-20261023-161200/frontend/tests/flows.spec.ts:19:50",
+                    "location": {
+                      "file": "/Users/mac/Desktop/大挑/kaifeng-main-merge-stage-20261023-161200/frontend/tests/flows.spec.ts",
+                      "column": 50,
+                      "line": 19
+                    },
+                    "snippet": "  17 |  await page.getByRole('button',{name:'重置地图'}).click()\n  18 |  await page.getByRole('button',{name:'外部位置地图',exact:true}).click()\n> 19 |  await expect(page.getByText('在高德地图查看位置和前往路线。')).toBeVisible()\n     |                                                  ^\n  20 |  await expect(page.getByRole('link',{name:'高德位置 / 前往路线'})).toHaveAttribute('href',/uri.amap.com\\/search/)\n  21 |  await page.goto('/');await page.setViewportSize({width:390,height:844});await noOverflow(page)\n  22 |  const nav=page.getByRole('navigation',{name:'主导航'})"
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "/Users/mac/Desktop/大挑/kaifeng-main-merge-stage-20261023-161200/frontend/tests/flows.spec.ts",
+                        "column": 50,
+                        "line": 19
+                      },
+                      "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByText('在高德地图查看位置和前往路线。')\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" getByText('在高德地图查看位置和前往路线。') with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByText('在高德地图查看位置和前往路线。')\u001b[22m\n\n\n  17 |  await page.getByRole('button',{name:'重置地图'}).click()\n  18 |  await page.getByRole('button',{name:'外部位置地图',exact:true}).click()\n> 19 |  await expect(page.getByText('在高德地图查看位置和前往路线。')).toBeVisible()\n     |                                                  ^\n  20 |  await expect(page.getByRole('link',{name:'高德位置 / 前往路线'})).toHaveAttribute('href',/uri.amap.com\\/search/)\n  21 |  await page.goto('/');await page.setViewportSize({width:390,height:844});await noOverflow(page)\n  22 |  const nav=page.getByRole('navigation',{name:'主导航'})\n    at /Users/mac/Desktop/大挑/kaifeng-main-merge-stage-20261023-161200/frontend/tests/flows.spec.ts:19:50"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-23T08:24:52.141Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "/Users/mac/Desktop/大挑/kaifeng-main-merge-stage-20261023-161200/.test-results/flows-景区直达、详情点位、外部地图降级与手机导航/error-context.md"
+                    }
+                  ],
+                  "errorLocation": {
+                    "file": "/Users/mac/Desktop/大挑/kaifeng-main-merge-stage-20261023-161200/frontend/tests/flows.spec.ts",
+                    "column": 50,
+                    "line": 19
+                  }
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "86d6a544053f1eb9f224-3c9954f517da6e0407ad",
+          "file": "flows.spec.ts",
+          "line": 6,
+          "column": 1
+        },
+        {
+          "title": "问答接入个性化规划、策略调整和持久化刷新",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 997,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-23T08:24:58.146Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "86d6a544053f1eb9f224-5e97a7a37004e621d681",
+          "file": "flows.spec.ts",
+          "line": 35,
+          "column": 1
+        },
+        {
+          "title": "客流融入问答、旧入口兼容、有数据与缺数据均可生成路线",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1750,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-23T08:24:59.534Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "86d6a544053f1eb9f224-782cc6a90e67abb59347",
+          "file": "flows.spec.ts",
+          "line": 59,
+          "column": 1
+        },
+        {
+          "title": "时间不足能返回修改、网络失败重试与窄屏布局",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1137,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-23T08:25:01.294Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "86d6a544053f1eb9f224-7c16f8c3b01173ba9791",
+          "file": "flows.spec.ts",
+          "line": 86,
+          "column": 1
+        }
+      ]
+    },
+    {
+      "title": "guide.spec.ts",
+      "file": "guide.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "景区地图默认没有模拟场次或热力，显式演示才出现示例路线",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 5183,
+                  "error": {
+                    "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByRole('img', { name: /宋风浅立体景区示意地图/ })\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" getByRole('img', { name: /宋风浅立体景区示意地图/ }) with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('img', { name: /宋风浅立体景区示意地图/ })\u001b[22m\n",
+                    "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByRole('img', { name: /宋风浅立体景区示意地图/ })\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" getByRole('img', { name: /宋风浅立体景区示意地图/ }) with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('img', { name: /宋风浅立体景区示意地图/ })\u001b[22m\n\n    at /Users/mac/Desktop/大挑/kaifeng-main-merge-stage-20261023-161200/frontend/tests/guide.spec.ts:3:99",
+                    "location": {
+                      "file": "/Users/mac/Desktop/大挑/kaifeng-main-merge-stage-20261023-161200/frontend/tests/guide.spec.ts",
+                      "column": 99,
+                      "line": 3
+                    },
+                    "snippet": "  1 | import {test,expect} from '@playwright/test'\n  2 | test('景区地图默认没有模拟场次或热力，显式演示才出现示例路线',async({page})=>{\n> 3 |  await page.goto('/guide?scenic=wansui');await expect(page.getByRole('img',{name:/宋风浅立体景区示意地图/})).toBeVisible()\n    |                                                                                                   ^\n  4 |  await expect(page.getByText('暂无当天可核验的完整场次')).toBeVisible();await expect(page.locator('.guide-crowd-halo')).toHaveCount(0)\n  5 |  await page.getByRole('button',{name:'查看模拟场次与路线交互演示'}).click();await expect(page.locator('.demo-mode-notice')).toContainText('模拟日程')\n  6 |  await page.getByRole('button',{name:'切换地图图层'}).click();await page.getByLabel('演出点位').uncheck()"
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "/Users/mac/Desktop/大挑/kaifeng-main-merge-stage-20261023-161200/frontend/tests/guide.spec.ts",
+                        "column": 99,
+                        "line": 3
+                      },
+                      "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByRole('img', { name: /宋风浅立体景区示意地图/ })\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" getByRole('img', { name: /宋风浅立体景区示意地图/ }) with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('img', { name: /宋风浅立体景区示意地图/ })\u001b[22m\n\n\n  1 | import {test,expect} from '@playwright/test'\n  2 | test('景区地图默认没有模拟场次或热力，显式演示才出现示例路线',async({page})=>{\n> 3 |  await page.goto('/guide?scenic=wansui');await expect(page.getByRole('img',{name:/宋风浅立体景区示意地图/})).toBeVisible()\n    |                                                                                                   ^\n  4 |  await expect(page.getByText('暂无当天可核验的完整场次')).toBeVisible();await expect(page.locator('.guide-crowd-halo')).toHaveCount(0)\n  5 |  await page.getByRole('button',{name:'查看模拟场次与路线交互演示'}).click();await expect(page.locator('.demo-mode-notice')).toContainText('模拟日程')\n  6 |  await page.getByRole('button',{name:'切换地图图层'}).click();await page.getByLabel('演出点位').uncheck()\n    at /Users/mac/Desktop/大挑/kaifeng-main-merge-stage-20261023-161200/frontend/tests/guide.spec.ts:3:99"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-23T08:25:02.446Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "/Users/mac/Desktop/大挑/kaifeng-main-merge-stage-20261023-161200/.test-results/guide-景区地图默认没有模拟场次或热力，显式演示才出现示例路线/error-context.md"
+                    }
+                  ],
+                  "errorLocation": {
+                    "file": "/Users/mac/Desktop/大挑/kaifeng-main-merge-stage-20261023-161200/frontend/tests/guide.spec.ts",
+                    "column": 99,
+                    "line": 3
+                  }
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "ae783375225fac93c986-5b3a91c744e8e863a3d6",
+          "file": "guide.spec.ts",
+          "line": 2,
+          "column": 1
+        },
+        {
+          "title": "地图与行程共享入口，小汴梁保留景区上下文",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 3,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 363,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-23T08:25:07.955Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "ae783375225fac93c986-a8b1deed93246687cedd",
+          "file": "guide.spec.ts",
+          "line": 11,
+          "column": 1
+        }
+      ]
+    },
+    {
+      "title": "home-display.spec.ts",
+      "file": "home-display.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "接口故障时基础探索可用，不显示虚假客流并允许重试",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 3,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 257,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-23T08:25:08.614Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "4bff73f2e8ecd8d59288-6d234c7178c9bc69014a",
+          "file": "home-display.spec.ts",
+          "line": 10,
+          "column": 1
+        },
+        {
+          "title": "手机两排独立滑动、搜索、九道菜图片及真实详情入口",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 3,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1984,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-23T08:25:08.878Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "4bff73f2e8ecd8d59288-d2db1c73a95d64e15c7d",
+          "file": "home-display.spec.ts",
+          "line": 16,
+          "column": 1
+        },
+        {
+          "title": "收藏、素材篮和行程各有归属，单纯收集素材不会生成可见行程",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 3,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 561,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-23T08:25:10.868Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "4bff73f2e8ecd8d59288-fdd96945a4d3bda18f99",
+          "file": "home-display.spec.ts",
+          "line": 31,
+          "column": 1
+        },
+        {
+          "title": "我的只展示收藏和往期记录，当前行程统一从底部进入",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 3,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 325,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-23T08:25:11.438Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "4bff73f2e8ecd8d59288-d0c7b229d3e82a1a4f93",
+          "file": "home-display.spec.ts",
+          "line": 44,
+          "column": 1
+        }
+      ]
+    },
+    {
+      "title": "interview.spec.ts",
+      "file": "interview.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "开场只追问缺项，跳过偏好后确认才计算，会话刷新不丢失",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 3,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 665,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-23T08:25:11.777Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "5e7cd2a6f7ac0afddfa8-556800c2916f9338b718",
+          "file": "interview.spec.ts",
+          "line": 4,
+          "column": 1
+        },
+        {
+          "title": "切换景区清除必去点，保留时间并重新询问地点",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 3,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 810,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-23T08:25:12.449Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "5e7cd2a6f7ac0afddfa8-b5b3a2e53d64b36f6e79",
+          "file": "interview.spec.ts",
+          "line": 31,
+          "column": 1
+        },
+        {
+          "title": "修改日期清除旧必看场次，不把旧日程沿用到新日期",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 3,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 690,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-23T08:25:13.265Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "5e7cd2a6f7ac0afddfa8-4b1346edfecc5c8302ca",
+          "file": "interview.spec.ts",
+          "line": 47,
+          "column": 1
+        },
+        {
+          "title": "路网失败阻止虚构路线，可重试恢复；无日程不承诺看演出",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 3,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 708,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-23T08:25:13.962Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "5e7cd2a6f7ac0afddfa8-5131dc3425ed36fad3a8",
+          "file": "interview.spec.ts",
+          "line": 62,
+          "column": 1
+        },
+        {
+          "title": "不同屏幕问答可用，未匹配的自然语言必去点必须重新核对",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 3,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 494,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-23T08:25:14.676Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "5e7cd2a6f7ac0afddfa8-c6c7ac9483ef8529244a",
+          "file": "interview.spec.ts",
+          "line": 75,
+          "column": 1
+        }
+      ]
+    },
+    {
+      "title": "itinerary-flow.spec.ts",
+      "file": "itinerary-flow.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "确认路线按起点、活动、分段交通和返程连接，手机及桌面可读",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 3,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 472,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-23T08:25:15.186Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "43a2fca8a7cbe1fd3f3b-1042366b19389206e81d",
+          "file": "itinerary-flow.spec.ts",
+          "line": 32,
+          "column": 1
+        },
+        {
+          "title": "重新规划保留完成记录和正在进行的活动，不把历史转场当新路段",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 3,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 202,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-23T08:25:15.664Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "43a2fca8a7cbe1fd3f3b-5f340e0f458673c286f3",
+          "file": "itinerary-flow.spec.ts",
+          "line": 58,
+          "column": 1
+        },
+        {
+          "title": "链式展示遵守unconfirmed资料状态",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 3,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 191,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-23T08:25:15.872Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "43a2fca8a7cbe1fd3f3b-e7bcad61b41f81724638",
+          "file": "itinerary-flow.spec.ts",
+          "line": 72,
+          "column": 84
+        },
+        {
+          "title": "链式展示遵守stale资料状态",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 3,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 179,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-23T08:25:16.069Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "43a2fca8a7cbe1fd3f3b-78788b66aeb3738e54d2",
+          "file": "itinerary-flow.spec.ts",
+          "line": 72,
+          "column": 84
+        },
+        {
+          "title": "链式展示遵守expired资料状态",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 3,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 197,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-23T08:25:16.253Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "43a2fca8a7cbe1fd3f3b-a04e81f7b32fc26c4165",
+          "file": "itinerary-flow.spec.ts",
+          "line": 72,
+          "column": 84
+        },
+        {
+          "title": "链式展示遵守wrong-version资料状态",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 3,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 181,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-23T08:25:16.453Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "43a2fca8a7cbe1fd3f3b-7d3b86dbfbd7d7d726b0",
+          "file": "itinerary-flow.spec.ts",
+          "line": 72,
+          "column": 84
+        },
+        {
+          "title": "链式展示遵守missing-leg资料状态",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 3,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 5182,
+                  "error": {
+                    "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: locator('.journey-flow')\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" locator('.journey-flow') with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for locator('.journey-flow')\u001b[22m\n",
+                    "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: locator('.journey-flow')\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" locator('.journey-flow') with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for locator('.journey-flow')\u001b[22m\n\n    at /Users/mac/Desktop/大挑/kaifeng-main-merge-stage-20261023-161200/frontend/tests/itinerary-flow.spec.ts:81:47",
+                    "location": {
+                      "file": "/Users/mac/Desktop/大挑/kaifeng-main-merge-stage-20261023-161200/frontend/tests/itinerary-flow.spec.ts",
+                      "column": 47,
+                      "line": 81
+                    },
+                    "snippet": "  79 |  await display(page,d)\n  80 |  if(state==='missing-leg'){\n> 81 |   await expect(page.locator('.journey-flow')).toBeVisible()\n     |                                               ^\n  82 |   await expect(page.locator('.flow-transfer').first()).toHaveText('转场资料待核验')\n  83 |   await expect(page.locator('.journey-flow')).not.toContainText('约 0 分钟')\n  84 |  }else{"
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "/Users/mac/Desktop/大挑/kaifeng-main-merge-stage-20261023-161200/frontend/tests/itinerary-flow.spec.ts",
+                        "column": 47,
+                        "line": 81
+                      },
+                      "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: locator('.journey-flow')\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" locator('.journey-flow') with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for locator('.journey-flow')\u001b[22m\n\n\n  79 |  await display(page,d)\n  80 |  if(state==='missing-leg'){\n> 81 |   await expect(page.locator('.journey-flow')).toBeVisible()\n     |                                               ^\n  82 |   await expect(page.locator('.flow-transfer').first()).toHaveText('转场资料待核验')\n  83 |   await expect(page.locator('.journey-flow')).not.toContainText('约 0 分钟')\n  84 |  }else{\n    at /Users/mac/Desktop/大挑/kaifeng-main-merge-stage-20261023-161200/frontend/tests/itinerary-flow.spec.ts:81:47"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-23T08:25:16.638Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "/Users/mac/Desktop/大挑/kaifeng-main-merge-stage-20261023-161200/.test-results/itinerary-flow-链式展示遵守missing-leg资料状态/error-context.md"
+                    }
+                  ],
+                  "errorLocation": {
+                    "file": "/Users/mac/Desktop/大挑/kaifeng-main-merge-stage-20261023-161200/frontend/tests/itinerary-flow.spec.ts",
+                    "column": 47,
+                    "line": 81
+                  }
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "43a2fca8a7cbe1fd3f3b-ab08ae098da2463ec831",
+          "file": "itinerary-flow.spec.ts",
+          "line": 72,
+          "column": 84
+        }
+      ]
+    },
+    {
+      "title": "journey.spec.ts",
+      "file": "journey.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "城市资料缺失时保留兴趣，保存日期后首页和地图读取同一行程",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 4,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 827,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-23T08:25:22.163Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "bf222bad70f76648f722-a6165a37fc97d74fe2fb",
+          "file": "journey.spec.ts",
+          "line": 5,
+          "column": 1
+        },
+        {
+          "title": "城市行程编辑、重要修改确认、撤销和下一站共用后端版本",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 4,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 657,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-23T08:25:23.323Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "bf222bad70f76648f722-23df6d486b281c24b3fd",
+          "file": "journey.spec.ts",
+          "line": 15,
+          "column": 1
+        },
+        {
+          "title": "商家收进素材篮不自动写入行程，手动明确选择后才保存为用餐站点",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 4,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 753,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-23T08:25:23.988Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "bf222bad70f76648f722-df2f955b55cafd63b431",
+          "file": "journey.spec.ts",
+          "line": 30,
+          "column": 1
+        },
+        {
+          "title": "新页面在手机和桌面均无溢出，地图失败可降级且无虚构评分",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 4,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 856,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-23T08:25:24.749Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "bf222bad70f76648f722-5c2eb213c620da598cde",
+          "file": "journey.spec.ts",
+          "line": 48,
+          "column": 1
+        },
+        {
+          "title": "删除本次记录会清空新收藏和待安排清单，刷新也不恢复",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 4,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 447,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-23T08:25:25.616Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "bf222bad70f76648f722-83f486ecf2e4659c8a5d",
+          "file": "journey.spec.ts",
+          "line": 54,
+          "column": 1
+        },
+        {
+          "title": "空行程只保留明确下一步，助手入口绑定当前行程，设置不重复列行程",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 4,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 529,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-23T08:25:26.071Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "bf222bad70f76648f722-f468c53848203943239a",
+          "file": "journey.spec.ts",
+          "line": 61,
+          "column": 1
+        },
+        {
+          "title": "有具体站点后可记录实际游玩，免去全局开始按钮且不生成虚假路线",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 4,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 381,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-23T08:25:26.604Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "bf222bad70f76648f722-e80218890c56e995917c",
+          "file": "journey.spec.ts",
+          "line": 89,
+          "column": 1
+        }
+      ]
+    },
+    {
+      "title": "location-resolution.spec.ts",
+      "file": "location-resolution.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "地点候选须明确确认，确认后仍保留资料缺口与正式路线版本",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 4,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 490,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-23T08:25:26.998Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "f1d89cf59ebc8fd4036f-ee028c9b23e991cc3a8f",
+          "file": "location-resolution.spec.ts",
+          "line": 5,
+          "column": 1
+        },
+        {
+          "title": "历史凌晨时段需游客确认，浏览器UTC时区不会改变北京时间",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 4,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 381,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-23T08:25:27.494Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "f1d89cf59ebc8fd4036f-64e0597b6b886ca11af7",
+          "file": "location-resolution.spec.ts",
+          "line": 35,
+          "column": 1
+        },
+        {
+          "title": "已有核验绑定时使用正式地点ID，仍经原规划器核验且不自动提交",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 4,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 403,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-23T08:25:27.882Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "f1d89cf59ebc8fd4036f-f398d09a5b75e46b6946",
+          "file": "location-resolution.spec.ts",
+          "line": 49,
+          "column": 1
+        }
+      ]
+    },
+    {
+      "title": "memory.spec.ts",
+      "file": "memory.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "M7：确认后更新同一行程版本，删除指定站点并跨刷新恢复",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 4,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1191,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-23T08:25:28.299Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "7ae46fcbe7df2182c676-421a43f2cc0e6463c55a",
+          "file": "memory.spec.ts",
+          "line": 4,
+          "column": 1
+        },
+        {
+          "title": "M7：十轮对话保持约束，浏览器缓存不能覆盖服务端状态",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 4,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1360,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-23T08:25:29.495Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "7ae46fcbe7df2182c676-84178d852e99829aacd5",
+          "file": "memory.spec.ts",
+          "line": 38,
+          "column": 1
+        },
+        {
+          "title": "M7：语音核对与文字共用行程，未确认前不会修改路线",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 4,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 892,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-23T08:25:30.861Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "7ae46fcbe7df2182c676-31a58468cd6315342fb5",
+          "file": "memory.spec.ts",
+          "line": 59,
+          "column": 1
+        },
+        {
+          "title": "M7：可关闭对话留存、导出及删除；删除后旧记录不从浏览器恢复",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 4,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1442,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-23T08:25:31.761Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "7ae46fcbe7df2182c676-7bf0e27eef87666c21c0",
+          "file": "memory.spec.ts",
+          "line": 77,
+          "column": 1
+        },
+        {
+          "title": "M7：旧页面不能静默覆盖另一标签页已提交的新路线",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 4,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 859,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-23T08:25:33.210Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "7ae46fcbe7df2182c676-4d3b6b53a898355f745a",
+          "file": "memory.spec.ts",
+          "line": 114,
+          "column": 1
+        },
+        {
+          "title": "M7：独立浏览器身份不能读取另一游客路线",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 4,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 616,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-23T08:25:34.077Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "7ae46fcbe7df2182c676-8f22b1cffa2640d4a56a",
+          "file": "memory.spec.ts",
+          "line": 127,
+          "column": 1
+        }
+      ]
+    },
+    {
+      "title": "voice.spec.ts",
+      "file": "voice.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "未配置密钥时显示未开通，保留手动编辑与复制",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 4,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 390,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-23T08:25:34.707Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "4f8e77fcf9b309101475-04a2313045ddbfb71155",
+          "file": "voice.spec.ts",
+          "line": 21,
+          "column": 1
+        },
+        {
+          "title": "浏览器采集、WAV上传、转写编辑复制与关闭释放麦克风",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 4,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 2149,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-23T08:25:35.102Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "4f8e77fcf9b309101475-ee8f51f155de3cc3fee1",
+          "file": "voice.spec.ts",
+          "line": 41,
+          "column": 1
+        },
+        {
+          "title": "失败保留旧文字，手动重试同一录音且不重复追加",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 4,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1787,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-23T08:25:37.257Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "4f8e77fcf9b309101475-fe4eb60e2e2e970ea802",
+          "file": "voice.spec.ts",
+          "line": 80,
+          "column": 1
+        },
+        {
+          "title": "麦克风拒绝后可以重试",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 4,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 316,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-23T08:25:39.051Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "4f8e77fcf9b309101475-ae212ee660a7cacf9e29",
+          "file": "voice.spec.ts",
+          "line": 100,
+          "column": 1
+        },
+        {
+          "title": "取消待授权后迟到的麦克风会释放",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 4,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 473,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-23T08:25:39.374Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "4f8e77fcf9b309101475-33a96976e0f2e440307e",
+          "file": "voice.spec.ts",
+          "line": 109,
+          "column": 1
+        },
+        {
+          "title": "关闭识别后迟到的结果不会覆盖已有文字",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 4,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1805,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-23T08:25:39.854Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "4f8e77fcf9b309101475-505f9b0a2f48cac36fc6",
+          "file": "voice.spec.ts",
+          "line": 132,
+          "column": 1
+        }
+      ],
+      "suites": [
+        {
+          "title": "手机小汴梁统一入口",
+          "file": "voice.spec.ts",
+          "line": 155,
+          "column": 6,
+          "specs": [
+            {
+              "title": "按住显示无按钮侧边气泡，松手立刻收起，转写进入原上下文草稿且不自动发送",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "",
+                  "projectName": "",
+                  "results": [
+                    {
+                      "workerIndex": 4,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 4683,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-10-23T08:25:41.668Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "4f8e77fcf9b309101475-1c11b740e545d533d21d",
+              "file": "voice.spec.ts",
+              "line": 164,
+              "column": 2
+            },
+            {
+              "title": "拖动与取消不触发语音或导航，地图入口一致且保留景区",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "",
+                  "projectName": "",
+                  "results": [
+                    {
+                      "workerIndex": 4,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 1084,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-10-23T08:25:46.359Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "4f8e77fcf9b309101475-2d4463a5254bfed2af7d",
+              "file": "voice.spec.ts",
+              "line": 192,
+              "column": 2
+            },
+            {
+              "title": "准备阶段松手不会迟到启动，320与482宽度不溢出，键盘松开也收起",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "",
+                  "projectName": "",
+                  "results": [
+                    {
+                      "workerIndex": 4,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 1165,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-10-23T08:25:47.450Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "4f8e77fcf9b309101475-e423a37fe8363c8952cb",
+              "file": "voice.spec.ts",
+              "line": 209,
+              "column": 2
+            },
+            {
+              "title": "权限请求期间松开，迟到的麦克风会释放且没有转写请求",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "",
+                  "projectName": "",
+                  "results": [
+                    {
+                      "workerIndex": 4,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 1095,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-10-23T08:25:48.622Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "4f8e77fcf9b309101475-5949d38c1f162b7beaa9",
+              "file": "voice.spec.ts",
+              "line": 235,
+              "column": 2
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "workflow-state.spec.ts",
+      "file": "workflow-state.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "必填需求不猜默认值，缺日期和时长不能进入计算",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 4,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 3,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-23T08:25:49.729Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "0610323ee76c023d861e-26f3f5229471c6e5f067",
+          "file": "workflow-state.spec.ts",
+          "line": 4,
+          "column": 1
+        },
+        {
+          "title": "明确完成或跳过可选问题才可确认，游客接口始终读取非模拟数据",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 4,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 13,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-23T08:25:49.737Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "0610323ee76c023d861e-7c8194732ccde361d05d",
+          "file": "workflow-state.spec.ts",
+          "line": 16,
+          "column": 1
+        },
+        {
+          "title": "自然语言只补充明确字段，日期变化清除原场次并要求重新核对",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 4,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-23T08:25:49.755Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "0610323ee76c023d861e-863701cd67e14c5600a6",
+          "file": "workflow-state.spec.ts",
+          "line": 27,
+          "column": 1
+        },
+        {
+          "title": "换景区使原地点和场次失效，时间及可复用偏好保留",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 4,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 0,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-23T08:25:49.759Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "0610323ee76c023d861e-c27820643a6e21e06de8",
+          "file": "workflow-state.spec.ts",
+          "line": 38,
+          "column": 1
+        },
+        {
+          "title": "损坏或伪造会话不能绕过必填校验，演示参数不进入新请求",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 4,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 0,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-23T08:25:49.763Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "0610323ee76c023d861e-a209b3683359387779e5",
+          "file": "workflow-state.spec.ts",
+          "line": 47,
+          "column": 1
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-10-23T08:24:20.495Z",
+    "duration": 89406.539,
+    "expected": 84,
+    "skipped": 1,
+    "unexpected": 4,
+    "flaky": 0
+  }
+}

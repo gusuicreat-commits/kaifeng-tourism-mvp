@@ -1,0 +1,216 @@
+{
+  "task": "M4.2 地图与定位 MVP",
+  "generated_at": "2026-10-23T00:57:44.032855+08:00",
+  "status": "PARTIAL",
+  "summary": "软件闭环与真实地图/路线已通过；真实手机 HTTPS 定位、导航 App 调起和景区数据待验收",
+  "implementation": {
+    "sdk": "AMap JS API 2.0",
+    "new_runtime_dependencies": [],
+    "map_views": [
+      "city",
+      "wansui",
+      "qingming"
+    ],
+    "map_components": [
+      "CityMap.vue",
+      "AmapCityMap.vue",
+      "ExternalMap.vue",
+      "amap.ts"
+    ],
+    "official_fact_state": "journey.trip + journey.route + journey.catalog",
+    "position_default_scope": "component memory only",
+    "continuous_tracking": false,
+    "persistent_position": "explicit known-place CAS update/proposal/confirm; existing manual_known_place anchor only",
+    "arbitrary_coordinates_persisted": false,
+    "route_preview_persisted": false,
+    "production_transport_provider_enabled_by_task": false,
+    "proxy": {
+      "prefix": "/api/maps/_AMapService",
+      "methods": [
+        "GET"
+      ],
+      "fixed_hosts": [
+        "restapi.amap.com",
+        "webapi.amap.com"
+      ],
+      "raw_response_storage": false,
+      "timeout_seconds": 10,
+      "max_response_bytes": 2097152,
+      "rate_limit": "120/min/IP/process; 1024 buckets",
+      "safety": "same-origin checks; exact paths; no redirects; no user authentication forwarding; JSONP validation; query log removal"
+    },
+    "position": {
+      "coordinate_system": "GCJ02",
+      "WGS84": "official convertFrom(gps), fail closed",
+      "freshness_seconds": 900,
+      "automatic_accuracy_ceiling_m": 200,
+      "unknown_accuracy": "not a reliable automatic route origin",
+      "manual_accuracy": "unknown"
+    },
+    "navigation": "official URI encoded with URLSearchParams; walk/car/bus; coordinate=gaode; explicit click"
+  },
+  "validation": {
+    "backend_full": {
+      "passed": 565,
+      "warnings": 1,
+      "log": ".test-results/amap-m42-pytest.txt"
+    },
+    "backend_maps": {
+      "passed": 27,
+      "scope": "proxy, credentials, failures, limits, JSONP, logs, same assistant anchor"
+    },
+    "typescript": "PASS",
+    "independent_build": "PASS",
+    "browser_combined": {
+      "startTime": "2026-10-22T16:50:46.165Z",
+      "duration": 43568.635,
+      "expected": 13,
+      "skipped": 0,
+      "unexpected": 0,
+      "flaky": 0
+    },
+    "browser_final_offline": {
+      "startTime": "2026-10-22T16:55:42.817Z",
+      "duration": 13366.230000000001,
+      "expected": 12,
+      "skipped": 0,
+      "unexpected": 0,
+      "flaky": 0
+    },
+    "real_provider": {
+      "status": "PASS",
+      "map_complete": true,
+      "visible_map_visually_checked": true,
+      "real_sdk_and_tiles": true,
+      "ui_walking_preview": true,
+      "plugins": [
+        {
+          "plugin": "Walking",
+          "status": "complete",
+          "error_code": "not_reported",
+          "has_route": true,
+          "has_distance": true,
+          "has_time": true
+        },
+        {
+          "plugin": "Driving",
+          "status": "complete",
+          "error_code": "OK",
+          "has_route": true,
+          "has_distance": true,
+          "has_time": true
+        },
+        {
+          "plugin": "Transfer",
+          "status": "complete",
+          "error_code": "OK",
+          "has_route": true,
+          "has_distance": true,
+          "has_time": true
+        }
+      ],
+      "final_run_route_queries": 4,
+      "business_fixture": "synthetic UI state; no production facts imported",
+      "real_device": false,
+      "real_geolocation": "NOT_TESTED",
+      "security": {
+        "serviceHost": "/api/maps/_AMapService",
+        "securityCodeExposed": false
+      },
+      "raw_report": "docs/reports/amap-map-location-live.json"
+    },
+    "credential_scan": [],
+    "env_mode": "0o600"
+  },
+  "classifications": {
+    "implemented_and_live_verified": [
+      "JS API configuration/proxy",
+      "online city basemap",
+      "Walking, Driving, Transfer live routes/time/distance",
+      "page Walking route drawing"
+    ],
+    "implemented_and_synthetic_verified": [
+      "geolocation success/denied/coarse",
+      "manual selection and confirmation",
+      "position freshness and WGS84 conversion failures",
+      "formal-state projection, current/next/completed/locked",
+      "late callback cancellation",
+      "explicit anchor write payload and assistant shared anchor"
+    ],
+    "implemented_environment_pending": [
+      "phone HTTPS location",
+      "Safari/Android coverage",
+      "actual native AMap app opening and return"
+    ],
+    "real_data_pending": [
+      "verified scenic coordinates",
+      "entrance relationships and opening rules",
+      "internal walkable network",
+      "real itinerary/show/merchant facts"
+    ],
+    "not_implemented_by_design": [
+      "continuous tracking",
+      "arbitrary coordinate persistence",
+      "GPS automatic park entry",
+      "automatic production transport-provider approval"
+    ]
+  },
+  "preservation": {
+    "restarted_8017": false,
+    "production_database_writes": false,
+    "M7_retention_or_deletion_modified": false,
+    "agent_or_solver_implementation_modified": false,
+    "baseline": ".backups/amap-m42-20261023/frontend-before.json",
+    "changed_existing_frontend": [
+      "frontend/src/cityApi.ts",
+      "frontend/src/explorationApi.ts",
+      "frontend/src/components/CityMap.vue",
+      "frontend/src/components/ExternalMap.vue",
+      "frontend/src/pages/Guide.vue"
+    ],
+    "original_dist_unchanged": true,
+    "parallel_App_and_journey_css_unchanged": true,
+    "credential_scan_leaks": [],
+    "env_mode": "0o600",
+    "final_bundle_assets": [
+      "index-Cd3VcqXX.css",
+      "index-CyjMbrP3.js"
+    ]
+  },
+  "files": {
+    "backend/app/maps.py": "07eb9f7e23be802f71e5e881d92de4107d05dd6829ba45a629d3aae9461e881a",
+    "backend/tests/test_maps.py": "a12322131beffaff70af64b7e087320488671616d7a9d480f0751117e3abfd75",
+    "frontend/src/amap.ts": "6ed998b9a8aa7ff99291867a9a295fe89a47f84ab31fcbfeb78313e420810282",
+    "frontend/src/components/AmapCityMap.vue": "6ebc65c111cb0210a1545a38c1cf3769c33b1b54be254155263d8d6b8329fa5c",
+    "frontend/tests/amap-map.spec.ts": "ce782bd11ab368036a3c9c36f8064e4ddf3808e6235f0bfb5d749d7782ee65d3",
+    "frontend/playwright.amap.config.ts": "ac579db3d0c555f44202fb65cf2073b136ab42e645e19b88c90c9fe480362b53",
+    "scripts/amap_map_test_server.py": "94523d35bd9b39d0d70949bf6abb8d66c487eb45f571e9cd06711c4ea9729bb8",
+    "scripts/configure_amap_js.py": "f80d537a5957e3f9c9be69c4af7d4ba34ce39f6a3c083fc3777ab5dce7ae08e8",
+    "backend/app/main.py": "0f31607a5a42b229662426c82aa1452c3a31836a0f624a787bb08dddd3240e36",
+    "frontend/src/components/CityMap.vue": "3be0c53f58a8c86da3778b3ea33ecaf5e33643edba68893c7bcb9bcdcfa372d3",
+    "frontend/src/components/ExternalMap.vue": "c8c77147f5c257ecc6407601f20da16ff432bdd9f109981f598f4cdc91dd1bc5",
+    "frontend/src/pages/Guide.vue": "09de215dda11e71942e949fd0fe2b6ce5264448dce8bd000646bdb79ae06323c",
+    "frontend/src/cityApi.ts": "1d33e43654df8be5589070e904586aa5a633b57496bf4ef4c07afe4fe39ade7b",
+    "frontend/src/explorationApi.ts": "427090aeb47e70f5a4664cbef42e8e28565a5baa98ed3c20d14c5ed303d4f02a",
+    ".env.example": "ff56007c7e580e772cb8e712e18cc28e202f7b217881ac2284c4743c2eab11bc",
+    "backend/tests/test_city_state.py": "b70fa0bd5f5add56fd5fdfb52feaf9e2dc1194de6b0a15d86a0811a4992f7774"
+  },
+  "evidence": [
+    ".test-results/amap-m42-real-mobile.png",
+    ".test-results/amap-m42-synthetic-mobile.png",
+    "docs/AMAP_MAP_LOCATION_MVP.md"
+  ],
+  "known_diagnostics_resolved": [
+    "official SDK init path needed allowlisting",
+    "identical duplicate s parameter",
+    "JSONP application/json MIME blocked by nosniff",
+    "old city-state test depended on midnight wall clock; test clock fixed without relaxing production logic"
+  ],
+  "deployment": "Not applied to 8017/frontend/dist. Final build .test-results/amap-m42-dist; normal deployment/restart remains separate.",
+  "review_environment": {
+    "url": "http://127.0.0.1:8023/guide?mode=city",
+    "database": "temporary, empty city business catalog",
+    "production_8017_untouched": true,
+    "service": "scripts/amap_map_test_server.py"
+  }
+}

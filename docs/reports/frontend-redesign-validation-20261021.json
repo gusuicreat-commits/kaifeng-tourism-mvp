@@ -1,0 +1,12 @@
+{
+  "date": "2026-10-21",
+  "scope": "Frontend journey redesign; no real navigation certification",
+  "build": {"command": "npm run build", "typescript": "passed", "vite": "passed"},
+  "e2e_full": {"passed": 44, "failed": 0, "seconds": 31.6, "note": "Full regression before final CSS polish"},
+  "e2e_after_final_polish": {"passed": 10, "failed": 0, "seconds": 6.6, "files": ["tests/journey.spec.ts", "tests/home-display.spec.ts", "tests/guide.spec.ts"]},
+  "test_data": {"database": "disposable", "fixture": "backend/tests/fixtures/city_facts.json", "imported_into_runtime_database": false},
+  "runtime_city_fact_count": 0,
+  "browser": {"surface": "in-app browser", "mobile_css_px": [390, 844], "desktop_css_px": [1440, 1000], "observed_console_errors": 0, "responsive_e2e_widths": [320, 390, 768, 1440]},
+  "visual_reference_comparison": {"status": "blocked", "reason": "Original four-screen reference temporary file is no longer available; actual browser screenshots and existing design continuity comparison were inspected."},
+  "not_certified": ["Real city transportation and park navigation", "Real vendor supply and target-date show data", "City agent full end-to-end integration", "Safari and physical devices", "Full original four-screen visual comparison"]
+}

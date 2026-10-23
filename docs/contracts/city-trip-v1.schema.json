@@ -1,0 +1,1042 @@
+{
+  "$defs": {
+    "AddStop": {
+      "additionalProperties": false,
+      "properties": {
+        "operation": {
+          "const": "add_stop",
+          "title": "Operation",
+          "type": "string"
+        },
+        "stop": {
+          "$ref": "#/$defs/Stop"
+        }
+      },
+      "required": [
+        "operation",
+        "stop"
+      ],
+      "title": "AddStop",
+      "type": "object"
+    },
+    "CityChangeRequest": {
+      "additionalProperties": false,
+      "properties": {
+        "request_id": {
+          "format": "uuid",
+          "title": "Request Id",
+          "type": "string"
+        },
+        "trip_id": {
+          "format": "uuid",
+          "title": "Trip Id",
+          "type": "string"
+        },
+        "expected_version": {
+          "minimum": 1,
+          "title": "Expected Version",
+          "type": "integer"
+        },
+        "channel": {
+          "enum": [
+            "control",
+            "natural_language"
+          ],
+          "title": "Channel",
+          "type": "string"
+        },
+        "change": {
+          "discriminator": {
+            "mapping": {
+              "add_stop": "#/$defs/AddStop",
+              "remove_stop": "#/$defs/RemoveStop",
+              "set_anchor": "#/$defs/SetAnchor",
+              "set_end_time": "#/$defs/SetEndTime"
+            },
+            "propertyName": "operation"
+          },
+          "oneOf": [
+            {
+              "$ref": "#/$defs/AddStop"
+            },
+            {
+              "$ref": "#/$defs/RemoveStop"
+            },
+            {
+              "$ref": "#/$defs/SetAnchor"
+            },
+            {
+              "$ref": "#/$defs/SetEndTime"
+            }
+          ],
+          "title": "Change"
+        }
+      },
+      "required": [
+        "request_id",
+        "trip_id",
+        "expected_version",
+        "channel",
+        "change"
+      ],
+      "title": "CityChangeRequest",
+      "type": "object"
+    },
+    "CityPlanPreview": {
+      "additionalProperties": false,
+      "description": "Proposed output shape only. Schema validity cannot certify physical feasibility.",
+      "properties": {
+        "status": {
+          "const": "preview",
+          "default": "preview",
+          "title": "Status",
+          "type": "string"
+        },
+        "trip_id": {
+          "format": "uuid",
+          "title": "Trip Id",
+          "type": "string"
+        },
+        "base_version": {
+          "minimum": 1,
+          "title": "Base Version",
+          "type": "integer"
+        },
+        "base_route_version": {
+          "minimum": 0,
+          "title": "Base Route Version",
+          "type": "integer"
+        },
+        "fact_revisions": {
+          "maxProperties": 200,
+          "patternProperties": {
+            "^[A-Za-z0-9][A-Za-z0-9_.:-]*$": {
+              "maxLength": 120,
+              "minLength": 1,
+              "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]*$",
+              "type": "string"
+            }
+          },
+          "propertyNames": {
+            "maxLength": 120,
+            "minLength": 1
+          },
+          "title": "Fact Revisions",
+          "type": "object"
+        },
+        "stops": {
+          "items": {
+            "$ref": "#/$defs/ScheduledStop"
+          },
+          "maxItems": 24,
+          "title": "Stops",
+          "type": "array"
+        },
+        "legs": {
+          "items": {
+            "$ref": "#/$defs/Leg"
+          },
+          "maxItems": 25,
+          "title": "Legs",
+          "type": "array"
+        },
+        "feasibility": {
+          "default": "pending",
+          "enum": [
+            "pending",
+            "conflict",
+            "constraints_satisfied"
+          ],
+          "title": "Feasibility",
+          "type": "string"
+        },
+        "issues": {
+          "default": [],
+          "items": {
+            "$ref": "#/$defs/PlanningIssue"
+          },
+          "maxItems": 100,
+          "title": "Issues",
+          "type": "array"
+        },
+        "unmet_locked_stop_ids": {
+          "default": [],
+          "items": {
+            "maxLength": 120,
+            "minLength": 1,
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]*$",
+            "type": "string"
+          },
+          "title": "Unmet Locked Stop Ids",
+          "type": "array"
+        }
+      },
+      "required": [
+        "trip_id",
+        "base_version",
+        "base_route_version",
+        "stops",
+        "legs"
+      ],
+      "title": "CityPlanPreview",
+      "type": "object"
+    },
+    "CityTrip": {
+      "additionalProperties": false,
+      "properties": {
+        "schema_version": {
+          "const": "city-trip/1",
+          "default": "city-trip/1",
+          "title": "Schema Version",
+          "type": "string"
+        },
+        "trip_id": {
+          "format": "uuid",
+          "title": "Trip Id",
+          "type": "string"
+        },
+        "version": {
+          "minimum": 1,
+          "title": "Version",
+          "type": "integer"
+        },
+        "route_version": {
+          "default": 0,
+          "minimum": 0,
+          "title": "Route Version",
+          "type": "integer"
+        },
+        "city_id": {
+          "const": "kaifeng",
+          "default": "kaifeng",
+          "title": "City Id",
+          "type": "string"
+        },
+        "status": {
+          "default": "DRAFT",
+          "enum": [
+            "DRAFT",
+            "PLANNED",
+            "ACTIVE",
+            "PAUSED",
+            "COMPLETED",
+            "CANCELLED",
+            "ARCHIVED"
+          ],
+          "title": "Status",
+          "type": "string"
+        },
+        "business_date": {
+          "format": "date",
+          "title": "Business Date",
+          "type": "string"
+        },
+        "starts_at": {
+          "format": "date-time",
+          "title": "Starts At",
+          "type": "string"
+        },
+        "ends_at": {
+          "format": "date-time",
+          "title": "Ends At",
+          "type": "string"
+        },
+        "origin_place_id": {
+          "maxLength": 120,
+          "minLength": 1,
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]*$",
+          "title": "Origin Place Id",
+          "type": "string"
+        },
+        "destination_place_id": {
+          "maxLength": 120,
+          "minLength": 1,
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]*$",
+          "title": "Destination Place Id",
+          "type": "string"
+        },
+        "modes": {
+          "default": [
+            "walking"
+          ],
+          "items": {
+            "enum": [
+              "walking",
+              "driving",
+              "transit"
+            ],
+            "type": "string"
+          },
+          "maxItems": 3,
+          "minItems": 1,
+          "title": "Modes",
+          "type": "array"
+        },
+        "interests": {
+          "default": [],
+          "items": {
+            "enum": [
+              "show",
+              "photo",
+              "food",
+              "culture"
+            ],
+            "type": "string"
+          },
+          "maxItems": 4,
+          "title": "Interests",
+          "type": "array"
+        },
+        "dish_interest_ids": {
+          "default": [],
+          "items": {
+            "maxLength": 120,
+            "minLength": 1,
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]*$",
+            "type": "string"
+          },
+          "maxItems": 12,
+          "title": "Dish Interest Ids",
+          "type": "array"
+        },
+        "stops": {
+          "items": {
+            "$ref": "#/$defs/Stop"
+          },
+          "maxItems": 24,
+          "minItems": 1,
+          "title": "Stops",
+          "type": "array"
+        },
+        "anchor": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/PositionAnchor"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "legacy_trip_id": {
+          "anyOf": [
+            {
+              "format": "uuid",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Legacy Trip Id"
+        }
+      },
+      "required": [
+        "trip_id",
+        "version",
+        "business_date",
+        "starts_at",
+        "ends_at",
+        "origin_place_id",
+        "destination_place_id",
+        "stops"
+      ],
+      "title": "CityTrip",
+      "type": "object"
+    },
+    "Evidence": {
+      "additionalProperties": false,
+      "properties": {
+        "evidence_id": {
+          "maxLength": 120,
+          "minLength": 1,
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]*$",
+          "title": "Evidence Id",
+          "type": "string"
+        },
+        "revision": {
+          "maxLength": 120,
+          "minLength": 1,
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]*$",
+          "title": "Revision",
+          "type": "string"
+        },
+        "kind": {
+          "enum": [
+            "verified",
+            "estimate",
+            "reported",
+            "demo",
+            "unknown"
+          ],
+          "title": "Kind",
+          "type": "string"
+        },
+        "source": {
+          "anyOf": [
+            {
+              "maxLength": 500,
+              "minLength": 1,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Source"
+        },
+        "checked_at": {
+          "anyOf": [
+            {
+              "format": "date-time",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Checked At"
+        },
+        "valid_from": {
+          "anyOf": [
+            {
+              "format": "date-time",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Valid From"
+        },
+        "valid_until": {
+          "anyOf": [
+            {
+              "format": "date-time",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Valid Until"
+        }
+      },
+      "required": [
+        "evidence_id",
+        "revision",
+        "kind"
+      ],
+      "title": "Evidence",
+      "type": "object"
+    },
+    "Leg": {
+      "additionalProperties": false,
+      "properties": {
+        "leg_id": {
+          "maxLength": 120,
+          "minLength": 1,
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]*$",
+          "title": "Leg Id",
+          "type": "string"
+        },
+        "from_stop_id": {
+          "anyOf": [
+            {
+              "maxLength": 120,
+              "minLength": 1,
+              "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]*$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "From Stop Id"
+        },
+        "to_stop_id": {
+          "anyOf": [
+            {
+              "maxLength": 120,
+              "minLength": 1,
+              "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]*$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "To Stop Id"
+        },
+        "departs_at": {
+          "anyOf": [
+            {
+              "format": "date-time",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Departs At"
+        },
+        "travel": {
+          "$ref": "#/$defs/TravelEstimate"
+        },
+        "boundary_seconds": {
+          "anyOf": [
+            {
+              "maximum": 86400,
+              "minimum": 0,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Boundary Seconds"
+        },
+        "boundary_evidence": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Evidence"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        }
+      },
+      "required": [
+        "leg_id",
+        "travel"
+      ],
+      "title": "Leg",
+      "type": "object"
+    },
+    "PlanningIssue": {
+      "additionalProperties": false,
+      "properties": {
+        "code": {
+          "maxLength": 120,
+          "minLength": 1,
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]*$",
+          "title": "Code",
+          "type": "string"
+        },
+        "message": {
+          "maxLength": 500,
+          "minLength": 1,
+          "title": "Message",
+          "type": "string"
+        },
+        "affected_stop_ids": {
+          "default": [],
+          "items": {
+            "maxLength": 120,
+            "minLength": 1,
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]*$",
+            "type": "string"
+          },
+          "title": "Affected Stop Ids",
+          "type": "array"
+        },
+        "evidence_refs": {
+          "default": [],
+          "items": {
+            "maxLength": 120,
+            "minLength": 1,
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]*$",
+            "type": "string"
+          },
+          "title": "Evidence Refs",
+          "type": "array"
+        }
+      },
+      "required": [
+        "code",
+        "message"
+      ],
+      "title": "PlanningIssue",
+      "type": "object"
+    },
+    "PositionAnchor": {
+      "additionalProperties": false,
+      "properties": {
+        "place_id": {
+          "maxLength": 120,
+          "minLength": 1,
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]*$",
+          "title": "Place Id",
+          "type": "string"
+        },
+        "confirmed_at": {
+          "format": "date-time",
+          "title": "Confirmed At",
+          "type": "string"
+        },
+        "source": {
+          "const": "manual_known_place",
+          "default": "manual_known_place",
+          "title": "Source",
+          "type": "string"
+        }
+      },
+      "required": [
+        "place_id",
+        "confirmed_at"
+      ],
+      "title": "PositionAnchor",
+      "type": "object"
+    },
+    "RemoveStop": {
+      "additionalProperties": false,
+      "properties": {
+        "operation": {
+          "const": "remove_stop",
+          "title": "Operation",
+          "type": "string"
+        },
+        "stop_id": {
+          "maxLength": 120,
+          "minLength": 1,
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]*$",
+          "title": "Stop Id",
+          "type": "string"
+        }
+      },
+      "required": [
+        "operation",
+        "stop_id"
+      ],
+      "title": "RemoveStop",
+      "type": "object"
+    },
+    "ScheduledStop": {
+      "additionalProperties": false,
+      "properties": {
+        "stop": {
+          "$ref": "#/$defs/Stop"
+        },
+        "arrives_at": {
+          "anyOf": [
+            {
+              "format": "date-time",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Arrives At"
+        },
+        "departs_at": {
+          "anyOf": [
+            {
+              "format": "date-time",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Departs At"
+        },
+        "feasibility": {
+          "default": "pending",
+          "enum": [
+            "pending",
+            "conflict",
+            "constraints_satisfied"
+          ],
+          "title": "Feasibility",
+          "type": "string"
+        },
+        "evidence_status": {
+          "default": "unknown",
+          "enum": [
+            "verified",
+            "estimate",
+            "reported",
+            "demo",
+            "unknown",
+            "mixed"
+          ],
+          "title": "Evidence Status",
+          "type": "string"
+        }
+      },
+      "required": [
+        "stop"
+      ],
+      "title": "ScheduledStop",
+      "type": "object"
+    },
+    "SetAnchor": {
+      "additionalProperties": false,
+      "properties": {
+        "operation": {
+          "const": "set_anchor",
+          "title": "Operation",
+          "type": "string"
+        },
+        "anchor": {
+          "$ref": "#/$defs/PositionAnchor"
+        }
+      },
+      "required": [
+        "operation",
+        "anchor"
+      ],
+      "title": "SetAnchor",
+      "type": "object"
+    },
+    "SetEndTime": {
+      "additionalProperties": false,
+      "properties": {
+        "operation": {
+          "const": "set_end_time",
+          "title": "Operation",
+          "type": "string"
+        },
+        "ends_at": {
+          "format": "date-time",
+          "title": "Ends At",
+          "type": "string"
+        }
+      },
+      "required": [
+        "operation",
+        "ends_at"
+      ],
+      "title": "SetEndTime",
+      "type": "object"
+    },
+    "Stop": {
+      "additionalProperties": false,
+      "properties": {
+        "stop_id": {
+          "maxLength": 120,
+          "minLength": 1,
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]*$",
+          "title": "Stop Id",
+          "type": "string"
+        },
+        "place_id": {
+          "maxLength": 120,
+          "minLength": 1,
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]*$",
+          "title": "Place Id",
+          "type": "string"
+        },
+        "kind": {
+          "enum": [
+            "visit",
+            "show",
+            "dining",
+            "rest",
+            "return"
+          ],
+          "title": "Kind",
+          "type": "string"
+        },
+        "scenic_id": {
+          "anyOf": [
+            {
+              "maxLength": 120,
+              "minLength": 1,
+              "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]*$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Scenic Id"
+        },
+        "session_id": {
+          "anyOf": [
+            {
+              "maxLength": 120,
+              "minLength": 1,
+              "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]*$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Session Id"
+        },
+        "locked": {
+          "default": false,
+          "title": "Locked",
+          "type": "boolean"
+        },
+        "duration_seconds": {
+          "anyOf": [
+            {
+              "maximum": 86400,
+              "minimum": 1,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Duration Seconds"
+        },
+        "window_start": {
+          "anyOf": [
+            {
+              "format": "date-time",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Window Start"
+        },
+        "window_end": {
+          "anyOf": [
+            {
+              "format": "date-time",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Window End"
+        },
+        "evidence_refs": {
+          "default": [],
+          "items": {
+            "maxLength": 120,
+            "minLength": 1,
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]*$",
+            "type": "string"
+          },
+          "maxItems": 20,
+          "title": "Evidence Refs",
+          "type": "array"
+        },
+        "progress": {
+          "default": "pending",
+          "enum": [
+            "pending",
+            "completed",
+            "skipped"
+          ],
+          "title": "Progress",
+          "type": "string"
+        },
+        "actual_start": {
+          "anyOf": [
+            {
+              "format": "date-time",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Actual Start"
+        },
+        "actual_end": {
+          "anyOf": [
+            {
+              "format": "date-time",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Actual End"
+        },
+        "progress_source": {
+          "anyOf": [
+            {
+              "const": "user_reported",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Progress Source"
+        }
+      },
+      "required": [
+        "stop_id",
+        "place_id",
+        "kind"
+      ],
+      "title": "Stop",
+      "type": "object"
+    },
+    "TravelEstimate": {
+      "additionalProperties": false,
+      "properties": {
+        "origin_place_id": {
+          "maxLength": 120,
+          "minLength": 1,
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]*$",
+          "title": "Origin Place Id",
+          "type": "string"
+        },
+        "destination_place_id": {
+          "maxLength": 120,
+          "minLength": 1,
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]*$",
+          "title": "Destination Place Id",
+          "type": "string"
+        },
+        "mode": {
+          "enum": [
+            "walking",
+            "driving",
+            "transit"
+          ],
+          "title": "Mode",
+          "type": "string"
+        },
+        "lower_seconds": {
+          "anyOf": [
+            {
+              "maximum": 172800,
+              "minimum": 0,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Lower Seconds"
+        },
+        "upper_seconds": {
+          "anyOf": [
+            {
+              "maximum": 172800,
+              "minimum": 0,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Upper Seconds"
+        },
+        "evidence": {
+          "$ref": "#/$defs/Evidence"
+        },
+        "path_status": {
+          "default": "unknown",
+          "enum": [
+            "verified",
+            "demo",
+            "unknown"
+          ],
+          "title": "Path Status",
+          "type": "string"
+        },
+        "path_ref": {
+          "anyOf": [
+            {
+              "maxLength": 120,
+              "minLength": 1,
+              "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]*$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Path Ref"
+        },
+        "coordinate_system": {
+          "default": "unknown",
+          "enum": [
+            "WGS84",
+            "GCJ02",
+            "local_demo",
+            "unknown"
+          ],
+          "title": "Coordinate System",
+          "type": "string"
+        },
+        "unavailable_reason": {
+          "anyOf": [
+            {
+              "maxLength": 500,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Unavailable Reason"
+        }
+      },
+      "required": [
+        "origin_place_id",
+        "destination_place_id",
+        "mode",
+        "evidence"
+      ],
+      "title": "TravelEstimate",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "description": "Schema export root, not an HTTP body or persisted snapshot.",
+  "properties": {
+    "trip": {
+      "$ref": "#/$defs/CityTrip"
+    },
+    "leg": {
+      "$ref": "#/$defs/Leg"
+    },
+    "mutation": {
+      "$ref": "#/$defs/CityChangeRequest"
+    },
+    "preview": {
+      "$ref": "#/$defs/CityPlanPreview"
+    }
+  },
+  "required": [
+    "trip",
+    "leg",
+    "mutation",
+    "preview"
+  ],
+  "title": "CityContracts",
+  "type": "object"
+}

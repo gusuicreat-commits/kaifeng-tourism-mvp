@@ -1,0 +1,478 @@
+{
+  "schema_version": "amap-capability/1",
+  "tested_at": "2026-10-22T20:29:10.996141+08:00",
+  "mode": "live",
+  "key_configured": true,
+  "status": "PARTIAL",
+  "request_cap": 20,
+  "real_requests": 20,
+  "mock_requests": 0,
+  "capabilities": {
+    "poi_v3": {
+      "status": "AVAILABLE",
+      "reason": "found"
+    },
+    "poi_v5": {
+      "status": "AVAILABLE",
+      "reason": "found"
+    },
+    "restaurant_search": {
+      "status": "AVAILABLE",
+      "reason": "found"
+    },
+    "entrance_identity": {
+      "status": "PARTIAL",
+      "reason": "POI identity is not entrance verification"
+    },
+    "walking": {
+      "status": "AVAILABLE",
+      "reason": "estimated"
+    },
+    "driving": {
+      "status": "AVAILABLE",
+      "reason": "estimated"
+    },
+    "transit": {
+      "status": "AVAILABLE",
+      "reason": "estimated"
+    },
+    "poi_id_routing": {
+      "status": "AVAILABLE",
+      "reason": "estimated"
+    },
+    "real_engine_integration": {
+      "status": "PARTIAL",
+      "reason": "API numeric snapshot consumed by synthetic CP-SAT scenario; formal admission still needs data"
+    }
+  },
+  "raw_provider_data_persisted": false,
+  "production_provider_enabled": false,
+  "database_accessed": false,
+  "kimi_requests": 0,
+  "fee_verified": false,
+  "fee": null,
+  "events": [
+    {
+      "sequence": 1,
+      "endpoint": "/v3/place/text",
+      "http_status": 200,
+      "business_status": "1",
+      "infocode": "10000",
+      "info": "OK",
+      "status": "success",
+      "elapsed_ms": 6274.97
+    },
+    {
+      "sequence": 2,
+      "endpoint": "/v3/place/text",
+      "http_status": 200,
+      "business_status": "1",
+      "infocode": "10000",
+      "info": "OK",
+      "status": "success",
+      "elapsed_ms": 3938.64
+    },
+    {
+      "sequence": 3,
+      "endpoint": "/v5/place/text",
+      "http_status": null,
+      "business_status": null,
+      "infocode": null,
+      "info": null,
+      "status": "timeout_or_network",
+      "elapsed_ms": 5003.52
+    },
+    {
+      "sequence": 4,
+      "endpoint": "/v3/place/around",
+      "http_status": 200,
+      "business_status": "1",
+      "infocode": "10000",
+      "info": "OK",
+      "status": "success",
+      "elapsed_ms": 4900.77
+    },
+    {
+      "sequence": 5,
+      "endpoint": "/v5/direction/walking",
+      "http_status": 200,
+      "business_status": "1",
+      "infocode": "10000",
+      "info": "OK",
+      "status": "success",
+      "elapsed_ms": 3526.26
+    },
+    {
+      "sequence": 6,
+      "endpoint": "/v5/direction/walking",
+      "http_status": null,
+      "business_status": null,
+      "infocode": null,
+      "info": null,
+      "status": "timeout_or_network",
+      "elapsed_ms": 5005.87
+    },
+    {
+      "sequence": 7,
+      "endpoint": "/v5/direction/driving",
+      "http_status": 200,
+      "business_status": "1",
+      "infocode": "10000",
+      "info": "OK",
+      "status": "success",
+      "elapsed_ms": 3627.68
+    },
+    {
+      "sequence": 8,
+      "endpoint": "/v5/direction/transit/integrated",
+      "http_status": 200,
+      "business_status": "1",
+      "infocode": "10000",
+      "info": "OK",
+      "status": "success",
+      "elapsed_ms": 3613.94
+    },
+    {
+      "sequence": 9,
+      "endpoint": "/v5/direction/walking",
+      "http_status": 200,
+      "business_status": "1",
+      "infocode": "10000",
+      "info": "OK",
+      "status": "success",
+      "elapsed_ms": 4575.76
+    },
+    {
+      "sequence": 10,
+      "endpoint": "/v5/direction/driving",
+      "http_status": 200,
+      "business_status": "1",
+      "infocode": "10000",
+      "info": "OK",
+      "status": "success",
+      "elapsed_ms": 3563.08
+    },
+    {
+      "sequence": 11,
+      "endpoint": "/v5/direction/driving",
+      "http_status": 200,
+      "business_status": "1",
+      "infocode": "10000",
+      "info": "OK",
+      "status": "success",
+      "elapsed_ms": 3710.99
+    },
+    {
+      "sequence": 12,
+      "endpoint": "/v5/place/text",
+      "http_status": 200,
+      "business_status": "1",
+      "infocode": "10000",
+      "info": "OK",
+      "status": "success",
+      "elapsed_ms": 4142.54
+    },
+    {
+      "sequence": 13,
+      "endpoint": "/v3/place/text",
+      "http_status": 200,
+      "business_status": "1",
+      "infocode": "10000",
+      "info": "OK",
+      "status": "success",
+      "elapsed_ms": 4492.43
+    },
+    {
+      "sequence": 14,
+      "endpoint": "/v5/direction/walking",
+      "http_status": 200,
+      "business_status": "1",
+      "infocode": "10000",
+      "info": "OK",
+      "status": "success",
+      "elapsed_ms": 3584.38
+    },
+    {
+      "sequence": 15,
+      "endpoint": "/v5/direction/walking",
+      "http_status": 200,
+      "business_status": "1",
+      "infocode": "10000",
+      "info": "OK",
+      "status": "success",
+      "elapsed_ms": 5580.47
+    },
+    {
+      "sequence": 16,
+      "endpoint": "/v5/direction/driving",
+      "http_status": 200,
+      "business_status": "1",
+      "infocode": "10000",
+      "info": "OK",
+      "status": "success",
+      "elapsed_ms": 3893.25
+    },
+    {
+      "sequence": 17,
+      "endpoint": "/v5/direction/transit/integrated",
+      "http_status": 200,
+      "business_status": "1",
+      "infocode": "10000",
+      "info": "OK",
+      "status": "success",
+      "elapsed_ms": 5047.03
+    },
+    {
+      "sequence": 18,
+      "endpoint": "/v3/place/around",
+      "http_status": 200,
+      "business_status": "1",
+      "infocode": "10000",
+      "info": "OK",
+      "status": "success",
+      "elapsed_ms": 4681.99
+    },
+    {
+      "sequence": 19,
+      "endpoint": "/v5/direction/walking",
+      "http_status": 200,
+      "business_status": "1",
+      "infocode": "10000",
+      "info": "OK",
+      "status": "success",
+      "elapsed_ms": 4816.31
+    },
+    {
+      "sequence": 20,
+      "endpoint": "/v5/direction/walking",
+      "http_status": 200,
+      "business_status": "1",
+      "infocode": "10000",
+      "info": "OK",
+      "status": "success",
+      "elapsed_ms": 3578.3
+    }
+  ],
+  "cases": {
+    "qingming_search": {
+      "status": "found",
+      "exact_identity_unique": true,
+      "multiple_candidates": true,
+      "entrance_verified": false
+    },
+    "kaifengfu_search": {
+      "status": "found",
+      "exact_identity_unique": true,
+      "multiple_candidates": true,
+      "entrance_verified": false
+    },
+    "entrances": {
+      "A": "POI coordinate only; not verified entrance",
+      "B": "NOT_TESTED_no_manually_verified_entrance",
+      "C": "driving POI IDs supported by schema; evaluated below",
+      "child_pois_present": false,
+      "entrance_verified": false
+    },
+    "walking_forward": {
+      "status": "estimated",
+      "distance_available": true,
+      "duration_available": true,
+      "geometry_available": true,
+      "walking_seconds_available": true,
+      "cost_available": true,
+      "wait_included_per_v5_contract": null,
+      "engine_gate": {
+        "quote_received": true,
+        "bounds_unknown": true,
+        "solver_status_without_approved_journeys": "needs_data",
+        "formal_integration": "requires_additional_data",
+        "database_accessed": false,
+        "navigation_certified": false,
+        "reason": "verified entrances/path + licensed validity/envelope policy required",
+        "transit_walking_limit_supported": null
+      }
+    },
+    "walking_reverse": {
+      "status": "estimated",
+      "distance_available": true,
+      "duration_available": true,
+      "geometry_available": true,
+      "walking_seconds_available": true,
+      "cost_available": true,
+      "wait_included_per_v5_contract": null,
+      "engine_gate": {
+        "quote_received": true,
+        "bounds_unknown": true,
+        "solver_status_without_approved_journeys": "needs_data",
+        "formal_integration": "requires_additional_data",
+        "database_accessed": false,
+        "navigation_certified": false,
+        "reason": "verified entrances/path + licensed validity/envelope policy required",
+        "transit_walking_limit_supported": null
+      }
+    },
+    "driving": {
+      "status": "estimated",
+      "distance_available": true,
+      "duration_available": true,
+      "geometry_available": true,
+      "walking_seconds_available": false,
+      "cost_available": false,
+      "wait_included_per_v5_contract": null,
+      "engine_gate": {
+        "quote_received": true,
+        "bounds_unknown": true,
+        "solver_status_without_approved_journeys": "needs_data",
+        "formal_integration": "requires_additional_data",
+        "database_accessed": false,
+        "navigation_certified": false,
+        "reason": "verified entrances/path + licensed validity/envelope policy required",
+        "transit_walking_limit_supported": null
+      }
+    },
+    "transit": {
+      "status": "estimated",
+      "distance_available": true,
+      "duration_available": true,
+      "geometry_available": false,
+      "walking_seconds_available": true,
+      "cost_available": false,
+      "wait_included_per_v5_contract": true,
+      "engine_gate": {
+        "quote_received": true,
+        "bounds_unknown": true,
+        "solver_status_without_approved_journeys": "needs_data",
+        "formal_integration": "requires_additional_data",
+        "database_accessed": false,
+        "navigation_certified": false,
+        "reason": "verified entrances/path + licensed validity/envelope policy required",
+        "transit_walking_limit_supported": false
+      }
+    },
+    "walking_to_dining_candidate": {
+      "status": "estimated",
+      "distance_available": true,
+      "duration_available": true,
+      "geometry_available": true,
+      "walking_seconds_available": true,
+      "cost_available": true,
+      "wait_included_per_v5_contract": null,
+      "engine_gate": {
+        "quote_received": true,
+        "bounds_unknown": true,
+        "solver_status_without_approved_journeys": "needs_data",
+        "formal_integration": "requires_additional_data",
+        "database_accessed": false,
+        "navigation_certified": false,
+        "reason": "verified entrances/path + licensed validity/envelope policy required",
+        "transit_walking_limit_supported": null
+      }
+    },
+    "direction_comparison": {
+      "both_returned": true,
+      "different": false,
+      "symmetric_assumed": false
+    },
+    "poi_id_comparison": {
+      "status": "estimated",
+      "changed": true,
+      "entrance_verified": false
+    },
+    "driving_strategy_comparison": {
+      "status": "estimated",
+      "changed": true
+    },
+    "followup_identity": {
+      "both_exact_unique": true,
+      "manual_verification": false,
+      "business_fields_present": true,
+      "children_present": true
+    },
+    "dining_fields": {
+      "provider_business_present": true,
+      "dish_supply_verified": false,
+      "opening_verified": false,
+      "price_verified": false
+    },
+    "walking_dining_to_destination": {
+      "status": "estimated",
+      "distance_available": true,
+      "duration_available": true,
+      "geometry_available": true,
+      "walking_seconds_available": true,
+      "cost_available": true,
+      "wait_included_per_v5_contract": null,
+      "engine_gate": {
+        "quote_received": true,
+        "bounds_unknown": true,
+        "solver_status_without_approved_journeys": "needs_data",
+        "formal_integration": "requires_additional_data",
+        "database_accessed": false,
+        "navigation_certified": false,
+        "reason": "verified entrances/path + licensed validity/envelope policy required",
+        "transit_walking_limit_supported": null
+      }
+    }
+  },
+  "successful_requests": 18,
+  "failed_requests": 2,
+  "elapsed_ms": 107458.93,
+  "snapshot_experiment": {
+    "scope": "numeric_compatibility_only",
+    "data": "API point estimates + synthetic scenario",
+    "calendar_opening_visit_windows": "synthetic_2030_fixture_not_a_forecast",
+    "api_point_eta_treated_as": "fixed_test_constant_NOT_confidence_bounds",
+    "formal_admission_bypassed": false,
+    "production_adapter_used": false,
+    "database_accessed": false,
+    "navigation_certified": false,
+    "modes": {
+      "walking": {
+        "status": "feasible",
+        "quote_numbers_consumed": true,
+        "required_visits_preserved": true,
+        "fixed_window_and_return_checked": true,
+        "result_evidence": "synthetic",
+        "navigation_certified": false,
+        "insufficient_time_rejected": true,
+        "missing_transport_rejected": true,
+        "hard_walking_limit_rejected": true
+      },
+      "driving": {
+        "status": "feasible",
+        "quote_numbers_consumed": true,
+        "required_visits_preserved": true,
+        "fixed_window_and_return_checked": true,
+        "result_evidence": "synthetic",
+        "navigation_certified": false,
+        "insufficient_time_rejected": true,
+        "missing_transport_rejected": true,
+        "mixed_mode_total_walking_limit": "NOT_SUPPORTED_not_certified"
+      },
+      "transit": {
+        "status": "feasible",
+        "quote_numbers_consumed": true,
+        "required_visits_preserved": true,
+        "fixed_window_and_return_checked": true,
+        "result_evidence": "synthetic",
+        "navigation_certified": false,
+        "insufficient_time_rejected": true,
+        "missing_transport_rejected": true,
+        "mixed_mode_total_walking_limit": "NOT_SUPPORTED_not_certified"
+      }
+    },
+    "optional_dining": {
+      "status": "feasible",
+      "included": true,
+      "all_selected_transport_from_api_constants_or_same_node_zero": true,
+      "opening_and_service_are_synthetic": true
+    }
+  },
+  "continuation": {
+    "requests": 9,
+    "timeout_seconds": 10,
+    "automatic_retries": 0,
+    "aggregate_cap": 20
+  },
+  "completed_at": "2026-10-22T20:36:48.067654+08:00"
+}

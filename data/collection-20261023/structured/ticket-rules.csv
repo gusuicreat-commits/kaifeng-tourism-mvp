@@ -1,0 +1,4 @@
+ticket_id,place_id,ticket_type,price_cny,scope,reservation,reentry,applicable_period,source_ids,status,limitations
+ticket_qm_song_banquet_candidate,qingming,清明上河·宋宴,悦席368/佳席468/尊席568；悦席/佳席儿童268,含用餐当日及后2天共3天入园；园内补票不享受,实名制；官方小程序购买后可直接入园，其他平台需官方商城坐席预约,自用餐日起3日内无限次入园（该产品页口径）,页面未标日期；需目标日确认,['src_qmsyun_song_banquet_20261023'],candidate_product_specific,不能外推到普通门票；未核验目标日库存/退改
+ticket_qm_general_2023_holiday,qingming,普通景区门票（2023五一历史价）,全价120；半价60,2023五一攻略所述，不是当前票价,文中建议提前购票；非目标日预约规则,未确认,2023五一假期,['src_qmsyun_gate_channels_20261023'],historical_only,过期活动价，不能用于当前报价
+ticket_wall_2026_third_party,wall_daliang_scenic,城墙门票（含观影）,全价40；半价20,2026-08-13 第三方转述,线上公众号/美团/携程或窗口,未确认,2026-08文章，需景区确认,"['src_kf_wall_entrances_20260813', 'src_kf_wall_hours_20260813']",third_party_candidate,第三方；不能替代当前票务系统

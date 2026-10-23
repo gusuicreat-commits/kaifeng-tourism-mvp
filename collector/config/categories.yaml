@@ -1,0 +1,111 @@
+# 开封主城区旅游数据采集类别配置
+#
+# 每个类别声明 city-facts/1 落点、必填字段与采集渠道。required_fields 只作为
+# "缺失清单"与质量报告口径使用；缺字段保持 null，不得填默认值。
+schema_version: kaifeng-collection-categories/1
+updated_at: '2026-10-23'
+categories:
+  - key: scenic
+    label: 景区（A 级及重点）
+    place_type: scenic
+    priority: high
+    in_district: true
+    required_fields: [name, district]
+    keywords: ['开封 A 级景区', '清明上河园', '万岁山武侠城', '龙亭公园', '中国翰园碑林', '铁塔公园', '天波杨府', '开封府', '包公祠', '大相国寺', '延庆观', '山陕甘会馆', '禹王台公园', '岳飞庙']
+    channels: [official_site, government, platform]
+  - key: museum
+    label: 博物馆/文化场馆
+    place_type: poi
+    priority: high
+    in_district: true
+    required_fields: [name, district]
+    keywords: ['开封市博物馆', '开封市艺术博物馆', '刘青霞故居纪念馆', '刘少奇在开封陈列馆', '开封警察博物馆', '开封市图书馆', '开封市文化馆']
+    channels: [official_site, government, platform]
+  - key: street_block
+    label: 历史街区/商业街区
+    place_type: poi
+    priority: high
+    in_district: true
+    required_fields: [name, district]
+    keywords: ['书店街', '双龙巷', '御街', '鼓楼广场']
+    channels: [government, official_site, platform]
+  - key: park
+    label: 公园
+    place_type: poi
+    priority: normal
+    in_district: true
+    required_fields: [name, district]
+    keywords: ['龙亭公园', '禹王台公园', '环城公园', '汴京公园']
+    channels: [government, platform]
+  - key: night_market
+    label: 夜市/夜游
+    place_type: night_visit
+    priority: high
+    in_district: true
+    required_fields: [name, district]
+    keywords: ['鼓楼夜市', '西司夜市', '老河大夜市', '书店街夜市', '大庆路夜市', '汴梁小宋城']
+    channels: [government, platform]
+  - key: food
+    label: 菜品
+    fact_kind: food
+    priority: normal
+    in_district: false
+    required_fields: [name]
+    keywords: ['小笼灌汤包子', '桶子鸡', '炒凉粉', '羊肉炕馍', '四味菜', '杏仁茶', '鲤鱼焙面']
+    channels: [government, platform]
+  - key: restaurant
+    label: 餐饮商家（分店）
+    place_type: restaurant
+    priority: high
+    in_district: true
+    required_fields: [name, district]
+    keywords: ['黄家老店', '邢家锅贴', '第一楼', '宋都禾源', '楼中楼']
+    channels: [operator_site, platform]
+  - key: supply
+    label: 供应关系
+    fact_kind: supply
+    priority: normal
+    in_district: false
+    required_fields: [vendor_id, food_id, evidence_note]
+    keywords: []
+    channels: [operator_site]
+  - key: transport
+    label: 交通设施
+    place_type: transport
+    priority: normal
+    in_district: true
+    required_fields: [name, district]
+    keywords: ['开封站', '开封北站', '宋城路站', '公交枢纽']
+    channels: [government, map_service]
+  - key: rest
+    label: 便民设施
+    place_type: rest
+    priority: low
+    in_district: true
+    required_fields: [name, district]
+    keywords: ['游客中心', '公共卫生间']
+    channels: [official_site, government]
+  - key: entrance
+    label: 入口
+    place_type: entrance
+    priority: normal
+    in_district: true
+    required_fields: [name]
+    keywords: ['景区入口', '上善门', '午朝门', '端门']
+    channels: [official_site, government]
+  - key: open_rule
+    label: 开放规则
+    fact_kind: open_rule
+    priority: high
+    in_district: true
+    required_fields: [place_id]
+    keywords: ['开放时间', '开闭馆公告']
+    channels: [official_site, government, platform]
+  - key: show
+    label: 节目/场次
+    fact_kind: show_session
+    priority: high
+    in_district: true
+    required_fields: [program_id, stage_place_id]
+    keywords: ['演出时刻表', '节目单']
+    channels: [official_site]

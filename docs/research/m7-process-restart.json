@@ -1,0 +1,11 @@
+{
+  "temporary_database": true,
+  "paid_provider_calls": false,
+  "distinct_os_processes": true,
+  "same_cookie_authorized_after_restart": true,
+  "same_trip_state": true,
+  "same_route_version": true,
+  "same_route_id": true,
+  "conversation_recovered": true,
+  "process_restart_verified": true
+}

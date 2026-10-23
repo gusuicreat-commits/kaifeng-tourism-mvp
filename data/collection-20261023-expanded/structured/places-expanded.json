@@ -1,0 +1,1112 @@
+{
+  "schema_version": "kaifeng-places-expanded/1",
+  "generated_at": "2026-10-23T19:46:51+08:00",
+  "places": [
+    {
+      "place_id": "qingming",
+      "name": "清明上河园",
+      "aliases": [
+        "清园"
+      ],
+      "place_type": "scenic",
+      "a_level": "5A",
+      "address": "开封市龙亭区龙亭西路5号（搜索候选）",
+      "longitude": null,
+      "latitude": null,
+      "coordinate_system": "unknown",
+      "parent_place_id": null,
+      "evidence_status": "candidate_unverified",
+      "source_ids": [
+        "src_search_a_level_ticket_map_20261023",
+        "src_search_qingming_gates_20261023"
+      ],
+      "missing": [
+        "目标日票效与停止入园",
+        "门点坐标/全部入口通行",
+        "目标日《东京梦华》结束时刻",
+        "园内主路与现场走查"
+      ],
+      "note": "仅有名称/地址/规则候选；不把地图 POI 中心点当游客入口"
+    },
+    {
+      "place_id": "kaifengfu",
+      "name": "开封府",
+      "aliases": [
+        "开封府景区"
+      ],
+      "place_type": "scenic",
+      "a_level": "4A",
+      "address": "河南省开封市鼓楼区包公东湖北岸（官网）",
+      "longitude": null,
+      "latitude": null,
+      "coordinate_system": "unknown",
+      "parent_place_id": null,
+      "evidence_status": "candidate_unverified",
+      "source_ids": [
+        "src_read_kaifengfu_guide_20261023",
+        "src_search_a_level_ticket_map_20261023"
+      ],
+      "missing": [
+        "同一官网页的营业时间冲突",
+        "目标日节目完整场次",
+        "游客入口/出口"
+      ],
+      "note": "仅有名称/地址/规则候选；不把地图 POI 中心点当游客入口"
+    },
+    {
+      "place_id": "baogongci",
+      "name": "包公祠",
+      "aliases": [],
+      "place_type": "scenic",
+      "a_level": "4A",
+      "address": "开封市鼓楼区向阳路1号（第三方汇总）",
+      "longitude": null,
+      "latitude": null,
+      "coordinate_system": "unknown",
+      "parent_place_id": null,
+      "evidence_status": "candidate_unverified",
+      "source_ids": [
+        "src_search_baogongci_20261023",
+        "src_search_a_level_ticket_map_20261023"
+      ],
+      "missing": [
+        "运营方当前开放规则",
+        "夜游适用期",
+        "真实入口",
+        "预约/票种"
+      ],
+      "note": "仅有名称/地址/规则候选；不把地图 POI 中心点当游客入口"
+    },
+    {
+      "place_id": "longting",
+      "name": "龙亭景区",
+      "aliases": [
+        "龙亭公园"
+      ],
+      "place_type": "scenic",
+      "a_level": "4A",
+      "address": "开封市宋都御街北段（官网）",
+      "longitude": null,
+      "latitude": null,
+      "coordinate_system": "unknown",
+      "parent_place_id": null,
+      "evidence_status": "candidate_unverified",
+      "source_ids": [
+        "src_search_longting_20261023",
+        "src_search_a_level_ticket_map_20261023"
+      ],
+      "missing": [
+        "2022 官网指南与 2026 第三方冲突",
+        "南门/北门目标日通行",
+        "夜游规则"
+      ],
+      "note": "仅有名称/地址/规则候选；不把地图 POI 中心点当游客入口"
+    },
+    {
+      "place_id": "tieta",
+      "name": "铁塔景区",
+      "aliases": [
+        "铁塔公园"
+      ],
+      "place_type": "scenic",
+      "a_level": "4A",
+      "address": "开封市顺河回族区北门大街210号（第三方）",
+      "longitude": null,
+      "latitude": null,
+      "coordinate_system": "unknown",
+      "parent_place_id": null,
+      "evidence_status": "candidate_unverified",
+      "source_ids": [
+        "src_search_tieta_20261023",
+        "src_search_a_level_ticket_map_20261023"
+      ],
+      "missing": [
+        "08:30-18:00 与 08:30-21:00 冲突",
+        "目标日停止入园",
+        "入口坐标"
+      ],
+      "note": "仅有名称/地址/规则候选；不把地图 POI 中心点当游客入口"
+    },
+    {
+      "place_id": "daxiangguosi",
+      "name": "大相国寺",
+      "aliases": [],
+      "place_type": "scenic",
+      "a_level": "4A",
+      "address": "开封市鼓楼区自由路西段36号（第三方）",
+      "longitude": null,
+      "latitude": null,
+      "coordinate_system": "unknown",
+      "parent_place_id": null,
+      "evidence_status": "candidate_unverified",
+      "source_ids": [
+        "src_search_daxiangguosi_20261023",
+        "src_search_a_level_ticket_map_20261023"
+      ],
+      "missing": [
+        "官网原文未取得",
+        "夏令/冬季边界",
+        "入寺入口与礼仪限制"
+      ],
+      "note": "仅有名称/地址/规则候选；不把地图 POI 中心点当游客入口"
+    },
+    {
+      "place_id": "hanyuan",
+      "name": "中国翰园碑林",
+      "aliases": [
+        "翰园碑林"
+      ],
+      "place_type": "scenic",
+      "a_level": "4A",
+      "address": "开封市龙亭区龙亭北路15号（官网摘要）",
+      "longitude": null,
+      "latitude": null,
+      "coordinate_system": "unknown",
+      "parent_place_id": null,
+      "evidence_status": "candidate_unverified",
+      "source_ids": [
+        "src_search_hanyuan_20261023",
+        "src_search_a_level_ticket_map_20261023"
+      ],
+      "missing": [
+        "官网 22:00 与平台 21:00 停入冲突",
+        "南北门目标日开放",
+        "夜游是否恢复"
+      ],
+      "note": "仅有名称/地址/规则候选；不把地图 POI 中心点当游客入口"
+    },
+    {
+      "place_id": "qifeng",
+      "name": "启封故园",
+      "aliases": [],
+      "place_type": "scenic",
+      "a_level": "4A",
+      "address": "开封市祥符区朱仙镇（待核）",
+      "longitude": null,
+      "latitude": null,
+      "coordinate_system": "unknown",
+      "parent_place_id": null,
+      "evidence_status": "candidate_unverified",
+      "source_ids": [
+        "src_search_a_level_ticket_map_20261023"
+      ],
+      "missing": [
+        "目标日营业",
+        "地址/入口",
+        "交通",
+        "节目"
+      ],
+      "note": "仅有名称/地址/规则候选；不把地图 POI 中心点当游客入口"
+    },
+    {
+      "place_id": "wansuishan",
+      "name": "万岁山武侠城",
+      "aliases": [
+        "万岁山",
+        "万岁山大宋武侠城"
+      ],
+      "place_type": "scenic",
+      "a_level": "4A",
+      "address": "开封市龙亭区东京大道中段（官网摘要）",
+      "longitude": null,
+      "latitude": null,
+      "coordinate_system": "unknown",
+      "parent_place_id": null,
+      "evidence_status": "candidate_unverified",
+      "source_ids": [
+        "src_search_wansuishan_ticket_20261023",
+        "src_read_wansuishan_gov_20261023",
+        "src_search_a_level_ticket_map_20261023"
+      ],
+      "missing": [
+        "官网 08:00-22:00 vs 第三方 21:00/21:30 停检",
+        "东/西/中门目标日通行",
+        "预约剧目的目标日场次"
+      ],
+      "note": "仅有名称/地址/规则候选；不把地图 POI 中心点当游客入口"
+    },
+    {
+      "place_id": "jiaoyulu",
+      "name": "焦裕禄纪念园",
+      "aliases": [],
+      "place_type": "scenic",
+      "a_level": "4A",
+      "address": "兰考县（待核）",
+      "longitude": null,
+      "latitude": null,
+      "coordinate_system": "unknown",
+      "parent_place_id": null,
+      "evidence_status": "candidate_unverified",
+      "source_ids": [
+        "src_search_a_level_ticket_map_20261023"
+      ],
+      "missing": [
+        "地址/开放/预约",
+        "入口",
+        "现场走查"
+      ],
+      "note": "仅有名称/地址/规则候选；不把地图 POI 中心点当游客入口"
+    },
+    {
+      "place_id": "tianboyangfu",
+      "name": "天波杨府",
+      "aliases": [],
+      "place_type": "scenic",
+      "a_level": "4A",
+      "address": "开封市龙亭区龙亭北路14号（第三方）",
+      "longitude": null,
+      "latitude": null,
+      "coordinate_system": "unknown",
+      "parent_place_id": null,
+      "evidence_status": "candidate_unverified",
+      "source_ids": [
+        "src_search_tianboyangfu_20261023",
+        "src_search_a_level_ticket_map_20261023"
+      ],
+      "missing": [
+        "日常/夜游切换边界",
+        "20:30 vs 18:30",
+        "停车/入口"
+      ],
+      "note": "仅有名称/地址/规则候选；不把地图 POI 中心点当游客入口"
+    },
+    {
+      "place_id": "aisijia",
+      "name": "爱思嘉·农业嘉年华",
+      "aliases": [],
+      "place_type": "scenic",
+      "a_level": "4A",
+      "address": "开封市祥符区（待核）",
+      "longitude": null,
+      "latitude": null,
+      "coordinate_system": "unknown",
+      "parent_place_id": null,
+      "evidence_status": "candidate_unverified",
+      "source_ids": [
+        "src_search_a_level_ticket_map_20261023"
+      ],
+      "missing": [
+        "目标日营业/票价",
+        "入口",
+        "公共交通"
+      ],
+      "note": "仅有名称/地址/规则候选；不把地图 POI 中心点当游客入口"
+    },
+    {
+      "place_id": "huangsongdaguan",
+      "name": "皇宋大观",
+      "aliases": [],
+      "place_type": "scenic",
+      "a_level": "3A",
+      "address": null,
+      "longitude": null,
+      "latitude": null,
+      "coordinate_system": "unknown",
+      "parent_place_id": null,
+      "evidence_status": "candidate_unverified",
+      "source_ids": [
+        "src_search_a_level_ticket_map_20261023"
+      ],
+      "missing": [
+        "运营状态",
+        "地址/入口",
+        "目标日规则"
+      ],
+      "note": "仅有名称/地址/规则候选；不把地图 POI 中心点当游客入口"
+    },
+    {
+      "place_id": "yunuo",
+      "name": "雨诺生态园",
+      "aliases": [],
+      "place_type": "scenic",
+      "a_level": "3A",
+      "address": null,
+      "longitude": null,
+      "latitude": null,
+      "coordinate_system": "unknown",
+      "parent_place_id": null,
+      "evidence_status": "candidate_unverified",
+      "source_ids": [
+        "src_search_a_level_ticket_map_20261023"
+      ],
+      "missing": [
+        "运营状态",
+        "地址/入口",
+        "目标日规则"
+      ],
+      "note": "仅有名称/地址/规则候选；不把地图 POI 中心点当游客入口"
+    },
+    {
+      "place_id": "xiaosongcheng",
+      "name": "汴梁小宋城",
+      "aliases": [],
+      "place_type": "scenic",
+      "a_level": "3A",
+      "address": "开封市龙亭区大梁路208号（第三方）",
+      "longitude": null,
+      "latitude": null,
+      "coordinate_system": "unknown",
+      "parent_place_id": null,
+      "evidence_status": "candidate_unverified",
+      "source_ids": [
+        "src_search_xiaosong_20261023",
+        "src_read_xiaosong_ctrip_20261023"
+      ],
+      "missing": [
+        "运营方当前营业时刻",
+        "23:00/23:30/全天开放冲突",
+        "入口与演出票规则"
+      ],
+      "note": "仅有名称/地址/规则候选；不把地图 POI 中心点当游客入口"
+    },
+    {
+      "place_id": "yudian",
+      "name": "余店乡村旅游度假区",
+      "aliases": [],
+      "place_type": "scenic",
+      "a_level": "3A",
+      "address": null,
+      "longitude": null,
+      "latitude": null,
+      "coordinate_system": "unknown",
+      "parent_place_id": null,
+      "evidence_status": "candidate_unverified",
+      "source_ids": [
+        "src_search_a_level_ticket_map_20261023"
+      ],
+      "missing": [
+        "地址/入口",
+        "目标日营业",
+        "交通"
+      ],
+      "note": "仅有名称/地址/规则候选；不把地图 POI 中心点当游客入口"
+    },
+    {
+      "place_id": "lankaowenhua",
+      "name": "兰考县文化交流中心",
+      "aliases": [],
+      "place_type": "scenic",
+      "a_level": "3A",
+      "address": null,
+      "longitude": null,
+      "latitude": null,
+      "coordinate_system": "unknown",
+      "parent_place_id": null,
+      "evidence_status": "candidate_unverified",
+      "source_ids": [
+        "src_search_a_level_ticket_map_20261023"
+      ],
+      "missing": [
+        "地址/入口",
+        "预约/开放",
+        "活动安排"
+      ],
+      "note": "仅有名称/地址/规则候选；不把地图 POI 中心点当游客入口"
+    },
+    {
+      "place_id": "wall",
+      "name": "开封城墙",
+      "aliases": [
+        "开封城墙景区"
+      ],
+      "place_type": "scenic",
+      "a_level": "3A",
+      "address": "开封市龙亭区大梁路与内顺城路交叉口（首批候选）",
+      "longitude": null,
+      "latitude": null,
+      "coordinate_system": "unknown",
+      "parent_place_id": null,
+      "evidence_status": "candidate_unverified",
+      "source_ids": [
+        "src_search_a_level_ticket_map_20261023",
+        "src_read_tourism_map_20261023"
+      ],
+      "missing": [
+        "运营方目标日规则",
+        "开放段/登城口",
+        "联票权益范围"
+      ],
+      "note": "仅有名称/地址/规则候选；不把地图 POI 中心点当游客入口"
+    },
+    {
+      "place_id": "yuwangtai",
+      "name": "禹王台景区",
+      "aliases": [],
+      "place_type": "scenic",
+      "a_level": "2A",
+      "address": null,
+      "longitude": null,
+      "latitude": null,
+      "coordinate_system": "unknown",
+      "parent_place_id": null,
+      "evidence_status": "candidate_unverified",
+      "source_ids": [
+        "src_search_a_level_ticket_map_20261023",
+        "src_search_lesser_a_levels_20261023"
+      ],
+      "missing": [
+        "运营状态/票价",
+        "地址/入口",
+        "目标日规则"
+      ],
+      "note": "仅有名称/地址/规则候选；不把地图 POI 中心点当游客入口"
+    },
+    {
+      "place_id": "shanshangan",
+      "name": "山陕甘会馆",
+      "aliases": [],
+      "place_type": "scenic",
+      "a_level": "2A",
+      "address": "开封市龙亭区徐府街85号（第三方）",
+      "longitude": null,
+      "latitude": null,
+      "coordinate_system": "unknown",
+      "parent_place_id": null,
+      "evidence_status": "candidate_unverified",
+      "source_ids": [
+        "src_search_shanshangan_20261023",
+        "src_search_a_level_ticket_map_20261023"
+      ],
+      "missing": [
+        "运营方当前开放规则",
+        "夏令/冬季边界",
+        "入口坐标"
+      ],
+      "note": "仅有名称/地址/规则候选；不把地图 POI 中心点当游客入口"
+    },
+    {
+      "place_id": "liushaoqi",
+      "name": "刘少奇在开封陈列馆",
+      "aliases": [
+        "刘少奇陈列馆"
+      ],
+      "place_type": "scenic",
+      "a_level": "2A",
+      "address": "开封市北土街10号（百科候选）",
+      "longitude": null,
+      "latitude": null,
+      "coordinate_system": "unknown",
+      "parent_place_id": null,
+      "evidence_status": "candidate_unverified",
+      "source_ids": [
+        "src_search_a_level_ticket_map_20261023",
+        "src_search_lesser_a_levels_20261023"
+      ],
+      "missing": [
+        "开放/预约/免费规则",
+        "入口",
+        "运营状态"
+      ],
+      "note": "仅有名称/地址/规则候选；不把地图 POI 中心点当游客入口"
+    },
+    {
+      "place_id": "yanqingguan",
+      "name": "延庆观",
+      "aliases": [],
+      "place_type": "scenic",
+      "a_level": "2A",
+      "address": "开封市鼓楼区观前街53号（第三方）",
+      "longitude": null,
+      "latitude": null,
+      "coordinate_system": "unknown",
+      "parent_place_id": null,
+      "evidence_status": "candidate_unverified",
+      "source_ids": [
+        "src_search_yanqingguan_20261023",
+        "src_search_a_level_ticket_map_20261023"
+      ],
+      "missing": [
+        "目标日开放规则",
+        "17:40/18:15 停入冲突",
+        "入口"
+      ],
+      "note": "仅有名称/地址/规则候选；不把地图 POI 中心点当游客入口"
+    },
+    {
+      "place_id": "yuefeimiao",
+      "name": "岳飞庙",
+      "aliases": [
+        "朱仙镇岳飞庙"
+      ],
+      "place_type": "scenic",
+      "a_level": "2A",
+      "address": "开封市祥符区朱仙镇岳庙大街（待核）",
+      "longitude": null,
+      "latitude": null,
+      "coordinate_system": "unknown",
+      "parent_place_id": null,
+      "evidence_status": "candidate_unverified",
+      "source_ids": [
+        "src_search_a_level_ticket_map_20261023",
+        "src_search_lesser_a_levels_20261023"
+      ],
+      "missing": [
+        "目标日营业/票价",
+        "地址/入口",
+        "交通"
+      ],
+      "note": "仅有名称/地址/规则候选；不把地图 POI 中心点当游客入口"
+    },
+    {
+      "place_id": "zhangzhuang",
+      "name": "张庄",
+      "aliases": [],
+      "place_type": "scenic",
+      "a_level": "2A",
+      "address": null,
+      "longitude": null,
+      "latitude": null,
+      "coordinate_system": "unknown",
+      "parent_place_id": null,
+      "evidence_status": "candidate_unverified",
+      "source_ids": [
+        "src_search_a_level_ticket_map_20261023"
+      ],
+      "missing": [
+        "是否是可持续游客目的地",
+        "地址/入口",
+        "开放规则"
+      ],
+      "note": "仅有名称/地址/规则候选；不把地图 POI 中心点当游客入口"
+    },
+    {
+      "place_id": "kf_station",
+      "name": "开封站",
+      "aliases": [
+        "开封火车站"
+      ],
+      "place_type": "transport",
+      "a_level": null,
+      "address": null,
+      "longitude": null,
+      "latitude": null,
+      "coordinate_system": "unknown",
+      "parent_place_id": null,
+      "evidence_status": "candidate_unverified",
+      "source_ids": [
+        "src_search_lesser_a_levels_20261023"
+      ],
+      "missing": [
+        "铁路出站口编号",
+        "集合点",
+        "2026 公交班次"
+      ],
+      "note": "仅有名称/地址/规则候选；不把地图 POI 中心点当游客入口"
+    },
+    {
+      "place_id": "kf_north_station",
+      "name": "开封北站",
+      "aliases": [
+        "高铁开封北站"
+      ],
+      "place_type": "transport",
+      "a_level": null,
+      "address": null,
+      "longitude": null,
+      "latitude": null,
+      "coordinate_system": "unknown",
+      "parent_place_id": null,
+      "evidence_status": "candidate_unverified",
+      "source_ids": [
+        "src_search_lesser_a_levels_20261023"
+      ],
+      "missing": [
+        "铁路出站口编号",
+        "公交/旅游专线当前班次",
+        "集合点"
+      ],
+      "note": "仅有名称/地址/规则候选；不把地图 POI 中心点当游客入口"
+    },
+    {
+      "place_id": "gulou_night",
+      "name": "鼓楼夜市",
+      "aliases": [
+        "开封鼓楼夜市"
+      ],
+      "place_type": "night_visit",
+      "a_level": null,
+      "address": "开封市鼓楼广场周边（政府页未给单点地址）",
+      "longitude": null,
+      "latitude": null,
+      "coordinate_system": "unknown",
+      "parent_place_id": null,
+      "evidence_status": "candidate_unverified",
+      "source_ids": [
+        "src_read_gulou_official_20261023",
+        "src_search_night_market_20261023"
+      ],
+      "missing": [
+        "稳定开市/撤市时刻",
+        "目标日临时休市",
+        "具体摊位",
+        "人流/排队实测"
+      ],
+      "note": "仅有名称/地址/规则候选；不把地图 POI 中心点当游客入口"
+    },
+    {
+      "place_id": "xisi_night",
+      "name": "西司夜市",
+      "aliases": [],
+      "place_type": "night_visit",
+      "a_level": null,
+      "address": "开封市包公湖西侧（待核）",
+      "longitude": null,
+      "latitude": null,
+      "coordinate_system": "unknown",
+      "parent_place_id": null,
+      "evidence_status": "candidate_unverified",
+      "source_ids": [
+        "src_search_night_market_20261023"
+      ],
+      "missing": [
+        "运营方页面",
+        "目标日营业",
+        "具体摊点"
+      ],
+      "note": "仅有名称/地址/规则候选；不把地图 POI 中心点当游客入口"
+    },
+    {
+      "place_id": "heda_night",
+      "name": "老河大夜市",
+      "aliases": [
+        "河大夜市"
+      ],
+      "place_type": "night_visit",
+      "a_level": null,
+      "address": "河南大学老校区周边（待核）",
+      "longitude": null,
+      "latitude": null,
+      "coordinate_system": "unknown",
+      "parent_place_id": null,
+      "evidence_status": "candidate_unverified",
+      "source_ids": [
+        "src_search_night_market_20261023"
+      ],
+      "missing": [
+        "目标日营业",
+        "具体摊点",
+        "交通落点"
+      ],
+      "note": "仅有名称/地址/规则候选；不把地图 POI 中心点当游客入口"
+    },
+    {
+      "place_id": "huangjia_xisi",
+      "name": "黄家老店（西司店）",
+      "aliases": [],
+      "place_type": "restaurant",
+      "a_level": null,
+      "address": "开封市鼓楼区西司门街16号（平台候选）",
+      "longitude": null,
+      "latitude": null,
+      "coordinate_system": "unknown",
+      "parent_place_id": null,
+      "evidence_status": "candidate_unverified",
+      "source_ids": [
+        "src_search_huangjia_20261023"
+      ],
+      "missing": [
+        "目标日营业/最后接单",
+        "当前门店菜单照片",
+        "门店确认的供应关系",
+        "准确入口/楼层指引",
+        "实测用餐时长"
+      ],
+      "note": "平台地址/人均/推荐菜只作线索，不能拼成供应证明"
+    },
+    {
+      "place_id": "huangjia_daliang",
+      "name": "黄家老店（大梁路店）",
+      "aliases": [],
+      "place_type": "restaurant",
+      "a_level": null,
+      "address": "开封市城西街道大梁路18号（平台候选）",
+      "longitude": null,
+      "latitude": null,
+      "coordinate_system": "unknown",
+      "parent_place_id": null,
+      "evidence_status": "candidate_unverified",
+      "source_ids": [
+        "src_search_huangjia_20261023"
+      ],
+      "missing": [
+        "目标日营业/最后接单",
+        "当前门店菜单照片",
+        "门店确认的供应关系",
+        "准确入口/楼层指引",
+        "实测用餐时长"
+      ],
+      "note": "平台地址/人均/推荐菜只作线索，不能拼成供应证明"
+    },
+    {
+      "place_id": "xingjia_daliangmen",
+      "name": "邢家锅贴老店·非遗·开封菜（大梁门总店）",
+      "aliases": [],
+      "place_type": "restaurant",
+      "a_level": null,
+      "address": "开封市西门大街98号（大梁门东50米路北，平台候选；另有地图页写198号）",
+      "longitude": null,
+      "latitude": null,
+      "coordinate_system": "unknown",
+      "parent_place_id": null,
+      "evidence_status": "candidate_unverified",
+      "source_ids": [
+        "src_search_xingjia_20261023"
+      ],
+      "missing": [
+        "目标日营业/最后接单",
+        "当前门店菜单照片",
+        "门店确认的供应关系",
+        "准确入口/楼层指引",
+        "实测用餐时长"
+      ],
+      "note": "平台地址/人均/推荐菜只作线索，不能拼成供应证明"
+    },
+    {
+      "place_id": "louzhonglou_xiaosong",
+      "name": "楼中楼酒店（汴梁小宋城店）",
+      "aliases": [],
+      "place_type": "restaurant",
+      "a_level": null,
+      "address": "大梁路汴梁小宋城小吃城一楼擂台东侧6号7号电梯（平台候选）",
+      "longitude": null,
+      "latitude": null,
+      "coordinate_system": "unknown",
+      "parent_place_id": null,
+      "evidence_status": "candidate_unverified",
+      "source_ids": [
+        "src_search_louzhonglou_20261023"
+      ],
+      "missing": [
+        "目标日营业/最后接单",
+        "当前门店菜单照片",
+        "门店确认的供应关系",
+        "准确入口/楼层指引",
+        "实测用餐时长"
+      ],
+      "note": "平台地址/人均/推荐菜只作线索，不能拼成供应证明"
+    },
+    {
+      "place_id": "heyuan_hanxing",
+      "name": "宋都禾源·灌汤包子（汉兴路直营店）",
+      "aliases": [],
+      "place_type": "restaurant",
+      "a_level": null,
+      "address": "黄河大街东段与汉兴路交叉口东北角（平台候选）",
+      "longitude": null,
+      "latitude": null,
+      "coordinate_system": "unknown",
+      "parent_place_id": null,
+      "evidence_status": "candidate_unverified",
+      "source_ids": [
+        "src_search_heyuan_20261023"
+      ],
+      "missing": [
+        "目标日营业/最后接单",
+        "当前门店菜单照片",
+        "门店确认的供应关系",
+        "准确入口/楼层指引",
+        "实测用餐时长"
+      ],
+      "note": "平台地址/人均/推荐菜只作线索，不能拼成供应证明"
+    },
+    {
+      "place_id": "heyuan_jinxiang",
+      "name": "禾源灌汤包子（金祥路直营店）",
+      "aliases": [],
+      "place_type": "restaurant",
+      "a_level": null,
+      "address": "开封市金祥路金鼎立都北门西行20米路南（平台候选）",
+      "longitude": null,
+      "latitude": null,
+      "coordinate_system": "unknown",
+      "parent_place_id": null,
+      "evidence_status": "candidate_unverified",
+      "source_ids": [
+        "src_search_heyuan_20261023"
+      ],
+      "missing": [
+        "目标日营业/最后接单",
+        "当前门店菜单照片",
+        "门店确认的供应关系",
+        "准确入口/楼层指引",
+        "实测用餐时长"
+      ],
+      "note": "平台地址/人均/推荐菜只作线索，不能拼成供应证明"
+    },
+    {
+      "place_id": "diyilou_sihou",
+      "name": "第一楼（寺后街店）",
+      "aliases": [],
+      "place_type": "restaurant",
+      "a_level": null,
+      "address": "开封市寺后街8号（官网）",
+      "longitude": null,
+      "latitude": null,
+      "coordinate_system": "unknown",
+      "parent_place_id": null,
+      "evidence_status": "candidate_unverified",
+      "source_ids": [
+        "src_diyilou_home_20261023",
+        "src_diyilou_mingcai_20261023",
+        "src_qunar_diyilou_20261023",
+        "src_ctrip_diyilou_20261023"
+      ],
+      "missing": [
+        "目标日营业/最后接单",
+        "当前门店菜单照片",
+        "门店确认的供应关系",
+        "准确入口/楼层指引",
+        "实测用餐时长"
+      ],
+      "note": "平台地址/人均/推荐菜只作线索，不能拼成供应证明"
+    },
+    {
+      "place_id": "qm_yingbin",
+      "name": "迎宾门",
+      "place_type": "entrance",
+      "parent_place_id": "qingming",
+      "address": null,
+      "longitude": null,
+      "latitude": null,
+      "coordinate_system": "unknown",
+      "evidence_status": "official_public_account_and_third_party",
+      "source_ids": [
+        "src_search_qingming_gates_20261023"
+      ],
+      "missing": [
+        "gate coordinate",
+        "target-date passability",
+        "whether same gate allows exit"
+      ],
+      "note": "2023 攻略/节庆文章与 2026 第三方攻略；目标日通行待核"
+    },
+    {
+      "place_id": "qm_duan",
+      "name": "端门",
+      "place_type": "entrance",
+      "parent_place_id": "qingming",
+      "address": null,
+      "longitude": null,
+      "latitude": null,
+      "coordinate_system": "unknown",
+      "evidence_status": "official_public_account_and_third_party",
+      "source_ids": [
+        "src_search_qingming_gates_20261023"
+      ],
+      "missing": [
+        "gate coordinate",
+        "target-date passability",
+        "whether same gate allows exit"
+      ],
+      "note": "官方节选与第三方称可入园；存在第三方称仅节假日开放，冲突"
+    },
+    {
+      "place_id": "qm_jinshui",
+      "name": "金水门",
+      "place_type": "entrance",
+      "parent_place_id": "qingming",
+      "address": null,
+      "longitude": null,
+      "latitude": null,
+      "coordinate_system": "unknown",
+      "evidence_status": "official_public_account_and_third_party",
+      "source_ids": [
+        "src_search_qingming_gates_20261023"
+      ],
+      "missing": [
+        "gate coordinate",
+        "target-date passability",
+        "whether same gate allows exit"
+      ],
+      "note": "官方节选与第三方称可入园；目标日适用性待核"
+    },
+    {
+      "place_id": "qm_danfeng",
+      "name": "丹凤门",
+      "place_type": "entrance",
+      "parent_place_id": "qingming",
+      "address": null,
+      "longitude": null,
+      "latitude": null,
+      "coordinate_system": "unknown",
+      "evidence_status": "third_party_only",
+      "source_ids": [
+        "src_search_qingming_gates_20261023"
+      ],
+      "missing": [
+        "gate coordinate",
+        "target-date passability",
+        "whether same gate allows exit"
+      ],
+      "note": "第三方称常规关闭、活动期临时开放；不能当常规入口"
+    },
+    {
+      "place_id": "hanyuan_south",
+      "name": "南大门",
+      "place_type": "entrance",
+      "parent_place_id": "hanyuan",
+      "address": null,
+      "longitude": null,
+      "latitude": null,
+      "coordinate_system": "unknown",
+      "evidence_status": "third_party_only",
+      "source_ids": [
+        "src_search_hanyuan_20261023"
+      ],
+      "missing": [
+        "gate coordinate",
+        "target-date passability",
+        "whether same gate allows exit"
+      ],
+      "note": "第三方介绍称南门靠近园林区；未取得当前通行/出口规则"
+    },
+    {
+      "place_id": "hanyuan_north",
+      "name": "北大门",
+      "place_type": "entrance",
+      "parent_place_id": "hanyuan",
+      "address": null,
+      "longitude": null,
+      "latitude": null,
+      "coordinate_system": "unknown",
+      "evidence_status": "third_party_only",
+      "source_ids": [
+        "src_search_hanyuan_20261023"
+      ],
+      "missing": [
+        "gate coordinate",
+        "target-date passability",
+        "whether same gate allows exit"
+      ],
+      "note": "第三方介绍称北门靠近碑廊区；未取得当前通行/出口规则"
+    },
+    {
+      "place_id": "wall_daliang",
+      "name": "大梁门古马道登城口",
+      "place_type": "entrance",
+      "parent_place_id": "wall",
+      "address": null,
+      "longitude": null,
+      "latitude": null,
+      "coordinate_system": "unknown",
+      "evidence_status": "first_batch_candidate_reused",
+      "source_ids": [
+        "src_kf_wall_entrances_20260813",
+        "src_kf_wall_closure_20260104"
+      ],
+      "missing": [
+        "gate coordinate",
+        "target-date passability",
+        "whether same gate allows exit"
+      ],
+      "note": "2026-08 第三方仍列大梁门；2026-01 曾临时关闭，目标日通行未确认"
+    },
+    {
+      "place_id": "wsd_east",
+      "name": "东大门",
+      "place_type": "entrance",
+      "parent_place_id": "wansuishan",
+      "address": null,
+      "longitude": null,
+      "latitude": null,
+      "coordinate_system": "unknown",
+      "evidence_status": "third_party_only",
+      "source_ids": [
+        "src_search_wansuishan_20261023"
+      ],
+      "missing": [
+        "gate coordinate",
+        "target-date passability",
+        "whether same gate allows exit"
+      ],
+      "note": "第三方 2026-04 入口文章候选；运营方当前入口公告未取得"
+    },
+    {
+      "place_id": "wsd_west",
+      "name": "西大门（原北门）",
+      "place_type": "entrance",
+      "parent_place_id": "wansuishan",
+      "address": null,
+      "longitude": null,
+      "latitude": null,
+      "coordinate_system": "unknown",
+      "evidence_status": "third_party_only",
+      "source_ids": [
+        "src_search_wansuishan_20261023"
+      ],
+      "missing": [
+        "gate coordinate",
+        "target-date passability",
+        "whether same gate allows exit"
+      ],
+      "note": "第三方候选；旧/新门名关系待运营方确认"
+    },
+    {
+      "place_id": "wsd_center",
+      "name": "中门",
+      "place_type": "entrance",
+      "parent_place_id": "wansuishan",
+      "address": null,
+      "longitude": null,
+      "latitude": null,
+      "coordinate_system": "unknown",
+      "evidence_status": "third_party_only",
+      "source_ids": [
+        "src_search_wansuishan_20261023"
+      ],
+      "missing": [
+        "gate coordinate",
+        "target-date passability",
+        "whether same gate allows exit"
+      ],
+      "note": "第三方候选；无门点坐标/通行确认"
+    },
+    {
+      "place_id": "dxgs_main",
+      "name": "大相国寺山门（待核）",
+      "place_type": "entrance",
+      "parent_place_id": "daxiangguosi",
+      "address": null,
+      "longitude": null,
+      "latitude": null,
+      "coordinate_system": "unknown",
+      "evidence_status": "unresolved_placeholder",
+      "source_ids": [
+        "src_search_daxiangguosi_20261023"
+      ],
+      "missing": [
+        "official gate name",
+        "gate coordinate",
+        "direction/passability"
+      ],
+      "note": "仅知道寺院地址，不能把山门/地图中心当已核验入口"
+    },
+    {
+      "place_id": "tieta_main",
+      "name": "铁塔景区入口（待核）",
+      "place_type": "entrance",
+      "parent_place_id": "tieta",
+      "address": null,
+      "longitude": null,
+      "latitude": null,
+      "coordinate_system": "unknown",
+      "evidence_status": "unresolved_placeholder",
+      "source_ids": [
+        "src_search_tieta_20261023"
+      ],
+      "missing": [
+        "official gate name",
+        "gate coordinate",
+        "direction/passability"
+      ],
+      "note": "页面只写“景区入口处有讲解”，未给门名、坐标或方向"
+    }
+  ],
+  "counts": {
+    "a_level_scenics": 24,
+    "restaurants": 7,
+    "transport": 2,
+    "night_visits": 3,
+    "named_entrances": 12
+  }
+}

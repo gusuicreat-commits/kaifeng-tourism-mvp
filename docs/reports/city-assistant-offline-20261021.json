@@ -1,0 +1,115 @@
+{
+  "data": "SYNTHETIC TEST ONLY: verified flags emulated only inside disposable database",
+  "real_kaifeng_data_validated": false,
+  "live_llm_requested": false,
+  "frontend_touched": false,
+  "runtime_restarted": false,
+  "cancelled_candidate_confirmation_http_status": 409,
+  "turns": [
+    {
+      "input": "我下一站去哪？",
+      "http_status": 200,
+      "status": "answered",
+      "expected_status": "answered",
+      "passed": true,
+      "reply": "按第1版已确认计划，下一项是[合成测试]restaurant。 当前路线需要重新核验，以下仅说明已确认的计划，不代表现在可直接执行。",
+      "basis": "rule",
+      "metrics": {
+        "context_characters": 3941,
+        "model_injected_characters": 0,
+        "context_assembly_ms": 2.518,
+        "tool_calls": []
+      },
+      "wall_ms": 10.81
+    },
+    {
+      "input": "我想先吃饭。",
+      "http_status": 200,
+      "status": "intent_only",
+      "expected_status": "intent_only",
+      "passed": true,
+      "reply": "已整理为本次旅行的待确认意愿，正式安排未变。需要我据此计算剩余行程吗？",
+      "basis": "rule",
+      "metrics": {
+        "context_characters": 5208,
+        "model_injected_characters": 0,
+        "context_assembly_ms": 2.795,
+        "tool_calls": []
+      },
+      "wall_ms": 8.59
+    },
+    {
+      "input": "下午的演出别动。",
+      "http_status": 200,
+      "status": "intent_only",
+      "expected_status": "intent_only",
+      "passed": true,
+      "reply": "已整理为本次旅行的待确认意愿，正式安排未变。需要我据此计算剩余行程吗？",
+      "basis": "rule",
+      "metrics": {
+        "context_characters": 5926,
+        "model_injected_characters": 0,
+        "context_assembly_ms": 2.768,
+        "tool_calls": []
+      },
+      "wall_ms": 16.23
+    },
+    {
+      "input": "那你帮我调整一下。",
+      "http_status": 200,
+      "status": "needs_confirmation",
+      "expected_status": "needs_confirmation",
+      "passed": true,
+      "reply": "已计算候选路线，请核对保留、删除、顺序和时间变化；确认前正式路线不变。",
+      "basis": "rule",
+      "metrics": {
+        "context_characters": 6113,
+        "model_injected_characters": 0,
+        "context_assembly_ms": 3.799,
+        "tool_calls": [
+          "replan_trip"
+        ]
+      },
+      "wall_ms": 15.74
+    },
+    {
+      "input": "我还是不改了。",
+      "http_status": 200,
+      "status": "discarded",
+      "expected_status": "discarded",
+      "passed": true,
+      "reply": "已放弃这份待确认修改，正式行程和路线版本保持不变。",
+      "basis": "rule",
+      "metrics": {
+        "context_characters": 5765,
+        "model_injected_characters": 0,
+        "context_assembly_ms": 3.252,
+        "tool_calls": [
+          "discard_candidate"
+        ]
+      },
+      "wall_ms": 12.94
+    }
+  ],
+  "model_calls": [],
+  "live_model_call_count": 0,
+  "state_read_checks": 55,
+  "state_read_errors": 0,
+  "state_read_error_rate": 0.0,
+  "tool_checks": 5,
+  "wrong_tool_calls": 0,
+  "wrong_tool_call_rate": 0.0,
+  "formal_mutations_without_confirmation": 0,
+  "repeated_confirmed_requirement_questions": 0,
+  "context": {
+    "next_read_samples": 50,
+    "http_testclient_p50_ms": 4.475,
+    "http_testclient_p95_ms": 9.313,
+    "max_characters": 3976,
+    "dining_fact_records": 2,
+    "unrelated_dining_fact_records": 0,
+    "unrelated_dining_fact_ratio": 0.0
+  },
+  "limits": "One fixed synthetic conversation; 50 local TestClient reads. Not user research, real navigation, model accuracy or production SLA.",
+  "status": "passed"
+}

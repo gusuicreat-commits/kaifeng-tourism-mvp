@@ -1,0 +1,58 @@
+{
+  "merged_files": {
+    ".env.example": "ea7581137f9ef500831767bf321d0973185b08416768b4a5bd0da09933db8ff6",
+    "backend/app/city/agent/api.py": "d55371566018fbdbab8d651e472b010fa4b43067ee8f106a67fa0ab8f0b25c73",
+    "backend/app/city/agent/conversation.py": "5fbc7afe0ee93934de5d3ff2fe100af6544cd7d79e649b3b46563db23d88edf5",
+    "backend/app/city/agent/models.py": "516dd9e1778979a02f0884665017c7e7c6f5789351051e721efdb10e169d1e9f",
+    "backend/app/city/agent/reference_routes.py": "4ad55f2d5d2a53d749b280a560f57c96bb6ae3872a417f988f28d6eda3fe162f",
+    "backend/app/city/agent/service.py": "9ee9b4508c488c728b291a21a4f487605d17203b8a08119a77c9f7fd6e81bf30",
+    "backend/app/city/agent/understand.py": "0f6281a9e53a9615d452a570bc5792ab6cf53c6c298a8429a1cbdb39769ff40c",
+    "backend/app/city/api.py": "74d3ed80c6ecdeb797d51d6c0a29c4886c9b6e77f2ef8fd63c401489c085443a",
+    "backend/app/city/engine/models.py": "37cab1ba4a91587a2ddca575ae5286bc66179d1b54de1e85083c5ceb197fef28",
+    "backend/app/city/engine/solver.py": "e8b3aec5daf6ebbf74e24b01013a8ecbbe8616170c021689e2757b6b8098586c",
+    "backend/app/city/engine/storage.py": "eb2ec7e4365ea6ff85a29a08f194e7378ffc64fd856dae133b5ce4409329585a",
+    "backend/app/city/engine/travel.py": "ea2d6b2ce78442edc4806331bd9b95f52cd686782f09d715646ab97abbf8f730",
+    "backend/app/city/engine/validation.py": "5763e6679fa046587b3f6b586c2ae7a1243d4eb03b69717b8b670a798ee60919",
+    "backend/app/city/location_resolution.py": "c19f8a7d170654ffc30fe28e528803dabc39cbed5efd8485e3547f548b28f4a1",
+    "backend/app/memory/api.py": "0a54f1956244a07a2213a7affe16ea070e9bdb7e5fb73a5dd7a95f19e6ae3dcc",
+    "backend/tests/fixtures/engine_synthetic.json": "ef859d1229d5b3cf3e4895ea395890b5370063771b586bc090c6668289a14123",
+    "backend/tests/test_agent_reference_routes.py": "f057f3731d2ad2cabf448fb86b32f490410a046cb01398ebde8770045870cf76",
+    "backend/tests/test_location_resolution.py": "076df0b89a62125133ca6ae6c554aa09266d098c74b9f3dcdb4a1c7ae84473c8",
+    "backend/tests/test_planning_understanding.py": "9d381d123e968b590bee3a9247a353784048ad2bacfdeff7003e73aca1b726e8",
+    "backend/tests/test_sample_assessment.py": "8a4cbcbc6ea726c05903e1ed4ea0589796f5216951c35c7fc520f0f5d2b47efe",
+    "docs/contracts/city-agent-v3.schema.json": "0554cfecddbad14544b913fe6ddb8511bd87343b366e1ce0da1bddf7fe3face5",
+    "docs/contracts/city-engine-v1.schema.json": "d22d90ef3de813b8a2998d0f65311554891b5625f65cc06d353cea3a16f20b84",
+    "frontend/playwright.config.ts": "22119e9224286399a8a7a04e1ee4e12c44bb8f24ace8a67fdc101acab27358c8",
+    "frontend/playwright.reference.config.ts": "507149d4000090a148154be69c77b00865e28eb5f9a26731b6b52bd2448cbf67",
+    "frontend/src/cityAgentApi.ts": "a9533bfdc9cd77fc77ecee3599cd3c408ae69f20afc319ba3767d0651aa5a3fa",
+    "frontend/src/components/BasketPlanning.vue": "bde90ce09064c6ee063a4f774dbcdc4ce34a8b2d7fa747e3b519542e23b22cb7",
+    "frontend/src/components/CityAgentChat.vue": "40fe1580894b963c3b819f85cc3950f418cd4ffa3d19241fccb541d0b31d5bbc",
+    "frontend/src/components/LocationPicker.vue": "b221e8da299349026838a9518632bd8b3eca19afea512c92c2e31692c4bbab7b",
+    "frontend/src/components/ReferenceRouteCard.vue": "2a4eaed2e9579ac269f683742caa315e17a8992a89d2622b6273753f8ce02ea6",
+    "frontend/src/locationApi.ts": "36f530c5b21a8c97d12b20e18d33db3ab946a3d3a8ac88bd86f58cb2cf929054",
+    "frontend/tests/assistant-reference.spec.ts": "5581f035f22fdd2e0739bdee70e71cbdf2560aa755e9317c73407f02537f8157",
+    "frontend/tests/location-resolution.spec.ts": "ce23f57ca8b7544bdcf19958510dd83eecf8a99a686c60bdfb349a3caed1147c",
+    "scripts/export_agent_contracts.py": "ff8548cdaefbb64d4a63b0a52046ed05468a819add0455cd25dc69228f887a74",
+    "scripts/reference_route_test_server.py": "f6238248d9c26d97d5ddbb009fbe5e84f3de0a77ae196e9fb3db24215ab5162a"
+  },
+  "unrelated_files_preserved_at_switch": 429,
+  "backup": "/Users/mac/Desktop/大挑/kaifeng-main-merge-backup-20261023-161200",
+  "followup_fix": [
+    "backend/app/city/agent/conversation.py",
+    "backend/app/city/agent/understand.py"
+  ],
+  "tests": {
+    "backend": 625,
+    "followup_targeted": 48,
+    "reference_browser": 4,
+    "agent_browser": 7,
+    "targeted_browser": 10,
+    "default_browser": {
+      "passed": 84,
+      "failed": 4,
+      "skipped": 1,
+      "baseline_reproduced_failures": 3,
+      "remaining_failure_passed_targeted_recheck": true
+    }
+  }
+}

@@ -1,0 +1,170 @@
+{
+  "schema_version": "kaifeng-entrances-expanded/1",
+  "generated_at": "2026-10-23T19:46:51+08:00",
+  "entrances": [
+    {
+      "entrance_relation_id": "rel_entry_qm_yingbin",
+      "place_id": "qingming",
+      "entrance_place_id": "qm_yingbin",
+      "direction": "entry",
+      "evidence_status": "official_public_account_and_third_party",
+      "source_ids": [
+        "src_search_qingming_gates_20261023"
+      ],
+      "note": "2023 攻略/节庆文章与 2026 第三方攻略；目标日通行待核",
+      "applicable_period": "未标明目标日期；必须按目标日复核"
+    },
+    {
+      "entrance_relation_id": "rel_entry_qm_duan",
+      "place_id": "qingming",
+      "entrance_place_id": "qm_duan",
+      "direction": "entry",
+      "evidence_status": "official_public_account_and_third_party",
+      "source_ids": [
+        "src_search_qingming_gates_20261023"
+      ],
+      "note": "官方节选与第三方称可入园；存在第三方称仅节假日开放，冲突",
+      "applicable_period": "未标明目标日期；必须按目标日复核"
+    },
+    {
+      "entrance_relation_id": "rel_entry_qm_jinshui",
+      "place_id": "qingming",
+      "entrance_place_id": "qm_jinshui",
+      "direction": "entry",
+      "evidence_status": "official_public_account_and_third_party",
+      "source_ids": [
+        "src_search_qingming_gates_20261023"
+      ],
+      "note": "官方节选与第三方称可入园；目标日适用性待核",
+      "applicable_period": "未标明目标日期；必须按目标日复核"
+    },
+    {
+      "entrance_relation_id": "rel_entry_qm_danfeng",
+      "place_id": "qingming",
+      "entrance_place_id": "qm_danfeng",
+      "direction": "entry",
+      "evidence_status": "third_party_only",
+      "source_ids": [
+        "src_search_qingming_gates_20261023"
+      ],
+      "note": "第三方称常规关闭、活动期临时开放；不能当常规入口",
+      "applicable_period": "未标明目标日期；必须按目标日复核"
+    },
+    {
+      "entrance_relation_id": "rel_entry_hanyuan_south",
+      "place_id": "hanyuan",
+      "entrance_place_id": "hanyuan_south",
+      "direction": "both",
+      "evidence_status": "third_party_only",
+      "source_ids": [
+        "src_search_hanyuan_20261023"
+      ],
+      "note": "第三方介绍称南门靠近园林区；未取得当前通行/出口规则",
+      "applicable_period": "未标明目标日期；必须按目标日复核"
+    },
+    {
+      "entrance_relation_id": "rel_entry_hanyuan_north",
+      "place_id": "hanyuan",
+      "entrance_place_id": "hanyuan_north",
+      "direction": "both",
+      "evidence_status": "third_party_only",
+      "source_ids": [
+        "src_search_hanyuan_20261023"
+      ],
+      "note": "第三方介绍称北门靠近碑廊区；未取得当前通行/出口规则",
+      "applicable_period": "未标明目标日期；必须按目标日复核"
+    },
+    {
+      "entrance_relation_id": "rel_entry_wall_daliang",
+      "place_id": "wall",
+      "entrance_place_id": "wall_daliang",
+      "direction": "entry",
+      "evidence_status": "first_batch_candidate_reused",
+      "source_ids": [
+        "src_kf_wall_entrances_20260813",
+        "src_kf_wall_closure_20260104"
+      ],
+      "note": "2026-08 第三方仍列大梁门；2026-01 曾临时关闭，目标日通行未确认",
+      "applicable_period": "未标明目标日期；必须按目标日复核"
+    },
+    {
+      "entrance_relation_id": "rel_entry_wansuishan_east",
+      "place_id": "wansuishan",
+      "entrance_place_id": "wsd_east",
+      "direction": "entry",
+      "evidence_status": "third_party_only",
+      "source_ids": [
+        "src_search_wansuishan_20261023"
+      ],
+      "note": "第三方 2026-04 入口文章候选；运营方当前入口公告未取得",
+      "applicable_period": "未标明目标日期；必须按目标日复核"
+    },
+    {
+      "entrance_relation_id": "rel_entry_wansuishan_west",
+      "place_id": "wansuishan",
+      "entrance_place_id": "wsd_west",
+      "direction": "entry",
+      "evidence_status": "third_party_only",
+      "source_ids": [
+        "src_search_wansuishan_20261023"
+      ],
+      "note": "第三方候选；旧/新门名关系待运营方确认",
+      "applicable_period": "未标明目标日期；必须按目标日复核"
+    },
+    {
+      "entrance_relation_id": "rel_entry_wansuishan_center",
+      "place_id": "wansuishan",
+      "entrance_place_id": "wsd_center",
+      "direction": "entry",
+      "evidence_status": "third_party_only",
+      "source_ids": [
+        "src_search_wansuishan_20261023"
+      ],
+      "note": "第三方候选；无门点坐标/通行确认",
+      "applicable_period": "未标明目标日期；必须按目标日复核"
+    }
+  ],
+  "unresolved_placeholders": [
+    {
+      "place_id": "dxgs_main",
+      "name": "大相国寺山门（待核）",
+      "place_type": "entrance",
+      "parent_place_id": "daxiangguosi",
+      "address": null,
+      "longitude": null,
+      "latitude": null,
+      "coordinate_system": "unknown",
+      "evidence_status": "unresolved_placeholder",
+      "source_ids": [
+        "src_search_daxiangguosi_20261023"
+      ],
+      "missing": [
+        "official gate name",
+        "gate coordinate",
+        "direction/passability"
+      ],
+      "note": "仅知道寺院地址，不能把山门/地图中心当已核验入口"
+    },
+    {
+      "place_id": "tieta_main",
+      "name": "铁塔景区入口（待核）",
+      "place_type": "entrance",
+      "parent_place_id": "tieta",
+      "address": null,
+      "longitude": null,
+      "latitude": null,
+      "coordinate_system": "unknown",
+      "evidence_status": "unresolved_placeholder",
+      "source_ids": [
+        "src_search_tieta_20261023"
+      ],
+      "missing": [
+        "official gate name",
+        "gate coordinate",
+        "direction/passability"
+      ],
+      "note": "页面只写“景区入口处有讲解”，未给门名、坐标或方向"
+    }
+  ],
+  "notice": "未明确入口名的景区保留 placeholder，不用中心点补齐。"
+}

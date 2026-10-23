@@ -1,0 +1,490 @@
+{
+  "date": "2026-10-21",
+  "data": "SYNTHETIC ONLY; not real Kaifeng business validation",
+  "live_requested": false,
+  "runtime_restarted": false,
+  "production_db_used": false,
+  "frontend_dist_replaced": false,
+  "max_live_calls": 12,
+  "min_request_interval_seconds": 2.0,
+  "max_concurrency": 1,
+  "automatic_retries": 0,
+  "cost_cny": null,
+  "cost_basis": "No verified price or billing snapshot",
+  "cases": [
+    {
+      "case": "A_success",
+      "input": "我现在有点饿，想吃灌汤包，最好离我近一点，但下午那场演出千万别错过，你帮我看看怎么安排。",
+      "status": "needs_confirmation",
+      "stop_reason": "needs_confirmation",
+      "mode": "react",
+      "understanding": {
+        "schema_version": "travel-intent/3.1",
+        "actions": [
+          {
+            "kind": "search_dining",
+            "quote": "想吃灌汤包",
+            "target_name": null
+          }
+        ],
+        "constraints": [
+          {
+            "field": "food",
+            "strength": "soft",
+            "value": "灌汤包",
+            "quote": "想吃灌汤包"
+          },
+          {
+            "field": "objective",
+            "strength": "soft",
+            "value": "less_walking",
+            "quote": "最好离我近一点"
+          }
+        ],
+        "corrections": [],
+        "unresolved": []
+      },
+      "interpretation": {
+        "basis": "rule",
+        "source": "deterministic_fallback",
+        "model_calls": 0,
+        "usage": []
+      },
+      "events": [
+        {
+          "tool": "understand",
+          "status": "ok",
+          "parameters": {},
+          "source": "deterministic_fallback",
+          "fallback": false,
+          "request_sequence": null,
+          "provider_failure": null
+        },
+        {
+          "tool": "search_dining",
+          "status": "ok",
+          "parameters": {},
+          "elapsed_ms": 3.76,
+          "source": "deterministic_fallback",
+          "request_sequence": null,
+          "legal": true,
+          "new_information": true,
+          "result_code": null,
+          "item_count": 1
+        },
+        {
+          "tool": "query_shows",
+          "status": "ok",
+          "parameters": {},
+          "elapsed_ms": 3.45,
+          "source": "deterministic_fallback",
+          "request_sequence": null,
+          "legal": true,
+          "new_information": true,
+          "result_code": null,
+          "item_count": 1
+        },
+        {
+          "tool": "verify_travel",
+          "status": "ok",
+          "parameters": {
+            "place_id": "restaurant"
+          },
+          "elapsed_ms": 3.63,
+          "source": "deterministic_fallback",
+          "request_sequence": null,
+          "legal": true,
+          "new_information": true,
+          "result_code": null,
+          "item_count": 0
+        },
+        {
+          "tool": "preview_plan",
+          "status": "needs_confirmation",
+          "parameters": {
+            "place_id": "restaurant"
+          },
+          "elapsed_ms": 25.35,
+          "source": "deterministic_fallback",
+          "request_sequence": null,
+          "legal": true,
+          "new_information": true,
+          "result_code": null,
+          "item_count": 0
+        }
+      ],
+      "decisions": [
+        {
+          "request_sequence": null,
+          "eligible_actions": [
+            {
+              "tool": "finish"
+            },
+            {
+              "tool": "clarify"
+            },
+            {
+              "tool": "search_dining"
+            },
+            {
+              "tool": "query_shows"
+            }
+          ],
+          "source": "deterministic_fallback",
+          "fallback": true,
+          "legal": true,
+          "observations": {},
+          "action": {
+            "tool": "search_dining"
+          },
+          "tool_status": "ok"
+        },
+        {
+          "request_sequence": null,
+          "eligible_actions": [
+            {
+              "tool": "finish"
+            },
+            {
+              "tool": "clarify"
+            },
+            {
+              "tool": "query_shows"
+            }
+          ],
+          "source": "deterministic_fallback",
+          "fallback": true,
+          "legal": true,
+          "observations": {
+            "search_dining": {
+              "status": "ok",
+              "code": null,
+              "item_count": 1
+            }
+          },
+          "action": {
+            "tool": "query_shows"
+          },
+          "tool_status": "ok"
+        },
+        {
+          "request_sequence": null,
+          "eligible_actions": [
+            {
+              "tool": "finish"
+            },
+            {
+              "tool": "clarify"
+            },
+            {
+              "tool": "verify_travel",
+              "place_id": "restaurant"
+            }
+          ],
+          "source": "deterministic_fallback",
+          "fallback": true,
+          "legal": true,
+          "observations": {
+            "search_dining": {
+              "status": "ok",
+              "code": null,
+              "item_count": 1
+            },
+            "query_shows": {
+              "status": "ok",
+              "code": null,
+              "item_count": 1
+            }
+          },
+          "action": {
+            "tool": "verify_travel",
+            "place_id": "restaurant"
+          },
+          "tool_status": "ok"
+        },
+        {
+          "request_sequence": null,
+          "eligible_actions": [
+            {
+              "tool": "finish"
+            },
+            {
+              "tool": "clarify"
+            },
+            {
+              "tool": "preview_plan",
+              "place_id": "restaurant"
+            }
+          ],
+          "source": "deterministic_fallback",
+          "fallback": true,
+          "legal": true,
+          "observations": {
+            "search_dining": {
+              "status": "ok",
+              "code": null,
+              "item_count": 1
+            },
+            "query_shows": {
+              "status": "ok",
+              "code": null,
+              "item_count": 1
+            },
+            "verify_travel": {
+              "status": "ok",
+              "code": null,
+              "item_count": 0
+            }
+          },
+          "action": {
+            "tool": "preview_plan",
+            "place_id": "restaurant"
+          },
+          "tool_status": "needs_confirmation"
+        }
+      ],
+      "metrics": {
+        "tools": 4,
+        "model_calls": 0,
+        "elapsed_ms": 84.7,
+        "usage": [],
+        "cost_cny": null,
+        "cost_basis": "not_calculated_no_price_snapshot"
+      },
+      "formal_state_unchanged_before_confirmation": true,
+      "result_reply": "已生成经过规划校验的候选，请核对变更；确认前正式行程保持不变。",
+      "issues": [],
+      "complete_live_chain": false,
+      "rejected_model_actions": 0,
+      "confirmation": {
+        "status": "passed",
+        "http_status": 200,
+        "actor": "explicit_synthetic_test_user",
+        "version_before": 5,
+        "version_after": 6,
+        "route_version_before": 1,
+        "route_version_after": 2,
+        "completed_history_preserved": true,
+        "objective_after": "less_walking",
+        "protected_show_retained": true
+      },
+      "candidate_checks": {
+        "preserves_show_s2": true,
+        "preserves_completed_visit": true,
+        "requested_constraints": [
+          {
+            "field": "food",
+            "strength": "soft",
+            "value": "灌汤包",
+            "quote": "想吃灌汤包"
+          },
+          {
+            "field": "objective",
+            "strength": "soft",
+            "value": "less_walking",
+            "quote": "最好离我近一点"
+          }
+        ],
+        "activities": [
+          {
+            "goal_id": "lunch",
+            "place_id": "restaurant",
+            "session_id": null,
+            "starts_at": "2030-05-01T12:00:00+08:00",
+            "ends_at": null
+          },
+          {
+            "goal_id": "show",
+            "place_id": "stage2",
+            "session_id": "s2",
+            "starts_at": "2030-05-01T15:00:00+08:00",
+            "ends_at": null
+          }
+        ]
+      }
+    },
+    {
+      "case": "B_missing_supply",
+      "input": "我现在有点饿，想吃灌汤包，最好离我近一点，但下午那场演出千万别错过，你帮我看看怎么安排。",
+      "status": "needs_data",
+      "stop_reason": "needs_data",
+      "mode": "react",
+      "understanding": {
+        "schema_version": "travel-intent/3.1",
+        "actions": [
+          {
+            "kind": "search_dining",
+            "quote": "想吃灌汤包",
+            "target_name": null
+          }
+        ],
+        "constraints": [
+          {
+            "field": "food",
+            "strength": "soft",
+            "value": "灌汤包",
+            "quote": "想吃灌汤包"
+          },
+          {
+            "field": "objective",
+            "strength": "soft",
+            "value": "less_walking",
+            "quote": "最好离我近一点"
+          }
+        ],
+        "corrections": [],
+        "unresolved": []
+      },
+      "interpretation": {
+        "basis": "rule",
+        "source": "deterministic_fallback",
+        "model_calls": 0,
+        "usage": []
+      },
+      "events": [
+        {
+          "tool": "understand",
+          "status": "ok",
+          "parameters": {},
+          "source": "deterministic_fallback",
+          "fallback": false,
+          "request_sequence": null,
+          "provider_failure": null
+        },
+        {
+          "tool": "search_dining",
+          "status": "no_candidates",
+          "parameters": {},
+          "elapsed_ms": 3.51,
+          "source": "deterministic_fallback",
+          "request_sequence": null,
+          "legal": true,
+          "new_information": true,
+          "result_code": "NO_VERIFIED_SUPPLY_OR_OPENING",
+          "item_count": 0
+        },
+        {
+          "tool": "finish",
+          "status": "needs_data",
+          "parameters": {},
+          "elapsed_ms": 3.5,
+          "source": "deterministic_fallback",
+          "request_sequence": null,
+          "legal": true,
+          "new_information": false,
+          "result_code": null,
+          "item_count": 0
+        }
+      ],
+      "decisions": [
+        {
+          "request_sequence": null,
+          "eligible_actions": [
+            {
+              "tool": "finish"
+            },
+            {
+              "tool": "clarify"
+            },
+            {
+              "tool": "search_dining"
+            },
+            {
+              "tool": "query_shows"
+            }
+          ],
+          "source": "deterministic_fallback",
+          "fallback": true,
+          "legal": true,
+          "observations": {},
+          "action": {
+            "tool": "search_dining"
+          },
+          "tool_status": "no_candidates"
+        },
+        {
+          "request_sequence": null,
+          "eligible_actions": [
+            {
+              "tool": "finish"
+            },
+            {
+              "tool": "clarify"
+            },
+            {
+              "tool": "search_dining",
+              "relax_optional_food": true
+            },
+            {
+              "tool": "query_shows"
+            }
+          ],
+          "source": "deterministic_fallback",
+          "fallback": true,
+          "legal": true,
+          "observations": {
+            "search_dining": {
+              "status": "no_candidates",
+              "code": "NO_VERIFIED_SUPPLY_OR_OPENING",
+              "item_count": 0
+            }
+          },
+          "action": {
+            "tool": "finish"
+          },
+          "tool_status": "needs_data"
+        }
+      ],
+      "metrics": {
+        "tools": 1,
+        "model_calls": 0,
+        "elapsed_ms": 34.81,
+        "usage": [],
+        "cost_cny": null,
+        "cost_basis": "not_calculated_no_price_snapshot"
+      },
+      "formal_state_unchanged_before_confirmation": true,
+      "result_reply": "现有核验资料不足以给出可确认安排，正式路线未变。",
+      "issues": [],
+      "complete_live_chain": false,
+      "rejected_model_actions": 0,
+      "confirmation": {
+        "status": "not_run"
+      },
+      "cancel_http_status": 200,
+      "formal_state_unchanged_after_cancel": true
+    }
+  ],
+  "acceptance": "PARTIAL",
+  "protocol": "bounded JSON, not native function calling",
+  "preflight": {
+    "status": "not_run_offline"
+  },
+  "model_calls": [],
+  "live_call_count": 0,
+  "provider_invocations": 0,
+  "provider_failure": null,
+  "known_usage": {
+    "prompt_tokens": 0,
+    "completion_tokens": 0,
+    "total_tokens": 0
+  },
+  "usage_missing_calls": 0,
+  "formal_mutations_without_confirmation": 0,
+  "offline_suite_status": "passed",
+  "observation_comparison": {
+    "same_input": true,
+    "A_tools": [
+      "search_dining",
+      "query_shows",
+      "verify_travel",
+      "preview_plan"
+    ],
+    "B_tools": [
+      "search_dining",
+      "finish"
+    ],
+    "B_safe_no_candidate": true,
+    "scope": "one synthetic pair, not general model accuracy"
+  }
+}

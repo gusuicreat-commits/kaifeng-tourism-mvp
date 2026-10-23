@@ -1,0 +1,4 @@
+road_id,from_id,to_id,purpose,evidence_status,geometry,passable,source_ids,note
+road_qm_yingbin_to_song_banquet,qm_gate_yingbin,song_banquet_area,入口到宋宴/舞台候选动线,not_obtained,,,['src_qmsyun_song_banquet_20261023'],官方只说宋宴距金水门最近；没有入口到宴席的园内道路通行证据
+road_qm_jinshui_to_song_banquet,qm_gate_jinshui,song_banquet_area,金水门到宋宴候选动线,relative_location_only,,,['src_qmsyun_song_banquet_20261023'],不能当作可导航路段；需官方导览图与现场核验
+road_qm_stage_to_exit,qm_program_stage_candidates,qm_gate_candidates,演出后离园,not_obtained,,,[],缺目标舞台、散场分流和夜间出口规则

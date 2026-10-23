@@ -1,0 +1,64 @@
+{
+  "schema_version": "kaifeng-transport/1",
+  "generated_at": "2026-10-23T19:03:02+08:00",
+  "routes": [
+    {
+      "route_id": "candidate_kf_station_qingming_bus1",
+      "from_place_id": "kf_station",
+      "to_place_id": "qingming",
+      "mode": "public_bus",
+      "line_candidate": "1路",
+      "basis": "2022 政府站序：1 路包含火车站和清明上河园相关站序；2024 第三方攻略称约 39 分钟",
+      "evidence_status": "historical_and_third_party_estimate",
+      "source_ids": [
+        "src_kaifeng_bus_2022_20261023"
+      ],
+      "duration_minutes_candidate": 39,
+      "duration_basis": "third_party_estimate_not_measured",
+      "applicable_date": null,
+      "caveats": [
+        "2022 线路不等于 2026 班次",
+        "公交站到具体景区入口步行和安检时间未计",
+        "39 分钟不是高德当前估时，也不是实测"
+      ]
+    },
+    {
+      "route_id": "candidate_kf_north_qingming_bus53",
+      "from_place_id": "kf_north_station",
+      "to_place_id": "qingming",
+      "mode": "public_bus",
+      "line_candidate": "53路",
+      "basis": "2024 第三方攻略称约 58 分钟；2022 政府资料只证明北站公交存在，53 路对应关系需另核",
+      "evidence_status": "third_party_estimate_line_unconfirmed",
+      "source_ids": [
+        "src_kaifeng_bus_2022_20261023"
+      ],
+      "duration_minutes_candidate": 58,
+      "duration_basis": "third_party_estimate_not_measured",
+      "applicable_date": null,
+      "caveats": [
+        "53 路线路/站点、运营日期与下车站均未核实",
+        "不能用于可执行路线"
+      ]
+    },
+    {
+      "route_id": "candidate_kf_north_qingming_bus8_21_34",
+      "from_place_id": "kf_north_station",
+      "to_place_id": "qingming",
+      "mode": "public_bus",
+      "line_candidate": "8/21路，换乘34路",
+      "basis": "2024 第三方攻略的组合候选；本批仅保存到官方 2022 线网存在性",
+      "evidence_status": "third_party_combination_unverified",
+      "source_ids": [
+        "src_kaifeng_bus_2022_20261023"
+      ],
+      "duration_minutes_candidate": null,
+      "duration_basis": "unknown",
+      "applicable_date": null,
+      "caveats": [
+        "换乘站点、方向、首末班、步行距离均未核验"
+      ]
+    }
+  ],
+  "notice": "城市转场应由系统按目标时间向高德查询，并加入出园/进园/缓冲；本文件只保存候选线路和证据缺口。"
+}

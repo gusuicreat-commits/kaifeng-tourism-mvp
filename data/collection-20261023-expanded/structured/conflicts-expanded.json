@@ -1,0 +1,101 @@
+{
+  "schema_version": "kaifeng-conflicts-expanded/1",
+  "generated_at": "2026-10-23T19:46:51+08:00",
+  "conflicts": [
+    {
+      "conflict_id": "c_qm_close_program",
+      "place_id": "qingming",
+      "issue": "页面写 22:00 闭园，节目表却有 22:05/22:30 条目",
+      "sources": [
+        "src_search_qingming_gates_20261023"
+      ],
+      "resolution": "未解决；不得用晚于闭园的节目时刻约束行程"
+    },
+    {
+      "conflict_id": "c_kaifengfu_hours",
+      "place_id": "kaifengfu",
+      "issue": "同一官网页面写 07:30-22:00，游客须知又写夏 07:00-19:00/冬 07:30-18:30",
+      "sources": [
+        "src_read_kaifengfu_guide_20261023"
+      ],
+      "resolution": "保留两套原文；目标日运营时间必须电话/公告确认"
+    },
+    {
+      "conflict_id": "c_wansuishan_hours",
+      "place_id": "wansuishan",
+      "issue": "官网票务 08:00-22:00；第三方 07:30/08:00-23:00、21:00/21:30 停检",
+      "sources": [
+        "src_search_wansuishan_ticket_20261023",
+        "src_search_wansuishan_20261023"
+      ],
+      "resolution": "不合并；官网没有目标日和停检说明"
+    },
+    {
+      "conflict_id": "c_tieta_hours",
+      "place_id": "tieta",
+      "issue": "08:30-18:00/17:30 停售 与 08:30-21:00/20:30 停入 同批出现",
+      "sources": [
+        "src_search_tieta_20261023"
+      ],
+      "resolution": "需运营方当天公告/电话确认"
+    },
+    {
+      "conflict_id": "c_hanyuan_close",
+      "place_id": "hanyuan",
+      "issue": "官网入口页 08:00-22:00；平台 21:00 停止入园",
+      "sources": [
+        "src_search_hanyuan_20261023"
+      ],
+      "resolution": "待运营方确认闭园语义与目标日"
+    },
+    {
+      "conflict_id": "c_xiaosong_hours",
+      "place_id": "xiaosongcheng",
+      "issue": "10:00-23:00、23:00 停止入园、全天开放、23:30 等说法并存",
+      "sources": [
+        "src_search_xiaosong_20261023"
+      ],
+      "resolution": "不采用任意单一说法；运营方当前营业规则缺失"
+    },
+    {
+      "conflict_id": "c_wall_hours",
+      "place_id": "wall",
+      "issue": "2022 运营公告、2026 第三方和首批记录给出不同闭园/停检时间",
+      "sources": [
+        "src_kfwt_wall_2022_20261023",
+        "src_kf_wall_hours_20260813",
+        "src_search_a_level_ticket_map_20261023"
+      ],
+      "resolution": "按开放段/目标日向运营方确认"
+    },
+    {
+      "conflict_id": "c_first_batch_date",
+      "place_id": "qingming",
+      "issue": "首批开放候选把采集日 2026-10-23 写进 business_date",
+      "sources": [
+        "src_first_batch_manifest_20261023"
+      ],
+      "resolution": "扩展包不继承；business_date 全部为 null"
+    },
+    {
+      "conflict_id": "c_xingjia_address",
+      "place_id": "xingjia_daliangmen",
+      "issue": "平台写西门大街 98 号，地图页写西门大街 198 号",
+      "sources": [
+        "src_search_xingjia_20261023"
+      ],
+      "resolution": "地址候选二选一未定，不能生成导航点"
+    },
+    {
+      "conflict_id": "c_station_exit",
+      "place_id": "kf_north_station",
+      "issue": "未取得可信铁路出站口编号；有文章含明显错误，已排除",
+      "sources": [
+        "src_search_lesser_a_levels_20261023"
+      ],
+      "resolution": "保留未知，不猜 A/B/C 出口"
+    }
+  ],
+  "count": 10,
+  "notice": "冲突不强行统一；候选页/目标日公告/现场核验才能关闭。"
+}

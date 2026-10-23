@@ -1,0 +1,19 @@
+{
+  "schema_version": "kaifeng-expanded-summary/1",
+  "generated_at": "2026-10-23T19:46:51+08:00",
+  "source_count": 55,
+  "a_level_count": 24,
+  "place_count": 48,
+  "restaurant_count": 7,
+  "named_entrance_relation_count": 10,
+  "program_count_qingming": 154,
+  "program_count_kaifengfu": 24,
+  "food_count": 9,
+  "vendor_count": 7,
+  "supply_candidate_count": 20,
+  "verified_count": 0,
+  "formal_acceptance_count": 0,
+  "executable_routes": 0,
+  "target_business_date": null,
+  "city_facts_records": 112
+}

@@ -1,0 +1,13 @@
+{
+  "checked_at": "2026-10-19T17:29:36.244506+00:00",
+  "endpoint": "https://overpass-api.de/api/interpreter",
+  "query": "[out:json][timeout:25];\narea[\"name\"=\"开封市\"][\"boundary\"=\"administrative\"]->.city;\nnwr(area.city)[\"name\"~\"万岁山|清明上河园\"];\nout tags center;",
+  "license": "OSM data ODbL 1.0; attribution required",
+  "limitations": [
+    "对象/道路数量不证明完整覆盖或现场可通行；需逐段GIS与实地核验。",
+    "不得据本探针将示意路网标记为真实道路。"
+  ],
+  "sites": [],
+  "status": "unavailable",
+  "error_type": "HTTPStatusError"
+}

@@ -1,0 +1,200 @@
+{
+  "schema_version": "kaifeng-a-level-directory/1",
+  "generated_at": "2026-10-23T19:46:51+08:00",
+  "count": 24,
+  "places": [
+    {
+      "seq": 1,
+      "name": "清明上河园",
+      "level": "5A",
+      "source_id": "src_search_a_level_ticket_map_20261023",
+      "status": "directory_search_candidate",
+      "official_page_read": false
+    },
+    {
+      "seq": 2,
+      "name": "开封府",
+      "level": "4A",
+      "source_id": "src_search_a_level_ticket_map_20261023",
+      "status": "directory_search_candidate",
+      "official_page_read": false
+    },
+    {
+      "seq": 3,
+      "name": "包公祠",
+      "level": "4A",
+      "source_id": "src_search_a_level_ticket_map_20261023",
+      "status": "directory_search_candidate",
+      "official_page_read": false
+    },
+    {
+      "seq": 4,
+      "name": "龙亭景区",
+      "level": "4A",
+      "source_id": "src_search_a_level_ticket_map_20261023",
+      "status": "directory_search_candidate",
+      "official_page_read": false
+    },
+    {
+      "seq": 5,
+      "name": "铁塔景区",
+      "level": "4A",
+      "source_id": "src_search_a_level_ticket_map_20261023",
+      "status": "directory_search_candidate",
+      "official_page_read": false
+    },
+    {
+      "seq": 6,
+      "name": "大相国寺",
+      "level": "4A",
+      "source_id": "src_search_a_level_ticket_map_20261023",
+      "status": "directory_search_candidate",
+      "official_page_read": false
+    },
+    {
+      "seq": 7,
+      "name": "中国翰园碑林",
+      "level": "4A",
+      "source_id": "src_search_a_level_ticket_map_20261023",
+      "status": "directory_search_candidate",
+      "official_page_read": false
+    },
+    {
+      "seq": 8,
+      "name": "启封故园",
+      "level": "4A",
+      "source_id": "src_search_a_level_ticket_map_20261023",
+      "status": "directory_search_candidate",
+      "official_page_read": false
+    },
+    {
+      "seq": 9,
+      "name": "万岁山武侠城",
+      "level": "4A",
+      "source_id": "src_search_a_level_ticket_map_20261023",
+      "status": "directory_search_candidate",
+      "official_page_read": false
+    },
+    {
+      "seq": 10,
+      "name": "焦裕禄纪念园",
+      "level": "4A",
+      "source_id": "src_search_a_level_ticket_map_20261023",
+      "status": "directory_search_candidate",
+      "official_page_read": false
+    },
+    {
+      "seq": 11,
+      "name": "天波杨府",
+      "level": "4A",
+      "source_id": "src_search_a_level_ticket_map_20261023",
+      "status": "directory_search_candidate",
+      "official_page_read": false
+    },
+    {
+      "seq": 12,
+      "name": "爱思嘉·农业嘉年华",
+      "level": "4A",
+      "source_id": "src_search_a_level_ticket_map_20261023",
+      "status": "directory_search_candidate",
+      "official_page_read": false
+    },
+    {
+      "seq": 13,
+      "name": "皇宋大观",
+      "level": "3A",
+      "source_id": "src_search_a_level_ticket_map_20261023",
+      "status": "directory_search_candidate",
+      "official_page_read": false
+    },
+    {
+      "seq": 14,
+      "name": "雨诺生态园",
+      "level": "3A",
+      "source_id": "src_search_a_level_ticket_map_20261023",
+      "status": "directory_search_candidate",
+      "official_page_read": false
+    },
+    {
+      "seq": 15,
+      "name": "汴梁小宋城",
+      "level": "3A",
+      "source_id": "src_search_a_level_ticket_map_20261023",
+      "status": "directory_search_candidate",
+      "official_page_read": false
+    },
+    {
+      "seq": 16,
+      "name": "余店·乡村旅游度假区",
+      "level": "3A",
+      "source_id": "src_search_a_level_ticket_map_20261023",
+      "status": "directory_search_candidate",
+      "official_page_read": false
+    },
+    {
+      "seq": 17,
+      "name": "兰考县文化交流中心",
+      "level": "3A",
+      "source_id": "src_search_a_level_ticket_map_20261023",
+      "status": "directory_search_candidate",
+      "official_page_read": false
+    },
+    {
+      "seq": 18,
+      "name": "开封城墙",
+      "level": "3A",
+      "source_id": "src_search_a_level_ticket_map_20261023",
+      "status": "directory_search_candidate",
+      "official_page_read": false
+    },
+    {
+      "seq": 19,
+      "name": "禹王台景区",
+      "level": "2A",
+      "source_id": "src_search_a_level_ticket_map_20261023",
+      "status": "directory_search_candidate",
+      "official_page_read": false
+    },
+    {
+      "seq": 20,
+      "name": "山陕甘会馆",
+      "level": "2A",
+      "source_id": "src_search_a_level_ticket_map_20261023",
+      "status": "directory_search_candidate",
+      "official_page_read": false
+    },
+    {
+      "seq": 21,
+      "name": "刘少奇陈列馆",
+      "level": "2A",
+      "source_id": "src_search_a_level_ticket_map_20261023",
+      "status": "directory_search_candidate",
+      "official_page_read": false
+    },
+    {
+      "seq": 22,
+      "name": "延庆观",
+      "level": "2A",
+      "source_id": "src_search_a_level_ticket_map_20261023",
+      "status": "directory_search_candidate",
+      "official_page_read": false
+    },
+    {
+      "seq": 23,
+      "name": "岳飞庙",
+      "level": "2A",
+      "source_id": "src_search_a_level_ticket_map_20261023",
+      "status": "directory_search_candidate",
+      "official_page_read": false
+    },
+    {
+      "seq": 24,
+      "name": "张庄",
+      "level": "2A",
+      "source_id": "src_search_a_level_ticket_map_20261023",
+      "status": "directory_search_candidate",
+      "official_page_read": false
+    }
+  ],
+  "notice": "来自 A 级名录的搜索正文候选。官方页直读 403，故不是已核验的当前官方名录。"
+}

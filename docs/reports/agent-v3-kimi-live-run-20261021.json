@@ -1,0 +1,457 @@
+{
+  "date": "2026-10-21",
+  "data": "SYNTHETIC ONLY; not real Kaifeng business validation",
+  "live_requested": true,
+  "runtime_restarted": false,
+  "production_db_used": false,
+  "frontend_dist_replaced": false,
+  "max_live_calls": 12,
+  "min_request_interval_seconds": 2.0,
+  "max_concurrency": 1,
+  "automatic_retries": 0,
+  "cost_cny": null,
+  "cost_basis": "No verified price or billing snapshot",
+  "cases": [
+    {
+      "case": "A_success",
+      "input": "我现在有点饿，想吃灌汤包，最好离我近一点，但下午那场演出千万别错过，你帮我看看怎么安排。",
+      "status": "unavailable",
+      "stop_reason": "unavailable",
+      "mode": "react",
+      "interpretation": {
+        "basis": "kimi_validated",
+        "source": "live_model",
+        "model_calls": 1,
+        "usage": [
+          {
+            "source": "live_model",
+            "model": "kimi-k2.6",
+            "endpoint_host": "api.moonshot.cn",
+            "http_attempts": 1,
+            "automatic_retries": 0,
+            "usage": {
+              "prompt_tokens": 1418,
+              "completion_tokens": 131,
+              "total_tokens": 1549
+            },
+            "cost_cny": null,
+            "cost_basis": "not_calculated_no_price_snapshot",
+            "upstream_status": 200,
+            "request_id": null,
+            "elapsed_ms": 4256.6,
+            "evaluation_request_sequence": 2
+          }
+        ]
+      },
+      "events": [
+        {
+          "tool": "understand",
+          "status": "ok",
+          "parameters": {},
+          "source": "live_model",
+          "fallback": false,
+          "request_sequence": 1,
+          "provider_failure": null
+        },
+        {
+          "tool": "search_dining",
+          "status": "ok",
+          "parameters": {},
+          "elapsed_ms": 9.63,
+          "source": "live_model",
+          "request_sequence": 2,
+          "legal": true,
+          "new_information": true,
+          "result_code": null,
+          "item_count": 1
+        }
+      ],
+      "decisions": [
+        {
+          "request_sequence": 2,
+          "eligible_actions": [
+            {
+              "tool": "finish"
+            },
+            {
+              "tool": "clarify"
+            },
+            {
+              "tool": "search_dining"
+            },
+            {
+              "tool": "query_shows"
+            }
+          ],
+          "source": "live_model",
+          "fallback": false,
+          "legal": true,
+          "provider": {
+            "source": "live_model",
+            "model": "kimi-k2.6",
+            "endpoint_host": "api.moonshot.cn",
+            "http_attempts": 1,
+            "automatic_retries": 0,
+            "usage": {
+              "prompt_tokens": 463,
+              "completion_tokens": 15,
+              "total_tokens": 478
+            },
+            "cost_cny": null,
+            "cost_basis": "not_calculated_no_price_snapshot",
+            "upstream_status": 200,
+            "request_id": null,
+            "elapsed_ms": 1281.93,
+            "evaluation_request_sequence": 3
+          },
+          "action": {
+            "tool": "search_dining"
+          },
+          "validation": "valid_schema",
+          "tool_status": "ok"
+        },
+        {
+          "request_sequence": 3,
+          "eligible_actions": [
+            {
+              "tool": "finish"
+            },
+            {
+              "tool": "clarify"
+            },
+            {
+              "tool": "query_shows"
+            }
+          ],
+          "source": "live_model",
+          "fallback": false,
+          "legal": false,
+          "failure": {
+            "code": "MODEL_HTTP_ERROR",
+            "source": "live_model",
+            "model": "kimi-k2.6",
+            "endpoint_host": "api.moonshot.cn",
+            "http_attempts": 1,
+            "automatic_retries": 0,
+            "usage": {},
+            "cost_cny": null,
+            "cost_basis": "not_calculated_no_price_snapshot",
+            "upstream_status": 429,
+            "request_id": null,
+            "error_type": "rate_limit_reached_error",
+            "error_summary": "Your account [redacted]<[redacted]> request reached organization max RPM: 3, please try again after 1 seconds",
+            "retry_after": "1",
+            "retry_after_seconds": 1,
+            "limit_classification": "rate_limit",
+            "elapsed_ms": 336.2,
+            "limit_metric": "RPM",
+            "limit_value": 3
+          }
+        }
+      ],
+      "metrics": {
+        "tools": 1,
+        "model_calls": 3,
+        "elapsed_ms": 7413.19,
+        "usage": [
+          {
+            "source": "live_model",
+            "model": "kimi-k2.6",
+            "endpoint_host": "api.moonshot.cn",
+            "http_attempts": 1,
+            "automatic_retries": 0,
+            "usage": {
+              "prompt_tokens": 1418,
+              "completion_tokens": 131,
+              "total_tokens": 1549
+            },
+            "cost_cny": null,
+            "cost_basis": "not_calculated_no_price_snapshot",
+            "upstream_status": 200,
+            "request_id": null,
+            "elapsed_ms": 4256.6,
+            "evaluation_request_sequence": 2
+          },
+          {
+            "source": "live_model",
+            "model": "kimi-k2.6",
+            "endpoint_host": "api.moonshot.cn",
+            "http_attempts": 1,
+            "automatic_retries": 0,
+            "usage": {
+              "prompt_tokens": 463,
+              "completion_tokens": 15,
+              "total_tokens": 478
+            },
+            "cost_cny": null,
+            "cost_basis": "not_calculated_no_price_snapshot",
+            "upstream_status": 200,
+            "request_id": null,
+            "elapsed_ms": 1281.93,
+            "evaluation_request_sequence": 3
+          },
+          {
+            "code": "MODEL_HTTP_ERROR",
+            "source": "live_model",
+            "model": "kimi-k2.6",
+            "endpoint_host": "api.moonshot.cn",
+            "http_attempts": 1,
+            "automatic_retries": 0,
+            "usage": {},
+            "cost_cny": null,
+            "cost_basis": "not_calculated_no_price_snapshot",
+            "upstream_status": 429,
+            "request_id": null,
+            "error_type": "rate_limit_reached_error",
+            "error_summary": "Your account [redacted]<[redacted]> request reached organization max RPM: 3, please try again after 1 seconds",
+            "retry_after": "1",
+            "retry_after_seconds": 1,
+            "limit_classification": "rate_limit",
+            "elapsed_ms": 336.2,
+            "limit_metric": "RPM",
+            "limit_value": 3
+          }
+        ],
+        "cost_cny": null,
+        "cost_basis": "not_calculated_no_price_snapshot"
+      },
+      "formal_state_unchanged_before_confirmation": true,
+      "result_reply": "任务已停止，正式行程未变。",
+      "issues": [
+        {
+          "status": 503,
+          "code": "MODEL_HTTP_ERROR",
+          "source": "live_model",
+          "model": "kimi-k2.6",
+          "endpoint_host": "api.moonshot.cn",
+          "http_attempts": 1,
+          "automatic_retries": 0,
+          "usage": {},
+          "cost_cny": null,
+          "cost_basis": "not_calculated_no_price_snapshot",
+          "upstream_status": 429,
+          "request_id": null,
+          "error_type": "rate_limit_reached_error",
+          "error_summary": "Your account [redacted]<[redacted]> request reached organization max RPM: 3, please try again after 1 seconds",
+          "retry_after": "1",
+          "retry_after_seconds": 1,
+          "limit_classification": "rate_limit",
+          "elapsed_ms": 336.2,
+          "limit_metric": "RPM",
+          "limit_value": 3
+        }
+      ],
+      "complete_live_chain": false,
+      "confirmation": {
+        "status": "not_run"
+      },
+      "cancel_http_status": 200,
+      "formal_state_unchanged_after_cancel": true
+    }
+  ],
+  "acceptance": "BLOCKED",
+  "protocol": "bounded JSON, not native function calling",
+  "preflight": {
+    "status": "passed",
+    "provider": {
+      "source": "live_model",
+      "model": "kimi-k2.6",
+      "endpoint_host": "api.moonshot.cn",
+      "http_attempts": 1,
+      "automatic_retries": 0,
+      "usage": {
+        "prompt_tokens": 29,
+        "completion_tokens": 8,
+        "total_tokens": 37
+      },
+      "cost_cny": null,
+      "cost_basis": "not_calculated_no_price_snapshot",
+      "upstream_status": 200,
+      "request_id": null,
+      "elapsed_ms": 974.86,
+      "evaluation_request_sequence": 1
+    }
+  },
+  "model_calls": [
+    {
+      "sequence": 1,
+      "case": "preflight",
+      "source": "live_model",
+      "phase": "preflight",
+      "started_at": "2026-10-21T15:00:00.427052+00:00",
+      "interval_since_previous_start_ms": null,
+      "status": "passed",
+      "eligible_actions": [],
+      "model": "kimi-k2.6",
+      "endpoint_host": "api.moonshot.cn",
+      "http_attempts": 1,
+      "automatic_retries": 0,
+      "usage": {
+        "prompt_tokens": 29,
+        "completion_tokens": 8,
+        "total_tokens": 37
+      },
+      "cost_cny": null,
+      "cost_basis": "not_calculated_no_price_snapshot",
+      "upstream_status": 200,
+      "request_id": null,
+      "elapsed_ms": 974.86,
+      "evaluation_request_sequence": 1
+    },
+    {
+      "sequence": 2,
+      "case": "A_success",
+      "source": "live_model",
+      "phase": "understand",
+      "started_at": "2026-10-21T15:00:02.432094+00:00",
+      "interval_since_previous_start_ms": 2005.04,
+      "status": "passed",
+      "eligible_actions": [],
+      "model": "kimi-k2.6",
+      "endpoint_host": "api.moonshot.cn",
+      "http_attempts": 1,
+      "automatic_retries": 0,
+      "usage": {
+        "prompt_tokens": 1418,
+        "completion_tokens": 131,
+        "total_tokens": 1549
+      },
+      "cost_cny": null,
+      "cost_basis": "not_calculated_no_price_snapshot",
+      "upstream_status": 200,
+      "request_id": null,
+      "elapsed_ms": 4256.6,
+      "evaluation_request_sequence": 2
+    },
+    {
+      "sequence": 3,
+      "case": "A_success",
+      "source": "live_model",
+      "phase": "decision",
+      "started_at": "2026-10-21T15:00:06.721278+00:00",
+      "interval_since_previous_start_ms": 4289.26,
+      "status": "passed",
+      "eligible_actions": [
+        {
+          "tool": "finish"
+        },
+        {
+          "tool": "clarify"
+        },
+        {
+          "tool": "search_dining"
+        },
+        {
+          "tool": "query_shows"
+        }
+      ],
+      "model": "kimi-k2.6",
+      "endpoint_host": "api.moonshot.cn",
+      "http_attempts": 1,
+      "automatic_retries": 0,
+      "usage": {
+        "prompt_tokens": 463,
+        "completion_tokens": 15,
+        "total_tokens": 478
+      },
+      "cost_cny": null,
+      "cost_basis": "not_calculated_no_price_snapshot",
+      "upstream_status": 200,
+      "request_id": null,
+      "elapsed_ms": 1281.93,
+      "evaluation_request_sequence": 3,
+      "returned_action": {
+        "tool": "search_dining",
+        "place_id": null
+      }
+    },
+    {
+      "sequence": 4,
+      "case": "A_success",
+      "source": "live_model",
+      "phase": "decision",
+      "started_at": "2026-10-21T15:00:08.726289+00:00",
+      "interval_since_previous_start_ms": 2005.03,
+      "status": "failed",
+      "eligible_actions": [
+        {
+          "tool": "finish"
+        },
+        {
+          "tool": "clarify"
+        },
+        {
+          "tool": "query_shows"
+        }
+      ],
+      "elapsed_ms": 336.64,
+      "failure": {
+        "code": "MODEL_HTTP_ERROR",
+        "source": "live_model",
+        "model": "kimi-k2.6",
+        "endpoint_host": "api.moonshot.cn",
+        "http_attempts": 1,
+        "automatic_retries": 0,
+        "usage": {},
+        "cost_cny": null,
+        "cost_basis": "not_calculated_no_price_snapshot",
+        "upstream_status": 429,
+        "request_id": null,
+        "error_type": "rate_limit_reached_error",
+        "error_summary": "Your account [redacted]<[redacted]> request reached organization max RPM: 3, please try again after 1 seconds",
+        "retry_after": "1",
+        "retry_after_seconds": 1,
+        "limit_classification": "rate_limit",
+        "elapsed_ms": 336.2,
+        "limit_metric": "RPM",
+        "limit_value": 3
+      },
+      "usage": {},
+      "upstream_status": 429,
+      "error_type": "rate_limit_reached_error",
+      "request_id": null,
+      "retry_after": "1",
+      "retry_after_seconds": 1,
+      "limit_classification": "rate_limit"
+    }
+  ],
+  "live_call_count": 4,
+  "provider_failure": {
+    "code": "MODEL_HTTP_ERROR",
+    "source": "live_model",
+    "model": "kimi-k2.6",
+    "endpoint_host": "api.moonshot.cn",
+    "http_attempts": 1,
+    "automatic_retries": 0,
+    "usage": {},
+    "cost_cny": null,
+    "cost_basis": "not_calculated_no_price_snapshot",
+    "upstream_status": 429,
+    "request_id": null,
+    "error_type": "rate_limit_reached_error",
+    "error_summary": "Your account [redacted]<[redacted]> request reached organization max RPM: 3, please try again after 1 seconds",
+    "retry_after": "1",
+    "retry_after_seconds": 1,
+    "limit_classification": "rate_limit",
+    "elapsed_ms": 336.2,
+    "limit_metric": "RPM",
+    "limit_value": 3
+  },
+  "known_usage": {
+    "prompt_tokens": 1910,
+    "completion_tokens": 154,
+    "total_tokens": 2064
+  },
+  "usage_missing_calls": 1,
+  "formal_mutations_without_confirmation": 0,
+  "observation_comparison": {
+    "same_input": false,
+    "A_tools": [
+      "search_dining",
+      null
+    ],
+    "B_tools": [],
+    "B_safe_no_candidate": false,
+    "scope": "one synthetic pair, not general model accuracy"
+  }
+}

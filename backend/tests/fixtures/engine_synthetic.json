@@ -1,0 +1,3418 @@
+{
+  "notice": "SYNTHETIC TEST ONLY; NEVER IMPORT INTO RUNNING DATABASE",
+  "facts": {
+    "schema_version": "city-facts/1",
+    "records": [
+      {
+        "version": 1,
+        "validation_status": "verified",
+        "is_demo": true,
+        "rights_status": "permitted",
+        "verified_at": "2020-01-01T00:00:00+08:00",
+        "reviewer": "SYNTHETIC TEST ONLY",
+        "verification_method": "controlled fixture",
+        "effective_from": "2020-01-01T00:00:00+08:00",
+        "effective_to": "2035-01-01T00:00:00+08:00",
+        "kind": "source",
+        "fact_id": "fixture:source",
+        "name": "SYNTHETIC NOT REAL KAIFENG DATA",
+        "source_type": "field",
+        "url": "https://example.invalid/engine-fixture",
+        "publisher": "TEST ONLY",
+        "collected_at": "2020-01-01T00:00:00+08:00"
+      },
+      {
+        "version": 1,
+        "validation_status": "verified",
+        "is_demo": true,
+        "rights_status": "permitted",
+        "verified_at": "2020-01-01T00:00:00+08:00",
+        "reviewer": "SYNTHETIC TEST ONLY",
+        "verification_method": "controlled fixture",
+        "effective_from": "2020-01-01T00:00:00+08:00",
+        "effective_to": "2035-01-01T00:00:00+08:00",
+        "kind": "place",
+        "fact_id": "origin",
+        "name": "[合成测试]origin",
+        "place_type": "transport",
+        "longitude": 114.3,
+        "latitude": 34.8,
+        "coordinate_system": "GCJ02",
+        "source_ids": [
+          "fixture:source"
+        ]
+      },
+      {
+        "version": 1,
+        "validation_status": "verified",
+        "is_demo": true,
+        "rights_status": "permitted",
+        "verified_at": "2020-01-01T00:00:00+08:00",
+        "reviewer": "SYNTHETIC TEST ONLY",
+        "verification_method": "controlled fixture",
+        "effective_from": "2020-01-01T00:00:00+08:00",
+        "effective_to": "2035-01-01T00:00:00+08:00",
+        "kind": "open_rule",
+        "fact_id": "open:origin",
+        "place_id": "origin",
+        "business_date": "2030-05-01",
+        "opens_at": "2030-05-01T08:00:00+08:00",
+        "closes_at": "2030-05-01T22:00:00+08:00",
+        "reservation": "not_required",
+        "reentry": "allowed",
+        "source_ids": [
+          "fixture:source"
+        ]
+      },
+      {
+        "version": 1,
+        "validation_status": "verified",
+        "is_demo": true,
+        "rights_status": "permitted",
+        "verified_at": "2020-01-01T00:00:00+08:00",
+        "reviewer": "SYNTHETIC TEST ONLY",
+        "verification_method": "controlled fixture",
+        "effective_from": "2020-01-01T00:00:00+08:00",
+        "effective_to": "2035-01-01T00:00:00+08:00",
+        "kind": "place",
+        "fact_id": "hotel",
+        "name": "[合成测试]hotel",
+        "place_type": "rest",
+        "longitude": 114.301,
+        "latitude": 34.8,
+        "coordinate_system": "GCJ02",
+        "source_ids": [
+          "fixture:source"
+        ]
+      },
+      {
+        "version": 1,
+        "validation_status": "verified",
+        "is_demo": true,
+        "rights_status": "permitted",
+        "verified_at": "2020-01-01T00:00:00+08:00",
+        "reviewer": "SYNTHETIC TEST ONLY",
+        "verification_method": "controlled fixture",
+        "effective_from": "2020-01-01T00:00:00+08:00",
+        "effective_to": "2035-01-01T00:00:00+08:00",
+        "kind": "open_rule",
+        "fact_id": "open:hotel",
+        "place_id": "hotel",
+        "business_date": "2030-05-01",
+        "opens_at": "2030-05-01T08:00:00+08:00",
+        "closes_at": "2030-05-01T22:00:00+08:00",
+        "reservation": "not_required",
+        "reentry": "allowed",
+        "source_ids": [
+          "fixture:source"
+        ]
+      },
+      {
+        "version": 1,
+        "validation_status": "verified",
+        "is_demo": true,
+        "rights_status": "permitted",
+        "verified_at": "2020-01-01T00:00:00+08:00",
+        "reviewer": "SYNTHETIC TEST ONLY",
+        "verification_method": "controlled fixture",
+        "effective_from": "2020-01-01T00:00:00+08:00",
+        "effective_to": "2035-01-01T00:00:00+08:00",
+        "kind": "place",
+        "fact_id": "museum",
+        "name": "[合成测试]museum",
+        "place_type": "poi",
+        "longitude": 114.30199999999999,
+        "latitude": 34.8,
+        "coordinate_system": "GCJ02",
+        "source_ids": [
+          "fixture:source"
+        ]
+      },
+      {
+        "version": 1,
+        "validation_status": "verified",
+        "is_demo": true,
+        "rights_status": "permitted",
+        "verified_at": "2020-01-01T00:00:00+08:00",
+        "reviewer": "SYNTHETIC TEST ONLY",
+        "verification_method": "controlled fixture",
+        "effective_from": "2020-01-01T00:00:00+08:00",
+        "effective_to": "2035-01-01T00:00:00+08:00",
+        "kind": "open_rule",
+        "fact_id": "open:museum",
+        "place_id": "museum",
+        "business_date": "2030-05-01",
+        "opens_at": "2030-05-01T08:00:00+08:00",
+        "closes_at": "2030-05-01T22:00:00+08:00",
+        "reservation": "not_required",
+        "reentry": "allowed",
+        "source_ids": [
+          "fixture:source"
+        ]
+      },
+      {
+        "version": 1,
+        "validation_status": "verified",
+        "is_demo": true,
+        "rights_status": "permitted",
+        "verified_at": "2020-01-01T00:00:00+08:00",
+        "reviewer": "SYNTHETIC TEST ONLY",
+        "verification_method": "controlled fixture",
+        "effective_from": "2020-01-01T00:00:00+08:00",
+        "effective_to": "2035-01-01T00:00:00+08:00",
+        "kind": "place",
+        "fact_id": "garden",
+        "name": "[合成测试]garden",
+        "place_type": "poi",
+        "longitude": 114.303,
+        "latitude": 34.8,
+        "coordinate_system": "GCJ02",
+        "source_ids": [
+          "fixture:source"
+        ]
+      },
+      {
+        "version": 1,
+        "validation_status": "verified",
+        "is_demo": true,
+        "rights_status": "permitted",
+        "verified_at": "2020-01-01T00:00:00+08:00",
+        "reviewer": "SYNTHETIC TEST ONLY",
+        "verification_method": "controlled fixture",
+        "effective_from": "2020-01-01T00:00:00+08:00",
+        "effective_to": "2035-01-01T00:00:00+08:00",
+        "kind": "open_rule",
+        "fact_id": "open:garden",
+        "place_id": "garden",
+        "business_date": "2030-05-01",
+        "opens_at": "2030-05-01T08:00:00+08:00",
+        "closes_at": "2030-05-01T22:00:00+08:00",
+        "reservation": "not_required",
+        "reentry": "allowed",
+        "source_ids": [
+          "fixture:source"
+        ]
+      },
+      {
+        "version": 1,
+        "validation_status": "verified",
+        "is_demo": true,
+        "rights_status": "permitted",
+        "verified_at": "2020-01-01T00:00:00+08:00",
+        "reviewer": "SYNTHETIC TEST ONLY",
+        "verification_method": "controlled fixture",
+        "effective_from": "2020-01-01T00:00:00+08:00",
+        "effective_to": "2035-01-01T00:00:00+08:00",
+        "kind": "place",
+        "fact_id": "restaurant",
+        "name": "[合成测试]restaurant",
+        "place_type": "restaurant",
+        "longitude": 114.304,
+        "latitude": 34.8,
+        "coordinate_system": "GCJ02",
+        "source_ids": [
+          "fixture:source"
+        ]
+      },
+      {
+        "version": 1,
+        "validation_status": "verified",
+        "is_demo": true,
+        "rights_status": "permitted",
+        "verified_at": "2020-01-01T00:00:00+08:00",
+        "reviewer": "SYNTHETIC TEST ONLY",
+        "verification_method": "controlled fixture",
+        "effective_from": "2020-01-01T00:00:00+08:00",
+        "effective_to": "2035-01-01T00:00:00+08:00",
+        "kind": "open_rule",
+        "fact_id": "open:restaurant",
+        "place_id": "restaurant",
+        "business_date": "2030-05-01",
+        "opens_at": "2030-05-01T08:00:00+08:00",
+        "closes_at": "2030-05-01T22:00:00+08:00",
+        "reservation": "not_required",
+        "reentry": "allowed",
+        "source_ids": [
+          "fixture:source"
+        ]
+      },
+      {
+        "version": 1,
+        "validation_status": "verified",
+        "is_demo": true,
+        "rights_status": "permitted",
+        "verified_at": "2020-01-01T00:00:00+08:00",
+        "reviewer": "SYNTHETIC TEST ONLY",
+        "verification_method": "controlled fixture",
+        "effective_from": "2020-01-01T00:00:00+08:00",
+        "effective_to": "2035-01-01T00:00:00+08:00",
+        "kind": "place",
+        "fact_id": "stage1",
+        "name": "[合成测试]stage1",
+        "place_type": "stage",
+        "longitude": 114.30499999999999,
+        "latitude": 34.8,
+        "coordinate_system": "GCJ02",
+        "source_ids": [
+          "fixture:source"
+        ]
+      },
+      {
+        "version": 1,
+        "validation_status": "verified",
+        "is_demo": true,
+        "rights_status": "permitted",
+        "verified_at": "2020-01-01T00:00:00+08:00",
+        "reviewer": "SYNTHETIC TEST ONLY",
+        "verification_method": "controlled fixture",
+        "effective_from": "2020-01-01T00:00:00+08:00",
+        "effective_to": "2035-01-01T00:00:00+08:00",
+        "kind": "open_rule",
+        "fact_id": "open:stage1",
+        "place_id": "stage1",
+        "business_date": "2030-05-01",
+        "opens_at": "2030-05-01T08:00:00+08:00",
+        "closes_at": "2030-05-01T22:00:00+08:00",
+        "reservation": "not_required",
+        "reentry": "allowed",
+        "source_ids": [
+          "fixture:source"
+        ]
+      },
+      {
+        "version": 1,
+        "validation_status": "verified",
+        "is_demo": true,
+        "rights_status": "permitted",
+        "verified_at": "2020-01-01T00:00:00+08:00",
+        "reviewer": "SYNTHETIC TEST ONLY",
+        "verification_method": "controlled fixture",
+        "effective_from": "2020-01-01T00:00:00+08:00",
+        "effective_to": "2035-01-01T00:00:00+08:00",
+        "kind": "place",
+        "fact_id": "stage2",
+        "name": "[合成测试]stage2",
+        "place_type": "stage",
+        "longitude": 114.306,
+        "latitude": 34.8,
+        "coordinate_system": "GCJ02",
+        "source_ids": [
+          "fixture:source"
+        ]
+      },
+      {
+        "version": 1,
+        "validation_status": "verified",
+        "is_demo": true,
+        "rights_status": "permitted",
+        "verified_at": "2020-01-01T00:00:00+08:00",
+        "reviewer": "SYNTHETIC TEST ONLY",
+        "verification_method": "controlled fixture",
+        "effective_from": "2020-01-01T00:00:00+08:00",
+        "effective_to": "2035-01-01T00:00:00+08:00",
+        "kind": "open_rule",
+        "fact_id": "open:stage2",
+        "place_id": "stage2",
+        "business_date": "2030-05-01",
+        "opens_at": "2030-05-01T08:00:00+08:00",
+        "closes_at": "2030-05-01T22:00:00+08:00",
+        "reservation": "not_required",
+        "reentry": "allowed",
+        "source_ids": [
+          "fixture:source"
+        ]
+      },
+      {
+        "version": 1,
+        "validation_status": "verified",
+        "is_demo": true,
+        "rights_status": "permitted",
+        "verified_at": "2020-01-01T00:00:00+08:00",
+        "reviewer": "SYNTHETIC TEST ONLY",
+        "verification_method": "controlled fixture",
+        "effective_from": "2020-01-01T00:00:00+08:00",
+        "effective_to": "2035-01-01T00:00:00+08:00",
+        "kind": "program",
+        "fact_id": "program",
+        "name": "[合成测试]演出",
+        "source_ids": [
+          "fixture:source"
+        ]
+      },
+      {
+        "version": 1,
+        "validation_status": "verified",
+        "is_demo": true,
+        "rights_status": "permitted",
+        "verified_at": "2020-01-01T00:00:00+08:00",
+        "reviewer": "SYNTHETIC TEST ONLY",
+        "verification_method": "controlled fixture",
+        "effective_from": "2020-01-01T00:00:00+08:00",
+        "effective_to": "2035-01-01T00:00:00+08:00",
+        "kind": "show_session",
+        "fact_id": "s1",
+        "program_id": "program",
+        "stage_place_id": "stage1",
+        "business_date": "2030-05-01",
+        "starts_at": "2030-05-01T11:00:00+08:00",
+        "ends_at": "2030-05-01T11:30:00+08:00",
+        "source_ids": [
+          "fixture:source"
+        ]
+      },
+      {
+        "version": 1,
+        "validation_status": "verified",
+        "is_demo": true,
+        "rights_status": "permitted",
+        "verified_at": "2020-01-01T00:00:00+08:00",
+        "reviewer": "SYNTHETIC TEST ONLY",
+        "verification_method": "controlled fixture",
+        "effective_from": "2020-01-01T00:00:00+08:00",
+        "effective_to": "2035-01-01T00:00:00+08:00",
+        "kind": "show_session",
+        "fact_id": "s2",
+        "program_id": "program",
+        "stage_place_id": "stage2",
+        "business_date": "2030-05-01",
+        "starts_at": "2030-05-01T15:00:00+08:00",
+        "ends_at": "2030-05-01T15:30:00+08:00",
+        "source_ids": [
+          "fixture:source"
+        ]
+      },
+      {
+        "version": 1,
+        "validation_status": "verified",
+        "is_demo": true,
+        "rights_status": "permitted",
+        "verified_at": "2020-01-01T00:00:00+08:00",
+        "reviewer": "SYNTHETIC TEST ONLY",
+        "verification_method": "controlled fixture",
+        "effective_from": "2020-01-01T00:00:00+08:00",
+        "effective_to": "2035-01-01T00:00:00+08:00",
+        "kind": "food",
+        "fact_id": "food",
+        "name": "[合成测试]菜品",
+        "source_ids": [
+          "fixture:source"
+        ]
+      },
+      {
+        "version": 1,
+        "validation_status": "verified",
+        "is_demo": true,
+        "rights_status": "permitted",
+        "verified_at": "2020-01-01T00:00:00+08:00",
+        "reviewer": "SYNTHETIC TEST ONLY",
+        "verification_method": "controlled fixture",
+        "effective_from": "2020-01-01T00:00:00+08:00",
+        "effective_to": "2035-01-01T00:00:00+08:00",
+        "kind": "vendor",
+        "fact_id": "vendor",
+        "place_id": "restaurant",
+        "source_ids": [
+          "fixture:source"
+        ]
+      },
+      {
+        "version": 1,
+        "validation_status": "verified",
+        "is_demo": true,
+        "rights_status": "permitted",
+        "verified_at": "2020-01-01T00:00:00+08:00",
+        "reviewer": "SYNTHETIC TEST ONLY",
+        "verification_method": "controlled fixture",
+        "effective_from": "2020-01-01T00:00:00+08:00",
+        "effective_to": "2035-01-01T00:00:00+08:00",
+        "kind": "supply",
+        "fact_id": "supply",
+        "vendor_id": "vendor",
+        "food_id": "food",
+        "evidence_note": "SYNTHETIC MENU TEST ONLY",
+        "source_ids": [
+          "fixture:source"
+        ]
+      }
+    ]
+  },
+  "operations": {
+    "journeys": [
+      {
+        "journey_id": "origin:origin:walking",
+        "travel": {
+          "origin_place_id": "origin",
+          "destination_place_id": "origin",
+          "mode": "walking",
+          "lower_seconds": 0,
+          "upper_seconds": 0,
+          "evidence": {
+            "evidence_id": "fixture:travel",
+            "revision": "1",
+            "kind": "demo",
+            "source": "SYNTHETIC TEST ONLY",
+            "checked_at": "2020-01-01T00:00:00+08:00",
+            "valid_from": "2020-01-01T00:00:00+08:00",
+            "valid_until": "2035-01-01T00:00:00+08:00"
+          },
+          "path_status": "demo",
+          "path_ref": "fixture:path",
+          "coordinate_system": "GCJ02"
+        },
+        "distance_m": 0,
+        "cost_lower_fen": 0,
+        "cost_upper_fen": 0,
+        "time_basis": "synthetic",
+        "source_ids": [
+          "fixture:source"
+        ]
+      },
+      {
+        "journey_id": "origin:origin:driving",
+        "travel": {
+          "origin_place_id": "origin",
+          "destination_place_id": "origin",
+          "mode": "driving",
+          "lower_seconds": 0,
+          "upper_seconds": 0,
+          "evidence": {
+            "evidence_id": "fixture:travel",
+            "revision": "1",
+            "kind": "demo",
+            "source": "SYNTHETIC TEST ONLY",
+            "checked_at": "2020-01-01T00:00:00+08:00",
+            "valid_from": "2020-01-01T00:00:00+08:00",
+            "valid_until": "2035-01-01T00:00:00+08:00"
+          },
+          "path_status": "demo",
+          "path_ref": "fixture:path",
+          "coordinate_system": "GCJ02"
+        },
+        "distance_m": 0.0,
+        "cost_lower_fen": 500,
+        "cost_upper_fen": 500,
+        "time_basis": "synthetic",
+        "source_ids": [
+          "fixture:source"
+        ]
+      },
+      {
+        "journey_id": "origin:hotel:walking",
+        "travel": {
+          "origin_place_id": "origin",
+          "destination_place_id": "hotel",
+          "mode": "walking",
+          "lower_seconds": 360,
+          "upper_seconds": 360,
+          "evidence": {
+            "evidence_id": "fixture:travel",
+            "revision": "1",
+            "kind": "demo",
+            "source": "SYNTHETIC TEST ONLY",
+            "checked_at": "2020-01-01T00:00:00+08:00",
+            "valid_from": "2020-01-01T00:00:00+08:00",
+            "valid_until": "2035-01-01T00:00:00+08:00"
+          },
+          "path_status": "demo",
+          "path_ref": "fixture:path",
+          "coordinate_system": "GCJ02"
+        },
+        "distance_m": 370,
+        "cost_lower_fen": 0,
+        "cost_upper_fen": 0,
+        "time_basis": "synthetic",
+        "source_ids": [
+          "fixture:source"
+        ]
+      },
+      {
+        "journey_id": "origin:hotel:driving",
+        "travel": {
+          "origin_place_id": "origin",
+          "destination_place_id": "hotel",
+          "mode": "driving",
+          "lower_seconds": 216,
+          "upper_seconds": 216,
+          "evidence": {
+            "evidence_id": "fixture:travel",
+            "revision": "1",
+            "kind": "demo",
+            "source": "SYNTHETIC TEST ONLY",
+            "checked_at": "2020-01-01T00:00:00+08:00",
+            "valid_from": "2020-01-01T00:00:00+08:00",
+            "valid_until": "2035-01-01T00:00:00+08:00"
+          },
+          "path_status": "demo",
+          "path_ref": "fixture:path",
+          "coordinate_system": "GCJ02"
+        },
+        "distance_m": 444.0,
+        "cost_lower_fen": 500,
+        "cost_upper_fen": 500,
+        "time_basis": "synthetic",
+        "source_ids": [
+          "fixture:source"
+        ]
+      },
+      {
+        "journey_id": "origin:museum:walking",
+        "travel": {
+          "origin_place_id": "origin",
+          "destination_place_id": "museum",
+          "mode": "walking",
+          "lower_seconds": 420,
+          "upper_seconds": 420,
+          "evidence": {
+            "evidence_id": "fixture:travel",
+            "revision": "1",
+            "kind": "demo",
+            "source": "SYNTHETIC TEST ONLY",
+            "checked_at": "2020-01-01T00:00:00+08:00",
+            "valid_from": "2020-01-01T00:00:00+08:00",
+            "valid_until": "2035-01-01T00:00:00+08:00"
+          },
+          "path_status": "demo",
+          "path_ref": "fixture:path",
+          "coordinate_system": "GCJ02"
+        },
+        "distance_m": 440,
+        "cost_lower_fen": 0,
+        "cost_upper_fen": 0,
+        "time_basis": "synthetic",
+        "source_ids": [
+          "fixture:source"
+        ]
+      },
+      {
+        "journey_id": "origin:museum:driving",
+        "travel": {
+          "origin_place_id": "origin",
+          "destination_place_id": "museum",
+          "mode": "driving",
+          "lower_seconds": 252,
+          "upper_seconds": 252,
+          "evidence": {
+            "evidence_id": "fixture:travel",
+            "revision": "1",
+            "kind": "demo",
+            "source": "SYNTHETIC TEST ONLY",
+            "checked_at": "2020-01-01T00:00:00+08:00",
+            "valid_from": "2020-01-01T00:00:00+08:00",
+            "valid_until": "2035-01-01T00:00:00+08:00"
+          },
+          "path_status": "demo",
+          "path_ref": "fixture:path",
+          "coordinate_system": "GCJ02"
+        },
+        "distance_m": 528.0,
+        "cost_lower_fen": 500,
+        "cost_upper_fen": 500,
+        "time_basis": "synthetic",
+        "source_ids": [
+          "fixture:source"
+        ]
+      },
+      {
+        "journey_id": "origin:garden:walking",
+        "travel": {
+          "origin_place_id": "origin",
+          "destination_place_id": "garden",
+          "mode": "walking",
+          "lower_seconds": 480,
+          "upper_seconds": 480,
+          "evidence": {
+            "evidence_id": "fixture:travel",
+            "revision": "1",
+            "kind": "demo",
+            "source": "SYNTHETIC TEST ONLY",
+            "checked_at": "2020-01-01T00:00:00+08:00",
+            "valid_from": "2020-01-01T00:00:00+08:00",
+            "valid_until": "2035-01-01T00:00:00+08:00"
+          },
+          "path_status": "demo",
+          "path_ref": "fixture:path",
+          "coordinate_system": "GCJ02"
+        },
+        "distance_m": 510,
+        "cost_lower_fen": 0,
+        "cost_upper_fen": 0,
+        "time_basis": "synthetic",
+        "source_ids": [
+          "fixture:source"
+        ]
+      },
+      {
+        "journey_id": "origin:garden:driving",
+        "travel": {
+          "origin_place_id": "origin",
+          "destination_place_id": "garden",
+          "mode": "driving",
+          "lower_seconds": 288,
+          "upper_seconds": 288,
+          "evidence": {
+            "evidence_id": "fixture:travel",
+            "revision": "1",
+            "kind": "demo",
+            "source": "SYNTHETIC TEST ONLY",
+            "checked_at": "2020-01-01T00:00:00+08:00",
+            "valid_from": "2020-01-01T00:00:00+08:00",
+            "valid_until": "2035-01-01T00:00:00+08:00"
+          },
+          "path_status": "demo",
+          "path_ref": "fixture:path",
+          "coordinate_system": "GCJ02"
+        },
+        "distance_m": 612.0,
+        "cost_lower_fen": 500,
+        "cost_upper_fen": 500,
+        "time_basis": "synthetic",
+        "source_ids": [
+          "fixture:source"
+        ]
+      },
+      {
+        "journey_id": "origin:restaurant:walking",
+        "travel": {
+          "origin_place_id": "origin",
+          "destination_place_id": "restaurant",
+          "mode": "walking",
+          "lower_seconds": 540,
+          "upper_seconds": 540,
+          "evidence": {
+            "evidence_id": "fixture:travel",
+            "revision": "1",
+            "kind": "demo",
+            "source": "SYNTHETIC TEST ONLY",
+            "checked_at": "2020-01-01T00:00:00+08:00",
+            "valid_from": "2020-01-01T00:00:00+08:00",
+            "valid_until": "2035-01-01T00:00:00+08:00"
+          },
+          "path_status": "demo",
+          "path_ref": "fixture:path",
+          "coordinate_system": "GCJ02"
+        },
+        "distance_m": 580,
+        "cost_lower_fen": 0,
+        "cost_upper_fen": 0,
+        "time_basis": "synthetic",
+        "source_ids": [
+          "fixture:source"
+        ]
+      },
+      {
+        "journey_id": "origin:restaurant:driving",
+        "travel": {
+          "origin_place_id": "origin",
+          "destination_place_id": "restaurant",
+          "mode": "driving",
+          "lower_seconds": 324,
+          "upper_seconds": 324,
+          "evidence": {
+            "evidence_id": "fixture:travel",
+            "revision": "1",
+            "kind": "demo",
+            "source": "SYNTHETIC TEST ONLY",
+            "checked_at": "2020-01-01T00:00:00+08:00",
+            "valid_from": "2020-01-01T00:00:00+08:00",
+            "valid_until": "2035-01-01T00:00:00+08:00"
+          },
+          "path_status": "demo",
+          "path_ref": "fixture:path",
+          "coordinate_system": "GCJ02"
+        },
+        "distance_m": 696.0,
+        "cost_lower_fen": 500,
+        "cost_upper_fen": 500,
+        "time_basis": "synthetic",
+        "source_ids": [
+          "fixture:source"
+        ]
+      },
+      {
+        "journey_id": "origin:stage1:walking",
+        "travel": {
+          "origin_place_id": "origin",
+          "destination_place_id": "stage1",
+          "mode": "walking",
+          "lower_seconds": 600,
+          "upper_seconds": 600,
+          "evidence": {
+            "evidence_id": "fixture:travel",
+            "revision": "1",
+            "kind": "demo",
+            "source": "SYNTHETIC TEST ONLY",
+            "checked_at": "2020-01-01T00:00:00+08:00",
+            "valid_from": "2020-01-01T00:00:00+08:00",
+            "valid_until": "2035-01-01T00:00:00+08:00"
+          },
+          "path_status": "demo",
+          "path_ref": "fixture:path",
+          "coordinate_system": "GCJ02"
+        },
+        "distance_m": 650,
+        "cost_lower_fen": 0,
+        "cost_upper_fen": 0,
+        "time_basis": "synthetic",
+        "source_ids": [
+          "fixture:source"
+        ]
+      },
+      {
+        "journey_id": "origin:stage1:driving",
+        "travel": {
+          "origin_place_id": "origin",
+          "destination_place_id": "stage1",
+          "mode": "driving",
+          "lower_seconds": 360,
+          "upper_seconds": 360,
+          "evidence": {
+            "evidence_id": "fixture:travel",
+            "revision": "1",
+            "kind": "demo",
+            "source": "SYNTHETIC TEST ONLY",
+            "checked_at": "2020-01-01T00:00:00+08:00",
+            "valid_from": "2020-01-01T00:00:00+08:00",
+            "valid_until": "2035-01-01T00:00:00+08:00"
+          },
+          "path_status": "demo",
+          "path_ref": "fixture:path",
+          "coordinate_system": "GCJ02"
+        },
+        "distance_m": 780.0,
+        "cost_lower_fen": 500,
+        "cost_upper_fen": 500,
+        "time_basis": "synthetic",
+        "source_ids": [
+          "fixture:source"
+        ]
+      },
+      {
+        "journey_id": "origin:stage2:walking",
+        "travel": {
+          "origin_place_id": "origin",
+          "destination_place_id": "stage2",
+          "mode": "walking",
+          "lower_seconds": 660,
+          "upper_seconds": 660,
+          "evidence": {
+            "evidence_id": "fixture:travel",
+            "revision": "1",
+            "kind": "demo",
+            "source": "SYNTHETIC TEST ONLY",
+            "checked_at": "2020-01-01T00:00:00+08:00",
+            "valid_from": "2020-01-01T00:00:00+08:00",
+            "valid_until": "2035-01-01T00:00:00+08:00"
+          },
+          "path_status": "demo",
+          "path_ref": "fixture:path",
+          "coordinate_system": "GCJ02"
+        },
+        "distance_m": 720,
+        "cost_lower_fen": 0,
+        "cost_upper_fen": 0,
+        "time_basis": "synthetic",
+        "source_ids": [
+          "fixture:source"
+        ]
+      },
+      {
+        "journey_id": "origin:stage2:driving",
+        "travel": {
+          "origin_place_id": "origin",
+          "destination_place_id": "stage2",
+          "mode": "driving",
+          "lower_seconds": 396,
+          "upper_seconds": 396,
+          "evidence": {
+            "evidence_id": "fixture:travel",
+            "revision": "1",
+            "kind": "demo",
+            "source": "SYNTHETIC TEST ONLY",
+            "checked_at": "2020-01-01T00:00:00+08:00",
+            "valid_from": "2020-01-01T00:00:00+08:00",
+            "valid_until": "2035-01-01T00:00:00+08:00"
+          },
+          "path_status": "demo",
+          "path_ref": "fixture:path",
+          "coordinate_system": "GCJ02"
+        },
+        "distance_m": 864.0,
+        "cost_lower_fen": 500,
+        "cost_upper_fen": 500,
+        "time_basis": "synthetic",
+        "source_ids": [
+          "fixture:source"
+        ]
+      },
+      {
+        "journey_id": "hotel:origin:walking",
+        "travel": {
+          "origin_place_id": "hotel",
+          "destination_place_id": "origin",
+          "mode": "walking",
+          "lower_seconds": 360,
+          "upper_seconds": 360,
+          "evidence": {
+            "evidence_id": "fixture:travel",
+            "revision": "1",
+            "kind": "demo",
+            "source": "SYNTHETIC TEST ONLY",
+            "checked_at": "2020-01-01T00:00:00+08:00",
+            "valid_from": "2020-01-01T00:00:00+08:00",
+            "valid_until": "2035-01-01T00:00:00+08:00"
+          },
+          "path_status": "demo",
+          "path_ref": "fixture:path",
+          "coordinate_system": "GCJ02"
+        },
+        "distance_m": 370,
+        "cost_lower_fen": 0,
+        "cost_upper_fen": 0,
+        "time_basis": "synthetic",
+        "source_ids": [
+          "fixture:source"
+        ]
+      },
+      {
+        "journey_id": "hotel:origin:driving",
+        "travel": {
+          "origin_place_id": "hotel",
+          "destination_place_id": "origin",
+          "mode": "driving",
+          "lower_seconds": 216,
+          "upper_seconds": 216,
+          "evidence": {
+            "evidence_id": "fixture:travel",
+            "revision": "1",
+            "kind": "demo",
+            "source": "SYNTHETIC TEST ONLY",
+            "checked_at": "2020-01-01T00:00:00+08:00",
+            "valid_from": "2020-01-01T00:00:00+08:00",
+            "valid_until": "2035-01-01T00:00:00+08:00"
+          },
+          "path_status": "demo",
+          "path_ref": "fixture:path",
+          "coordinate_system": "GCJ02"
+        },
+        "distance_m": 444.0,
+        "cost_lower_fen": 500,
+        "cost_upper_fen": 500,
+        "time_basis": "synthetic",
+        "source_ids": [
+          "fixture:source"
+        ]
+      },
+      {
+        "journey_id": "hotel:hotel:walking",
+        "travel": {
+          "origin_place_id": "hotel",
+          "destination_place_id": "hotel",
+          "mode": "walking",
+          "lower_seconds": 0,
+          "upper_seconds": 0,
+          "evidence": {
+            "evidence_id": "fixture:travel",
+            "revision": "1",
+            "kind": "demo",
+            "source": "SYNTHETIC TEST ONLY",
+            "checked_at": "2020-01-01T00:00:00+08:00",
+            "valid_from": "2020-01-01T00:00:00+08:00",
+            "valid_until": "2035-01-01T00:00:00+08:00"
+          },
+          "path_status": "demo",
+          "path_ref": "fixture:path",
+          "coordinate_system": "GCJ02"
+        },
+        "distance_m": 0,
+        "cost_lower_fen": 0,
+        "cost_upper_fen": 0,
+        "time_basis": "synthetic",
+        "source_ids": [
+          "fixture:source"
+        ]
+      },
+      {
+        "journey_id": "hotel:hotel:driving",
+        "travel": {
+          "origin_place_id": "hotel",
+          "destination_place_id": "hotel",
+          "mode": "driving",
+          "lower_seconds": 0,
+          "upper_seconds": 0,
+          "evidence": {
+            "evidence_id": "fixture:travel",
+            "revision": "1",
+            "kind": "demo",
+            "source": "SYNTHETIC TEST ONLY",
+            "checked_at": "2020-01-01T00:00:00+08:00",
+            "valid_from": "2020-01-01T00:00:00+08:00",
+            "valid_until": "2035-01-01T00:00:00+08:00"
+          },
+          "path_status": "demo",
+          "path_ref": "fixture:path",
+          "coordinate_system": "GCJ02"
+        },
+        "distance_m": 0.0,
+        "cost_lower_fen": 500,
+        "cost_upper_fen": 500,
+        "time_basis": "synthetic",
+        "source_ids": [
+          "fixture:source"
+        ]
+      },
+      {
+        "journey_id": "hotel:museum:walking",
+        "travel": {
+          "origin_place_id": "hotel",
+          "destination_place_id": "museum",
+          "mode": "walking",
+          "lower_seconds": 360,
+          "upper_seconds": 360,
+          "evidence": {
+            "evidence_id": "fixture:travel",
+            "revision": "1",
+            "kind": "demo",
+            "source": "SYNTHETIC TEST ONLY",
+            "checked_at": "2020-01-01T00:00:00+08:00",
+            "valid_from": "2020-01-01T00:00:00+08:00",
+            "valid_until": "2035-01-01T00:00:00+08:00"
+          },
+          "path_status": "demo",
+          "path_ref": "fixture:path",
+          "coordinate_system": "GCJ02"
+        },
+        "distance_m": 370,
+        "cost_lower_fen": 0,
+        "cost_upper_fen": 0,
+        "time_basis": "synthetic",
+        "source_ids": [
+          "fixture:source"
+        ]
+      },
+      {
+        "journey_id": "hotel:museum:driving",
+        "travel": {
+          "origin_place_id": "hotel",
+          "destination_place_id": "museum",
+          "mode": "driving",
+          "lower_seconds": 216,
+          "upper_seconds": 216,
+          "evidence": {
+            "evidence_id": "fixture:travel",
+            "revision": "1",
+            "kind": "demo",
+            "source": "SYNTHETIC TEST ONLY",
+            "checked_at": "2020-01-01T00:00:00+08:00",
+            "valid_from": "2020-01-01T00:00:00+08:00",
+            "valid_until": "2035-01-01T00:00:00+08:00"
+          },
+          "path_status": "demo",
+          "path_ref": "fixture:path",
+          "coordinate_system": "GCJ02"
+        },
+        "distance_m": 444.0,
+        "cost_lower_fen": 500,
+        "cost_upper_fen": 500,
+        "time_basis": "synthetic",
+        "source_ids": [
+          "fixture:source"
+        ]
+      },
+      {
+        "journey_id": "hotel:garden:walking",
+        "travel": {
+          "origin_place_id": "hotel",
+          "destination_place_id": "garden",
+          "mode": "walking",
+          "lower_seconds": 420,
+          "upper_seconds": 420,
+          "evidence": {
+            "evidence_id": "fixture:travel",
+            "revision": "1",
+            "kind": "demo",
+            "source": "SYNTHETIC TEST ONLY",
+            "checked_at": "2020-01-01T00:00:00+08:00",
+            "valid_from": "2020-01-01T00:00:00+08:00",
+            "valid_until": "2035-01-01T00:00:00+08:00"
+          },
+          "path_status": "demo",
+          "path_ref": "fixture:path",
+          "coordinate_system": "GCJ02"
+        },
+        "distance_m": 440,
+        "cost_lower_fen": 0,
+        "cost_upper_fen": 0,
+        "time_basis": "synthetic",
+        "source_ids": [
+          "fixture:source"
+        ]
+      },
+      {
+        "journey_id": "hotel:garden:driving",
+        "travel": {
+          "origin_place_id": "hotel",
+          "destination_place_id": "garden",
+          "mode": "driving",
+          "lower_seconds": 252,
+          "upper_seconds": 252,
+          "evidence": {
+            "evidence_id": "fixture:travel",
+            "revision": "1",
+            "kind": "demo",
+            "source": "SYNTHETIC TEST ONLY",
+            "checked_at": "2020-01-01T00:00:00+08:00",
+            "valid_from": "2020-01-01T00:00:00+08:00",
+            "valid_until": "2035-01-01T00:00:00+08:00"
+          },
+          "path_status": "demo",
+          "path_ref": "fixture:path",
+          "coordinate_system": "GCJ02"
+        },
+        "distance_m": 528.0,
+        "cost_lower_fen": 500,
+        "cost_upper_fen": 500,
+        "time_basis": "synthetic",
+        "source_ids": [
+          "fixture:source"
+        ]
+      },
+      {
+        "journey_id": "hotel:restaurant:walking",
+        "travel": {
+          "origin_place_id": "hotel",
+          "destination_place_id": "restaurant",
+          "mode": "walking",
+          "lower_seconds": 480,
+          "upper_seconds": 480,
+          "evidence": {
+            "evidence_id": "fixture:travel",
+            "revision": "1",
+            "kind": "demo",
+            "source": "SYNTHETIC TEST ONLY",
+            "checked_at": "2020-01-01T00:00:00+08:00",
+            "valid_from": "2020-01-01T00:00:00+08:00",
+            "valid_until": "2035-01-01T00:00:00+08:00"
+          },
+          "path_status": "demo",
+          "path_ref": "fixture:path",
+          "coordinate_system": "GCJ02"
+        },
+        "distance_m": 510,
+        "cost_lower_fen": 0,
+        "cost_upper_fen": 0,
+        "time_basis": "synthetic",
+        "source_ids": [
+          "fixture:source"
+        ]
+      },
+      {
+        "journey_id": "hotel:restaurant:driving",
+        "travel": {
+          "origin_place_id": "hotel",
+          "destination_place_id": "restaurant",
+          "mode": "driving",
+          "lower_seconds": 288,
+          "upper_seconds": 288,
+          "evidence": {
+            "evidence_id": "fixture:travel",
+            "revision": "1",
+            "kind": "demo",
+            "source": "SYNTHETIC TEST ONLY",
+            "checked_at": "2020-01-01T00:00:00+08:00",
+            "valid_from": "2020-01-01T00:00:00+08:00",
+            "valid_until": "2035-01-01T00:00:00+08:00"
+          },
+          "path_status": "demo",
+          "path_ref": "fixture:path",
+          "coordinate_system": "GCJ02"
+        },
+        "distance_m": 612.0,
+        "cost_lower_fen": 500,
+        "cost_upper_fen": 500,
+        "time_basis": "synthetic",
+        "source_ids": [
+          "fixture:source"
+        ]
+      },
+      {
+        "journey_id": "hotel:stage1:walking",
+        "travel": {
+          "origin_place_id": "hotel",
+          "destination_place_id": "stage1",
+          "mode": "walking",
+          "lower_seconds": 540,
+          "upper_seconds": 540,
+          "evidence": {
+            "evidence_id": "fixture:travel",
+            "revision": "1",
+            "kind": "demo",
+            "source": "SYNTHETIC TEST ONLY",
+            "checked_at": "2020-01-01T00:00:00+08:00",
+            "valid_from": "2020-01-01T00:00:00+08:00",
+            "valid_until": "2035-01-01T00:00:00+08:00"
+          },
+          "path_status": "demo",
+          "path_ref": "fixture:path",
+          "coordinate_system": "GCJ02"
+        },
+        "distance_m": 580,
+        "cost_lower_fen": 0,
+        "cost_upper_fen": 0,
+        "time_basis": "synthetic",
+        "source_ids": [
+          "fixture:source"
+        ]
+      },
+      {
+        "journey_id": "hotel:stage1:driving",
+        "travel": {
+          "origin_place_id": "hotel",
+          "destination_place_id": "stage1",
+          "mode": "driving",
+          "lower_seconds": 324,
+          "upper_seconds": 324,
+          "evidence": {
+            "evidence_id": "fixture:travel",
+            "revision": "1",
+            "kind": "demo",
+            "source": "SYNTHETIC TEST ONLY",
+            "checked_at": "2020-01-01T00:00:00+08:00",
+            "valid_from": "2020-01-01T00:00:00+08:00",
+            "valid_until": "2035-01-01T00:00:00+08:00"
+          },
+          "path_status": "demo",
+          "path_ref": "fixture:path",
+          "coordinate_system": "GCJ02"
+        },
+        "distance_m": 696.0,
+        "cost_lower_fen": 500,
+        "cost_upper_fen": 500,
+        "time_basis": "synthetic",
+        "source_ids": [
+          "fixture:source"
+        ]
+      },
+      {
+        "journey_id": "hotel:stage2:walking",
+        "travel": {
+          "origin_place_id": "hotel",
+          "destination_place_id": "stage2",
+          "mode": "walking",
+          "lower_seconds": 600,
+          "upper_seconds": 600,
+          "evidence": {
+            "evidence_id": "fixture:travel",
+            "revision": "1",
+            "kind": "demo",
+            "source": "SYNTHETIC TEST ONLY",
+            "checked_at": "2020-01-01T00:00:00+08:00",
+            "valid_from": "2020-01-01T00:00:00+08:00",
+            "valid_until": "2035-01-01T00:00:00+08:00"
+          },
+          "path_status": "demo",
+          "path_ref": "fixture:path",
+          "coordinate_system": "GCJ02"
+        },
+        "distance_m": 650,
+        "cost_lower_fen": 0,
+        "cost_upper_fen": 0,
+        "time_basis": "synthetic",
+        "source_ids": [
+          "fixture:source"
+        ]
+      },
+      {
+        "journey_id": "hotel:stage2:driving",
+        "travel": {
+          "origin_place_id": "hotel",
+          "destination_place_id": "stage2",
+          "mode": "driving",
+          "lower_seconds": 360,
+          "upper_seconds": 360,
+          "evidence": {
+            "evidence_id": "fixture:travel",
+            "revision": "1",
+            "kind": "demo",
+            "source": "SYNTHETIC TEST ONLY",
+            "checked_at": "2020-01-01T00:00:00+08:00",
+            "valid_from": "2020-01-01T00:00:00+08:00",
+            "valid_until": "2035-01-01T00:00:00+08:00"
+          },
+          "path_status": "demo",
+          "path_ref": "fixture:path",
+          "coordinate_system": "GCJ02"
+        },
+        "distance_m": 780.0,
+        "cost_lower_fen": 500,
+        "cost_upper_fen": 500,
+        "time_basis": "synthetic",
+        "source_ids": [
+          "fixture:source"
+        ]
+      },
+      {
+        "journey_id": "museum:origin:walking",
+        "travel": {
+          "origin_place_id": "museum",
+          "destination_place_id": "origin",
+          "mode": "walking",
+          "lower_seconds": 420,
+          "upper_seconds": 420,
+          "evidence": {
+            "evidence_id": "fixture:travel",
+            "revision": "1",
+            "kind": "demo",
+            "source": "SYNTHETIC TEST ONLY",
+            "checked_at": "2020-01-01T00:00:00+08:00",
+            "valid_from": "2020-01-01T00:00:00+08:00",
+            "valid_until": "2035-01-01T00:00:00+08:00"
+          },
+          "path_status": "demo",
+          "path_ref": "fixture:path",
+          "coordinate_system": "GCJ02"
+        },
+        "distance_m": 440,
+        "cost_lower_fen": 0,
+        "cost_upper_fen": 0,
+        "time_basis": "synthetic",
+        "source_ids": [
+          "fixture:source"
+        ]
+      },
+      {
+        "journey_id": "museum:origin:driving",
+        "travel": {
+          "origin_place_id": "museum",
+          "destination_place_id": "origin",
+          "mode": "driving",
+          "lower_seconds": 252,
+          "upper_seconds": 252,
+          "evidence": {
+            "evidence_id": "fixture:travel",
+            "revision": "1",
+            "kind": "demo",
+            "source": "SYNTHETIC TEST ONLY",
+            "checked_at": "2020-01-01T00:00:00+08:00",
+            "valid_from": "2020-01-01T00:00:00+08:00",
+            "valid_until": "2035-01-01T00:00:00+08:00"
+          },
+          "path_status": "demo",
+          "path_ref": "fixture:path",
+          "coordinate_system": "GCJ02"
+        },
+        "distance_m": 528.0,
+        "cost_lower_fen": 500,
+        "cost_upper_fen": 500,
+        "time_basis": "synthetic",
+        "source_ids": [
+          "fixture:source"
+        ]
+      },
+      {
+        "journey_id": "museum:hotel:walking",
+        "travel": {
+          "origin_place_id": "museum",
+          "destination_place_id": "hotel",
+          "mode": "walking",
+          "lower_seconds": 360,
+          "upper_seconds": 360,
+          "evidence": {
+            "evidence_id": "fixture:travel",
+            "revision": "1",
+            "kind": "demo",
+            "source": "SYNTHETIC TEST ONLY",
+            "checked_at": "2020-01-01T00:00:00+08:00",
+            "valid_from": "2020-01-01T00:00:00+08:00",
+            "valid_until": "2035-01-01T00:00:00+08:00"
+          },
+          "path_status": "demo",
+          "path_ref": "fixture:path",
+          "coordinate_system": "GCJ02"
+        },
+        "distance_m": 370,
+        "cost_lower_fen": 0,
+        "cost_upper_fen": 0,
+        "time_basis": "synthetic",
+        "source_ids": [
+          "fixture:source"
+        ]
+      },
+      {
+        "journey_id": "museum:hotel:driving",
+        "travel": {
+          "origin_place_id": "museum",
+          "destination_place_id": "hotel",
+          "mode": "driving",
+          "lower_seconds": 216,
+          "upper_seconds": 216,
+          "evidence": {
+            "evidence_id": "fixture:travel",
+            "revision": "1",
+            "kind": "demo",
+            "source": "SYNTHETIC TEST ONLY",
+            "checked_at": "2020-01-01T00:00:00+08:00",
+            "valid_from": "2020-01-01T00:00:00+08:00",
+            "valid_until": "2035-01-01T00:00:00+08:00"
+          },
+          "path_status": "demo",
+          "path_ref": "fixture:path",
+          "coordinate_system": "GCJ02"
+        },
+        "distance_m": 444.0,
+        "cost_lower_fen": 500,
+        "cost_upper_fen": 500,
+        "time_basis": "synthetic",
+        "source_ids": [
+          "fixture:source"
+        ]
+      },
+      {
+        "journey_id": "museum:museum:walking",
+        "travel": {
+          "origin_place_id": "museum",
+          "destination_place_id": "museum",
+          "mode": "walking",
+          "lower_seconds": 0,
+          "upper_seconds": 0,
+          "evidence": {
+            "evidence_id": "fixture:travel",
+            "revision": "1",
+            "kind": "demo",
+            "source": "SYNTHETIC TEST ONLY",
+            "checked_at": "2020-01-01T00:00:00+08:00",
+            "valid_from": "2020-01-01T00:00:00+08:00",
+            "valid_until": "2035-01-01T00:00:00+08:00"
+          },
+          "path_status": "demo",
+          "path_ref": "fixture:path",
+          "coordinate_system": "GCJ02"
+        },
+        "distance_m": 0,
+        "cost_lower_fen": 0,
+        "cost_upper_fen": 0,
+        "time_basis": "synthetic",
+        "source_ids": [
+          "fixture:source"
+        ]
+      },
+      {
+        "journey_id": "museum:museum:driving",
+        "travel": {
+          "origin_place_id": "museum",
+          "destination_place_id": "museum",
+          "mode": "driving",
+          "lower_seconds": 0,
+          "upper_seconds": 0,
+          "evidence": {
+            "evidence_id": "fixture:travel",
+            "revision": "1",
+            "kind": "demo",
+            "source": "SYNTHETIC TEST ONLY",
+            "checked_at": "2020-01-01T00:00:00+08:00",
+            "valid_from": "2020-01-01T00:00:00+08:00",
+            "valid_until": "2035-01-01T00:00:00+08:00"
+          },
+          "path_status": "demo",
+          "path_ref": "fixture:path",
+          "coordinate_system": "GCJ02"
+        },
+        "distance_m": 0.0,
+        "cost_lower_fen": 500,
+        "cost_upper_fen": 500,
+        "time_basis": "synthetic",
+        "source_ids": [
+          "fixture:source"
+        ]
+      },
+      {
+        "journey_id": "museum:garden:walking",
+        "travel": {
+          "origin_place_id": "museum",
+          "destination_place_id": "garden",
+          "mode": "walking",
+          "lower_seconds": 360,
+          "upper_seconds": 360,
+          "evidence": {
+            "evidence_id": "fixture:travel",
+            "revision": "1",
+            "kind": "demo",
+            "source": "SYNTHETIC TEST ONLY",
+            "checked_at": "2020-01-01T00:00:00+08:00",
+            "valid_from": "2020-01-01T00:00:00+08:00",
+            "valid_until": "2035-01-01T00:00:00+08:00"
+          },
+          "path_status": "demo",
+          "path_ref": "fixture:path",
+          "coordinate_system": "GCJ02"
+        },
+        "distance_m": 370,
+        "cost_lower_fen": 0,
+        "cost_upper_fen": 0,
+        "time_basis": "synthetic",
+        "source_ids": [
+          "fixture:source"
+        ]
+      },
+      {
+        "journey_id": "museum:garden:driving",
+        "travel": {
+          "origin_place_id": "museum",
+          "destination_place_id": "garden",
+          "mode": "driving",
+          "lower_seconds": 216,
+          "upper_seconds": 216,
+          "evidence": {
+            "evidence_id": "fixture:travel",
+            "revision": "1",
+            "kind": "demo",
+            "source": "SYNTHETIC TEST ONLY",
+            "checked_at": "2020-01-01T00:00:00+08:00",
+            "valid_from": "2020-01-01T00:00:00+08:00",
+            "valid_until": "2035-01-01T00:00:00+08:00"
+          },
+          "path_status": "demo",
+          "path_ref": "fixture:path",
+          "coordinate_system": "GCJ02"
+        },
+        "distance_m": 444.0,
+        "cost_lower_fen": 500,
+        "cost_upper_fen": 500,
+        "time_basis": "synthetic",
+        "source_ids": [
+          "fixture:source"
+        ]
+      },
+      {
+        "journey_id": "museum:restaurant:walking",
+        "travel": {
+          "origin_place_id": "museum",
+          "destination_place_id": "restaurant",
+          "mode": "walking",
+          "lower_seconds": 420,
+          "upper_seconds": 420,
+          "evidence": {
+            "evidence_id": "fixture:travel",
+            "revision": "1",
+            "kind": "demo",
+            "source": "SYNTHETIC TEST ONLY",
+            "checked_at": "2020-01-01T00:00:00+08:00",
+            "valid_from": "2020-01-01T00:00:00+08:00",
+            "valid_until": "2035-01-01T00:00:00+08:00"
+          },
+          "path_status": "demo",
+          "path_ref": "fixture:path",
+          "coordinate_system": "GCJ02"
+        },
+        "distance_m": 440,
+        "cost_lower_fen": 0,
+        "cost_upper_fen": 0,
+        "time_basis": "synthetic",
+        "source_ids": [
+          "fixture:source"
+        ]
+      },
+      {
+        "journey_id": "museum:restaurant:driving",
+        "travel": {
+          "origin_place_id": "museum",
+          "destination_place_id": "restaurant",
+          "mode": "driving",
+          "lower_seconds": 252,
+          "upper_seconds": 252,
+          "evidence": {
+            "evidence_id": "fixture:travel",
+            "revision": "1",
+            "kind": "demo",
+            "source": "SYNTHETIC TEST ONLY",
+            "checked_at": "2020-01-01T00:00:00+08:00",
+            "valid_from": "2020-01-01T00:00:00+08:00",
+            "valid_until": "2035-01-01T00:00:00+08:00"
+          },
+          "path_status": "demo",
+          "path_ref": "fixture:path",
+          "coordinate_system": "GCJ02"
+        },
+        "distance_m": 528.0,
+        "cost_lower_fen": 500,
+        "cost_upper_fen": 500,
+        "time_basis": "synthetic",
+        "source_ids": [
+          "fixture:source"
+        ]
+      },
+      {
+        "journey_id": "museum:stage1:walking",
+        "travel": {
+          "origin_place_id": "museum",
+          "destination_place_id": "stage1",
+          "mode": "walking",
+          "lower_seconds": 480,
+          "upper_seconds": 480,
+          "evidence": {
+            "evidence_id": "fixture:travel",
+            "revision": "1",
+            "kind": "demo",
+            "source": "SYNTHETIC TEST ONLY",
+            "checked_at": "2020-01-01T00:00:00+08:00",
+            "valid_from": "2020-01-01T00:00:00+08:00",
+            "valid_until": "2035-01-01T00:00:00+08:00"
+          },
+          "path_status": "demo",
+          "path_ref": "fixture:path",
+          "coordinate_system": "GCJ02"
+        },
+        "distance_m": 510,
+        "cost_lower_fen": 0,
+        "cost_upper_fen": 0,
+        "time_basis": "synthetic",
+        "source_ids": [
+          "fixture:source"
+        ]
+      },
+      {
+        "journey_id": "museum:stage1:driving",
+        "travel": {
+          "origin_place_id": "museum",
+          "destination_place_id": "stage1",
+          "mode": "driving",
+          "lower_seconds": 288,
+          "upper_seconds": 288,
+          "evidence": {
+            "evidence_id": "fixture:travel",
+            "revision": "1",
+            "kind": "demo",
+            "source": "SYNTHETIC TEST ONLY",
+            "checked_at": "2020-01-01T00:00:00+08:00",
+            "valid_from": "2020-01-01T00:00:00+08:00",
+            "valid_until": "2035-01-01T00:00:00+08:00"
+          },
+          "path_status": "demo",
+          "path_ref": "fixture:path",
+          "coordinate_system": "GCJ02"
+        },
+        "distance_m": 612.0,
+        "cost_lower_fen": 500,
+        "cost_upper_fen": 500,
+        "time_basis": "synthetic",
+        "source_ids": [
+          "fixture:source"
+        ]
+      },
+      {
+        "journey_id": "museum:stage2:walking",
+        "travel": {
+          "origin_place_id": "museum",
+          "destination_place_id": "stage2",
+          "mode": "walking",
+          "lower_seconds": 540,
+          "upper_seconds": 540,
+          "evidence": {
+            "evidence_id": "fixture:travel",
+            "revision": "1",
+            "kind": "demo",
+            "source": "SYNTHETIC TEST ONLY",
+            "checked_at": "2020-01-01T00:00:00+08:00",
+            "valid_from": "2020-01-01T00:00:00+08:00",
+            "valid_until": "2035-01-01T00:00:00+08:00"
+          },
+          "path_status": "demo",
+          "path_ref": "fixture:path",
+          "coordinate_system": "GCJ02"
+        },
+        "distance_m": 580,
+        "cost_lower_fen": 0,
+        "cost_upper_fen": 0,
+        "time_basis": "synthetic",
+        "source_ids": [
+          "fixture:source"
+        ]
+      },
+      {
+        "journey_id": "museum:stage2:driving",
+        "travel": {
+          "origin_place_id": "museum",
+          "destination_place_id": "stage2",
+          "mode": "driving",
+          "lower_seconds": 324,
+          "upper_seconds": 324,
+          "evidence": {
+            "evidence_id": "fixture:travel",
+            "revision": "1",
+            "kind": "demo",
+            "source": "SYNTHETIC TEST ONLY",
+            "checked_at": "2020-01-01T00:00:00+08:00",
+            "valid_from": "2020-01-01T00:00:00+08:00",
+            "valid_until": "2035-01-01T00:00:00+08:00"
+          },
+          "path_status": "demo",
+          "path_ref": "fixture:path",
+          "coordinate_system": "GCJ02"
+        },
+        "distance_m": 696.0,
+        "cost_lower_fen": 500,
+        "cost_upper_fen": 500,
+        "time_basis": "synthetic",
+        "source_ids": [
+          "fixture:source"
+        ]
+      },
+      {
+        "journey_id": "garden:origin:walking",
+        "travel": {
+          "origin_place_id": "garden",
+          "destination_place_id": "origin",
+          "mode": "walking",
+          "lower_seconds": 480,
+          "upper_seconds": 480,
+          "evidence": {
+            "evidence_id": "fixture:travel",
+            "revision": "1",
+            "kind": "demo",
+            "source": "SYNTHETIC TEST ONLY",
+            "checked_at": "2020-01-01T00:00:00+08:00",
+            "valid_from": "2020-01-01T00:00:00+08:00",
+            "valid_until": "2035-01-01T00:00:00+08:00"
+          },
+          "path_status": "demo",
+          "path_ref": "fixture:path",
+          "coordinate_system": "GCJ02"
+        },
+        "distance_m": 510,
+        "cost_lower_fen": 0,
+        "cost_upper_fen": 0,
+        "time_basis": "synthetic",
+        "source_ids": [
+          "fixture:source"
+        ]
+      },
+      {
+        "journey_id": "garden:origin:driving",
+        "travel": {
+          "origin_place_id": "garden",
+          "destination_place_id": "origin",
+          "mode": "driving",
+          "lower_seconds": 288,
+          "upper_seconds": 288,
+          "evidence": {
+            "evidence_id": "fixture:travel",
+            "revision": "1",
+            "kind": "demo",
+            "source": "SYNTHETIC TEST ONLY",
+            "checked_at": "2020-01-01T00:00:00+08:00",
+            "valid_from": "2020-01-01T00:00:00+08:00",
+            "valid_until": "2035-01-01T00:00:00+08:00"
+          },
+          "path_status": "demo",
+          "path_ref": "fixture:path",
+          "coordinate_system": "GCJ02"
+        },
+        "distance_m": 612.0,
+        "cost_lower_fen": 500,
+        "cost_upper_fen": 500,
+        "time_basis": "synthetic",
+        "source_ids": [
+          "fixture:source"
+        ]
+      },
+      {
+        "journey_id": "garden:hotel:walking",
+        "travel": {
+          "origin_place_id": "garden",
+          "destination_place_id": "hotel",
+          "mode": "walking",
+          "lower_seconds": 420,
+          "upper_seconds": 420,
+          "evidence": {
+            "evidence_id": "fixture:travel",
+            "revision": "1",
+            "kind": "demo",
+            "source": "SYNTHETIC TEST ONLY",
+            "checked_at": "2020-01-01T00:00:00+08:00",
+            "valid_from": "2020-01-01T00:00:00+08:00",
+            "valid_until": "2035-01-01T00:00:00+08:00"
+          },
+          "path_status": "demo",
+          "path_ref": "fixture:path",
+          "coordinate_system": "GCJ02"
+        },
+        "distance_m": 440,
+        "cost_lower_fen": 0,
+        "cost_upper_fen": 0,
+        "time_basis": "synthetic",
+        "source_ids": [
+          "fixture:source"
+        ]
+      },
+      {
+        "journey_id": "garden:hotel:driving",
+        "travel": {
+          "origin_place_id": "garden",
+          "destination_place_id": "hotel",
+          "mode": "driving",
+          "lower_seconds": 252,
+          "upper_seconds": 252,
+          "evidence": {
+            "evidence_id": "fixture:travel",
+            "revision": "1",
+            "kind": "demo",
+            "source": "SYNTHETIC TEST ONLY",
+            "checked_at": "2020-01-01T00:00:00+08:00",
+            "valid_from": "2020-01-01T00:00:00+08:00",
+            "valid_until": "2035-01-01T00:00:00+08:00"
+          },
+          "path_status": "demo",
+          "path_ref": "fixture:path",
+          "coordinate_system": "GCJ02"
+        },
+        "distance_m": 528.0,
+        "cost_lower_fen": 500,
+        "cost_upper_fen": 500,
+        "time_basis": "synthetic",
+        "source_ids": [
+          "fixture:source"
+        ]
+      },
+      {
+        "journey_id": "garden:museum:walking",
+        "travel": {
+          "origin_place_id": "garden",
+          "destination_place_id": "museum",
+          "mode": "walking",
+          "lower_seconds": 360,
+          "upper_seconds": 360,
+          "evidence": {
+            "evidence_id": "fixture:travel",
+            "revision": "1",
+            "kind": "demo",
+            "source": "SYNTHETIC TEST ONLY",
+            "checked_at": "2020-01-01T00:00:00+08:00",
+            "valid_from": "2020-01-01T00:00:00+08:00",
+            "valid_until": "2035-01-01T00:00:00+08:00"
+          },
+          "path_status": "demo",
+          "path_ref": "fixture:path",
+          "coordinate_system": "GCJ02"
+        },
+        "distance_m": 370,
+        "cost_lower_fen": 0,
+        "cost_upper_fen": 0,
+        "time_basis": "synthetic",
+        "source_ids": [
+          "fixture:source"
+        ]
+      },
+      {
+        "journey_id": "garden:museum:driving",
+        "travel": {
+          "origin_place_id": "garden",
+          "destination_place_id": "museum",
+          "mode": "driving",
+          "lower_seconds": 216,
+          "upper_seconds": 216,
+          "evidence": {
+            "evidence_id": "fixture:travel",
+            "revision": "1",
+            "kind": "demo",
+            "source": "SYNTHETIC TEST ONLY",
+            "checked_at": "2020-01-01T00:00:00+08:00",
+            "valid_from": "2020-01-01T00:00:00+08:00",
+            "valid_until": "2035-01-01T00:00:00+08:00"
+          },
+          "path_status": "demo",
+          "path_ref": "fixture:path",
+          "coordinate_system": "GCJ02"
+        },
+        "distance_m": 444.0,
+        "cost_lower_fen": 500,
+        "cost_upper_fen": 500,
+        "time_basis": "synthetic",
+        "source_ids": [
+          "fixture:source"
+        ]
+      },
+      {
+        "journey_id": "garden:garden:walking",
+        "travel": {
+          "origin_place_id": "garden",
+          "destination_place_id": "garden",
+          "mode": "walking",
+          "lower_seconds": 0,
+          "upper_seconds": 0,
+          "evidence": {
+            "evidence_id": "fixture:travel",
+            "revision": "1",
+            "kind": "demo",
+            "source": "SYNTHETIC TEST ONLY",
+            "checked_at": "2020-01-01T00:00:00+08:00",
+            "valid_from": "2020-01-01T00:00:00+08:00",
+            "valid_until": "2035-01-01T00:00:00+08:00"
+          },
+          "path_status": "demo",
+          "path_ref": "fixture:path",
+          "coordinate_system": "GCJ02"
+        },
+        "distance_m": 0,
+        "cost_lower_fen": 0,
+        "cost_upper_fen": 0,
+        "time_basis": "synthetic",
+        "source_ids": [
+          "fixture:source"
+        ]
+      },
+      {
+        "journey_id": "garden:garden:driving",
+        "travel": {
+          "origin_place_id": "garden",
+          "destination_place_id": "garden",
+          "mode": "driving",
+          "lower_seconds": 0,
+          "upper_seconds": 0,
+          "evidence": {
+            "evidence_id": "fixture:travel",
+            "revision": "1",
+            "kind": "demo",
+            "source": "SYNTHETIC TEST ONLY",
+            "checked_at": "2020-01-01T00:00:00+08:00",
+            "valid_from": "2020-01-01T00:00:00+08:00",
+            "valid_until": "2035-01-01T00:00:00+08:00"
+          },
+          "path_status": "demo",
+          "path_ref": "fixture:path",
+          "coordinate_system": "GCJ02"
+        },
+        "distance_m": 0.0,
+        "cost_lower_fen": 500,
+        "cost_upper_fen": 500,
+        "time_basis": "synthetic",
+        "source_ids": [
+          "fixture:source"
+        ]
+      },
+      {
+        "journey_id": "garden:restaurant:walking",
+        "travel": {
+          "origin_place_id": "garden",
+          "destination_place_id": "restaurant",
+          "mode": "walking",
+          "lower_seconds": 360,
+          "upper_seconds": 360,
+          "evidence": {
+            "evidence_id": "fixture:travel",
+            "revision": "1",
+            "kind": "demo",
+            "source": "SYNTHETIC TEST ONLY",
+            "checked_at": "2020-01-01T00:00:00+08:00",
+            "valid_from": "2020-01-01T00:00:00+08:00",
+            "valid_until": "2035-01-01T00:00:00+08:00"
+          },
+          "path_status": "demo",
+          "path_ref": "fixture:path",
+          "coordinate_system": "GCJ02"
+        },
+        "distance_m": 370,
+        "cost_lower_fen": 0,
+        "cost_upper_fen": 0,
+        "time_basis": "synthetic",
+        "source_ids": [
+          "fixture:source"
+        ]
+      },
+      {
+        "journey_id": "garden:restaurant:driving",
+        "travel": {
+          "origin_place_id": "garden",
+          "destination_place_id": "restaurant",
+          "mode": "driving",
+          "lower_seconds": 216,
+          "upper_seconds": 216,
+          "evidence": {
+            "evidence_id": "fixture:travel",
+            "revision": "1",
+            "kind": "demo",
+            "source": "SYNTHETIC TEST ONLY",
+            "checked_at": "2020-01-01T00:00:00+08:00",
+            "valid_from": "2020-01-01T00:00:00+08:00",
+            "valid_until": "2035-01-01T00:00:00+08:00"
+          },
+          "path_status": "demo",
+          "path_ref": "fixture:path",
+          "coordinate_system": "GCJ02"
+        },
+        "distance_m": 444.0,
+        "cost_lower_fen": 500,
+        "cost_upper_fen": 500,
+        "time_basis": "synthetic",
+        "source_ids": [
+          "fixture:source"
+        ]
+      },
+      {
+        "journey_id": "garden:stage1:walking",
+        "travel": {
+          "origin_place_id": "garden",
+          "destination_place_id": "stage1",
+          "mode": "walking",
+          "lower_seconds": 420,
+          "upper_seconds": 420,
+          "evidence": {
+            "evidence_id": "fixture:travel",
+            "revision": "1",
+            "kind": "demo",
+            "source": "SYNTHETIC TEST ONLY",
+            "checked_at": "2020-01-01T00:00:00+08:00",
+            "valid_from": "2020-01-01T00:00:00+08:00",
+            "valid_until": "2035-01-01T00:00:00+08:00"
+          },
+          "path_status": "demo",
+          "path_ref": "fixture:path",
+          "coordinate_system": "GCJ02"
+        },
+        "distance_m": 440,
+        "cost_lower_fen": 0,
+        "cost_upper_fen": 0,
+        "time_basis": "synthetic",
+        "source_ids": [
+          "fixture:source"
+        ]
+      },
+      {
+        "journey_id": "garden:stage1:driving",
+        "travel": {
+          "origin_place_id": "garden",
+          "destination_place_id": "stage1",
+          "mode": "driving",
+          "lower_seconds": 252,
+          "upper_seconds": 252,
+          "evidence": {
+            "evidence_id": "fixture:travel",
+            "revision": "1",
+            "kind": "demo",
+            "source": "SYNTHETIC TEST ONLY",
+            "checked_at": "2020-01-01T00:00:00+08:00",
+            "valid_from": "2020-01-01T00:00:00+08:00",
+            "valid_until": "2035-01-01T00:00:00+08:00"
+          },
+          "path_status": "demo",
+          "path_ref": "fixture:path",
+          "coordinate_system": "GCJ02"
+        },
+        "distance_m": 528.0,
+        "cost_lower_fen": 500,
+        "cost_upper_fen": 500,
+        "time_basis": "synthetic",
+        "source_ids": [
+          "fixture:source"
+        ]
+      },
+      {
+        "journey_id": "garden:stage2:walking",
+        "travel": {
+          "origin_place_id": "garden",
+          "destination_place_id": "stage2",
+          "mode": "walking",
+          "lower_seconds": 480,
+          "upper_seconds": 480,
+          "evidence": {
+            "evidence_id": "fixture:travel",
+            "revision": "1",
+            "kind": "demo",
+            "source": "SYNTHETIC TEST ONLY",
+            "checked_at": "2020-01-01T00:00:00+08:00",
+            "valid_from": "2020-01-01T00:00:00+08:00",
+            "valid_until": "2035-01-01T00:00:00+08:00"
+          },
+          "path_status": "demo",
+          "path_ref": "fixture:path",
+          "coordinate_system": "GCJ02"
+        },
+        "distance_m": 510,
+        "cost_lower_fen": 0,
+        "cost_upper_fen": 0,
+        "time_basis": "synthetic",
+        "source_ids": [
+          "fixture:source"
+        ]
+      },
+      {
+        "journey_id": "garden:stage2:driving",
+        "travel": {
+          "origin_place_id": "garden",
+          "destination_place_id": "stage2",
+          "mode": "driving",
+          "lower_seconds": 288,
+          "upper_seconds": 288,
+          "evidence": {
+            "evidence_id": "fixture:travel",
+            "revision": "1",
+            "kind": "demo",
+            "source": "SYNTHETIC TEST ONLY",
+            "checked_at": "2020-01-01T00:00:00+08:00",
+            "valid_from": "2020-01-01T00:00:00+08:00",
+            "valid_until": "2035-01-01T00:00:00+08:00"
+          },
+          "path_status": "demo",
+          "path_ref": "fixture:path",
+          "coordinate_system": "GCJ02"
+        },
+        "distance_m": 612.0,
+        "cost_lower_fen": 500,
+        "cost_upper_fen": 500,
+        "time_basis": "synthetic",
+        "source_ids": [
+          "fixture:source"
+        ]
+      },
+      {
+        "journey_id": "restaurant:origin:walking",
+        "travel": {
+          "origin_place_id": "restaurant",
+          "destination_place_id": "origin",
+          "mode": "walking",
+          "lower_seconds": 540,
+          "upper_seconds": 540,
+          "evidence": {
+            "evidence_id": "fixture:travel",
+            "revision": "1",
+            "kind": "demo",
+            "source": "SYNTHETIC TEST ONLY",
+            "checked_at": "2020-01-01T00:00:00+08:00",
+            "valid_from": "2020-01-01T00:00:00+08:00",
+            "valid_until": "2035-01-01T00:00:00+08:00"
+          },
+          "path_status": "demo",
+          "path_ref": "fixture:path",
+          "coordinate_system": "GCJ02"
+        },
+        "distance_m": 580,
+        "cost_lower_fen": 0,
+        "cost_upper_fen": 0,
+        "time_basis": "synthetic",
+        "source_ids": [
+          "fixture:source"
+        ]
+      },
+      {
+        "journey_id": "restaurant:origin:driving",
+        "travel": {
+          "origin_place_id": "restaurant",
+          "destination_place_id": "origin",
+          "mode": "driving",
+          "lower_seconds": 324,
+          "upper_seconds": 324,
+          "evidence": {
+            "evidence_id": "fixture:travel",
+            "revision": "1",
+            "kind": "demo",
+            "source": "SYNTHETIC TEST ONLY",
+            "checked_at": "2020-01-01T00:00:00+08:00",
+            "valid_from": "2020-01-01T00:00:00+08:00",
+            "valid_until": "2035-01-01T00:00:00+08:00"
+          },
+          "path_status": "demo",
+          "path_ref": "fixture:path",
+          "coordinate_system": "GCJ02"
+        },
+        "distance_m": 696.0,
+        "cost_lower_fen": 500,
+        "cost_upper_fen": 500,
+        "time_basis": "synthetic",
+        "source_ids": [
+          "fixture:source"
+        ]
+      },
+      {
+        "journey_id": "restaurant:hotel:walking",
+        "travel": {
+          "origin_place_id": "restaurant",
+          "destination_place_id": "hotel",
+          "mode": "walking",
+          "lower_seconds": 480,
+          "upper_seconds": 480,
+          "evidence": {
+            "evidence_id": "fixture:travel",
+            "revision": "1",
+            "kind": "demo",
+            "source": "SYNTHETIC TEST ONLY",
+            "checked_at": "2020-01-01T00:00:00+08:00",
+            "valid_from": "2020-01-01T00:00:00+08:00",
+            "valid_until": "2035-01-01T00:00:00+08:00"
+          },
+          "path_status": "demo",
+          "path_ref": "fixture:path",
+          "coordinate_system": "GCJ02"
+        },
+        "distance_m": 510,
+        "cost_lower_fen": 0,
+        "cost_upper_fen": 0,
+        "time_basis": "synthetic",
+        "source_ids": [
+          "fixture:source"
+        ]
+      },
+      {
+        "journey_id": "restaurant:hotel:driving",
+        "travel": {
+          "origin_place_id": "restaurant",
+          "destination_place_id": "hotel",
+          "mode": "driving",
+          "lower_seconds": 288,
+          "upper_seconds": 288,
+          "evidence": {
+            "evidence_id": "fixture:travel",
+            "revision": "1",
+            "kind": "demo",
+            "source": "SYNTHETIC TEST ONLY",
+            "checked_at": "2020-01-01T00:00:00+08:00",
+            "valid_from": "2020-01-01T00:00:00+08:00",
+            "valid_until": "2035-01-01T00:00:00+08:00"
+          },
+          "path_status": "demo",
+          "path_ref": "fixture:path",
+          "coordinate_system": "GCJ02"
+        },
+        "distance_m": 612.0,
+        "cost_lower_fen": 500,
+        "cost_upper_fen": 500,
+        "time_basis": "synthetic",
+        "source_ids": [
+          "fixture:source"
+        ]
+      },
+      {
+        "journey_id": "restaurant:museum:walking",
+        "travel": {
+          "origin_place_id": "restaurant",
+          "destination_place_id": "museum",
+          "mode": "walking",
+          "lower_seconds": 420,
+          "upper_seconds": 420,
+          "evidence": {
+            "evidence_id": "fixture:travel",
+            "revision": "1",
+            "kind": "demo",
+            "source": "SYNTHETIC TEST ONLY",
+            "checked_at": "2020-01-01T00:00:00+08:00",
+            "valid_from": "2020-01-01T00:00:00+08:00",
+            "valid_until": "2035-01-01T00:00:00+08:00"
+          },
+          "path_status": "demo",
+          "path_ref": "fixture:path",
+          "coordinate_system": "GCJ02"
+        },
+        "distance_m": 440,
+        "cost_lower_fen": 0,
+        "cost_upper_fen": 0,
+        "time_basis": "synthetic",
+        "source_ids": [
+          "fixture:source"
+        ]
+      },
+      {
+        "journey_id": "restaurant:museum:driving",
+        "travel": {
+          "origin_place_id": "restaurant",
+          "destination_place_id": "museum",
+          "mode": "driving",
+          "lower_seconds": 252,
+          "upper_seconds": 252,
+          "evidence": {
+            "evidence_id": "fixture:travel",
+            "revision": "1",
+            "kind": "demo",
+            "source": "SYNTHETIC TEST ONLY",
+            "checked_at": "2020-01-01T00:00:00+08:00",
+            "valid_from": "2020-01-01T00:00:00+08:00",
+            "valid_until": "2035-01-01T00:00:00+08:00"
+          },
+          "path_status": "demo",
+          "path_ref": "fixture:path",
+          "coordinate_system": "GCJ02"
+        },
+        "distance_m": 528.0,
+        "cost_lower_fen": 500,
+        "cost_upper_fen": 500,
+        "time_basis": "synthetic",
+        "source_ids": [
+          "fixture:source"
+        ]
+      },
+      {
+        "journey_id": "restaurant:garden:walking",
+        "travel": {
+          "origin_place_id": "restaurant",
+          "destination_place_id": "garden",
+          "mode": "walking",
+          "lower_seconds": 360,
+          "upper_seconds": 360,
+          "evidence": {
+            "evidence_id": "fixture:travel",
+            "revision": "1",
+            "kind": "demo",
+            "source": "SYNTHETIC TEST ONLY",
+            "checked_at": "2020-01-01T00:00:00+08:00",
+            "valid_from": "2020-01-01T00:00:00+08:00",
+            "valid_until": "2035-01-01T00:00:00+08:00"
+          },
+          "path_status": "demo",
+          "path_ref": "fixture:path",
+          "coordinate_system": "GCJ02"
+        },
+        "distance_m": 370,
+        "cost_lower_fen": 0,
+        "cost_upper_fen": 0,
+        "time_basis": "synthetic",
+        "source_ids": [
+          "fixture:source"
+        ]
+      },
+      {
+        "journey_id": "restaurant:garden:driving",
+        "travel": {
+          "origin_place_id": "restaurant",
+          "destination_place_id": "garden",
+          "mode": "driving",
+          "lower_seconds": 216,
+          "upper_seconds": 216,
+          "evidence": {
+            "evidence_id": "fixture:travel",
+            "revision": "1",
+            "kind": "demo",
+            "source": "SYNTHETIC TEST ONLY",
+            "checked_at": "2020-01-01T00:00:00+08:00",
+            "valid_from": "2020-01-01T00:00:00+08:00",
+            "valid_until": "2035-01-01T00:00:00+08:00"
+          },
+          "path_status": "demo",
+          "path_ref": "fixture:path",
+          "coordinate_system": "GCJ02"
+        },
+        "distance_m": 444.0,
+        "cost_lower_fen": 500,
+        "cost_upper_fen": 500,
+        "time_basis": "synthetic",
+        "source_ids": [
+          "fixture:source"
+        ]
+      },
+      {
+        "journey_id": "restaurant:restaurant:walking",
+        "travel": {
+          "origin_place_id": "restaurant",
+          "destination_place_id": "restaurant",
+          "mode": "walking",
+          "lower_seconds": 0,
+          "upper_seconds": 0,
+          "evidence": {
+            "evidence_id": "fixture:travel",
+            "revision": "1",
+            "kind": "demo",
+            "source": "SYNTHETIC TEST ONLY",
+            "checked_at": "2020-01-01T00:00:00+08:00",
+            "valid_from": "2020-01-01T00:00:00+08:00",
+            "valid_until": "2035-01-01T00:00:00+08:00"
+          },
+          "path_status": "demo",
+          "path_ref": "fixture:path",
+          "coordinate_system": "GCJ02"
+        },
+        "distance_m": 0,
+        "cost_lower_fen": 0,
+        "cost_upper_fen": 0,
+        "time_basis": "synthetic",
+        "source_ids": [
+          "fixture:source"
+        ]
+      },
+      {
+        "journey_id": "restaurant:restaurant:driving",
+        "travel": {
+          "origin_place_id": "restaurant",
+          "destination_place_id": "restaurant",
+          "mode": "driving",
+          "lower_seconds": 0,
+          "upper_seconds": 0,
+          "evidence": {
+            "evidence_id": "fixture:travel",
+            "revision": "1",
+            "kind": "demo",
+            "source": "SYNTHETIC TEST ONLY",
+            "checked_at": "2020-01-01T00:00:00+08:00",
+            "valid_from": "2020-01-01T00:00:00+08:00",
+            "valid_until": "2035-01-01T00:00:00+08:00"
+          },
+          "path_status": "demo",
+          "path_ref": "fixture:path",
+          "coordinate_system": "GCJ02"
+        },
+        "distance_m": 0.0,
+        "cost_lower_fen": 500,
+        "cost_upper_fen": 500,
+        "time_basis": "synthetic",
+        "source_ids": [
+          "fixture:source"
+        ]
+      },
+      {
+        "journey_id": "restaurant:stage1:walking",
+        "travel": {
+          "origin_place_id": "restaurant",
+          "destination_place_id": "stage1",
+          "mode": "walking",
+          "lower_seconds": 360,
+          "upper_seconds": 360,
+          "evidence": {
+            "evidence_id": "fixture:travel",
+            "revision": "1",
+            "kind": "demo",
+            "source": "SYNTHETIC TEST ONLY",
+            "checked_at": "2020-01-01T00:00:00+08:00",
+            "valid_from": "2020-01-01T00:00:00+08:00",
+            "valid_until": "2035-01-01T00:00:00+08:00"
+          },
+          "path_status": "demo",
+          "path_ref": "fixture:path",
+          "coordinate_system": "GCJ02"
+        },
+        "distance_m": 370,
+        "cost_lower_fen": 0,
+        "cost_upper_fen": 0,
+        "time_basis": "synthetic",
+        "source_ids": [
+          "fixture:source"
+        ]
+      },
+      {
+        "journey_id": "restaurant:stage1:driving",
+        "travel": {
+          "origin_place_id": "restaurant",
+          "destination_place_id": "stage1",
+          "mode": "driving",
+          "lower_seconds": 216,
+          "upper_seconds": 216,
+          "evidence": {
+            "evidence_id": "fixture:travel",
+            "revision": "1",
+            "kind": "demo",
+            "source": "SYNTHETIC TEST ONLY",
+            "checked_at": "2020-01-01T00:00:00+08:00",
+            "valid_from": "2020-01-01T00:00:00+08:00",
+            "valid_until": "2035-01-01T00:00:00+08:00"
+          },
+          "path_status": "demo",
+          "path_ref": "fixture:path",
+          "coordinate_system": "GCJ02"
+        },
+        "distance_m": 444.0,
+        "cost_lower_fen": 500,
+        "cost_upper_fen": 500,
+        "time_basis": "synthetic",
+        "source_ids": [
+          "fixture:source"
+        ]
+      },
+      {
+        "journey_id": "restaurant:stage2:walking",
+        "travel": {
+          "origin_place_id": "restaurant",
+          "destination_place_id": "stage2",
+          "mode": "walking",
+          "lower_seconds": 420,
+          "upper_seconds": 420,
+          "evidence": {
+            "evidence_id": "fixture:travel",
+            "revision": "1",
+            "kind": "demo",
+            "source": "SYNTHETIC TEST ONLY",
+            "checked_at": "2020-01-01T00:00:00+08:00",
+            "valid_from": "2020-01-01T00:00:00+08:00",
+            "valid_until": "2035-01-01T00:00:00+08:00"
+          },
+          "path_status": "demo",
+          "path_ref": "fixture:path",
+          "coordinate_system": "GCJ02"
+        },
+        "distance_m": 440,
+        "cost_lower_fen": 0,
+        "cost_upper_fen": 0,
+        "time_basis": "synthetic",
+        "source_ids": [
+          "fixture:source"
+        ]
+      },
+      {
+        "journey_id": "restaurant:stage2:driving",
+        "travel": {
+          "origin_place_id": "restaurant",
+          "destination_place_id": "stage2",
+          "mode": "driving",
+          "lower_seconds": 252,
+          "upper_seconds": 252,
+          "evidence": {
+            "evidence_id": "fixture:travel",
+            "revision": "1",
+            "kind": "demo",
+            "source": "SYNTHETIC TEST ONLY",
+            "checked_at": "2020-01-01T00:00:00+08:00",
+            "valid_from": "2020-01-01T00:00:00+08:00",
+            "valid_until": "2035-01-01T00:00:00+08:00"
+          },
+          "path_status": "demo",
+          "path_ref": "fixture:path",
+          "coordinate_system": "GCJ02"
+        },
+        "distance_m": 528.0,
+        "cost_lower_fen": 500,
+        "cost_upper_fen": 500,
+        "time_basis": "synthetic",
+        "source_ids": [
+          "fixture:source"
+        ]
+      },
+      {
+        "journey_id": "stage1:origin:walking",
+        "travel": {
+          "origin_place_id": "stage1",
+          "destination_place_id": "origin",
+          "mode": "walking",
+          "lower_seconds": 600,
+          "upper_seconds": 600,
+          "evidence": {
+            "evidence_id": "fixture:travel",
+            "revision": "1",
+            "kind": "demo",
+            "source": "SYNTHETIC TEST ONLY",
+            "checked_at": "2020-01-01T00:00:00+08:00",
+            "valid_from": "2020-01-01T00:00:00+08:00",
+            "valid_until": "2035-01-01T00:00:00+08:00"
+          },
+          "path_status": "demo",
+          "path_ref": "fixture:path",
+          "coordinate_system": "GCJ02"
+        },
+        "distance_m": 650,
+        "cost_lower_fen": 0,
+        "cost_upper_fen": 0,
+        "time_basis": "synthetic",
+        "source_ids": [
+          "fixture:source"
+        ]
+      },
+      {
+        "journey_id": "stage1:origin:driving",
+        "travel": {
+          "origin_place_id": "stage1",
+          "destination_place_id": "origin",
+          "mode": "driving",
+          "lower_seconds": 360,
+          "upper_seconds": 360,
+          "evidence": {
+            "evidence_id": "fixture:travel",
+            "revision": "1",
+            "kind": "demo",
+            "source": "SYNTHETIC TEST ONLY",
+            "checked_at": "2020-01-01T00:00:00+08:00",
+            "valid_from": "2020-01-01T00:00:00+08:00",
+            "valid_until": "2035-01-01T00:00:00+08:00"
+          },
+          "path_status": "demo",
+          "path_ref": "fixture:path",
+          "coordinate_system": "GCJ02"
+        },
+        "distance_m": 780.0,
+        "cost_lower_fen": 500,
+        "cost_upper_fen": 500,
+        "time_basis": "synthetic",
+        "source_ids": [
+          "fixture:source"
+        ]
+      },
+      {
+        "journey_id": "stage1:hotel:walking",
+        "travel": {
+          "origin_place_id": "stage1",
+          "destination_place_id": "hotel",
+          "mode": "walking",
+          "lower_seconds": 540,
+          "upper_seconds": 540,
+          "evidence": {
+            "evidence_id": "fixture:travel",
+            "revision": "1",
+            "kind": "demo",
+            "source": "SYNTHETIC TEST ONLY",
+            "checked_at": "2020-01-01T00:00:00+08:00",
+            "valid_from": "2020-01-01T00:00:00+08:00",
+            "valid_until": "2035-01-01T00:00:00+08:00"
+          },
+          "path_status": "demo",
+          "path_ref": "fixture:path",
+          "coordinate_system": "GCJ02"
+        },
+        "distance_m": 580,
+        "cost_lower_fen": 0,
+        "cost_upper_fen": 0,
+        "time_basis": "synthetic",
+        "source_ids": [
+          "fixture:source"
+        ]
+      },
+      {
+        "journey_id": "stage1:hotel:driving",
+        "travel": {
+          "origin_place_id": "stage1",
+          "destination_place_id": "hotel",
+          "mode": "driving",
+          "lower_seconds": 324,
+          "upper_seconds": 324,
+          "evidence": {
+            "evidence_id": "fixture:travel",
+            "revision": "1",
+            "kind": "demo",
+            "source": "SYNTHETIC TEST ONLY",
+            "checked_at": "2020-01-01T00:00:00+08:00",
+            "valid_from": "2020-01-01T00:00:00+08:00",
+            "valid_until": "2035-01-01T00:00:00+08:00"
+          },
+          "path_status": "demo",
+          "path_ref": "fixture:path",
+          "coordinate_system": "GCJ02"
+        },
+        "distance_m": 696.0,
+        "cost_lower_fen": 500,
+        "cost_upper_fen": 500,
+        "time_basis": "synthetic",
+        "source_ids": [
+          "fixture:source"
+        ]
+      },
+      {
+        "journey_id": "stage1:museum:walking",
+        "travel": {
+          "origin_place_id": "stage1",
+          "destination_place_id": "museum",
+          "mode": "walking",
+          "lower_seconds": 480,
+          "upper_seconds": 480,
+          "evidence": {
+            "evidence_id": "fixture:travel",
+            "revision": "1",
+            "kind": "demo",
+            "source": "SYNTHETIC TEST ONLY",
+            "checked_at": "2020-01-01T00:00:00+08:00",
+            "valid_from": "2020-01-01T00:00:00+08:00",
+            "valid_until": "2035-01-01T00:00:00+08:00"
+          },
+          "path_status": "demo",
+          "path_ref": "fixture:path",
+          "coordinate_system": "GCJ02"
+        },
+        "distance_m": 510,
+        "cost_lower_fen": 0,
+        "cost_upper_fen": 0,
+        "time_basis": "synthetic",
+        "source_ids": [
+          "fixture:source"
+        ]
+      },
+      {
+        "journey_id": "stage1:museum:driving",
+        "travel": {
+          "origin_place_id": "stage1",
+          "destination_place_id": "museum",
+          "mode": "driving",
+          "lower_seconds": 288,
+          "upper_seconds": 288,
+          "evidence": {
+            "evidence_id": "fixture:travel",
+            "revision": "1",
+            "kind": "demo",
+            "source": "SYNTHETIC TEST ONLY",
+            "checked_at": "2020-01-01T00:00:00+08:00",
+            "valid_from": "2020-01-01T00:00:00+08:00",
+            "valid_until": "2035-01-01T00:00:00+08:00"
+          },
+          "path_status": "demo",
+          "path_ref": "fixture:path",
+          "coordinate_system": "GCJ02"
+        },
+        "distance_m": 612.0,
+        "cost_lower_fen": 500,
+        "cost_upper_fen": 500,
+        "time_basis": "synthetic",
+        "source_ids": [
+          "fixture:source"
+        ]
+      },
+      {
+        "journey_id": "stage1:garden:walking",
+        "travel": {
+          "origin_place_id": "stage1",
+          "destination_place_id": "garden",
+          "mode": "walking",
+          "lower_seconds": 420,
+          "upper_seconds": 420,
+          "evidence": {
+            "evidence_id": "fixture:travel",
+            "revision": "1",
+            "kind": "demo",
+            "source": "SYNTHETIC TEST ONLY",
+            "checked_at": "2020-01-01T00:00:00+08:00",
+            "valid_from": "2020-01-01T00:00:00+08:00",
+            "valid_until": "2035-01-01T00:00:00+08:00"
+          },
+          "path_status": "demo",
+          "path_ref": "fixture:path",
+          "coordinate_system": "GCJ02"
+        },
+        "distance_m": 440,
+        "cost_lower_fen": 0,
+        "cost_upper_fen": 0,
+        "time_basis": "synthetic",
+        "source_ids": [
+          "fixture:source"
+        ]
+      },
+      {
+        "journey_id": "stage1:garden:driving",
+        "travel": {
+          "origin_place_id": "stage1",
+          "destination_place_id": "garden",
+          "mode": "driving",
+          "lower_seconds": 252,
+          "upper_seconds": 252,
+          "evidence": {
+            "evidence_id": "fixture:travel",
+            "revision": "1",
+            "kind": "demo",
+            "source": "SYNTHETIC TEST ONLY",
+            "checked_at": "2020-01-01T00:00:00+08:00",
+            "valid_from": "2020-01-01T00:00:00+08:00",
+            "valid_until": "2035-01-01T00:00:00+08:00"
+          },
+          "path_status": "demo",
+          "path_ref": "fixture:path",
+          "coordinate_system": "GCJ02"
+        },
+        "distance_m": 528.0,
+        "cost_lower_fen": 500,
+        "cost_upper_fen": 500,
+        "time_basis": "synthetic",
+        "source_ids": [
+          "fixture:source"
+        ]
+      },
+      {
+        "journey_id": "stage1:restaurant:walking",
+        "travel": {
+          "origin_place_id": "stage1",
+          "destination_place_id": "restaurant",
+          "mode": "walking",
+          "lower_seconds": 360,
+          "upper_seconds": 360,
+          "evidence": {
+            "evidence_id": "fixture:travel",
+            "revision": "1",
+            "kind": "demo",
+            "source": "SYNTHETIC TEST ONLY",
+            "checked_at": "2020-01-01T00:00:00+08:00",
+            "valid_from": "2020-01-01T00:00:00+08:00",
+            "valid_until": "2035-01-01T00:00:00+08:00"
+          },
+          "path_status": "demo",
+          "path_ref": "fixture:path",
+          "coordinate_system": "GCJ02"
+        },
+        "distance_m": 370,
+        "cost_lower_fen": 0,
+        "cost_upper_fen": 0,
+        "time_basis": "synthetic",
+        "source_ids": [
+          "fixture:source"
+        ]
+      },
+      {
+        "journey_id": "stage1:restaurant:driving",
+        "travel": {
+          "origin_place_id": "stage1",
+          "destination_place_id": "restaurant",
+          "mode": "driving",
+          "lower_seconds": 216,
+          "upper_seconds": 216,
+          "evidence": {
+            "evidence_id": "fixture:travel",
+            "revision": "1",
+            "kind": "demo",
+            "source": "SYNTHETIC TEST ONLY",
+            "checked_at": "2020-01-01T00:00:00+08:00",
+            "valid_from": "2020-01-01T00:00:00+08:00",
+            "valid_until": "2035-01-01T00:00:00+08:00"
+          },
+          "path_status": "demo",
+          "path_ref": "fixture:path",
+          "coordinate_system": "GCJ02"
+        },
+        "distance_m": 444.0,
+        "cost_lower_fen": 500,
+        "cost_upper_fen": 500,
+        "time_basis": "synthetic",
+        "source_ids": [
+          "fixture:source"
+        ]
+      },
+      {
+        "journey_id": "stage1:stage1:walking",
+        "travel": {
+          "origin_place_id": "stage1",
+          "destination_place_id": "stage1",
+          "mode": "walking",
+          "lower_seconds": 0,
+          "upper_seconds": 0,
+          "evidence": {
+            "evidence_id": "fixture:travel",
+            "revision": "1",
+            "kind": "demo",
+            "source": "SYNTHETIC TEST ONLY",
+            "checked_at": "2020-01-01T00:00:00+08:00",
+            "valid_from": "2020-01-01T00:00:00+08:00",
+            "valid_until": "2035-01-01T00:00:00+08:00"
+          },
+          "path_status": "demo",
+          "path_ref": "fixture:path",
+          "coordinate_system": "GCJ02"
+        },
+        "distance_m": 0,
+        "cost_lower_fen": 0,
+        "cost_upper_fen": 0,
+        "time_basis": "synthetic",
+        "source_ids": [
+          "fixture:source"
+        ]
+      },
+      {
+        "journey_id": "stage1:stage1:driving",
+        "travel": {
+          "origin_place_id": "stage1",
+          "destination_place_id": "stage1",
+          "mode": "driving",
+          "lower_seconds": 0,
+          "upper_seconds": 0,
+          "evidence": {
+            "evidence_id": "fixture:travel",
+            "revision": "1",
+            "kind": "demo",
+            "source": "SYNTHETIC TEST ONLY",
+            "checked_at": "2020-01-01T00:00:00+08:00",
+            "valid_from": "2020-01-01T00:00:00+08:00",
+            "valid_until": "2035-01-01T00:00:00+08:00"
+          },
+          "path_status": "demo",
+          "path_ref": "fixture:path",
+          "coordinate_system": "GCJ02"
+        },
+        "distance_m": 0.0,
+        "cost_lower_fen": 500,
+        "cost_upper_fen": 500,
+        "time_basis": "synthetic",
+        "source_ids": [
+          "fixture:source"
+        ]
+      },
+      {
+        "journey_id": "stage1:stage2:walking",
+        "travel": {
+          "origin_place_id": "stage1",
+          "destination_place_id": "stage2",
+          "mode": "walking",
+          "lower_seconds": 360,
+          "upper_seconds": 360,
+          "evidence": {
+            "evidence_id": "fixture:travel",
+            "revision": "1",
+            "kind": "demo",
+            "source": "SYNTHETIC TEST ONLY",
+            "checked_at": "2020-01-01T00:00:00+08:00",
+            "valid_from": "2020-01-01T00:00:00+08:00",
+            "valid_until": "2035-01-01T00:00:00+08:00"
+          },
+          "path_status": "demo",
+          "path_ref": "fixture:path",
+          "coordinate_system": "GCJ02"
+        },
+        "distance_m": 370,
+        "cost_lower_fen": 0,
+        "cost_upper_fen": 0,
+        "time_basis": "synthetic",
+        "source_ids": [
+          "fixture:source"
+        ]
+      },
+      {
+        "journey_id": "stage1:stage2:driving",
+        "travel": {
+          "origin_place_id": "stage1",
+          "destination_place_id": "stage2",
+          "mode": "driving",
+          "lower_seconds": 216,
+          "upper_seconds": 216,
+          "evidence": {
+            "evidence_id": "fixture:travel",
+            "revision": "1",
+            "kind": "demo",
+            "source": "SYNTHETIC TEST ONLY",
+            "checked_at": "2020-01-01T00:00:00+08:00",
+            "valid_from": "2020-01-01T00:00:00+08:00",
+            "valid_until": "2035-01-01T00:00:00+08:00"
+          },
+          "path_status": "demo",
+          "path_ref": "fixture:path",
+          "coordinate_system": "GCJ02"
+        },
+        "distance_m": 444.0,
+        "cost_lower_fen": 500,
+        "cost_upper_fen": 500,
+        "time_basis": "synthetic",
+        "source_ids": [
+          "fixture:source"
+        ]
+      },
+      {
+        "journey_id": "stage2:origin:walking",
+        "travel": {
+          "origin_place_id": "stage2",
+          "destination_place_id": "origin",
+          "mode": "walking",
+          "lower_seconds": 660,
+          "upper_seconds": 660,
+          "evidence": {
+            "evidence_id": "fixture:travel",
+            "revision": "1",
+            "kind": "demo",
+            "source": "SYNTHETIC TEST ONLY",
+            "checked_at": "2020-01-01T00:00:00+08:00",
+            "valid_from": "2020-01-01T00:00:00+08:00",
+            "valid_until": "2035-01-01T00:00:00+08:00"
+          },
+          "path_status": "demo",
+          "path_ref": "fixture:path",
+          "coordinate_system": "GCJ02"
+        },
+        "distance_m": 720,
+        "cost_lower_fen": 0,
+        "cost_upper_fen": 0,
+        "time_basis": "synthetic",
+        "source_ids": [
+          "fixture:source"
+        ]
+      },
+      {
+        "journey_id": "stage2:origin:driving",
+        "travel": {
+          "origin_place_id": "stage2",
+          "destination_place_id": "origin",
+          "mode": "driving",
+          "lower_seconds": 396,
+          "upper_seconds": 396,
+          "evidence": {
+            "evidence_id": "fixture:travel",
+            "revision": "1",
+            "kind": "demo",
+            "source": "SYNTHETIC TEST ONLY",
+            "checked_at": "2020-01-01T00:00:00+08:00",
+            "valid_from": "2020-01-01T00:00:00+08:00",
+            "valid_until": "2035-01-01T00:00:00+08:00"
+          },
+          "path_status": "demo",
+          "path_ref": "fixture:path",
+          "coordinate_system": "GCJ02"
+        },
+        "distance_m": 864.0,
+        "cost_lower_fen": 500,
+        "cost_upper_fen": 500,
+        "time_basis": "synthetic",
+        "source_ids": [
+          "fixture:source"
+        ]
+      },
+      {
+        "journey_id": "stage2:hotel:walking",
+        "travel": {
+          "origin_place_id": "stage2",
+          "destination_place_id": "hotel",
+          "mode": "walking",
+          "lower_seconds": 600,
+          "upper_seconds": 600,
+          "evidence": {
+            "evidence_id": "fixture:travel",
+            "revision": "1",
+            "kind": "demo",
+            "source": "SYNTHETIC TEST ONLY",
+            "checked_at": "2020-01-01T00:00:00+08:00",
+            "valid_from": "2020-01-01T00:00:00+08:00",
+            "valid_until": "2035-01-01T00:00:00+08:00"
+          },
+          "path_status": "demo",
+          "path_ref": "fixture:path",
+          "coordinate_system": "GCJ02"
+        },
+        "distance_m": 650,
+        "cost_lower_fen": 0,
+        "cost_upper_fen": 0,
+        "time_basis": "synthetic",
+        "source_ids": [
+          "fixture:source"
+        ]
+      },
+      {
+        "journey_id": "stage2:hotel:driving",
+        "travel": {
+          "origin_place_id": "stage2",
+          "destination_place_id": "hotel",
+          "mode": "driving",
+          "lower_seconds": 360,
+          "upper_seconds": 360,
+          "evidence": {
+            "evidence_id": "fixture:travel",
+            "revision": "1",
+            "kind": "demo",
+            "source": "SYNTHETIC TEST ONLY",
+            "checked_at": "2020-01-01T00:00:00+08:00",
+            "valid_from": "2020-01-01T00:00:00+08:00",
+            "valid_until": "2035-01-01T00:00:00+08:00"
+          },
+          "path_status": "demo",
+          "path_ref": "fixture:path",
+          "coordinate_system": "GCJ02"
+        },
+        "distance_m": 780.0,
+        "cost_lower_fen": 500,
+        "cost_upper_fen": 500,
+        "time_basis": "synthetic",
+        "source_ids": [
+          "fixture:source"
+        ]
+      },
+      {
+        "journey_id": "stage2:museum:walking",
+        "travel": {
+          "origin_place_id": "stage2",
+          "destination_place_id": "museum",
+          "mode": "walking",
+          "lower_seconds": 540,
+          "upper_seconds": 540,
+          "evidence": {
+            "evidence_id": "fixture:travel",
+            "revision": "1",
+            "kind": "demo",
+            "source": "SYNTHETIC TEST ONLY",
+            "checked_at": "2020-01-01T00:00:00+08:00",
+            "valid_from": "2020-01-01T00:00:00+08:00",
+            "valid_until": "2035-01-01T00:00:00+08:00"
+          },
+          "path_status": "demo",
+          "path_ref": "fixture:path",
+          "coordinate_system": "GCJ02"
+        },
+        "distance_m": 580,
+        "cost_lower_fen": 0,
+        "cost_upper_fen": 0,
+        "time_basis": "synthetic",
+        "source_ids": [
+          "fixture:source"
+        ]
+      },
+      {
+        "journey_id": "stage2:museum:driving",
+        "travel": {
+          "origin_place_id": "stage2",
+          "destination_place_id": "museum",
+          "mode": "driving",
+          "lower_seconds": 324,
+          "upper_seconds": 324,
+          "evidence": {
+            "evidence_id": "fixture:travel",
+            "revision": "1",
+            "kind": "demo",
+            "source": "SYNTHETIC TEST ONLY",
+            "checked_at": "2020-01-01T00:00:00+08:00",
+            "valid_from": "2020-01-01T00:00:00+08:00",
+            "valid_until": "2035-01-01T00:00:00+08:00"
+          },
+          "path_status": "demo",
+          "path_ref": "fixture:path",
+          "coordinate_system": "GCJ02"
+        },
+        "distance_m": 696.0,
+        "cost_lower_fen": 500,
+        "cost_upper_fen": 500,
+        "time_basis": "synthetic",
+        "source_ids": [
+          "fixture:source"
+        ]
+      },
+      {
+        "journey_id": "stage2:garden:walking",
+        "travel": {
+          "origin_place_id": "stage2",
+          "destination_place_id": "garden",
+          "mode": "walking",
+          "lower_seconds": 480,
+          "upper_seconds": 480,
+          "evidence": {
+            "evidence_id": "fixture:travel",
+            "revision": "1",
+            "kind": "demo",
+            "source": "SYNTHETIC TEST ONLY",
+            "checked_at": "2020-01-01T00:00:00+08:00",
+            "valid_from": "2020-01-01T00:00:00+08:00",
+            "valid_until": "2035-01-01T00:00:00+08:00"
+          },
+          "path_status": "demo",
+          "path_ref": "fixture:path",
+          "coordinate_system": "GCJ02"
+        },
+        "distance_m": 510,
+        "cost_lower_fen": 0,
+        "cost_upper_fen": 0,
+        "time_basis": "synthetic",
+        "source_ids": [
+          "fixture:source"
+        ]
+      },
+      {
+        "journey_id": "stage2:garden:driving",
+        "travel": {
+          "origin_place_id": "stage2",
+          "destination_place_id": "garden",
+          "mode": "driving",
+          "lower_seconds": 288,
+          "upper_seconds": 288,
+          "evidence": {
+            "evidence_id": "fixture:travel",
+            "revision": "1",
+            "kind": "demo",
+            "source": "SYNTHETIC TEST ONLY",
+            "checked_at": "2020-01-01T00:00:00+08:00",
+            "valid_from": "2020-01-01T00:00:00+08:00",
+            "valid_until": "2035-01-01T00:00:00+08:00"
+          },
+          "path_status": "demo",
+          "path_ref": "fixture:path",
+          "coordinate_system": "GCJ02"
+        },
+        "distance_m": 612.0,
+        "cost_lower_fen": 500,
+        "cost_upper_fen": 500,
+        "time_basis": "synthetic",
+        "source_ids": [
+          "fixture:source"
+        ]
+      },
+      {
+        "journey_id": "stage2:restaurant:walking",
+        "travel": {
+          "origin_place_id": "stage2",
+          "destination_place_id": "restaurant",
+          "mode": "walking",
+          "lower_seconds": 420,
+          "upper_seconds": 420,
+          "evidence": {
+            "evidence_id": "fixture:travel",
+            "revision": "1",
+            "kind": "demo",
+            "source": "SYNTHETIC TEST ONLY",
+            "checked_at": "2020-01-01T00:00:00+08:00",
+            "valid_from": "2020-01-01T00:00:00+08:00",
+            "valid_until": "2035-01-01T00:00:00+08:00"
+          },
+          "path_status": "demo",
+          "path_ref": "fixture:path",
+          "coordinate_system": "GCJ02"
+        },
+        "distance_m": 440,
+        "cost_lower_fen": 0,
+        "cost_upper_fen": 0,
+        "time_basis": "synthetic",
+        "source_ids": [
+          "fixture:source"
+        ]
+      },
+      {
+        "journey_id": "stage2:restaurant:driving",
+        "travel": {
+          "origin_place_id": "stage2",
+          "destination_place_id": "restaurant",
+          "mode": "driving",
+          "lower_seconds": 252,
+          "upper_seconds": 252,
+          "evidence": {
+            "evidence_id": "fixture:travel",
+            "revision": "1",
+            "kind": "demo",
+            "source": "SYNTHETIC TEST ONLY",
+            "checked_at": "2020-01-01T00:00:00+08:00",
+            "valid_from": "2020-01-01T00:00:00+08:00",
+            "valid_until": "2035-01-01T00:00:00+08:00"
+          },
+          "path_status": "demo",
+          "path_ref": "fixture:path",
+          "coordinate_system": "GCJ02"
+        },
+        "distance_m": 528.0,
+        "cost_lower_fen": 500,
+        "cost_upper_fen": 500,
+        "time_basis": "synthetic",
+        "source_ids": [
+          "fixture:source"
+        ]
+      },
+      {
+        "journey_id": "stage2:stage1:walking",
+        "travel": {
+          "origin_place_id": "stage2",
+          "destination_place_id": "stage1",
+          "mode": "walking",
+          "lower_seconds": 360,
+          "upper_seconds": 360,
+          "evidence": {
+            "evidence_id": "fixture:travel",
+            "revision": "1",
+            "kind": "demo",
+            "source": "SYNTHETIC TEST ONLY",
+            "checked_at": "2020-01-01T00:00:00+08:00",
+            "valid_from": "2020-01-01T00:00:00+08:00",
+            "valid_until": "2035-01-01T00:00:00+08:00"
+          },
+          "path_status": "demo",
+          "path_ref": "fixture:path",
+          "coordinate_system": "GCJ02"
+        },
+        "distance_m": 370,
+        "cost_lower_fen": 0,
+        "cost_upper_fen": 0,
+        "time_basis": "synthetic",
+        "source_ids": [
+          "fixture:source"
+        ]
+      },
+      {
+        "journey_id": "stage2:stage1:driving",
+        "travel": {
+          "origin_place_id": "stage2",
+          "destination_place_id": "stage1",
+          "mode": "driving",
+          "lower_seconds": 216,
+          "upper_seconds": 216,
+          "evidence": {
+            "evidence_id": "fixture:travel",
+            "revision": "1",
+            "kind": "demo",
+            "source": "SYNTHETIC TEST ONLY",
+            "checked_at": "2020-01-01T00:00:00+08:00",
+            "valid_from": "2020-01-01T00:00:00+08:00",
+            "valid_until": "2035-01-01T00:00:00+08:00"
+          },
+          "path_status": "demo",
+          "path_ref": "fixture:path",
+          "coordinate_system": "GCJ02"
+        },
+        "distance_m": 444.0,
+        "cost_lower_fen": 500,
+        "cost_upper_fen": 500,
+        "time_basis": "synthetic",
+        "source_ids": [
+          "fixture:source"
+        ]
+      },
+      {
+        "journey_id": "stage2:stage2:walking",
+        "travel": {
+          "origin_place_id": "stage2",
+          "destination_place_id": "stage2",
+          "mode": "walking",
+          "lower_seconds": 0,
+          "upper_seconds": 0,
+          "evidence": {
+            "evidence_id": "fixture:travel",
+            "revision": "1",
+            "kind": "demo",
+            "source": "SYNTHETIC TEST ONLY",
+            "checked_at": "2020-01-01T00:00:00+08:00",
+            "valid_from": "2020-01-01T00:00:00+08:00",
+            "valid_until": "2035-01-01T00:00:00+08:00"
+          },
+          "path_status": "demo",
+          "path_ref": "fixture:path",
+          "coordinate_system": "GCJ02"
+        },
+        "distance_m": 0,
+        "cost_lower_fen": 0,
+        "cost_upper_fen": 0,
+        "time_basis": "synthetic",
+        "source_ids": [
+          "fixture:source"
+        ]
+      },
+      {
+        "journey_id": "stage2:stage2:driving",
+        "travel": {
+          "origin_place_id": "stage2",
+          "destination_place_id": "stage2",
+          "mode": "driving",
+          "lower_seconds": 0,
+          "upper_seconds": 0,
+          "evidence": {
+            "evidence_id": "fixture:travel",
+            "revision": "1",
+            "kind": "demo",
+            "source": "SYNTHETIC TEST ONLY",
+            "checked_at": "2020-01-01T00:00:00+08:00",
+            "valid_from": "2020-01-01T00:00:00+08:00",
+            "valid_until": "2035-01-01T00:00:00+08:00"
+          },
+          "path_status": "demo",
+          "path_ref": "fixture:path",
+          "coordinate_system": "GCJ02"
+        },
+        "distance_m": 0.0,
+        "cost_lower_fen": 500,
+        "cost_upper_fen": 500,
+        "time_basis": "synthetic",
+        "source_ids": [
+          "fixture:source"
+        ]
+      }
+    ],
+    "costs": [
+      {
+        "place_id": "origin",
+        "lower_fen": 0,
+        "upper_fen": 0,
+        "evidence": {
+          "evidence_id": "fixture:travel",
+          "revision": "1",
+          "kind": "demo",
+          "source": "SYNTHETIC TEST ONLY",
+          "checked_at": "2020-01-01T00:00:00+08:00",
+          "valid_from": "2020-01-01T00:00:00+08:00",
+          "valid_until": "2035-01-01T00:00:00+08:00"
+        }
+      },
+      {
+        "place_id": "hotel",
+        "lower_fen": 0,
+        "upper_fen": 0,
+        "evidence": {
+          "evidence_id": "fixture:travel",
+          "revision": "1",
+          "kind": "demo",
+          "source": "SYNTHETIC TEST ONLY",
+          "checked_at": "2020-01-01T00:00:00+08:00",
+          "valid_from": "2020-01-01T00:00:00+08:00",
+          "valid_until": "2035-01-01T00:00:00+08:00"
+        }
+      },
+      {
+        "place_id": "museum",
+        "lower_fen": 0,
+        "upper_fen": 0,
+        "evidence": {
+          "evidence_id": "fixture:travel",
+          "revision": "1",
+          "kind": "demo",
+          "source": "SYNTHETIC TEST ONLY",
+          "checked_at": "2020-01-01T00:00:00+08:00",
+          "valid_from": "2020-01-01T00:00:00+08:00",
+          "valid_until": "2035-01-01T00:00:00+08:00"
+        }
+      },
+      {
+        "place_id": "garden",
+        "lower_fen": 0,
+        "upper_fen": 0,
+        "evidence": {
+          "evidence_id": "fixture:travel",
+          "revision": "1",
+          "kind": "demo",
+          "source": "SYNTHETIC TEST ONLY",
+          "checked_at": "2020-01-01T00:00:00+08:00",
+          "valid_from": "2020-01-01T00:00:00+08:00",
+          "valid_until": "2035-01-01T00:00:00+08:00"
+        }
+      },
+      {
+        "place_id": "restaurant",
+        "lower_fen": 2000,
+        "upper_fen": 2000,
+        "evidence": {
+          "evidence_id": "fixture:travel",
+          "revision": "1",
+          "kind": "demo",
+          "source": "SYNTHETIC TEST ONLY",
+          "checked_at": "2020-01-01T00:00:00+08:00",
+          "valid_from": "2020-01-01T00:00:00+08:00",
+          "valid_until": "2035-01-01T00:00:00+08:00"
+        }
+      },
+      {
+        "place_id": "stage1",
+        "lower_fen": 0,
+        "upper_fen": 0,
+        "evidence": {
+          "evidence_id": "fixture:travel",
+          "revision": "1",
+          "kind": "demo",
+          "source": "SYNTHETIC TEST ONLY",
+          "checked_at": "2020-01-01T00:00:00+08:00",
+          "valid_from": "2020-01-01T00:00:00+08:00",
+          "valid_until": "2035-01-01T00:00:00+08:00"
+        }
+      },
+      {
+        "place_id": "stage2",
+        "lower_fen": 0,
+        "upper_fen": 0,
+        "evidence": {
+          "evidence_id": "fixture:travel",
+          "revision": "1",
+          "kind": "demo",
+          "source": "SYNTHETIC TEST ONLY",
+          "checked_at": "2020-01-01T00:00:00+08:00",
+          "valid_from": "2020-01-01T00:00:00+08:00",
+          "valid_until": "2035-01-01T00:00:00+08:00"
+        }
+      }
+    ]
+  },
+  "requirements": {
+    "business_date": "2030-05-01",
+    "starts_at": "2030-05-01T09:00:00+08:00",
+    "ends_at": "2030-05-01T20:00:00+08:00",
+    "origin_place_id": "origin",
+    "destination_place_id": "hotel",
+    "goals": [
+      {
+        "goal_id": "visit",
+        "target_kind": "place",
+        "target_id": "museum",
+        "required": true,
+        "duration_seconds": 1800
+      },
+      {
+        "goal_id": "show",
+        "target_kind": "session",
+        "target_id": "s1",
+        "kind": "show",
+        "required": true
+      },
+      {
+        "goal_id": "lunch",
+        "target_kind": "food",
+        "target_id": "food",
+        "kind": "dining",
+        "required": true,
+        "window_start": "2030-05-01T12:00:00+08:00",
+        "window_end": "2030-05-01T14:00:00+08:00"
+      }
+    ]
+  },
+  "assessed_at": "2030-05-01T08:00:00+08:00"
+}

@@ -1,0 +1,83 @@
+{
+  "date": "2026-10-21",
+  "provider": "Kimi",
+  "model": "kimi-k2.6",
+  "endpoint": "https://api.moonshot.cn/v1",
+  "mode": "non-thinking JSON intent extraction",
+  "secret": {
+    "location": ".env (private, ignored)",
+    "mode": "0600",
+    "included_in_source_or_reports": false
+  },
+  "live_verification": {
+    "models_http_status": 200,
+    "selected_model_available": true,
+    "synthetic_extraction": {
+      "status": "passed",
+      "duration_minutes": 120,
+      "elapsed_ms": 798.8
+    },
+    "runtime": {
+      "health_http_status": 200,
+      "ai_available": true,
+      "interpret_http_status": 200,
+      "elapsed_ms": 2042.1,
+      "synthetic_input": "2030年5月1日14点入园，游玩三个小时，喜欢拍照",
+      "expected_patch": {
+        "available_minutes": 180,
+        "visit_start": "2030-05-01T14:00:00+08:00",
+        "interests": [
+          "photo"
+        ]
+      },
+      "needs_confirmation": true,
+      "business_check_passed": true
+    },
+    "generation_requests": 2,
+    "real_visitor_data_sent": false,
+    "visitor_state_created_or_confirmed": false,
+    "limits": "Two synthetic requests; not language accuracy or production latency evaluation"
+  },
+  "tests": {
+    "targeted_command": ".venv/bin/pytest -q backend/tests/test_language_provider.py backend/tests/test_memory.py",
+    "targeted_passed": 85,
+    "full_command": ".venv/bin/pytest -q",
+    "full_passed": 296,
+    "elapsed_seconds": 10.02,
+    "warning": "Existing Starlette/httpx deprecation",
+    "paid_calls_in_automated_tests": 0
+  },
+  "runtime_protection": {
+    "service_restarted": true,
+    "pre_restart_database_consistent_backup": ".backups/kimi-api-20261021/before-runtime-reload.sqlite3",
+    "database_overwritten": false,
+    "deletion_ledger_restored": false,
+    "frontend_written_or_built": false,
+    "frontend_source_fingerprints_unchanged": true
+  },
+  "files": [
+    "backend/app/language.py",
+    "backend/tests/test_language_provider.py",
+    "scripts/check_kimi_connection.py",
+    ".env.example",
+    "docs/KIMI_API.md",
+    "docs/reports/kimi-api-20261021.json"
+  ],
+  "source_hashes": {
+    "backend/app/language.py": "c5ca453aaf0d9ea406e97b21fb80279b8824a73bd0c01ab43099be7830269938",
+    "backend/tests/test_language_provider.py": "6ba230c9465cf872fd740640680f9ed1dea0b30b2ae91b11e3886ff328320fb7",
+    "scripts/check_kimi_connection.py": "401677c1da6ad915d8b2c1773e695d153a4142938fcc4806461093294a8f55de",
+    ".env.example": "86f7fe4f95e697babac77d7ab3561b283cdecfefea7fa43716254578ada66aac",
+    "docs/KIMI_API.md": "323332fd229d7056ed169e7fd28b374fb75d62dff4013432c80476fcb234fd98"
+  },
+  "remaining": [
+    "CityTrip context and new city engine tool calls are not yet connected to the assistant",
+    "Long-term account memory remains disabled",
+    "Model account quota and future availability are not guaranteed by these smoke tests"
+  ],
+  "official_references": [
+    "https://platform.kimi.com/docs/get-api-key",
+    "https://platform.kimi.com/docs/api/models-overview",
+    "https://platform.kimi.com/docs/guide/use-json-mode-feature-of-kimi-api"
+  ]
+}

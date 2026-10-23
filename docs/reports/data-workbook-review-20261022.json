@@ -1,0 +1,6264 @@
+{
+  "source_path": "/Users/mac/Library/Containers/com.tencent.xinWeChat/Data/Documents/xwechat_files/wxid_wu9aqlw8xft022_3d78/temp/RWTemp/2026-10/cd7a6b87d487d8506ebc43d45ff0ab17/汴梁智游 成员1 、4已填写.xlsx",
+  "review_date": "2026-10-22",
+  "review_scope": "read-only internal structure and compatibility; no external fact verification; no DB import",
+  "summary": {
+    "10_places": {
+      "count": 16,
+      "status_counts": {
+        "candidate": 8,
+        "pending_review": 8
+      },
+      "duplicate_primary_keys": {},
+      "coordinates_present": 0,
+      "crs": {
+        "null": 16
+      },
+      "place_id_missing": 0,
+      "source_id_missing": 0,
+      "address_missing": 0,
+      "verified_at_missing": 16,
+      "reviewer_missing": 0,
+      "valid_from_missing": 16,
+      "valid_to_missing": 16
+    },
+    "11_place_entrances": {
+      "count": 20,
+      "status_counts": {
+        "candidate": 18,
+        "pending_review": 2
+      },
+      "duplicate_primary_keys": {},
+      "coordinates_present": 0,
+      "crs": {
+        "null": 20
+      },
+      "place_id_missing": 0,
+      "source_id_missing": 0,
+      "verified_at_missing": 20,
+      "name_duplicates": {
+        "南大门": [
+          "ent_000004",
+          "ent_000014"
+        ]
+      }
+    },
+    "12_open_rules": {
+      "count": 19,
+      "status_counts": {
+        "pending_review": 11,
+        "conflict": 1,
+        "candidate": 6,
+        "expired": 1
+      },
+      "duplicate_primary_keys": {},
+      "place_id_missing": 0,
+      "source_id_missing": 0,
+      "verified_at_missing": 19
+    },
+    "13_programs": {
+      "count": 98,
+      "status_counts": {
+        "candidate": 93,
+        "pending_review": 5
+      },
+      "duplicate_primary_keys": {},
+      "stage_place_id_missing": 98,
+      "source_id_missing": 0,
+      "reviewer_missing": 0,
+      "valid_from_missing": 94,
+      "valid_to_missing": 94
+    },
+    "14_show_sessions": {
+      "count": 0,
+      "status_counts": {},
+      "duplicate_primary_keys": {}
+    },
+    "15_food_items": {
+      "count": 26,
+      "status_counts": {
+        "candidate": 26
+      },
+      "duplicate_primary_keys": {},
+      "reviewer_missing": 26
+    },
+    "16_food_vendors": {
+      "count": 32,
+      "status_counts": {
+        "candidate": 12,
+        "pending_review": 18,
+        "conflict": 2
+      },
+      "duplicate_primary_keys": {},
+      "coordinates_present": 17,
+      "crs": {
+        "GCJ-02": 17,
+        "null": 15
+      },
+      "place_id_missing": 32,
+      "source_id_missing": 0,
+      "address_missing": 1,
+      "business_hours_missing": 12,
+      "verified_at_missing": 32,
+      "reviewer_missing": 32
+    },
+    "17_vendor_foods": {
+      "count": 48,
+      "status_counts": {
+        "candidate": 42,
+        "pending_review": 6
+      },
+      "duplicate_primary_keys": {},
+      "verified_at_missing": 48,
+      "reviewer_missing": 48,
+      "duplicate_pairs": {}
+    },
+    "18_source_records": {
+      "count": 116,
+      "status_counts": {
+        "candidate": 112,
+        "stale": 1,
+        "conflict": 3
+      },
+      "duplicate_primary_keys": {},
+      "source_id_missing": 0,
+      "reviewer_missing": 57,
+      "evidence_path_missing": 57,
+      "content_sha256_missing": 57,
+      "rights_status_missing": 0,
+      "rights_counts": {
+        "public_view_only": 116
+      },
+      "source_types": {
+        "official": 42,
+        "provider": 63,
+        "research": 10,
+        "field_check": 1
+      },
+      "date_ranges": {
+        "accessed_at": {
+          "min": "2026-10-21T22:36:46+08:00",
+          "max": "2026-10-22T01:51:51+08:00"
+        },
+        "captured_at": {
+          "min": "2026-10-21T22:36:46+08:00",
+          "max": "2026-10-22T00:24:57+08:00"
+        }
+      }
+    },
+    "19_change_log": {
+      "count": 464,
+      "status_counts": {
+        "null": 464
+      },
+      "duplicate_primary_keys": {},
+      "source_id_missing": 47,
+      "change_types": {
+        "data_correction": 308,
+        "record_addition": 2,
+        "source_addition": 4,
+        "version_update": 29,
+        "new_record": 30,
+        "version_increment": 91
+      },
+      "approval_statuses": {
+        "pending_review": 464
+      },
+      "rows_remaining_before_template_500_limit": 36
+    }
+  },
+  "issue_counts": {
+    "REQUIRED_BY_DICTIONARY_MISSING": 95,
+    "ENUM_NOT_ALLOWED": 464,
+    "WHOLE_RECORD_SENTINEL": 36
+  },
+  "issues": [
+    {
+      "code": "REQUIRED_BY_DICTIONARY_MISSING",
+      "sheet": "17_vendor_foods",
+      "row": 4,
+      "record_id": "vf_000001",
+      "field": "verified_at",
+      "value": null,
+      "note": "字典标Y但留空；verified_at候选为空应改字典，不应伪造核实时间",
+      "severity": "info"
+    },
+    {
+      "code": "REQUIRED_BY_DICTIONARY_MISSING",
+      "sheet": "17_vendor_foods",
+      "row": 5,
+      "record_id": "vf_000002",
+      "field": "verified_at",
+      "value": null,
+      "note": "字典标Y但留空；verified_at候选为空应改字典，不应伪造核实时间",
+      "severity": "info"
+    },
+    {
+      "code": "REQUIRED_BY_DICTIONARY_MISSING",
+      "sheet": "17_vendor_foods",
+      "row": 6,
+      "record_id": "vf_000003",
+      "field": "verified_at",
+      "value": null,
+      "note": "字典标Y但留空；verified_at候选为空应改字典，不应伪造核实时间",
+      "severity": "info"
+    },
+    {
+      "code": "REQUIRED_BY_DICTIONARY_MISSING",
+      "sheet": "17_vendor_foods",
+      "row": 7,
+      "record_id": "vf_000004",
+      "field": "verified_at",
+      "value": null,
+      "note": "字典标Y但留空；verified_at候选为空应改字典，不应伪造核实时间",
+      "severity": "info"
+    },
+    {
+      "code": "REQUIRED_BY_DICTIONARY_MISSING",
+      "sheet": "17_vendor_foods",
+      "row": 8,
+      "record_id": "vf_000005",
+      "field": "verified_at",
+      "value": null,
+      "note": "字典标Y但留空；verified_at候选为空应改字典，不应伪造核实时间",
+      "severity": "info"
+    },
+    {
+      "code": "REQUIRED_BY_DICTIONARY_MISSING",
+      "sheet": "17_vendor_foods",
+      "row": 9,
+      "record_id": "vf_000006",
+      "field": "verified_at",
+      "value": null,
+      "note": "字典标Y但留空；verified_at候选为空应改字典，不应伪造核实时间",
+      "severity": "info"
+    },
+    {
+      "code": "REQUIRED_BY_DICTIONARY_MISSING",
+      "sheet": "17_vendor_foods",
+      "row": 10,
+      "record_id": "vf_000007",
+      "field": "verified_at",
+      "value": null,
+      "note": "字典标Y但留空；verified_at候选为空应改字典，不应伪造核实时间",
+      "severity": "info"
+    },
+    {
+      "code": "REQUIRED_BY_DICTIONARY_MISSING",
+      "sheet": "17_vendor_foods",
+      "row": 11,
+      "record_id": "vf_000008",
+      "field": "verified_at",
+      "value": null,
+      "note": "字典标Y但留空；verified_at候选为空应改字典，不应伪造核实时间",
+      "severity": "info"
+    },
+    {
+      "code": "REQUIRED_BY_DICTIONARY_MISSING",
+      "sheet": "17_vendor_foods",
+      "row": 12,
+      "record_id": "vf_000009",
+      "field": "verified_at",
+      "value": null,
+      "note": "字典标Y但留空；verified_at候选为空应改字典，不应伪造核实时间",
+      "severity": "info"
+    },
+    {
+      "code": "REQUIRED_BY_DICTIONARY_MISSING",
+      "sheet": "17_vendor_foods",
+      "row": 13,
+      "record_id": "vf_000010",
+      "field": "verified_at",
+      "value": null,
+      "note": "字典标Y但留空；verified_at候选为空应改字典，不应伪造核实时间",
+      "severity": "info"
+    },
+    {
+      "code": "REQUIRED_BY_DICTIONARY_MISSING",
+      "sheet": "17_vendor_foods",
+      "row": 14,
+      "record_id": "vf_000011",
+      "field": "verified_at",
+      "value": null,
+      "note": "字典标Y但留空；verified_at候选为空应改字典，不应伪造核实时间",
+      "severity": "info"
+    },
+    {
+      "code": "REQUIRED_BY_DICTIONARY_MISSING",
+      "sheet": "17_vendor_foods",
+      "row": 15,
+      "record_id": "vf_000012",
+      "field": "verified_at",
+      "value": null,
+      "note": "字典标Y但留空；verified_at候选为空应改字典，不应伪造核实时间",
+      "severity": "info"
+    },
+    {
+      "code": "REQUIRED_BY_DICTIONARY_MISSING",
+      "sheet": "17_vendor_foods",
+      "row": 16,
+      "record_id": "vf_000013",
+      "field": "verified_at",
+      "value": null,
+      "note": "字典标Y但留空；verified_at候选为空应改字典，不应伪造核实时间",
+      "severity": "info"
+    },
+    {
+      "code": "REQUIRED_BY_DICTIONARY_MISSING",
+      "sheet": "17_vendor_foods",
+      "row": 17,
+      "record_id": "vf_000014",
+      "field": "verified_at",
+      "value": null,
+      "note": "字典标Y但留空；verified_at候选为空应改字典，不应伪造核实时间",
+      "severity": "info"
+    },
+    {
+      "code": "REQUIRED_BY_DICTIONARY_MISSING",
+      "sheet": "17_vendor_foods",
+      "row": 18,
+      "record_id": "vf_000015",
+      "field": "verified_at",
+      "value": null,
+      "note": "字典标Y但留空；verified_at候选为空应改字典，不应伪造核实时间",
+      "severity": "info"
+    },
+    {
+      "code": "REQUIRED_BY_DICTIONARY_MISSING",
+      "sheet": "17_vendor_foods",
+      "row": 19,
+      "record_id": "vf_000016",
+      "field": "verified_at",
+      "value": null,
+      "note": "字典标Y但留空；verified_at候选为空应改字典，不应伪造核实时间",
+      "severity": "info"
+    },
+    {
+      "code": "REQUIRED_BY_DICTIONARY_MISSING",
+      "sheet": "17_vendor_foods",
+      "row": 20,
+      "record_id": "vf_000017",
+      "field": "verified_at",
+      "value": null,
+      "note": "字典标Y但留空；verified_at候选为空应改字典，不应伪造核实时间",
+      "severity": "info"
+    },
+    {
+      "code": "REQUIRED_BY_DICTIONARY_MISSING",
+      "sheet": "17_vendor_foods",
+      "row": 21,
+      "record_id": "vf_000018",
+      "field": "verified_at",
+      "value": null,
+      "note": "字典标Y但留空；verified_at候选为空应改字典，不应伪造核实时间",
+      "severity": "info"
+    },
+    {
+      "code": "REQUIRED_BY_DICTIONARY_MISSING",
+      "sheet": "17_vendor_foods",
+      "row": 22,
+      "record_id": "vf_000019",
+      "field": "verified_at",
+      "value": null,
+      "note": "字典标Y但留空；verified_at候选为空应改字典，不应伪造核实时间",
+      "severity": "info"
+    },
+    {
+      "code": "REQUIRED_BY_DICTIONARY_MISSING",
+      "sheet": "17_vendor_foods",
+      "row": 23,
+      "record_id": "vf_000020",
+      "field": "verified_at",
+      "value": null,
+      "note": "字典标Y但留空；verified_at候选为空应改字典，不应伪造核实时间",
+      "severity": "info"
+    },
+    {
+      "code": "REQUIRED_BY_DICTIONARY_MISSING",
+      "sheet": "17_vendor_foods",
+      "row": 24,
+      "record_id": "vf_000021",
+      "field": "verified_at",
+      "value": null,
+      "note": "字典标Y但留空；verified_at候选为空应改字典，不应伪造核实时间",
+      "severity": "info"
+    },
+    {
+      "code": "REQUIRED_BY_DICTIONARY_MISSING",
+      "sheet": "17_vendor_foods",
+      "row": 25,
+      "record_id": "vf_000022",
+      "field": "verified_at",
+      "value": null,
+      "note": "字典标Y但留空；verified_at候选为空应改字典，不应伪造核实时间",
+      "severity": "info"
+    },
+    {
+      "code": "REQUIRED_BY_DICTIONARY_MISSING",
+      "sheet": "17_vendor_foods",
+      "row": 26,
+      "record_id": "vf_000023",
+      "field": "verified_at",
+      "value": null,
+      "note": "字典标Y但留空；verified_at候选为空应改字典，不应伪造核实时间",
+      "severity": "info"
+    },
+    {
+      "code": "REQUIRED_BY_DICTIONARY_MISSING",
+      "sheet": "17_vendor_foods",
+      "row": 27,
+      "record_id": "vf_000024",
+      "field": "verified_at",
+      "value": null,
+      "note": "字典标Y但留空；verified_at候选为空应改字典，不应伪造核实时间",
+      "severity": "info"
+    },
+    {
+      "code": "REQUIRED_BY_DICTIONARY_MISSING",
+      "sheet": "17_vendor_foods",
+      "row": 28,
+      "record_id": "vf_000025",
+      "field": "verified_at",
+      "value": null,
+      "note": "字典标Y但留空；verified_at候选为空应改字典，不应伪造核实时间",
+      "severity": "info"
+    },
+    {
+      "code": "REQUIRED_BY_DICTIONARY_MISSING",
+      "sheet": "17_vendor_foods",
+      "row": 29,
+      "record_id": "vf_000026",
+      "field": "verified_at",
+      "value": null,
+      "note": "字典标Y但留空；verified_at候选为空应改字典，不应伪造核实时间",
+      "severity": "info"
+    },
+    {
+      "code": "REQUIRED_BY_DICTIONARY_MISSING",
+      "sheet": "17_vendor_foods",
+      "row": 30,
+      "record_id": "vf_000027",
+      "field": "verified_at",
+      "value": null,
+      "note": "字典标Y但留空；verified_at候选为空应改字典，不应伪造核实时间",
+      "severity": "info"
+    },
+    {
+      "code": "REQUIRED_BY_DICTIONARY_MISSING",
+      "sheet": "17_vendor_foods",
+      "row": 31,
+      "record_id": "vf_000028",
+      "field": "verified_at",
+      "value": null,
+      "note": "字典标Y但留空；verified_at候选为空应改字典，不应伪造核实时间",
+      "severity": "info"
+    },
+    {
+      "code": "REQUIRED_BY_DICTIONARY_MISSING",
+      "sheet": "17_vendor_foods",
+      "row": 32,
+      "record_id": "vf_000029",
+      "field": "verified_at",
+      "value": null,
+      "note": "字典标Y但留空；verified_at候选为空应改字典，不应伪造核实时间",
+      "severity": "info"
+    },
+    {
+      "code": "REQUIRED_BY_DICTIONARY_MISSING",
+      "sheet": "17_vendor_foods",
+      "row": 33,
+      "record_id": "vf_000030",
+      "field": "verified_at",
+      "value": null,
+      "note": "字典标Y但留空；verified_at候选为空应改字典，不应伪造核实时间",
+      "severity": "info"
+    },
+    {
+      "code": "REQUIRED_BY_DICTIONARY_MISSING",
+      "sheet": "17_vendor_foods",
+      "row": 34,
+      "record_id": "vf_000031",
+      "field": "verified_at",
+      "value": null,
+      "note": "字典标Y但留空；verified_at候选为空应改字典，不应伪造核实时间",
+      "severity": "info"
+    },
+    {
+      "code": "REQUIRED_BY_DICTIONARY_MISSING",
+      "sheet": "17_vendor_foods",
+      "row": 35,
+      "record_id": "vf_000032",
+      "field": "verified_at",
+      "value": null,
+      "note": "字典标Y但留空；verified_at候选为空应改字典，不应伪造核实时间",
+      "severity": "info"
+    },
+    {
+      "code": "REQUIRED_BY_DICTIONARY_MISSING",
+      "sheet": "17_vendor_foods",
+      "row": 36,
+      "record_id": "vf_000033",
+      "field": "verified_at",
+      "value": null,
+      "note": "字典标Y但留空；verified_at候选为空应改字典，不应伪造核实时间",
+      "severity": "info"
+    },
+    {
+      "code": "REQUIRED_BY_DICTIONARY_MISSING",
+      "sheet": "17_vendor_foods",
+      "row": 37,
+      "record_id": "vf_000034",
+      "field": "verified_at",
+      "value": null,
+      "note": "字典标Y但留空；verified_at候选为空应改字典，不应伪造核实时间",
+      "severity": "info"
+    },
+    {
+      "code": "REQUIRED_BY_DICTIONARY_MISSING",
+      "sheet": "17_vendor_foods",
+      "row": 38,
+      "record_id": "vf_000035",
+      "field": "verified_at",
+      "value": null,
+      "note": "字典标Y但留空；verified_at候选为空应改字典，不应伪造核实时间",
+      "severity": "info"
+    },
+    {
+      "code": "REQUIRED_BY_DICTIONARY_MISSING",
+      "sheet": "17_vendor_foods",
+      "row": 39,
+      "record_id": "vf_000036",
+      "field": "verified_at",
+      "value": null,
+      "note": "字典标Y但留空；verified_at候选为空应改字典，不应伪造核实时间",
+      "severity": "info"
+    },
+    {
+      "code": "REQUIRED_BY_DICTIONARY_MISSING",
+      "sheet": "17_vendor_foods",
+      "row": 40,
+      "record_id": "vf_000037",
+      "field": "verified_at",
+      "value": null,
+      "note": "字典标Y但留空；verified_at候选为空应改字典，不应伪造核实时间",
+      "severity": "info"
+    },
+    {
+      "code": "REQUIRED_BY_DICTIONARY_MISSING",
+      "sheet": "17_vendor_foods",
+      "row": 41,
+      "record_id": "vf_000038",
+      "field": "verified_at",
+      "value": null,
+      "note": "字典标Y但留空；verified_at候选为空应改字典，不应伪造核实时间",
+      "severity": "info"
+    },
+    {
+      "code": "REQUIRED_BY_DICTIONARY_MISSING",
+      "sheet": "17_vendor_foods",
+      "row": 42,
+      "record_id": "vf_000039",
+      "field": "verified_at",
+      "value": null,
+      "note": "字典标Y但留空；verified_at候选为空应改字典，不应伪造核实时间",
+      "severity": "info"
+    },
+    {
+      "code": "REQUIRED_BY_DICTIONARY_MISSING",
+      "sheet": "17_vendor_foods",
+      "row": 43,
+      "record_id": "vf_000040",
+      "field": "verified_at",
+      "value": null,
+      "note": "字典标Y但留空；verified_at候选为空应改字典，不应伪造核实时间",
+      "severity": "info"
+    },
+    {
+      "code": "REQUIRED_BY_DICTIONARY_MISSING",
+      "sheet": "17_vendor_foods",
+      "row": 44,
+      "record_id": "vf_000041",
+      "field": "verified_at",
+      "value": null,
+      "note": "字典标Y但留空；verified_at候选为空应改字典，不应伪造核实时间",
+      "severity": "info"
+    },
+    {
+      "code": "REQUIRED_BY_DICTIONARY_MISSING",
+      "sheet": "17_vendor_foods",
+      "row": 45,
+      "record_id": "vf_000042",
+      "field": "verified_at",
+      "value": null,
+      "note": "字典标Y但留空；verified_at候选为空应改字典，不应伪造核实时间",
+      "severity": "info"
+    },
+    {
+      "code": "REQUIRED_BY_DICTIONARY_MISSING",
+      "sheet": "17_vendor_foods",
+      "row": 46,
+      "record_id": "vf_000043",
+      "field": "verified_at",
+      "value": null,
+      "note": "字典标Y但留空；verified_at候选为空应改字典，不应伪造核实时间",
+      "severity": "info"
+    },
+    {
+      "code": "REQUIRED_BY_DICTIONARY_MISSING",
+      "sheet": "17_vendor_foods",
+      "row": 47,
+      "record_id": "vf_000044",
+      "field": "verified_at",
+      "value": null,
+      "note": "字典标Y但留空；verified_at候选为空应改字典，不应伪造核实时间",
+      "severity": "info"
+    },
+    {
+      "code": "REQUIRED_BY_DICTIONARY_MISSING",
+      "sheet": "17_vendor_foods",
+      "row": 48,
+      "record_id": "vf_000045",
+      "field": "verified_at",
+      "value": null,
+      "note": "字典标Y但留空；verified_at候选为空应改字典，不应伪造核实时间",
+      "severity": "info"
+    },
+    {
+      "code": "REQUIRED_BY_DICTIONARY_MISSING",
+      "sheet": "17_vendor_foods",
+      "row": 49,
+      "record_id": "vf_000046",
+      "field": "verified_at",
+      "value": null,
+      "note": "字典标Y但留空；verified_at候选为空应改字典，不应伪造核实时间",
+      "severity": "info"
+    },
+    {
+      "code": "REQUIRED_BY_DICTIONARY_MISSING",
+      "sheet": "17_vendor_foods",
+      "row": 50,
+      "record_id": "vf_000047",
+      "field": "verified_at",
+      "value": null,
+      "note": "字典标Y但留空；verified_at候选为空应改字典，不应伪造核实时间",
+      "severity": "info"
+    },
+    {
+      "code": "REQUIRED_BY_DICTIONARY_MISSING",
+      "sheet": "17_vendor_foods",
+      "row": 51,
+      "record_id": "vf_000048",
+      "field": "verified_at",
+      "value": null,
+      "note": "字典标Y但留空；verified_at候选为空应改字典，不应伪造核实时间",
+      "severity": "info"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 4,
+      "record_id": "chg_000001",
+      "field": "change_type",
+      "value": "data_correction",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 5,
+      "record_id": "chg_000002",
+      "field": "change_type",
+      "value": "data_correction",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 6,
+      "record_id": "chg_000003",
+      "field": "change_type",
+      "value": "data_correction",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 7,
+      "record_id": "chg_000004",
+      "field": "change_type",
+      "value": "data_correction",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 8,
+      "record_id": "chg_000005",
+      "field": "change_type",
+      "value": "data_correction",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 9,
+      "record_id": "chg_000006",
+      "field": "change_type",
+      "value": "data_correction",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 10,
+      "record_id": "chg_000007",
+      "field": "change_type",
+      "value": "data_correction",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 11,
+      "record_id": "chg_000008",
+      "field": "change_type",
+      "value": "data_correction",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 12,
+      "record_id": "chg_000009",
+      "field": "change_type",
+      "value": "data_correction",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 13,
+      "record_id": "chg_000010",
+      "field": "change_type",
+      "value": "data_correction",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 14,
+      "record_id": "chg_000011",
+      "field": "change_type",
+      "value": "data_correction",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 15,
+      "record_id": "chg_000012",
+      "field": "change_type",
+      "value": "data_correction",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 16,
+      "record_id": "chg_000013",
+      "field": "change_type",
+      "value": "data_correction",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 17,
+      "record_id": "chg_000014",
+      "field": "change_type",
+      "value": "data_correction",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 18,
+      "record_id": "chg_000015",
+      "field": "change_type",
+      "value": "data_correction",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 19,
+      "record_id": "chg_000016",
+      "field": "change_type",
+      "value": "data_correction",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 20,
+      "record_id": "chg_000017",
+      "field": "change_type",
+      "value": "data_correction",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 21,
+      "record_id": "chg_000018",
+      "field": "change_type",
+      "value": "data_correction",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 22,
+      "record_id": "chg_000019",
+      "field": "change_type",
+      "value": "data_correction",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 23,
+      "record_id": "chg_000020",
+      "field": "change_type",
+      "value": "data_correction",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 24,
+      "record_id": "chg_000021",
+      "field": "change_type",
+      "value": "data_correction",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 25,
+      "record_id": "chg_000022",
+      "field": "change_type",
+      "value": "data_correction",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 26,
+      "record_id": "chg_000023",
+      "field": "change_type",
+      "value": "data_correction",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 27,
+      "record_id": "chg_000024",
+      "field": "change_type",
+      "value": "data_correction",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 28,
+      "record_id": "chg_000025",
+      "field": "change_type",
+      "value": "data_correction",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 29,
+      "record_id": "chg_000026",
+      "field": "change_type",
+      "value": "data_correction",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 30,
+      "record_id": "chg_000027",
+      "field": "change_type",
+      "value": "data_correction",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 31,
+      "record_id": "chg_000028",
+      "field": "change_type",
+      "value": "data_correction",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 32,
+      "record_id": "chg_000029",
+      "field": "change_type",
+      "value": "data_correction",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 33,
+      "record_id": "chg_000030",
+      "field": "change_type",
+      "value": "data_correction",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 34,
+      "record_id": "chg_000031",
+      "field": "change_type",
+      "value": "data_correction",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 35,
+      "record_id": "chg_000032",
+      "field": "change_type",
+      "value": "data_correction",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 36,
+      "record_id": "chg_000033",
+      "field": "change_type",
+      "value": "data_correction",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 37,
+      "record_id": "chg_000034",
+      "field": "change_type",
+      "value": "data_correction",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 38,
+      "record_id": "chg_000035",
+      "field": "change_type",
+      "value": "data_correction",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 39,
+      "record_id": "chg_000036",
+      "field": "change_type",
+      "value": "data_correction",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 40,
+      "record_id": "chg_000037",
+      "field": "change_type",
+      "value": "data_correction",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 41,
+      "record_id": "chg_000038",
+      "field": "change_type",
+      "value": "data_correction",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 42,
+      "record_id": "chg_000039",
+      "field": "change_type",
+      "value": "data_correction",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 43,
+      "record_id": "chg_000040",
+      "field": "change_type",
+      "value": "data_correction",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 44,
+      "record_id": "chg_000041",
+      "field": "change_type",
+      "value": "data_correction",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 45,
+      "record_id": "chg_000042",
+      "field": "change_type",
+      "value": "data_correction",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 46,
+      "record_id": "chg_000043",
+      "field": "change_type",
+      "value": "data_correction",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 47,
+      "record_id": "chg_000044",
+      "field": "change_type",
+      "value": "data_correction",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 48,
+      "record_id": "chg_000045",
+      "field": "change_type",
+      "value": "data_correction",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 49,
+      "record_id": "chg_000046",
+      "field": "change_type",
+      "value": "data_correction",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 50,
+      "record_id": "chg_000047",
+      "field": "change_type",
+      "value": "data_correction",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 51,
+      "record_id": "chg_000048",
+      "field": "change_type",
+      "value": "data_correction",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 52,
+      "record_id": "chg_000049",
+      "field": "change_type",
+      "value": "data_correction",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 53,
+      "record_id": "chg_000050",
+      "field": "change_type",
+      "value": "data_correction",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 54,
+      "record_id": "chg_000051",
+      "field": "change_type",
+      "value": "data_correction",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 55,
+      "record_id": "chg_000052",
+      "field": "change_type",
+      "value": "data_correction",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 56,
+      "record_id": "chg_000053",
+      "field": "change_type",
+      "value": "data_correction",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 57,
+      "record_id": "chg_000054",
+      "field": "change_type",
+      "value": "data_correction",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 58,
+      "record_id": "chg_000055",
+      "field": "change_type",
+      "value": "data_correction",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 59,
+      "record_id": "chg_000056",
+      "field": "change_type",
+      "value": "data_correction",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 60,
+      "record_id": "chg_000057",
+      "field": "change_type",
+      "value": "data_correction",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 61,
+      "record_id": "chg_000058",
+      "field": "change_type",
+      "value": "data_correction",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 62,
+      "record_id": "chg_000059",
+      "field": "change_type",
+      "value": "data_correction",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 63,
+      "record_id": "chg_000060",
+      "field": "change_type",
+      "value": "data_correction",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 64,
+      "record_id": "chg_000061",
+      "field": "change_type",
+      "value": "data_correction",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 65,
+      "record_id": "chg_000062",
+      "field": "change_type",
+      "value": "data_correction",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 66,
+      "record_id": "chg_000063",
+      "field": "change_type",
+      "value": "data_correction",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 67,
+      "record_id": "chg_000064",
+      "field": "change_type",
+      "value": "data_correction",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 68,
+      "record_id": "chg_000065",
+      "field": "change_type",
+      "value": "data_correction",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 69,
+      "record_id": "chg_000066",
+      "field": "change_type",
+      "value": "data_correction",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 70,
+      "record_id": "chg_000067",
+      "field": "change_type",
+      "value": "data_correction",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 71,
+      "record_id": "chg_000068",
+      "field": "change_type",
+      "value": "data_correction",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 72,
+      "record_id": "chg_000069",
+      "field": "change_type",
+      "value": "data_correction",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 73,
+      "record_id": "chg_000070",
+      "field": "change_type",
+      "value": "data_correction",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 74,
+      "record_id": "chg_000071",
+      "field": "change_type",
+      "value": "data_correction",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 75,
+      "record_id": "chg_000072",
+      "field": "change_type",
+      "value": "data_correction",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 76,
+      "record_id": "chg_000073",
+      "field": "change_type",
+      "value": "data_correction",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 77,
+      "record_id": "chg_000074",
+      "field": "change_type",
+      "value": "data_correction",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 78,
+      "record_id": "chg_000075",
+      "field": "change_type",
+      "value": "data_correction",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 79,
+      "record_id": "chg_000076",
+      "field": "change_type",
+      "value": "data_correction",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 80,
+      "record_id": "chg_000077",
+      "field": "change_type",
+      "value": "data_correction",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 81,
+      "record_id": "chg_000078",
+      "field": "change_type",
+      "value": "data_correction",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 82,
+      "record_id": "chg_000079",
+      "field": "change_type",
+      "value": "data_correction",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 83,
+      "record_id": "chg_000080",
+      "field": "change_type",
+      "value": "data_correction",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 84,
+      "record_id": "chg_000081",
+      "field": "change_type",
+      "value": "data_correction",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 85,
+      "record_id": "chg_000082",
+      "field": "change_type",
+      "value": "data_correction",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 86,
+      "record_id": "chg_000083",
+      "field": "change_type",
+      "value": "data_correction",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 87,
+      "record_id": "chg_000084",
+      "field": "change_type",
+      "value": "data_correction",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 88,
+      "record_id": "chg_000085",
+      "field": "change_type",
+      "value": "data_correction",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 89,
+      "record_id": "chg_000086",
+      "field": "change_type",
+      "value": "data_correction",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 90,
+      "record_id": "chg_000087",
+      "field": "change_type",
+      "value": "data_correction",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 91,
+      "record_id": "chg_000088",
+      "field": "change_type",
+      "value": "data_correction",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 92,
+      "record_id": "chg_000089",
+      "field": "change_type",
+      "value": "data_correction",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 93,
+      "record_id": "chg_000090",
+      "field": "change_type",
+      "value": "data_correction",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 94,
+      "record_id": "chg_000091",
+      "field": "change_type",
+      "value": "data_correction",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 95,
+      "record_id": "chg_000092",
+      "field": "change_type",
+      "value": "data_correction",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 96,
+      "record_id": "chg_000093",
+      "field": "change_type",
+      "value": "data_correction",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 97,
+      "record_id": "chg_000094",
+      "field": "change_type",
+      "value": "record_addition",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 98,
+      "record_id": "chg_000095",
+      "field": "change_type",
+      "value": "record_addition",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 99,
+      "record_id": "chg_000096",
+      "field": "change_type",
+      "value": "source_addition",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 100,
+      "record_id": "chg_000097",
+      "field": "change_type",
+      "value": "source_addition",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 101,
+      "record_id": "chg_000098",
+      "field": "change_type",
+      "value": "source_addition",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 102,
+      "record_id": "chg_000099",
+      "field": "change_type",
+      "value": "source_addition",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 103,
+      "record_id": "chg_000100",
+      "field": "change_type",
+      "value": "data_correction",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 104,
+      "record_id": "chg_000101",
+      "field": "change_type",
+      "value": "data_correction",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 105,
+      "record_id": "chg_000102",
+      "field": "change_type",
+      "value": "data_correction",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 106,
+      "record_id": "chg_000103",
+      "field": "change_type",
+      "value": "data_correction",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 107,
+      "record_id": "chg_000104",
+      "field": "change_type",
+      "value": "data_correction",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 108,
+      "record_id": "chg_000105",
+      "field": "change_type",
+      "value": "data_correction",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 109,
+      "record_id": "chg_000106",
+      "field": "change_type",
+      "value": "data_correction",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 110,
+      "record_id": "chg_000107",
+      "field": "change_type",
+      "value": "data_correction",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 111,
+      "record_id": "chg_000108",
+      "field": "change_type",
+      "value": "data_correction",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 112,
+      "record_id": "chg_000109",
+      "field": "change_type",
+      "value": "version_update",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 113,
+      "record_id": "chg_000110",
+      "field": "change_type",
+      "value": "version_update",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 114,
+      "record_id": "chg_000111",
+      "field": "change_type",
+      "value": "version_update",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 115,
+      "record_id": "chg_000112",
+      "field": "change_type",
+      "value": "version_update",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 116,
+      "record_id": "chg_000113",
+      "field": "change_type",
+      "value": "version_update",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 117,
+      "record_id": "chg_000114",
+      "field": "change_type",
+      "value": "version_update",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 118,
+      "record_id": "chg_000115",
+      "field": "change_type",
+      "value": "version_update",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 119,
+      "record_id": "chg_000116",
+      "field": "change_type",
+      "value": "version_update",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 120,
+      "record_id": "chg_000117",
+      "field": "change_type",
+      "value": "version_update",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 121,
+      "record_id": "chg_000118",
+      "field": "change_type",
+      "value": "version_update",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 122,
+      "record_id": "chg_000119",
+      "field": "change_type",
+      "value": "version_update",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 123,
+      "record_id": "chg_000120",
+      "field": "change_type",
+      "value": "version_update",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 124,
+      "record_id": "chg_000121",
+      "field": "change_type",
+      "value": "version_update",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 125,
+      "record_id": "chg_000122",
+      "field": "change_type",
+      "value": "version_update",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 126,
+      "record_id": "chg_000123",
+      "field": "change_type",
+      "value": "version_update",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 127,
+      "record_id": "chg_000124",
+      "field": "change_type",
+      "value": "version_update",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 128,
+      "record_id": "chg_000125",
+      "field": "change_type",
+      "value": "version_update",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 129,
+      "record_id": "chg_000126",
+      "field": "change_type",
+      "value": "version_update",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 130,
+      "record_id": "chg_000127",
+      "field": "change_type",
+      "value": "version_update",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 131,
+      "record_id": "chg_000128",
+      "field": "change_type",
+      "value": "version_update",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 132,
+      "record_id": "chg_000129",
+      "field": "change_type",
+      "value": "version_update",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 133,
+      "record_id": "chg_000130",
+      "field": "change_type",
+      "value": "version_update",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 134,
+      "record_id": "chg_000131",
+      "field": "change_type",
+      "value": "version_update",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 135,
+      "record_id": "chg_000132",
+      "field": "change_type",
+      "value": "version_update",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 136,
+      "record_id": "chg_000133",
+      "field": "change_type",
+      "value": "version_update",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 137,
+      "record_id": "chg_000134",
+      "field": "change_type",
+      "value": "version_update",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 138,
+      "record_id": "chg_000135",
+      "field": "change_type",
+      "value": "version_update",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 139,
+      "record_id": "chg_000136",
+      "field": "change_type",
+      "value": "version_update",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 140,
+      "record_id": "chg_000137",
+      "field": "change_type",
+      "value": "version_update",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 141,
+      "record_id": "chg_000138",
+      "field": "change_type",
+      "value": "data_correction",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 142,
+      "record_id": "chg_000139",
+      "field": "change_type",
+      "value": "data_correction",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 143,
+      "record_id": "chg_000140",
+      "field": "change_type",
+      "value": "data_correction",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 144,
+      "record_id": "chg_000141",
+      "field": "change_type",
+      "value": "data_correction",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 145,
+      "record_id": "chg_000142",
+      "field": "change_type",
+      "value": "data_correction",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 146,
+      "record_id": "chg_000143",
+      "field": "change_type",
+      "value": "data_correction",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 147,
+      "record_id": "chg_000144",
+      "field": "change_type",
+      "value": "data_correction",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 148,
+      "record_id": "chg_000145",
+      "field": "change_type",
+      "value": "data_correction",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 149,
+      "record_id": "chg_000146",
+      "field": "change_type",
+      "value": "data_correction",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 150,
+      "record_id": "chg_000147",
+      "field": "change_type",
+      "value": "data_correction",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 151,
+      "record_id": "chg_000148",
+      "field": "change_type",
+      "value": "data_correction",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 152,
+      "record_id": "chg_000149",
+      "field": "change_type",
+      "value": "data_correction",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 153,
+      "record_id": "chg_000150",
+      "field": "change_type",
+      "value": "data_correction",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 154,
+      "record_id": "chg_000151",
+      "field": "change_type",
+      "value": "data_correction",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 155,
+      "record_id": "chg_000152",
+      "field": "change_type",
+      "value": "data_correction",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 156,
+      "record_id": "chg_000153",
+      "field": "change_type",
+      "value": "data_correction",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 157,
+      "record_id": "chg_000154",
+      "field": "change_type",
+      "value": "data_correction",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 158,
+      "record_id": "chg_000155",
+      "field": "change_type",
+      "value": "data_correction",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 159,
+      "record_id": "chg_000156",
+      "field": "change_type",
+      "value": "data_correction",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 160,
+      "record_id": "chg_000157",
+      "field": "change_type",
+      "value": "data_correction",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 161,
+      "record_id": "chg_000158",
+      "field": "change_type",
+      "value": "data_correction",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 162,
+      "record_id": "chg_000159",
+      "field": "change_type",
+      "value": "data_correction",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 163,
+      "record_id": "chg_000160",
+      "field": "change_type",
+      "value": "data_correction",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 164,
+      "record_id": "chg_000161",
+      "field": "change_type",
+      "value": "data_correction",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 165,
+      "record_id": "chg_000162",
+      "field": "change_type",
+      "value": "data_correction",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 166,
+      "record_id": "chg_000163",
+      "field": "change_type",
+      "value": "data_correction",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 167,
+      "record_id": "chg_000164",
+      "field": "change_type",
+      "value": "data_correction",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 168,
+      "record_id": "chg_000165",
+      "field": "change_type",
+      "value": "data_correction",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 169,
+      "record_id": "chg_000166",
+      "field": "change_type",
+      "value": "data_correction",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 170,
+      "record_id": "chg_000167",
+      "field": "change_type",
+      "value": "data_correction",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 171,
+      "record_id": "chg_000168",
+      "field": "change_type",
+      "value": "data_correction",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 172,
+      "record_id": "chg_000169",
+      "field": "change_type",
+      "value": "data_correction",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 173,
+      "record_id": "chg_000170",
+      "field": "change_type",
+      "value": "data_correction",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 174,
+      "record_id": "chg_000171",
+      "field": "change_type",
+      "value": "data_correction",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 175,
+      "record_id": "chg_000172",
+      "field": "change_type",
+      "value": "data_correction",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 176,
+      "record_id": "chg_000173",
+      "field": "change_type",
+      "value": "data_correction",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 177,
+      "record_id": "chg_000174",
+      "field": "change_type",
+      "value": "data_correction",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 178,
+      "record_id": "chg_000175",
+      "field": "change_type",
+      "value": "data_correction",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 179,
+      "record_id": "chg_000176",
+      "field": "change_type",
+      "value": "data_correction",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 180,
+      "record_id": "chg_000177",
+      "field": "change_type",
+      "value": "data_correction",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 181,
+      "record_id": "chg_000178",
+      "field": "change_type",
+      "value": "data_correction",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 182,
+      "record_id": "chg_000179",
+      "field": "change_type",
+      "value": "data_correction",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 183,
+      "record_id": "chg_000180",
+      "field": "change_type",
+      "value": "data_correction",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 184,
+      "record_id": "chg_000181",
+      "field": "change_type",
+      "value": "data_correction",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 185,
+      "record_id": "chg_000182",
+      "field": "change_type",
+      "value": "data_correction",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 186,
+      "record_id": "chg_000183",
+      "field": "change_type",
+      "value": "data_correction",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 187,
+      "record_id": "chg_000184",
+      "field": "change_type",
+      "value": "data_correction",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 188,
+      "record_id": "chg_000185",
+      "field": "change_type",
+      "value": "data_correction",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 189,
+      "record_id": "chg_000186",
+      "field": "change_type",
+      "value": "data_correction",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 190,
+      "record_id": "chg_000187",
+      "field": "change_type",
+      "value": "data_correction",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 191,
+      "record_id": "chg_000188",
+      "field": "change_type",
+      "value": "data_correction",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 192,
+      "record_id": "chg_000189",
+      "field": "change_type",
+      "value": "data_correction",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 193,
+      "record_id": "chg_000190",
+      "field": "change_type",
+      "value": "data_correction",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 194,
+      "record_id": "chg_000191",
+      "field": "change_type",
+      "value": "data_correction",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 195,
+      "record_id": "chg_000192",
+      "field": "change_type",
+      "value": "data_correction",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 196,
+      "record_id": "chg_000193",
+      "field": "change_type",
+      "value": "data_correction",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 197,
+      "record_id": "chg_000194",
+      "field": "change_type",
+      "value": "data_correction",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 198,
+      "record_id": "chg_000195",
+      "field": "change_type",
+      "value": "data_correction",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 199,
+      "record_id": "chg_000196",
+      "field": "change_type",
+      "value": "data_correction",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 200,
+      "record_id": "chg_000197",
+      "field": "change_type",
+      "value": "data_correction",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 201,
+      "record_id": "chg_000198",
+      "field": "change_type",
+      "value": "data_correction",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 202,
+      "record_id": "chg_000199",
+      "field": "change_type",
+      "value": "data_correction",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 203,
+      "record_id": "chg_000200",
+      "field": "change_type",
+      "value": "data_correction",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 204,
+      "record_id": "chg_000201",
+      "field": "change_type",
+      "value": "data_correction",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 205,
+      "record_id": "chg_000202",
+      "field": "change_type",
+      "value": "data_correction",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 206,
+      "record_id": "chg_000203",
+      "field": "change_type",
+      "value": "data_correction",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 207,
+      "record_id": "chg_000204",
+      "field": "change_type",
+      "value": "data_correction",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 208,
+      "record_id": "chg_000205",
+      "field": "change_type",
+      "value": "new_record",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 209,
+      "record_id": "chg_000206",
+      "field": "change_type",
+      "value": "new_record",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 210,
+      "record_id": "chg_000207",
+      "field": "change_type",
+      "value": "new_record",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 211,
+      "record_id": "chg_000208",
+      "field": "change_type",
+      "value": "new_record",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 212,
+      "record_id": "chg_000209",
+      "field": "change_type",
+      "value": "new_record",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 213,
+      "record_id": "chg_000210",
+      "field": "change_type",
+      "value": "new_record",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 214,
+      "record_id": "chg_000211",
+      "field": "change_type",
+      "value": "new_record",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 215,
+      "record_id": "chg_000212",
+      "field": "change_type",
+      "value": "new_record",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 216,
+      "record_id": "chg_000213",
+      "field": "change_type",
+      "value": "new_record",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 217,
+      "record_id": "chg_000214",
+      "field": "change_type",
+      "value": "new_record",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 218,
+      "record_id": "chg_000215",
+      "field": "change_type",
+      "value": "new_record",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 219,
+      "record_id": "chg_000216",
+      "field": "change_type",
+      "value": "new_record",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 220,
+      "record_id": "chg_000217",
+      "field": "change_type",
+      "value": "new_record",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 221,
+      "record_id": "chg_000218",
+      "field": "change_type",
+      "value": "new_record",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 222,
+      "record_id": "chg_000219",
+      "field": "change_type",
+      "value": "new_record",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 223,
+      "record_id": "chg_000220",
+      "field": "change_type",
+      "value": "new_record",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 224,
+      "record_id": "chg_000221",
+      "field": "change_type",
+      "value": "data_correction",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 225,
+      "record_id": "chg_000222",
+      "field": "change_type",
+      "value": "data_correction",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 226,
+      "record_id": "chg_000223",
+      "field": "change_type",
+      "value": "data_correction",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 227,
+      "record_id": "chg_000224",
+      "field": "change_type",
+      "value": "data_correction",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 228,
+      "record_id": "chg_000225",
+      "field": "change_type",
+      "value": "data_correction",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 229,
+      "record_id": "chg_000226",
+      "field": "change_type",
+      "value": "data_correction",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 230,
+      "record_id": "chg_000227",
+      "field": "change_type",
+      "value": "data_correction",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 231,
+      "record_id": "chg_000228",
+      "field": "change_type",
+      "value": "version_increment",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 232,
+      "record_id": "chg_000229",
+      "field": "change_type",
+      "value": "data_correction",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 233,
+      "record_id": "chg_000230",
+      "field": "change_type",
+      "value": "data_correction",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 234,
+      "record_id": "chg_000231",
+      "field": "change_type",
+      "value": "version_increment",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 235,
+      "record_id": "chg_000232",
+      "field": "change_type",
+      "value": "data_correction",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 236,
+      "record_id": "chg_000233",
+      "field": "change_type",
+      "value": "data_correction",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 237,
+      "record_id": "chg_000234",
+      "field": "change_type",
+      "value": "version_increment",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 238,
+      "record_id": "chg_000235",
+      "field": "change_type",
+      "value": "data_correction",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 239,
+      "record_id": "chg_000236",
+      "field": "change_type",
+      "value": "version_increment",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 240,
+      "record_id": "chg_000237",
+      "field": "change_type",
+      "value": "data_correction",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 241,
+      "record_id": "chg_000238",
+      "field": "change_type",
+      "value": "version_increment",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 242,
+      "record_id": "chg_000239",
+      "field": "change_type",
+      "value": "data_correction",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 243,
+      "record_id": "chg_000240",
+      "field": "change_type",
+      "value": "version_increment",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 244,
+      "record_id": "chg_000241",
+      "field": "change_type",
+      "value": "data_correction",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 245,
+      "record_id": "chg_000242",
+      "field": "change_type",
+      "value": "version_increment",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 246,
+      "record_id": "chg_000243",
+      "field": "change_type",
+      "value": "data_correction",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 247,
+      "record_id": "chg_000244",
+      "field": "change_type",
+      "value": "version_increment",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 248,
+      "record_id": "chg_000245",
+      "field": "change_type",
+      "value": "data_correction",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 249,
+      "record_id": "chg_000246",
+      "field": "change_type",
+      "value": "version_increment",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 250,
+      "record_id": "chg_000247",
+      "field": "change_type",
+      "value": "data_correction",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 251,
+      "record_id": "chg_000248",
+      "field": "change_type",
+      "value": "version_increment",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 252,
+      "record_id": "chg_000249",
+      "field": "change_type",
+      "value": "data_correction",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 253,
+      "record_id": "chg_000250",
+      "field": "change_type",
+      "value": "version_increment",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 254,
+      "record_id": "chg_000251",
+      "field": "change_type",
+      "value": "data_correction",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 255,
+      "record_id": "chg_000252",
+      "field": "change_type",
+      "value": "version_increment",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 256,
+      "record_id": "chg_000253",
+      "field": "change_type",
+      "value": "data_correction",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 257,
+      "record_id": "chg_000254",
+      "field": "change_type",
+      "value": "version_increment",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 258,
+      "record_id": "chg_000255",
+      "field": "change_type",
+      "value": "data_correction",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 259,
+      "record_id": "chg_000256",
+      "field": "change_type",
+      "value": "version_increment",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 260,
+      "record_id": "chg_000257",
+      "field": "change_type",
+      "value": "data_correction",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 261,
+      "record_id": "chg_000258",
+      "field": "change_type",
+      "value": "version_increment",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 262,
+      "record_id": "chg_000259",
+      "field": "change_type",
+      "value": "data_correction",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 263,
+      "record_id": "chg_000260",
+      "field": "change_type",
+      "value": "version_increment",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 264,
+      "record_id": "chg_000261",
+      "field": "change_type",
+      "value": "data_correction",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 265,
+      "record_id": "chg_000262",
+      "field": "change_type",
+      "value": "version_increment",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 266,
+      "record_id": "chg_000263",
+      "field": "change_type",
+      "value": "data_correction",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 267,
+      "record_id": "chg_000264",
+      "field": "change_type",
+      "value": "version_increment",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 268,
+      "record_id": "chg_000265",
+      "field": "change_type",
+      "value": "data_correction",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 269,
+      "record_id": "chg_000266",
+      "field": "change_type",
+      "value": "version_increment",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 270,
+      "record_id": "chg_000267",
+      "field": "change_type",
+      "value": "data_correction",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 271,
+      "record_id": "chg_000268",
+      "field": "change_type",
+      "value": "version_increment",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 272,
+      "record_id": "chg_000269",
+      "field": "change_type",
+      "value": "data_correction",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 273,
+      "record_id": "chg_000270",
+      "field": "change_type",
+      "value": "version_increment",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 274,
+      "record_id": "chg_000271",
+      "field": "change_type",
+      "value": "data_correction",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 275,
+      "record_id": "chg_000272",
+      "field": "change_type",
+      "value": "version_increment",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 276,
+      "record_id": "chg_000273",
+      "field": "change_type",
+      "value": "data_correction",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 277,
+      "record_id": "chg_000274",
+      "field": "change_type",
+      "value": "version_increment",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 278,
+      "record_id": "chg_000275",
+      "field": "change_type",
+      "value": "data_correction",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 279,
+      "record_id": "chg_000276",
+      "field": "change_type",
+      "value": "version_increment",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 280,
+      "record_id": "chg_000277",
+      "field": "change_type",
+      "value": "data_correction",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 281,
+      "record_id": "chg_000278",
+      "field": "change_type",
+      "value": "version_increment",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 282,
+      "record_id": "chg_000279",
+      "field": "change_type",
+      "value": "data_correction",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 283,
+      "record_id": "chg_000280",
+      "field": "change_type",
+      "value": "version_increment",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 284,
+      "record_id": "chg_000281",
+      "field": "change_type",
+      "value": "data_correction",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 285,
+      "record_id": "chg_000282",
+      "field": "change_type",
+      "value": "version_increment",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 286,
+      "record_id": "chg_000283",
+      "field": "change_type",
+      "value": "data_correction",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 287,
+      "record_id": "chg_000284",
+      "field": "change_type",
+      "value": "version_increment",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 288,
+      "record_id": "chg_000285",
+      "field": "change_type",
+      "value": "data_correction",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 289,
+      "record_id": "chg_000286",
+      "field": "change_type",
+      "value": "version_increment",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 290,
+      "record_id": "chg_000287",
+      "field": "change_type",
+      "value": "data_correction",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 291,
+      "record_id": "chg_000288",
+      "field": "change_type",
+      "value": "version_increment",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 292,
+      "record_id": "chg_000289",
+      "field": "change_type",
+      "value": "data_correction",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 293,
+      "record_id": "chg_000290",
+      "field": "change_type",
+      "value": "version_increment",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 294,
+      "record_id": "chg_000291",
+      "field": "change_type",
+      "value": "data_correction",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 295,
+      "record_id": "chg_000292",
+      "field": "change_type",
+      "value": "version_increment",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 296,
+      "record_id": "chg_000293",
+      "field": "change_type",
+      "value": "data_correction",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 297,
+      "record_id": "chg_000294",
+      "field": "change_type",
+      "value": "version_increment",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 298,
+      "record_id": "chg_000295",
+      "field": "change_type",
+      "value": "data_correction",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 299,
+      "record_id": "chg_000296",
+      "field": "change_type",
+      "value": "version_increment",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 300,
+      "record_id": "chg_000297",
+      "field": "change_type",
+      "value": "data_correction",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 301,
+      "record_id": "chg_000298",
+      "field": "change_type",
+      "value": "version_increment",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 302,
+      "record_id": "chg_000299",
+      "field": "change_type",
+      "value": "data_correction",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 303,
+      "record_id": "chg_000300",
+      "field": "change_type",
+      "value": "version_increment",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 304,
+      "record_id": "chg_000301",
+      "field": "change_type",
+      "value": "data_correction",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 305,
+      "record_id": "chg_000302",
+      "field": "change_type",
+      "value": "version_increment",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 306,
+      "record_id": "chg_000303",
+      "field": "change_type",
+      "value": "data_correction",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 307,
+      "record_id": "chg_000304",
+      "field": "change_type",
+      "value": "version_increment",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 308,
+      "record_id": "chg_000305",
+      "field": "change_type",
+      "value": "data_correction",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 309,
+      "record_id": "chg_000306",
+      "field": "change_type",
+      "value": "version_increment",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 310,
+      "record_id": "chg_000307",
+      "field": "change_type",
+      "value": "data_correction",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 311,
+      "record_id": "chg_000308",
+      "field": "change_type",
+      "value": "version_increment",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 312,
+      "record_id": "chg_000309",
+      "field": "change_type",
+      "value": "data_correction",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 313,
+      "record_id": "chg_000310",
+      "field": "change_type",
+      "value": "version_increment",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 314,
+      "record_id": "chg_000311",
+      "field": "change_type",
+      "value": "data_correction",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 315,
+      "record_id": "chg_000312",
+      "field": "change_type",
+      "value": "version_increment",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 316,
+      "record_id": "chg_000313",
+      "field": "change_type",
+      "value": "data_correction",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 317,
+      "record_id": "chg_000314",
+      "field": "change_type",
+      "value": "version_increment",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 318,
+      "record_id": "chg_000315",
+      "field": "change_type",
+      "value": "data_correction",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 319,
+      "record_id": "chg_000316",
+      "field": "change_type",
+      "value": "version_increment",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 320,
+      "record_id": "chg_000317",
+      "field": "change_type",
+      "value": "data_correction",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 321,
+      "record_id": "chg_000318",
+      "field": "change_type",
+      "value": "version_increment",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 322,
+      "record_id": "chg_000319",
+      "field": "change_type",
+      "value": "data_correction",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 323,
+      "record_id": "chg_000320",
+      "field": "change_type",
+      "value": "version_increment",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 324,
+      "record_id": "chg_000321",
+      "field": "change_type",
+      "value": "data_correction",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 325,
+      "record_id": "chg_000322",
+      "field": "change_type",
+      "value": "version_increment",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 326,
+      "record_id": "chg_000323",
+      "field": "change_type",
+      "value": "data_correction",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 327,
+      "record_id": "chg_000324",
+      "field": "change_type",
+      "value": "version_increment",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 328,
+      "record_id": "chg_000325",
+      "field": "change_type",
+      "value": "data_correction",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 329,
+      "record_id": "chg_000326",
+      "field": "change_type",
+      "value": "version_increment",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 330,
+      "record_id": "chg_000327",
+      "field": "change_type",
+      "value": "data_correction",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 331,
+      "record_id": "chg_000328",
+      "field": "change_type",
+      "value": "version_increment",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 332,
+      "record_id": "chg_000329",
+      "field": "change_type",
+      "value": "data_correction",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 333,
+      "record_id": "chg_000330",
+      "field": "change_type",
+      "value": "version_increment",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 334,
+      "record_id": "chg_000331",
+      "field": "change_type",
+      "value": "data_correction",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 335,
+      "record_id": "chg_000332",
+      "field": "change_type",
+      "value": "version_increment",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 336,
+      "record_id": "chg_000333",
+      "field": "change_type",
+      "value": "data_correction",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 337,
+      "record_id": "chg_000334",
+      "field": "change_type",
+      "value": "version_increment",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 338,
+      "record_id": "chg_000335",
+      "field": "change_type",
+      "value": "data_correction",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 339,
+      "record_id": "chg_000336",
+      "field": "change_type",
+      "value": "version_increment",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 340,
+      "record_id": "chg_000337",
+      "field": "change_type",
+      "value": "data_correction",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 341,
+      "record_id": "chg_000338",
+      "field": "change_type",
+      "value": "version_increment",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 342,
+      "record_id": "chg_000339",
+      "field": "change_type",
+      "value": "new_record",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 343,
+      "record_id": "chg_000340",
+      "field": "change_type",
+      "value": "new_record",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 344,
+      "record_id": "chg_000341",
+      "field": "change_type",
+      "value": "new_record",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 345,
+      "record_id": "chg_000342",
+      "field": "change_type",
+      "value": "data_correction",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 346,
+      "record_id": "chg_000343",
+      "field": "change_type",
+      "value": "data_correction",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 347,
+      "record_id": "chg_000344",
+      "field": "change_type",
+      "value": "data_correction",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 348,
+      "record_id": "chg_000345",
+      "field": "change_type",
+      "value": "data_correction",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 349,
+      "record_id": "chg_000346",
+      "field": "change_type",
+      "value": "data_correction",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 350,
+      "record_id": "chg_000347",
+      "field": "change_type",
+      "value": "data_correction",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 351,
+      "record_id": "chg_000348",
+      "field": "change_type",
+      "value": "version_increment",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 352,
+      "record_id": "chg_000349",
+      "field": "change_type",
+      "value": "data_correction",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 353,
+      "record_id": "chg_000350",
+      "field": "change_type",
+      "value": "data_correction",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 354,
+      "record_id": "chg_000351",
+      "field": "change_type",
+      "value": "data_correction",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 355,
+      "record_id": "chg_000352",
+      "field": "change_type",
+      "value": "data_correction",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 356,
+      "record_id": "chg_000353",
+      "field": "change_type",
+      "value": "data_correction",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 357,
+      "record_id": "chg_000354",
+      "field": "change_type",
+      "value": "data_correction",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 358,
+      "record_id": "chg_000355",
+      "field": "change_type",
+      "value": "version_increment",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 359,
+      "record_id": "chg_000356",
+      "field": "change_type",
+      "value": "data_correction",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 360,
+      "record_id": "chg_000357",
+      "field": "change_type",
+      "value": "data_correction",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 361,
+      "record_id": "chg_000358",
+      "field": "change_type",
+      "value": "version_increment",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 362,
+      "record_id": "chg_000359",
+      "field": "change_type",
+      "value": "data_correction",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 363,
+      "record_id": "chg_000360",
+      "field": "change_type",
+      "value": "data_correction",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 364,
+      "record_id": "chg_000361",
+      "field": "change_type",
+      "value": "data_correction",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 365,
+      "record_id": "chg_000362",
+      "field": "change_type",
+      "value": "data_correction",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 366,
+      "record_id": "chg_000363",
+      "field": "change_type",
+      "value": "data_correction",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 367,
+      "record_id": "chg_000364",
+      "field": "change_type",
+      "value": "data_correction",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 368,
+      "record_id": "chg_000365",
+      "field": "change_type",
+      "value": "version_increment",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 369,
+      "record_id": "chg_000366",
+      "field": "change_type",
+      "value": "data_correction",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 370,
+      "record_id": "chg_000367",
+      "field": "change_type",
+      "value": "version_increment",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 371,
+      "record_id": "chg_000368",
+      "field": "change_type",
+      "value": "data_correction",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 372,
+      "record_id": "chg_000369",
+      "field": "change_type",
+      "value": "data_correction",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 373,
+      "record_id": "chg_000370",
+      "field": "change_type",
+      "value": "data_correction",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 374,
+      "record_id": "chg_000371",
+      "field": "change_type",
+      "value": "data_correction",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 375,
+      "record_id": "chg_000372",
+      "field": "change_type",
+      "value": "data_correction",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 376,
+      "record_id": "chg_000373",
+      "field": "change_type",
+      "value": "data_correction",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 377,
+      "record_id": "chg_000374",
+      "field": "change_type",
+      "value": "version_increment",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 378,
+      "record_id": "chg_000375",
+      "field": "change_type",
+      "value": "data_correction",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 379,
+      "record_id": "chg_000376",
+      "field": "change_type",
+      "value": "data_correction",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 380,
+      "record_id": "chg_000377",
+      "field": "change_type",
+      "value": "data_correction",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 381,
+      "record_id": "chg_000378",
+      "field": "change_type",
+      "value": "data_correction",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 382,
+      "record_id": "chg_000379",
+      "field": "change_type",
+      "value": "data_correction",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 383,
+      "record_id": "chg_000380",
+      "field": "change_type",
+      "value": "data_correction",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 384,
+      "record_id": "chg_000381",
+      "field": "change_type",
+      "value": "data_correction",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 385,
+      "record_id": "chg_000382",
+      "field": "change_type",
+      "value": "data_correction",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 386,
+      "record_id": "chg_000383",
+      "field": "change_type",
+      "value": "version_increment",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 387,
+      "record_id": "chg_000384",
+      "field": "change_type",
+      "value": "data_correction",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 388,
+      "record_id": "chg_000385",
+      "field": "change_type",
+      "value": "version_increment",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 389,
+      "record_id": "chg_000386",
+      "field": "change_type",
+      "value": "data_correction",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 390,
+      "record_id": "chg_000387",
+      "field": "change_type",
+      "value": "version_increment",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 391,
+      "record_id": "chg_000388",
+      "field": "change_type",
+      "value": "data_correction",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 392,
+      "record_id": "chg_000389",
+      "field": "change_type",
+      "value": "version_increment",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 393,
+      "record_id": "chg_000390",
+      "field": "change_type",
+      "value": "data_correction",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 394,
+      "record_id": "chg_000391",
+      "field": "change_type",
+      "value": "version_increment",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 395,
+      "record_id": "chg_000392",
+      "field": "change_type",
+      "value": "data_correction",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 396,
+      "record_id": "chg_000393",
+      "field": "change_type",
+      "value": "version_increment",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 397,
+      "record_id": "chg_000394",
+      "field": "change_type",
+      "value": "data_correction",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 398,
+      "record_id": "chg_000395",
+      "field": "change_type",
+      "value": "version_increment",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 399,
+      "record_id": "chg_000396",
+      "field": "change_type",
+      "value": "data_correction",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 400,
+      "record_id": "chg_000397",
+      "field": "change_type",
+      "value": "data_correction",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 401,
+      "record_id": "chg_000398",
+      "field": "change_type",
+      "value": "data_correction",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 402,
+      "record_id": "chg_000399",
+      "field": "change_type",
+      "value": "version_increment",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 403,
+      "record_id": "chg_000400",
+      "field": "change_type",
+      "value": "data_correction",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 404,
+      "record_id": "chg_000401",
+      "field": "change_type",
+      "value": "version_increment",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 405,
+      "record_id": "chg_000402",
+      "field": "change_type",
+      "value": "data_correction",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 406,
+      "record_id": "chg_000403",
+      "field": "change_type",
+      "value": "data_correction",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 407,
+      "record_id": "chg_000404",
+      "field": "change_type",
+      "value": "data_correction",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 408,
+      "record_id": "chg_000405",
+      "field": "change_type",
+      "value": "version_increment",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 409,
+      "record_id": "chg_000406",
+      "field": "change_type",
+      "value": "data_correction",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 410,
+      "record_id": "chg_000407",
+      "field": "change_type",
+      "value": "data_correction",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 411,
+      "record_id": "chg_000408",
+      "field": "change_type",
+      "value": "data_correction",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 412,
+      "record_id": "chg_000409",
+      "field": "change_type",
+      "value": "version_increment",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 413,
+      "record_id": "chg_000410",
+      "field": "change_type",
+      "value": "data_correction",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 414,
+      "record_id": "chg_000411",
+      "field": "change_type",
+      "value": "data_correction",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 415,
+      "record_id": "chg_000412",
+      "field": "change_type",
+      "value": "data_correction",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 416,
+      "record_id": "chg_000413",
+      "field": "change_type",
+      "value": "data_correction",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 417,
+      "record_id": "chg_000414",
+      "field": "change_type",
+      "value": "version_increment",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 418,
+      "record_id": "chg_000415",
+      "field": "change_type",
+      "value": "data_correction",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 419,
+      "record_id": "chg_000416",
+      "field": "change_type",
+      "value": "version_increment",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 420,
+      "record_id": "chg_000417",
+      "field": "change_type",
+      "value": "data_correction",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 421,
+      "record_id": "chg_000418",
+      "field": "change_type",
+      "value": "version_increment",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 422,
+      "record_id": "chg_000419",
+      "field": "change_type",
+      "value": "data_correction",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 423,
+      "record_id": "chg_000420",
+      "field": "change_type",
+      "value": "version_increment",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 424,
+      "record_id": "chg_000421",
+      "field": "change_type",
+      "value": "data_correction",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 425,
+      "record_id": "chg_000422",
+      "field": "change_type",
+      "value": "version_increment",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 426,
+      "record_id": "chg_000423",
+      "field": "change_type",
+      "value": "data_correction",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 427,
+      "record_id": "chg_000424",
+      "field": "change_type",
+      "value": "version_increment",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 428,
+      "record_id": "chg_000425",
+      "field": "change_type",
+      "value": "data_correction",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 429,
+      "record_id": "chg_000426",
+      "field": "change_type",
+      "value": "data_correction",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 430,
+      "record_id": "chg_000427",
+      "field": "change_type",
+      "value": "data_correction",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 431,
+      "record_id": "chg_000428",
+      "field": "change_type",
+      "value": "version_increment",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 432,
+      "record_id": "chg_000429",
+      "field": "change_type",
+      "value": "data_correction",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 433,
+      "record_id": "chg_000430",
+      "field": "change_type",
+      "value": "version_increment",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 434,
+      "record_id": "chg_000431",
+      "field": "change_type",
+      "value": "data_correction",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 435,
+      "record_id": "chg_000432",
+      "field": "change_type",
+      "value": "data_correction",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 436,
+      "record_id": "chg_000433",
+      "field": "change_type",
+      "value": "version_increment",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 437,
+      "record_id": "chg_000434",
+      "field": "change_type",
+      "value": "data_correction",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 438,
+      "record_id": "chg_000435",
+      "field": "change_type",
+      "value": "version_increment",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 439,
+      "record_id": "chg_000436",
+      "field": "change_type",
+      "value": "data_correction",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 440,
+      "record_id": "chg_000437",
+      "field": "change_type",
+      "value": "version_increment",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 441,
+      "record_id": "chg_000438",
+      "field": "change_type",
+      "value": "data_correction",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 442,
+      "record_id": "chg_000439",
+      "field": "change_type",
+      "value": "version_increment",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 443,
+      "record_id": "chg_000440",
+      "field": "change_type",
+      "value": "data_correction",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 444,
+      "record_id": "chg_000441",
+      "field": "change_type",
+      "value": "version_increment",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 445,
+      "record_id": "chg_000442",
+      "field": "change_type",
+      "value": "data_correction",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 446,
+      "record_id": "chg_000443",
+      "field": "change_type",
+      "value": "version_increment",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 447,
+      "record_id": "chg_000444",
+      "field": "change_type",
+      "value": "data_correction",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 448,
+      "record_id": "chg_000445",
+      "field": "change_type",
+      "value": "version_increment",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 449,
+      "record_id": "chg_000446",
+      "field": "change_type",
+      "value": "data_correction",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 450,
+      "record_id": "chg_000447",
+      "field": "change_type",
+      "value": "version_increment",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 451,
+      "record_id": "chg_000448",
+      "field": "change_type",
+      "value": "data_correction",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 452,
+      "record_id": "chg_000449",
+      "field": "change_type",
+      "value": "version_increment",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 453,
+      "record_id": "chg_000450",
+      "field": "change_type",
+      "value": "data_correction",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 454,
+      "record_id": "chg_000451",
+      "field": "change_type",
+      "value": "version_increment",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 455,
+      "record_id": "chg_000452",
+      "field": "change_type",
+      "value": "data_correction",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 456,
+      "record_id": "chg_000453",
+      "field": "change_type",
+      "value": "version_increment",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 457,
+      "record_id": "chg_000454",
+      "field": "change_type",
+      "value": "new_record",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 458,
+      "record_id": "chg_000455",
+      "field": "change_type",
+      "value": "new_record",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 459,
+      "record_id": "chg_000456",
+      "field": "change_type",
+      "value": "new_record",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 460,
+      "record_id": "chg_000457",
+      "field": "change_type",
+      "value": "new_record",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 461,
+      "record_id": "chg_000458",
+      "field": "change_type",
+      "value": "new_record",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 462,
+      "record_id": "chg_000459",
+      "field": "change_type",
+      "value": "new_record",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 463,
+      "record_id": "chg_000460",
+      "field": "change_type",
+      "value": "new_record",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 464,
+      "record_id": "chg_000461",
+      "field": "change_type",
+      "value": "new_record",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 465,
+      "record_id": "chg_000462",
+      "field": "change_type",
+      "value": "new_record",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 466,
+      "record_id": "chg_000463",
+      "field": "change_type",
+      "value": "new_record",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "ENUM_NOT_ALLOWED",
+      "sheet": "19_change_log",
+      "row": 467,
+      "record_id": "chg_000464",
+      "field": "change_type",
+      "value": "new_record",
+      "note": "字典允许:create|update|delete|merge|status_change",
+      "severity": "error"
+    },
+    {
+      "code": "REQUIRED_BY_DICTIONARY_MISSING",
+      "sheet": "19_change_log",
+      "row": 8,
+      "record_id": "chg_000005",
+      "field": "source_id",
+      "value": null,
+      "note": "字典标Y但留空；verified_at候选为空应改字典，不应伪造核实时间",
+      "severity": "warning"
+    },
+    {
+      "code": "REQUIRED_BY_DICTIONARY_MISSING",
+      "sheet": "19_change_log",
+      "row": 10,
+      "record_id": "chg_000007",
+      "field": "source_id",
+      "value": null,
+      "note": "字典标Y但留空；verified_at候选为空应改字典，不应伪造核实时间",
+      "severity": "warning"
+    },
+    {
+      "code": "REQUIRED_BY_DICTIONARY_MISSING",
+      "sheet": "19_change_log",
+      "row": 12,
+      "record_id": "chg_000009",
+      "field": "source_id",
+      "value": null,
+      "note": "字典标Y但留空；verified_at候选为空应改字典，不应伪造核实时间",
+      "severity": "warning"
+    },
+    {
+      "code": "REQUIRED_BY_DICTIONARY_MISSING",
+      "sheet": "19_change_log",
+      "row": 14,
+      "record_id": "chg_000011",
+      "field": "source_id",
+      "value": null,
+      "note": "字典标Y但留空；verified_at候选为空应改字典，不应伪造核实时间",
+      "severity": "warning"
+    },
+    {
+      "code": "REQUIRED_BY_DICTIONARY_MISSING",
+      "sheet": "19_change_log",
+      "row": 16,
+      "record_id": "chg_000013",
+      "field": "source_id",
+      "value": null,
+      "note": "字典标Y但留空；verified_at候选为空应改字典，不应伪造核实时间",
+      "severity": "warning"
+    },
+    {
+      "code": "REQUIRED_BY_DICTIONARY_MISSING",
+      "sheet": "19_change_log",
+      "row": 18,
+      "record_id": "chg_000015",
+      "field": "source_id",
+      "value": null,
+      "note": "字典标Y但留空；verified_at候选为空应改字典，不应伪造核实时间",
+      "severity": "warning"
+    },
+    {
+      "code": "REQUIRED_BY_DICTIONARY_MISSING",
+      "sheet": "19_change_log",
+      "row": 20,
+      "record_id": "chg_000017",
+      "field": "source_id",
+      "value": null,
+      "note": "字典标Y但留空；verified_at候选为空应改字典，不应伪造核实时间",
+      "severity": "warning"
+    },
+    {
+      "code": "REQUIRED_BY_DICTIONARY_MISSING",
+      "sheet": "19_change_log",
+      "row": 22,
+      "record_id": "chg_000019",
+      "field": "source_id",
+      "value": null,
+      "note": "字典标Y但留空；verified_at候选为空应改字典，不应伪造核实时间",
+      "severity": "warning"
+    },
+    {
+      "code": "REQUIRED_BY_DICTIONARY_MISSING",
+      "sheet": "19_change_log",
+      "row": 24,
+      "record_id": "chg_000021",
+      "field": "source_id",
+      "value": null,
+      "note": "字典标Y但留空；verified_at候选为空应改字典，不应伪造核实时间",
+      "severity": "warning"
+    },
+    {
+      "code": "REQUIRED_BY_DICTIONARY_MISSING",
+      "sheet": "19_change_log",
+      "row": 26,
+      "record_id": "chg_000023",
+      "field": "source_id",
+      "value": null,
+      "note": "字典标Y但留空；verified_at候选为空应改字典，不应伪造核实时间",
+      "severity": "warning"
+    },
+    {
+      "code": "REQUIRED_BY_DICTIONARY_MISSING",
+      "sheet": "19_change_log",
+      "row": 28,
+      "record_id": "chg_000025",
+      "field": "source_id",
+      "value": null,
+      "note": "字典标Y但留空；verified_at候选为空应改字典，不应伪造核实时间",
+      "severity": "warning"
+    },
+    {
+      "code": "REQUIRED_BY_DICTIONARY_MISSING",
+      "sheet": "19_change_log",
+      "row": 30,
+      "record_id": "chg_000027",
+      "field": "source_id",
+      "value": null,
+      "note": "字典标Y但留空；verified_at候选为空应改字典，不应伪造核实时间",
+      "severity": "warning"
+    },
+    {
+      "code": "REQUIRED_BY_DICTIONARY_MISSING",
+      "sheet": "19_change_log",
+      "row": 32,
+      "record_id": "chg_000029",
+      "field": "source_id",
+      "value": null,
+      "note": "字典标Y但留空；verified_at候选为空应改字典，不应伪造核实时间",
+      "severity": "warning"
+    },
+    {
+      "code": "REQUIRED_BY_DICTIONARY_MISSING",
+      "sheet": "19_change_log",
+      "row": 34,
+      "record_id": "chg_000031",
+      "field": "source_id",
+      "value": null,
+      "note": "字典标Y但留空；verified_at候选为空应改字典，不应伪造核实时间",
+      "severity": "warning"
+    },
+    {
+      "code": "REQUIRED_BY_DICTIONARY_MISSING",
+      "sheet": "19_change_log",
+      "row": 36,
+      "record_id": "chg_000033",
+      "field": "source_id",
+      "value": null,
+      "note": "字典标Y但留空；verified_at候选为空应改字典，不应伪造核实时间",
+      "severity": "warning"
+    },
+    {
+      "code": "REQUIRED_BY_DICTIONARY_MISSING",
+      "sheet": "19_change_log",
+      "row": 38,
+      "record_id": "chg_000035",
+      "field": "source_id",
+      "value": null,
+      "note": "字典标Y但留空；verified_at候选为空应改字典，不应伪造核实时间",
+      "severity": "warning"
+    },
+    {
+      "code": "REQUIRED_BY_DICTIONARY_MISSING",
+      "sheet": "19_change_log",
+      "row": 40,
+      "record_id": "chg_000037",
+      "field": "source_id",
+      "value": null,
+      "note": "字典标Y但留空；verified_at候选为空应改字典，不应伪造核实时间",
+      "severity": "warning"
+    },
+    {
+      "code": "REQUIRED_BY_DICTIONARY_MISSING",
+      "sheet": "19_change_log",
+      "row": 42,
+      "record_id": "chg_000039",
+      "field": "source_id",
+      "value": null,
+      "note": "字典标Y但留空；verified_at候选为空应改字典，不应伪造核实时间",
+      "severity": "warning"
+    },
+    {
+      "code": "REQUIRED_BY_DICTIONARY_MISSING",
+      "sheet": "19_change_log",
+      "row": 112,
+      "record_id": "chg_000109",
+      "field": "source_id",
+      "value": null,
+      "note": "字典标Y但留空；verified_at候选为空应改字典，不应伪造核实时间",
+      "severity": "warning"
+    },
+    {
+      "code": "REQUIRED_BY_DICTIONARY_MISSING",
+      "sheet": "19_change_log",
+      "row": 113,
+      "record_id": "chg_000110",
+      "field": "source_id",
+      "value": null,
+      "note": "字典标Y但留空；verified_at候选为空应改字典，不应伪造核实时间",
+      "severity": "warning"
+    },
+    {
+      "code": "REQUIRED_BY_DICTIONARY_MISSING",
+      "sheet": "19_change_log",
+      "row": 114,
+      "record_id": "chg_000111",
+      "field": "source_id",
+      "value": null,
+      "note": "字典标Y但留空；verified_at候选为空应改字典，不应伪造核实时间",
+      "severity": "warning"
+    },
+    {
+      "code": "REQUIRED_BY_DICTIONARY_MISSING",
+      "sheet": "19_change_log",
+      "row": 115,
+      "record_id": "chg_000112",
+      "field": "source_id",
+      "value": null,
+      "note": "字典标Y但留空；verified_at候选为空应改字典，不应伪造核实时间",
+      "severity": "warning"
+    },
+    {
+      "code": "REQUIRED_BY_DICTIONARY_MISSING",
+      "sheet": "19_change_log",
+      "row": 116,
+      "record_id": "chg_000113",
+      "field": "source_id",
+      "value": null,
+      "note": "字典标Y但留空；verified_at候选为空应改字典，不应伪造核实时间",
+      "severity": "warning"
+    },
+    {
+      "code": "REQUIRED_BY_DICTIONARY_MISSING",
+      "sheet": "19_change_log",
+      "row": 117,
+      "record_id": "chg_000114",
+      "field": "source_id",
+      "value": null,
+      "note": "字典标Y但留空；verified_at候选为空应改字典，不应伪造核实时间",
+      "severity": "warning"
+    },
+    {
+      "code": "REQUIRED_BY_DICTIONARY_MISSING",
+      "sheet": "19_change_log",
+      "row": 118,
+      "record_id": "chg_000115",
+      "field": "source_id",
+      "value": null,
+      "note": "字典标Y但留空；verified_at候选为空应改字典，不应伪造核实时间",
+      "severity": "warning"
+    },
+    {
+      "code": "REQUIRED_BY_DICTIONARY_MISSING",
+      "sheet": "19_change_log",
+      "row": 119,
+      "record_id": "chg_000116",
+      "field": "source_id",
+      "value": null,
+      "note": "字典标Y但留空；verified_at候选为空应改字典，不应伪造核实时间",
+      "severity": "warning"
+    },
+    {
+      "code": "REQUIRED_BY_DICTIONARY_MISSING",
+      "sheet": "19_change_log",
+      "row": 120,
+      "record_id": "chg_000117",
+      "field": "source_id",
+      "value": null,
+      "note": "字典标Y但留空；verified_at候选为空应改字典，不应伪造核实时间",
+      "severity": "warning"
+    },
+    {
+      "code": "REQUIRED_BY_DICTIONARY_MISSING",
+      "sheet": "19_change_log",
+      "row": 121,
+      "record_id": "chg_000118",
+      "field": "source_id",
+      "value": null,
+      "note": "字典标Y但留空；verified_at候选为空应改字典，不应伪造核实时间",
+      "severity": "warning"
+    },
+    {
+      "code": "REQUIRED_BY_DICTIONARY_MISSING",
+      "sheet": "19_change_log",
+      "row": 122,
+      "record_id": "chg_000119",
+      "field": "source_id",
+      "value": null,
+      "note": "字典标Y但留空；verified_at候选为空应改字典，不应伪造核实时间",
+      "severity": "warning"
+    },
+    {
+      "code": "REQUIRED_BY_DICTIONARY_MISSING",
+      "sheet": "19_change_log",
+      "row": 123,
+      "record_id": "chg_000120",
+      "field": "source_id",
+      "value": null,
+      "note": "字典标Y但留空；verified_at候选为空应改字典，不应伪造核实时间",
+      "severity": "warning"
+    },
+    {
+      "code": "REQUIRED_BY_DICTIONARY_MISSING",
+      "sheet": "19_change_log",
+      "row": 124,
+      "record_id": "chg_000121",
+      "field": "source_id",
+      "value": null,
+      "note": "字典标Y但留空；verified_at候选为空应改字典，不应伪造核实时间",
+      "severity": "warning"
+    },
+    {
+      "code": "REQUIRED_BY_DICTIONARY_MISSING",
+      "sheet": "19_change_log",
+      "row": 125,
+      "record_id": "chg_000122",
+      "field": "source_id",
+      "value": null,
+      "note": "字典标Y但留空；verified_at候选为空应改字典，不应伪造核实时间",
+      "severity": "warning"
+    },
+    {
+      "code": "REQUIRED_BY_DICTIONARY_MISSING",
+      "sheet": "19_change_log",
+      "row": 126,
+      "record_id": "chg_000123",
+      "field": "source_id",
+      "value": null,
+      "note": "字典标Y但留空；verified_at候选为空应改字典，不应伪造核实时间",
+      "severity": "warning"
+    },
+    {
+      "code": "REQUIRED_BY_DICTIONARY_MISSING",
+      "sheet": "19_change_log",
+      "row": 127,
+      "record_id": "chg_000124",
+      "field": "source_id",
+      "value": null,
+      "note": "字典标Y但留空；verified_at候选为空应改字典，不应伪造核实时间",
+      "severity": "warning"
+    },
+    {
+      "code": "REQUIRED_BY_DICTIONARY_MISSING",
+      "sheet": "19_change_log",
+      "row": 128,
+      "record_id": "chg_000125",
+      "field": "source_id",
+      "value": null,
+      "note": "字典标Y但留空；verified_at候选为空应改字典，不应伪造核实时间",
+      "severity": "warning"
+    },
+    {
+      "code": "REQUIRED_BY_DICTIONARY_MISSING",
+      "sheet": "19_change_log",
+      "row": 129,
+      "record_id": "chg_000126",
+      "field": "source_id",
+      "value": null,
+      "note": "字典标Y但留空；verified_at候选为空应改字典，不应伪造核实时间",
+      "severity": "warning"
+    },
+    {
+      "code": "REQUIRED_BY_DICTIONARY_MISSING",
+      "sheet": "19_change_log",
+      "row": 130,
+      "record_id": "chg_000127",
+      "field": "source_id",
+      "value": null,
+      "note": "字典标Y但留空；verified_at候选为空应改字典，不应伪造核实时间",
+      "severity": "warning"
+    },
+    {
+      "code": "REQUIRED_BY_DICTIONARY_MISSING",
+      "sheet": "19_change_log",
+      "row": 131,
+      "record_id": "chg_000128",
+      "field": "source_id",
+      "value": null,
+      "note": "字典标Y但留空；verified_at候选为空应改字典，不应伪造核实时间",
+      "severity": "warning"
+    },
+    {
+      "code": "REQUIRED_BY_DICTIONARY_MISSING",
+      "sheet": "19_change_log",
+      "row": 132,
+      "record_id": "chg_000129",
+      "field": "source_id",
+      "value": null,
+      "note": "字典标Y但留空；verified_at候选为空应改字典，不应伪造核实时间",
+      "severity": "warning"
+    },
+    {
+      "code": "REQUIRED_BY_DICTIONARY_MISSING",
+      "sheet": "19_change_log",
+      "row": 133,
+      "record_id": "chg_000130",
+      "field": "source_id",
+      "value": null,
+      "note": "字典标Y但留空；verified_at候选为空应改字典，不应伪造核实时间",
+      "severity": "warning"
+    },
+    {
+      "code": "REQUIRED_BY_DICTIONARY_MISSING",
+      "sheet": "19_change_log",
+      "row": 134,
+      "record_id": "chg_000131",
+      "field": "source_id",
+      "value": null,
+      "note": "字典标Y但留空；verified_at候选为空应改字典，不应伪造核实时间",
+      "severity": "warning"
+    },
+    {
+      "code": "REQUIRED_BY_DICTIONARY_MISSING",
+      "sheet": "19_change_log",
+      "row": 135,
+      "record_id": "chg_000132",
+      "field": "source_id",
+      "value": null,
+      "note": "字典标Y但留空；verified_at候选为空应改字典，不应伪造核实时间",
+      "severity": "warning"
+    },
+    {
+      "code": "REQUIRED_BY_DICTIONARY_MISSING",
+      "sheet": "19_change_log",
+      "row": 136,
+      "record_id": "chg_000133",
+      "field": "source_id",
+      "value": null,
+      "note": "字典标Y但留空；verified_at候选为空应改字典，不应伪造核实时间",
+      "severity": "warning"
+    },
+    {
+      "code": "REQUIRED_BY_DICTIONARY_MISSING",
+      "sheet": "19_change_log",
+      "row": 137,
+      "record_id": "chg_000134",
+      "field": "source_id",
+      "value": null,
+      "note": "字典标Y但留空；verified_at候选为空应改字典，不应伪造核实时间",
+      "severity": "warning"
+    },
+    {
+      "code": "REQUIRED_BY_DICTIONARY_MISSING",
+      "sheet": "19_change_log",
+      "row": 138,
+      "record_id": "chg_000135",
+      "field": "source_id",
+      "value": null,
+      "note": "字典标Y但留空；verified_at候选为空应改字典，不应伪造核实时间",
+      "severity": "warning"
+    },
+    {
+      "code": "REQUIRED_BY_DICTIONARY_MISSING",
+      "sheet": "19_change_log",
+      "row": 139,
+      "record_id": "chg_000136",
+      "field": "source_id",
+      "value": null,
+      "note": "字典标Y但留空；verified_at候选为空应改字典，不应伪造核实时间",
+      "severity": "warning"
+    },
+    {
+      "code": "REQUIRED_BY_DICTIONARY_MISSING",
+      "sheet": "19_change_log",
+      "row": 140,
+      "record_id": "chg_000137",
+      "field": "source_id",
+      "value": null,
+      "note": "字典标Y但留空；verified_at候选为空应改字典，不应伪造核实时间",
+      "severity": "warning"
+    },
+    {
+      "code": "WHOLE_RECORD_SENTINEL",
+      "sheet": "19_change_log",
+      "row": 97,
+      "record_id": "chg_000094",
+      "field": "field_name",
+      "value": "*",
+      "note": "当前字典约定整条新增时字段可空；需统一整条记录标记的约定，不代表业务记录错误",
+      "severity": "warning"
+    },
+    {
+      "code": "WHOLE_RECORD_SENTINEL",
+      "sheet": "19_change_log",
+      "row": 98,
+      "record_id": "chg_000095",
+      "field": "field_name",
+      "value": "*",
+      "note": "当前字典约定整条新增时字段可空；需统一整条记录标记的约定，不代表业务记录错误",
+      "severity": "warning"
+    },
+    {
+      "code": "WHOLE_RECORD_SENTINEL",
+      "sheet": "19_change_log",
+      "row": 99,
+      "record_id": "chg_000096",
+      "field": "field_name",
+      "value": "*",
+      "note": "当前字典约定整条新增时字段可空；需统一整条记录标记的约定，不代表业务记录错误",
+      "severity": "warning"
+    },
+    {
+      "code": "WHOLE_RECORD_SENTINEL",
+      "sheet": "19_change_log",
+      "row": 100,
+      "record_id": "chg_000097",
+      "field": "field_name",
+      "value": "*",
+      "note": "当前字典约定整条新增时字段可空；需统一整条记录标记的约定，不代表业务记录错误",
+      "severity": "warning"
+    },
+    {
+      "code": "WHOLE_RECORD_SENTINEL",
+      "sheet": "19_change_log",
+      "row": 101,
+      "record_id": "chg_000098",
+      "field": "field_name",
+      "value": "*",
+      "note": "当前字典约定整条新增时字段可空；需统一整条记录标记的约定，不代表业务记录错误",
+      "severity": "warning"
+    },
+    {
+      "code": "WHOLE_RECORD_SENTINEL",
+      "sheet": "19_change_log",
+      "row": 102,
+      "record_id": "chg_000099",
+      "field": "field_name",
+      "value": "*",
+      "note": "当前字典约定整条新增时字段可空；需统一整条记录标记的约定，不代表业务记录错误",
+      "severity": "warning"
+    },
+    {
+      "code": "WHOLE_RECORD_SENTINEL",
+      "sheet": "19_change_log",
+      "row": 208,
+      "record_id": "chg_000205",
+      "field": "field_name",
+      "value": "record",
+      "note": "当前字典约定整条新增时字段可空；需统一整条记录标记的约定，不代表业务记录错误",
+      "severity": "warning"
+    },
+    {
+      "code": "WHOLE_RECORD_SENTINEL",
+      "sheet": "19_change_log",
+      "row": 209,
+      "record_id": "chg_000206",
+      "field": "field_name",
+      "value": "record",
+      "note": "当前字典约定整条新增时字段可空；需统一整条记录标记的约定，不代表业务记录错误",
+      "severity": "warning"
+    },
+    {
+      "code": "WHOLE_RECORD_SENTINEL",
+      "sheet": "19_change_log",
+      "row": 210,
+      "record_id": "chg_000207",
+      "field": "field_name",
+      "value": "record",
+      "note": "当前字典约定整条新增时字段可空；需统一整条记录标记的约定，不代表业务记录错误",
+      "severity": "warning"
+    },
+    {
+      "code": "WHOLE_RECORD_SENTINEL",
+      "sheet": "19_change_log",
+      "row": 211,
+      "record_id": "chg_000208",
+      "field": "field_name",
+      "value": "record",
+      "note": "当前字典约定整条新增时字段可空；需统一整条记录标记的约定，不代表业务记录错误",
+      "severity": "warning"
+    },
+    {
+      "code": "WHOLE_RECORD_SENTINEL",
+      "sheet": "19_change_log",
+      "row": 212,
+      "record_id": "chg_000209",
+      "field": "field_name",
+      "value": "record",
+      "note": "当前字典约定整条新增时字段可空；需统一整条记录标记的约定，不代表业务记录错误",
+      "severity": "warning"
+    },
+    {
+      "code": "WHOLE_RECORD_SENTINEL",
+      "sheet": "19_change_log",
+      "row": 213,
+      "record_id": "chg_000210",
+      "field": "field_name",
+      "value": "record",
+      "note": "当前字典约定整条新增时字段可空；需统一整条记录标记的约定，不代表业务记录错误",
+      "severity": "warning"
+    },
+    {
+      "code": "WHOLE_RECORD_SENTINEL",
+      "sheet": "19_change_log",
+      "row": 214,
+      "record_id": "chg_000211",
+      "field": "field_name",
+      "value": "record",
+      "note": "当前字典约定整条新增时字段可空；需统一整条记录标记的约定，不代表业务记录错误",
+      "severity": "warning"
+    },
+    {
+      "code": "WHOLE_RECORD_SENTINEL",
+      "sheet": "19_change_log",
+      "row": 215,
+      "record_id": "chg_000212",
+      "field": "field_name",
+      "value": "record",
+      "note": "当前字典约定整条新增时字段可空；需统一整条记录标记的约定，不代表业务记录错误",
+      "severity": "warning"
+    },
+    {
+      "code": "WHOLE_RECORD_SENTINEL",
+      "sheet": "19_change_log",
+      "row": 216,
+      "record_id": "chg_000213",
+      "field": "field_name",
+      "value": "record",
+      "note": "当前字典约定整条新增时字段可空；需统一整条记录标记的约定，不代表业务记录错误",
+      "severity": "warning"
+    },
+    {
+      "code": "WHOLE_RECORD_SENTINEL",
+      "sheet": "19_change_log",
+      "row": 217,
+      "record_id": "chg_000214",
+      "field": "field_name",
+      "value": "record",
+      "note": "当前字典约定整条新增时字段可空；需统一整条记录标记的约定，不代表业务记录错误",
+      "severity": "warning"
+    },
+    {
+      "code": "WHOLE_RECORD_SENTINEL",
+      "sheet": "19_change_log",
+      "row": 218,
+      "record_id": "chg_000215",
+      "field": "field_name",
+      "value": "record",
+      "note": "当前字典约定整条新增时字段可空；需统一整条记录标记的约定，不代表业务记录错误",
+      "severity": "warning"
+    },
+    {
+      "code": "WHOLE_RECORD_SENTINEL",
+      "sheet": "19_change_log",
+      "row": 219,
+      "record_id": "chg_000216",
+      "field": "field_name",
+      "value": "record",
+      "note": "当前字典约定整条新增时字段可空；需统一整条记录标记的约定，不代表业务记录错误",
+      "severity": "warning"
+    },
+    {
+      "code": "WHOLE_RECORD_SENTINEL",
+      "sheet": "19_change_log",
+      "row": 220,
+      "record_id": "chg_000217",
+      "field": "field_name",
+      "value": "record",
+      "note": "当前字典约定整条新增时字段可空；需统一整条记录标记的约定，不代表业务记录错误",
+      "severity": "warning"
+    },
+    {
+      "code": "WHOLE_RECORD_SENTINEL",
+      "sheet": "19_change_log",
+      "row": 221,
+      "record_id": "chg_000218",
+      "field": "field_name",
+      "value": "record",
+      "note": "当前字典约定整条新增时字段可空；需统一整条记录标记的约定，不代表业务记录错误",
+      "severity": "warning"
+    },
+    {
+      "code": "WHOLE_RECORD_SENTINEL",
+      "sheet": "19_change_log",
+      "row": 222,
+      "record_id": "chg_000219",
+      "field": "field_name",
+      "value": "record",
+      "note": "当前字典约定整条新增时字段可空；需统一整条记录标记的约定，不代表业务记录错误",
+      "severity": "warning"
+    },
+    {
+      "code": "WHOLE_RECORD_SENTINEL",
+      "sheet": "19_change_log",
+      "row": 223,
+      "record_id": "chg_000220",
+      "field": "field_name",
+      "value": "record",
+      "note": "当前字典约定整条新增时字段可空；需统一整条记录标记的约定，不代表业务记录错误",
+      "severity": "warning"
+    },
+    {
+      "code": "WHOLE_RECORD_SENTINEL",
+      "sheet": "19_change_log",
+      "row": 342,
+      "record_id": "chg_000339",
+      "field": "field_name",
+      "value": "record",
+      "note": "当前字典约定整条新增时字段可空；需统一整条记录标记的约定，不代表业务记录错误",
+      "severity": "warning"
+    },
+    {
+      "code": "WHOLE_RECORD_SENTINEL",
+      "sheet": "19_change_log",
+      "row": 343,
+      "record_id": "chg_000340",
+      "field": "field_name",
+      "value": "record",
+      "note": "当前字典约定整条新增时字段可空；需统一整条记录标记的约定，不代表业务记录错误",
+      "severity": "warning"
+    },
+    {
+      "code": "WHOLE_RECORD_SENTINEL",
+      "sheet": "19_change_log",
+      "row": 344,
+      "record_id": "chg_000341",
+      "field": "field_name",
+      "value": "record",
+      "note": "当前字典约定整条新增时字段可空；需统一整条记录标记的约定，不代表业务记录错误",
+      "severity": "warning"
+    },
+    {
+      "code": "WHOLE_RECORD_SENTINEL",
+      "sheet": "19_change_log",
+      "row": 457,
+      "record_id": "chg_000454",
+      "field": "field_name",
+      "value": "record",
+      "note": "当前字典约定整条新增时字段可空；需统一整条记录标记的约定，不代表业务记录错误",
+      "severity": "warning"
+    },
+    {
+      "code": "WHOLE_RECORD_SENTINEL",
+      "sheet": "19_change_log",
+      "row": 458,
+      "record_id": "chg_000455",
+      "field": "field_name",
+      "value": "record",
+      "note": "当前字典约定整条新增时字段可空；需统一整条记录标记的约定，不代表业务记录错误",
+      "severity": "warning"
+    },
+    {
+      "code": "WHOLE_RECORD_SENTINEL",
+      "sheet": "19_change_log",
+      "row": 459,
+      "record_id": "chg_000456",
+      "field": "field_name",
+      "value": "record",
+      "note": "当前字典约定整条新增时字段可空；需统一整条记录标记的约定，不代表业务记录错误",
+      "severity": "warning"
+    },
+    {
+      "code": "WHOLE_RECORD_SENTINEL",
+      "sheet": "19_change_log",
+      "row": 460,
+      "record_id": "chg_000457",
+      "field": "field_name",
+      "value": "record",
+      "note": "当前字典约定整条新增时字段可空；需统一整条记录标记的约定，不代表业务记录错误",
+      "severity": "warning"
+    },
+    {
+      "code": "WHOLE_RECORD_SENTINEL",
+      "sheet": "19_change_log",
+      "row": 461,
+      "record_id": "chg_000458",
+      "field": "field_name",
+      "value": "record",
+      "note": "当前字典约定整条新增时字段可空；需统一整条记录标记的约定，不代表业务记录错误",
+      "severity": "warning"
+    },
+    {
+      "code": "WHOLE_RECORD_SENTINEL",
+      "sheet": "19_change_log",
+      "row": 462,
+      "record_id": "chg_000459",
+      "field": "field_name",
+      "value": "record",
+      "note": "当前字典约定整条新增时字段可空；需统一整条记录标记的约定，不代表业务记录错误",
+      "severity": "warning"
+    },
+    {
+      "code": "WHOLE_RECORD_SENTINEL",
+      "sheet": "19_change_log",
+      "row": 463,
+      "record_id": "chg_000460",
+      "field": "field_name",
+      "value": "record",
+      "note": "当前字典约定整条新增时字段可空；需统一整条记录标记的约定，不代表业务记录错误",
+      "severity": "warning"
+    },
+    {
+      "code": "WHOLE_RECORD_SENTINEL",
+      "sheet": "19_change_log",
+      "row": 464,
+      "record_id": "chg_000461",
+      "field": "field_name",
+      "value": "record",
+      "note": "当前字典约定整条新增时字段可空；需统一整条记录标记的约定，不代表业务记录错误",
+      "severity": "warning"
+    },
+    {
+      "code": "WHOLE_RECORD_SENTINEL",
+      "sheet": "19_change_log",
+      "row": 465,
+      "record_id": "chg_000462",
+      "field": "field_name",
+      "value": "record",
+      "note": "当前字典约定整条新增时字段可空；需统一整条记录标记的约定，不代表业务记录错误",
+      "severity": "warning"
+    },
+    {
+      "code": "WHOLE_RECORD_SENTINEL",
+      "sheet": "19_change_log",
+      "row": 466,
+      "record_id": "chg_000463",
+      "field": "field_name",
+      "value": "record",
+      "note": "当前字典约定整条新增时字段可空；需统一整条记录标记的约定，不代表业务记录错误",
+      "severity": "warning"
+    },
+    {
+      "code": "WHOLE_RECORD_SENTINEL",
+      "sheet": "19_change_log",
+      "row": 467,
+      "record_id": "chg_000464",
+      "field": "field_name",
+      "value": "record",
+      "note": "当前字典约定整条新增时字段可空；需统一整条记录标记的约定，不代表业务记录错误",
+      "severity": "warning"
+    }
+  ],
+  "source_sha256": "0bdc624a03324901b3c5ee4e6e88dbf1d1f0ce0b462f11ec7386adf40f96b4cd",
+  "overall_decision": "可接收为待核验采集成果；不能直接作为正式可执行规划数据",
+  "source_workbook_modified": false,
+  "production_database_imported": false,
+  "actual_business_validation_performed": false,
+  "coverage": {
+    "place_count": 16,
+    "scenic_spots": 12,
+    "night_markets": 3,
+    "food_street": 1,
+    "entrances": 20,
+    "open_rules": 19,
+    "programs": 98,
+    "dated_sessions": 0,
+    "foods": 26,
+    "vendors": 32,
+    "supplies": 48,
+    "sources": 116,
+    "changes": 464,
+    "verified_records": 0,
+    "vendors_with_coordinates": 17,
+    "vendors_with_supply_relations": 15,
+    "foods_with_supply_relations": 23,
+    "vendors_missing_hours": 12,
+    "vendors_missing_place_id": 32,
+    "programs_missing_stage_id": 98
+  },
+  "unlinked_foods": [
+    {
+      "id": "food_000016",
+      "name": "羊双肠",
+      "row": 19
+    },
+    {
+      "id": "food_000017",
+      "name": "五香豆沫",
+      "row": 20
+    },
+    {
+      "id": "food_000018",
+      "name": "驴肉汤",
+      "row": 21
+    }
+  ],
+  "interpretation_notes": [
+    "No duplicate primary keys or broken nonblank typed foreign keys found; blank optional keys are separately reported as readiness gaps.",
+    "48 blank verified_at values in candidate supplies reflect a dictionary conflict: observation time and verification time must be separate; do not fabricate verification timestamps.",
+    "36 whole-record sentinel entries use * or record, which are convention mismatches, not missing business fields.",
+    "All 464 change_type values differ from the workbook dictionary; preserve raw history and map with explicit rules rather than deleting logs.",
+    "All 116 rights_status values are public_view_only. This review reads the existing metadata, and does not independently determine legal permissions.",
+    "59 source records declare evidence paths and hashes. The attachment alone does not prove those evidence files have been delivered; 57 sources lack both fields.",
+    "Only read-only workbook and current repository contract checks were performed; no source URL or POI was independently reverified.",
+    "The member-1-only handoff note predates the supplied workbook; the actual workbook has food data and a populated change log.",
+    "No aux_secondary_claims worksheet is present in this attachment; this does not establish whether auxiliary material exists in another handoff package."
+  ],
+  "recommendations": [
+    {
+      "topic": "ticket_prices",
+      "decision": "Recommend separate collection table 22_ticket_prices; do not implement or migrate runtime schema in this review.",
+      "fields": [
+        "ticket_id",
+        "place_id",
+        "ticket_name",
+        "visitor_category",
+        "sales_channel",
+        "currency",
+        "price_lower",
+        "price_upper",
+        "price_unit",
+        "applicable_time_or_scope",
+        "effective_from",
+        "effective_to",
+        "source_id",
+        "validation_status",
+        "checked_at",
+        "verified_at",
+        "version",
+        "notes"
+      ],
+      "runtime_note": "Current engine PlaceCost supports a cost envelope per place, not a full ticket-product catalog. Select an evidenced applicable ticket before converting amounts to fen."
+    },
+    {
+      "topic": "programs_and_sessions",
+      "decision": "Identity/description in 13; undated regular start-time claims may remain in notes; never synthesize dated 14 records.",
+      "session_ready_requirements": [
+        "explicit_business_date",
+        "starts_at_with_timezone",
+        "known_program_id",
+        "independent_stage_place_id",
+        "source",
+        "current_status",
+        "checked_at",
+        "known_end_for_feasibility",
+        "human_verification_for_ready"
+      ]
+    },
+    {
+      "topic": "change_log",
+      "decision": "Normalize change_type to create/update/delete/merge/status_change with raw type retained; normalize whole-record sentinels by agreed contract; resolve 47 blank evidence references for mechanical changes without inventing evidence."
+    },
+    {
+      "topic": "vendor_location",
+      "decision": "Create or reconcile distinct physical vendor locations in places and link vendor.place_id; never use the parent scenic or market as an exact branch location; factories and brands need a real dine-in branch before being treated as meal stops."
+    },
+    {
+      "topic": "statuses",
+      "decision": "Keep candidate/pending_review/conflict in staging; runtime validation has only unverified/verified and separate business_status. Do not silently collapse conflict, cancellation or expiry; retain status reasons and enforce applicability."
+    },
+    {
+      "topic": "verification_time",
+      "decision": "Separate observed_at/accessed_at from verified_at. Workbook supply dictionary currently mixes their meanings."
+    },
+    {
+      "topic": "progress_sheet",
+      "decision": "03!F14 counts verified against approval_status even though allowed approval values do not include verified. Count approved/retained with an audit-specific label; rename total counts currently labeled candidate or count statuses explicitly. Formulas have no cached results."
+    },
+    {
+      "topic": "source_55",
+      "decision": "src_000055 is explicitly a user-reported customer-service reply. Preserve that provenance; do not silently promote field_check to independently witnessed field evidence."
+    },
+    {
+      "topic": "rule_7",
+      "decision": "or_000007 is marked expired because obsolete OTA content was invalidated, while its date range is still future. Distinguish invalidation/supersession from time expiry; record the replacement and do not infer future applicability."
+    },
+    {
+      "topic": "source_100",
+      "decision": "src_000100 has a date-only published_at value while the dictionary/runtime expects datetime. Preserve date precision in staging; do not invent a publication time."
+    }
+  ],
+  "integration_mapping_examples": {
+    "scenic_spot": "scenic",
+    "night_market": "night_visit",
+    "GCJ-02": "GCJ02",
+    "source_type_provider": "map_service only when actually a map provider; otherwise other with original subtype retained",
+    "rights_public_view_only": "do not convert to permitted",
+    "food_street": "requires explicit product classification; never auto-classify an entire street as one restaurant"
+  }
+}

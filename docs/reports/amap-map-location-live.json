@@ -1,0 +1,370 @@
+{
+  "kind": "live_sdk",
+  "synthetic_business_data": true,
+  "real_device": false,
+  "started_at": "2026-10-22T16:50:59.838Z",
+  "sdk": "2.0",
+  "status": "PASS",
+  "key_logged": false,
+  "queries": [
+    {
+      "plugin": "Walking",
+      "status": "complete",
+      "error_code": "not_reported",
+      "has_route": true,
+      "has_distance": true,
+      "has_time": true
+    },
+    {
+      "plugin": "Driving",
+      "status": "complete",
+      "error_code": "OK",
+      "has_route": true,
+      "has_distance": true,
+      "has_time": true
+    },
+    {
+      "plugin": "Transfer",
+      "status": "complete",
+      "error_code": "OK",
+      "has_route": true,
+      "has_distance": true,
+      "has_time": true
+    }
+  ],
+  "network": [
+    {
+      "host": "127.0.0.1",
+      "path": "/api/maps/config",
+      "status": 200
+    },
+    {
+      "host": "webapi.amap.com",
+      "path": "/maps",
+      "status": 200
+    },
+    {
+      "host": "webapi.amap.com",
+      "path": "/mapsplugin",
+      "status": 200
+    },
+    {
+      "host": "webapi.amap.com",
+      "path": "/theme/v2.0/logo@1x.png",
+      "status": 200
+    },
+    {
+      "host": "webapi.amap.com",
+      "path": "/theme/v1.3/markers/b/mark_bs.png",
+      "status": 200
+    },
+    {
+      "host": "127.0.0.1",
+      "path": "/api/maps/_AMapService/v3/log/init",
+      "status": 200,
+      "parameter_names": [
+        "eventId",
+        "s",
+        "product",
+        "platform",
+        "logversion",
+        "t",
+        "csid",
+        "appname",
+        "resolution",
+        "mob",
+        "vt",
+        "dpr",
+        "sdkversion",
+        "key",
+        "scale",
+        "callback"
+      ],
+      "callback_shape": "xxxxx_xxxxxx_xxxxxxxxxxxxx_"
+    },
+    {
+      "host": "jsapi.amap.com",
+      "path": "/web/init",
+      "status": 200
+    },
+    {
+      "host": "webapi.amap.com",
+      "path": "/mapsplugin",
+      "status": 200
+    },
+    {
+      "host": "jsapi.amap.com",
+      "path": "/web_map/get_tile",
+      "status": 200
+    },
+    {
+      "host": "o4.amap.com",
+      "path": "/style/2.0.2.45/v1/pbf/1_0_s_migrate",
+      "status": 200
+    },
+    {
+      "host": "o4.amap.com",
+      "path": "/icon/2.0.2.45/v1/1_0_s/icons_1",
+      "status": 200
+    },
+    {
+      "host": "jsapi.amap.com",
+      "path": "/web_map/get_tile",
+      "status": 200
+    },
+    {
+      "host": "127.0.0.1",
+      "path": "/api/maps/_AMapService/v3/direction/walking",
+      "status": 200,
+      "parameter_names": [
+        "platform",
+        "s",
+        "logversion",
+        "key",
+        "sdkversion",
+        "appname",
+        "csid",
+        "origin",
+        "destination",
+        "multipath",
+        "s",
+        "callback"
+      ],
+      "callback_shape": "xxxxx_xxxxxx_xxxxxxxxxxxxx_"
+    },
+    {
+      "host": "jsapi-data1.amap.com",
+      "path": "/tile/26_10_11_00/v2/poi_region_road_transit/pbf/2/836_314_10",
+      "status": 200
+    },
+    {
+      "host": "jsapi-data1.amap.com",
+      "path": "/tile/26_10_11_00/v2/building_region_road_transit/pbf/2/836_314_10",
+      "status": 200
+    },
+    {
+      "host": "jsapi-data5.amap.com",
+      "path": "/tile/26_10_11_00/v2/poi_region_road_transit/pbf/2/837_313_10",
+      "status": 200
+    },
+    {
+      "host": "o4.amap.com",
+      "path": "/icon/2.0.2.45/v1/1_0_s/icons_4",
+      "status": 200
+    },
+    {
+      "host": "jsapi-data2.amap.com",
+      "path": "/tile/26_10_11_00/v2/building_region_road_transit/pbf/2/836_313_10",
+      "status": 200
+    },
+    {
+      "host": "jsapi-data2.amap.com",
+      "path": "/tile/26_10_11_00/v2/poi_region_road_transit/pbf/2/836_313_10",
+      "status": 200
+    },
+    {
+      "host": "jsapi-data5.amap.com",
+      "path": "/tile/26_10_11_00/v2/building_region_road_transit/pbf/2/837_313_10",
+      "status": 200
+    },
+    {
+      "host": "jsapi-data4.amap.com",
+      "path": "/tile/26_10_11_00/v2/building_region_road_transit/pbf/2/837_314_10",
+      "status": 200
+    },
+    {
+      "host": "webapi.amap.com",
+      "path": "/mapsplugin",
+      "status": 200
+    },
+    {
+      "host": "jsapi-data4.amap.com",
+      "path": "/tile/26_10_11_00/v2/poi_region_road_transit/pbf/2/837_314_10",
+      "status": 200
+    },
+    {
+      "host": "o4.amap.com",
+      "path": "/icon/2.0.2.45/v1/1_0_s/icons_9",
+      "status": 200
+    },
+    {
+      "host": "webapi.amap.com",
+      "path": "/maps/checkredirect",
+      "status": 200
+    },
+    {
+      "host": "o4.amap.com",
+      "path": "/icon/2.0.2.45/v1/1_0_s/icons_64",
+      "status": 200
+    },
+    {
+      "host": "127.0.0.1",
+      "path": "/api/maps/_AMapService/v3/direction/driving",
+      "status": 200,
+      "parameter_names": [
+        "platform",
+        "s",
+        "logversion",
+        "key",
+        "sdkversion",
+        "appname",
+        "csid",
+        "origin",
+        "destination",
+        "extensions",
+        "s",
+        "strategy",
+        "ferry",
+        "callback"
+      ],
+      "callback_shape": "xxxxx_xxxxxx_xxxxxxxxxxxxx_"
+    },
+    {
+      "host": "127.0.0.1",
+      "path": "/api/maps/_AMapService/v3/log/init",
+      "status": 200,
+      "parameter_names": [
+        "eventId",
+        "s",
+        "product",
+        "platform",
+        "logversion",
+        "t",
+        "csid",
+        "appname",
+        "label",
+        "value",
+        "resolution",
+        "mob",
+        "vt",
+        "dpr",
+        "sdkversion",
+        "key",
+        "scale",
+        "callback"
+      ],
+      "callback_shape": "xxxxx_xxxxx_xxxxxxxxxxxxx_"
+    },
+    {
+      "host": "webapi.amap.com",
+      "path": "/mapsplugin",
+      "status": 200
+    },
+    {
+      "host": "127.0.0.1",
+      "path": "/api/maps/_AMapService/v3/direction/transit/integrated",
+      "status": 200,
+      "parameter_names": [
+        "platform",
+        "s",
+        "logversion",
+        "key",
+        "sdkversion",
+        "appname",
+        "csid",
+        "origin",
+        "destination",
+        "city",
+        "strategy",
+        "nightflag",
+        "extensions",
+        "s",
+        "callback"
+      ],
+      "callback_shape": "xxxxx_xxxxxx_xxxxxxxxxxxxx_"
+    },
+    {
+      "host": "127.0.0.1",
+      "path": "/api/maps/_AMapService/v3/direction/walking",
+      "status": 200,
+      "parameter_names": [
+        "platform",
+        "s",
+        "logversion",
+        "key",
+        "sdkversion",
+        "appname",
+        "csid",
+        "origin",
+        "destination",
+        "multipath",
+        "s",
+        "callback"
+      ],
+      "callback_shape": "xxxxx_xxxxxx_xxxxxxxxxxxxx_"
+    },
+    {
+      "host": "jsapi.amap.com",
+      "path": "/web_map/get_tile",
+      "status": 200
+    },
+    {
+      "host": "jsapi.amap.com",
+      "path": "/web_map/get_tile",
+      "status": 200
+    },
+    {
+      "host": "jsapi.amap.com",
+      "path": "/web_map/get_tile",
+      "status": 200
+    },
+    {
+      "host": "jsapi.amap.com",
+      "path": "/web_map/get_tile",
+      "status": 200
+    },
+    {
+      "host": "jsapi.amap.com",
+      "path": "/web_map/get_tile",
+      "status": 200
+    },
+    {
+      "host": "jsapi.amap.com",
+      "path": "/web_map/get_tile",
+      "status": 200
+    },
+    {
+      "host": "jsapi-data5.amap.com",
+      "path": "/tile/26_10_11_00/v2/building_region_road_transit/pbf/0/13394_5024_14",
+      "status": 200
+    },
+    {
+      "host": "jsapi-data1.amap.com",
+      "path": "/tile/26_10_11_00/v2/building_region_road_transit/pbf/0/13393_5024_14",
+      "status": 200
+    },
+    {
+      "host": "jsapi-data1.amap.com",
+      "path": "/tile/26_10_11_00/v2/poi_region_road_transit/pbf/0/13393_5024_14",
+      "status": 200
+    },
+    {
+      "host": "jsapi-data1.amap.com",
+      "path": "/tile/26_10_11_00/v2/building_region_road_transit/pbf/1/13394_5024_14",
+      "status": 200
+    },
+    {
+      "host": "jsapi-data5.amap.com",
+      "path": "/tile/26_10_11_00/v2/poi_region_road_transit/pbf/0/13394_5024_14",
+      "status": 200
+    },
+    {
+      "host": "jsapi-data2.amap.com",
+      "path": "/tile/26_10_11_00/v2/building_region_road_transit/pbf/1/13393_5024_14",
+      "status": 200
+    },
+    {
+      "host": "jsapi-data4.amap.com",
+      "path": "/tile/26_10_11_00/v2/poi_region_road_transit/pbf/1/13393_5024_14",
+      "status": 200
+    }
+  ],
+  "configured": true,
+  "map_complete": true,
+  "security": {
+    "serviceHost": "/api/maps/_AMapService",
+    "securityCodeExposed": false
+  },
+  "canvas_count": 1,
+  "ui_walking_preview": true
+}

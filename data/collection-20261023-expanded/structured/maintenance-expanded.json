@@ -1,0 +1,21 @@
+{
+  "schema_version": "kaifeng-maintenance-expanded/1",
+  "generated_at": "2026-10-23T19:46:51+08:00",
+  "assigned_owner": null,
+  "assigned": false,
+  "owner_required_fields": [
+    "姓名/岗位",
+    "负责范围",
+    "复核证据位置",
+    "有效日期"
+  ],
+  "proposed_cadence": {
+    "business_rules": "目标日前 24 小时与出发当天复核",
+    "shows": "目标日开演前复核取消/加场/结束",
+    "entrances_roads": "每次正式走查前复核",
+    "menus_supply": "按门店当前菜单/票据复核",
+    "source_rights": "每月复核一次"
+  },
+  "status": "unassigned_not_acceptance",
+  "note": "本文件只是维护建议，不代表已有人负责。"
+}

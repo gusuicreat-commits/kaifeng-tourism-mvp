@@ -1,0 +1,224 @@
+{
+  "schema_version": "kaifeng-places/1",
+  "generated_at": "2026-10-23T19:03:02+08:00",
+  "places": [
+    {
+      "place_id": "kf_station",
+      "name": "开封站",
+      "aliases": [
+        "开封火车站"
+      ],
+      "place_type": "transport",
+      "address": "开封市禹王台区中山路1号（第三方地址，待官方确认）",
+      "longitude": null,
+      "latitude": null,
+      "coordinate_system": "unknown",
+      "parent_place_id": null,
+      "evidence_status": "name_and_city_candidate",
+      "source_ids": [
+        "src_kaifeng_bus_2022_20261023"
+      ],
+      "missing": [
+        "official exact address",
+        "station passenger exit layout",
+        "bus stop pickup point",
+        "verified GCJ02 coordinates"
+      ],
+      "note": "与开封北站分开；公交 2022 年站序含火车站，不等于 2026 班次"
+    },
+    {
+      "place_id": "kf_north_station",
+      "name": "开封北站",
+      "aliases": [
+        "高铁开封北站"
+      ],
+      "place_type": "transport",
+      "address": "开封市龙亭区东京大道与四大街交叉口（第三方/百科候选）",
+      "longitude": null,
+      "latitude": null,
+      "coordinate_system": "unknown",
+      "parent_place_id": null,
+      "evidence_status": "name_and_city_candidate",
+      "source_ids": [
+        "src_kaifeng_bus_2022_20261023"
+      ],
+      "missing": [
+        "official exact station exit",
+        "bus stop pickup point",
+        "verified GCJ02 coordinates",
+        "2026 current lines/times"
+      ],
+      "note": "不是开封站；站前广场/综合客运枢纽资料不等于铁路出站口"
+    },
+    {
+      "place_id": "qingming",
+      "name": "清明上河园",
+      "aliases": [
+        "清园"
+      ],
+      "place_type": "scenic",
+      "address": "开封市龙亭西路5号（历史包候选，需复核）",
+      "longitude": null,
+      "latitude": null,
+      "coordinate_system": "unknown",
+      "parent_place_id": null,
+      "evidence_status": "official_page_candidate",
+      "source_ids": [
+        "src_qmsyun_program_20261023",
+        "src_qmsyun_architecture_20261023"
+      ],
+      "missing": [
+        "official current address confirmation",
+        "verified boundary/coordinate",
+        "ticket rule for target date"
+      ],
+      "note": "演出节目单页脚给出 09:00 开园、17:30 夜游、22:00 闭园，但个别节目时刻晚于闭园，存在内部矛盾"
+    },
+    {
+      "place_id": "qm_gate_yingbin",
+      "name": "迎宾门",
+      "aliases": [
+        "东大门"
+      ],
+      "place_type": "entrance",
+      "address": null,
+      "longitude": null,
+      "latitude": null,
+      "coordinate_system": "unknown",
+      "parent_place_id": "qingming",
+      "evidence_status": "official_name_and_relative_position",
+      "source_ids": [
+        "src_qmsyun_architecture_20261023",
+        "src_qmsyun_gate_channels_20261023"
+      ],
+      "missing": [
+        "gate coordinate",
+        "entry/exit direction on target date",
+        "accepts all ticket types",
+        "field check"
+      ],
+      "note": "官网称东大门；2023 五一攻略称入园通道，只能作季节性候选"
+    },
+    {
+      "place_id": "qm_gate_jinshui",
+      "name": "金水门",
+      "aliases": [
+        "西门"
+      ],
+      "place_type": "entrance",
+      "address": null,
+      "longitude": null,
+      "latitude": null,
+      "coordinate_system": "unknown",
+      "parent_place_id": "qingming",
+      "evidence_status": "official_name_and_relative_position",
+      "source_ids": [
+        "src_qmsyun_architecture_20261023",
+        "src_qmsyun_song_banquet_20261023",
+        "src_qmsyun_gate_channels_20261023"
+      ],
+      "missing": [
+        "gate coordinate",
+        "target-date entry/exit direction",
+        "all-ticket acceptance",
+        "field check"
+      ],
+      "note": "官网称对应西门；宋宴页称距金水门最近，可作餐饮接近性候选，不等于入口通行已核验"
+    },
+    {
+      "place_id": "qm_gate_duan",
+      "name": "端门",
+      "place_type": "entrance",
+      "address": null,
+      "longitude": null,
+      "latitude": null,
+      "coordinate_system": "unknown",
+      "parent_place_id": "qingming",
+      "evidence_status": "official_name_and_seasonal_entry",
+      "source_ids": [
+        "src_qmsyun_gate_channels_20261023",
+        "src_qmsyun_song_banquet_20261023"
+      ],
+      "missing": [
+        "gate coordinate/relative location",
+        "target-date entry/exit direction",
+        "field check"
+      ],
+      "note": "仅在 2023 五一攻略和当前宋宴问答中出现，不能外推常规开放"
+    },
+    {
+      "place_id": "diyilou_sihou",
+      "name": "第一楼（寺后街店）",
+      "aliases": [
+        "第一楼灌汤包(寺后街店)",
+        "第一楼·中华老字号(寺后街总店)"
+      ],
+      "place_type": "restaurant",
+      "address": "开封市寺后街8号",
+      "longitude": null,
+      "latitude": null,
+      "coordinate_system": "unknown",
+      "parent_place_id": null,
+      "evidence_status": "official_address_candidate",
+      "source_ids": [
+        "src_diyilou_home_20261023",
+        "src_qunar_diyilou_20261023"
+      ],
+      "missing": [
+        "verified GCJ02 coordinates",
+        "official current hours",
+        "branch menu",
+        "last order time",
+        "reservation rule"
+      ],
+      "note": "官网给出门店地址和电话；营业与菜品供应来自不同等级来源"
+    },
+    {
+      "place_id": "wall_daliang",
+      "name": "开封城墙大梁门古马道登城口",
+      "place_type": "entrance",
+      "address": null,
+      "longitude": null,
+      "latitude": null,
+      "coordinate_system": "unknown",
+      "parent_place_id": "wall_daliang_scenic",
+      "evidence_status": "third_party_named_candidate",
+      "source_ids": [
+        "src_kf_wall_entrances_20260813",
+        "src_kf_wall_closure_20260104"
+      ],
+      "missing": [
+        "official coordinates",
+        "current entry/exit direction",
+        "current hours",
+        "field check"
+      ],
+      "note": "2026-01 临时关闭通知已结束；2026-08 第三方仍列入口，冲突尚未解决；临时替代口往南 170m 只适用于那五天"
+    },
+    {
+      "place_id": "wall_daliang_scenic",
+      "name": "开封城墙（大梁门—安远门开放段）",
+      "aliases": [
+        "开封城墙景区"
+      ],
+      "place_type": "scenic",
+      "address": "开封市龙亭区大梁路与内顺城路交叉口（官网办公地址候选）",
+      "longitude": null,
+      "latitude": null,
+      "coordinate_system": "unknown",
+      "parent_place_id": null,
+      "evidence_status": "official_office_address_and_third_party_scope",
+      "source_ids": [
+        "src_kfwt_wall_2022_20261023",
+        "src_kf_wall_entrances_20260813"
+      ],
+      "missing": [
+        "official target-date opening rule",
+        "official entry gate list",
+        "verified coordinates",
+        "ticket/closure status"
+      ],
+      "note": "官网演出时段 09:00-21:00 / 09:15-21:15 未标适用日期；不能替代开园/闭园与停止入园"
+    }
+  ]
+}

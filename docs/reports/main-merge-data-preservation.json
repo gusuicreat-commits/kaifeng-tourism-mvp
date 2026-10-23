@@ -1,0 +1,182 @@
+{
+  "tourism-before.sqlite3": {
+    "schema_version": {
+      "before": 1,
+      "after": 1,
+      "old_rows_changed_or_missing": 0
+    },
+    "scenic": {
+      "before": 5,
+      "after": 5,
+      "old_rows_changed_or_missing": 0
+    },
+    "networks": {
+      "before": 2,
+      "after": 2,
+      "old_rows_changed_or_missing": 0
+    },
+    "observations": {
+      "before": 504,
+      "after": 504,
+      "old_rows_changed_or_missing": 0
+    },
+    "plans": {
+      "before": 4,
+      "after": 4,
+      "old_rows_changed_or_missing": 0
+    },
+    "schedule_facts": {
+      "before": 0,
+      "after": 0,
+      "old_rows_changed_or_missing": 0
+    },
+    "m7_metadata": {
+      "before": 1,
+      "after": 1,
+      "old_rows_changed_or_missing": 0
+    },
+    "conversation_sessions": {
+      "before": 3,
+      "after": 3,
+      "old_rows_changed_or_missing": 1,
+      "preserved_except_activity_expiry": true
+    },
+    "conversation_messages": {
+      "before": 40,
+      "after": 48,
+      "old_rows_changed_or_missing": 26,
+      "all_40_original_ids_and_contents_preserved": true,
+      "changed_columns": [
+        "expires_at"
+      ],
+      "expiry_refreshed_rows": 26
+    },
+    "trip_states": {
+      "before": 2,
+      "after": 2,
+      "old_rows_changed_or_missing": 0
+    },
+    "trip_events": {
+      "before": 2,
+      "after": 2,
+      "old_rows_changed_or_missing": 0
+    },
+    "m7_receipts": {
+      "before": 2,
+      "after": 2,
+      "old_rows_changed_or_missing": 0
+    },
+    "m7_plan_owners": {
+      "before": 0,
+      "after": 0,
+      "old_rows_changed_or_missing": 0
+    },
+    "m7_proposals": {
+      "before": 0,
+      "after": 0,
+      "old_rows_changed_or_missing": 0
+    },
+    "user_preferences": {
+      "before": 0,
+      "after": 0,
+      "old_rows_changed_or_missing": 0
+    },
+    "saved_trips": {
+      "before": 0,
+      "after": 0,
+      "old_rows_changed_or_missing": 0
+    },
+    "consent_records": {
+      "before": 0,
+      "after": 0,
+      "old_rows_changed_or_missing": 0
+    },
+    "memory_deletion_jobs": {
+      "before": 0,
+      "after": 0,
+      "old_rows_changed_or_missing": 0
+    },
+    "city_facts": {
+      "before": 0,
+      "after": 0,
+      "old_rows_changed_or_missing": 0
+    },
+    "city_fact_revisions": {
+      "before": 0,
+      "after": 0,
+      "old_rows_changed_or_missing": 0
+    },
+    "city_trip_states": {
+      "before": 2,
+      "after": 2,
+      "old_rows_changed_or_missing": 0
+    },
+    "city_trip_events": {
+      "before": 2,
+      "after": 2,
+      "old_rows_changed_or_missing": 0
+    },
+    "city_proposals": {
+      "before": 0,
+      "after": 0,
+      "old_rows_changed_or_missing": 0
+    },
+    "city_receipts": {
+      "before": 84,
+      "after": 90,
+      "old_rows_changed_or_missing": 0
+    },
+    "city_engine_operations": {
+      "before": 0,
+      "after": 0,
+      "old_rows_changed_or_missing": 0
+    },
+    "city_engine_operation_revisions": {
+      "before": 0,
+      "after": 0,
+      "old_rows_changed_or_missing": 0
+    },
+    "city_engine_candidates": {
+      "before": 0,
+      "after": 0,
+      "old_rows_changed_or_missing": 0
+    },
+    "city_engine_routes": {
+      "before": 0,
+      "after": 0,
+      "old_rows_changed_or_missing": 0
+    },
+    "city_baskets": {
+      "before": 1,
+      "after": 1,
+      "old_rows_changed_or_missing": 0
+    },
+    "city_basket_items": {
+      "before": 2,
+      "after": 2,
+      "old_rows_changed_or_missing": 0
+    },
+    "city_object_bindings": {
+      "before": 0,
+      "after": 0,
+      "old_rows_changed_or_missing": 0
+    },
+    "city_exploration_states": {
+      "before": 2,
+      "after": 2,
+      "old_rows_changed_or_missing": 0
+    }
+  },
+  "deletions-before.sqlite3": {
+    "metadata": {
+      "before": 1,
+      "after": 1,
+      "old_rows_changed_or_missing": 0
+    },
+    "deletions": {
+      "before": 0,
+      "after": 0,
+      "old_rows_changed_or_missing": 0
+    }
+  }
+}

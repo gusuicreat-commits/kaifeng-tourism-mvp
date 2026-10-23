@@ -1,0 +1,18 @@
+{
+  "baseline": ".backups/amap-m42-20261023/frontend-before.json",
+  "changed_existing_frontend": [
+    "frontend/src/cityApi.ts",
+    "frontend/src/explorationApi.ts",
+    "frontend/src/components/CityMap.vue",
+    "frontend/src/components/ExternalMap.vue",
+    "frontend/src/pages/Guide.vue"
+  ],
+  "original_dist_unchanged": true,
+  "parallel_App_and_journey_css_unchanged": true,
+  "credential_scan_leaks": [],
+  "env_mode": "0o600",
+  "final_bundle_assets": [
+    "index-Cd3VcqXX.css",
+    "index-CyjMbrP3.js"
+  ]
+}

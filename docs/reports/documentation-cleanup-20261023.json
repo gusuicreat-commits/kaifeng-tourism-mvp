@@ -1,0 +1,148 @@
+{
+  "scope": "documentation_only",
+  "date": "2026-10-23",
+  "backup": ".backups/docs-cleanup-20261023/documents-before.tar.gz",
+  "modified": [
+    "README.md",
+    "AGENTS.md",
+    "docs/PLANNING_WORKFLOW.md",
+    "docs/CITY_ARCHITECTURE.md",
+    "docs/DATA_SOURCES.md",
+    "docs/AI_ARCHITECTURE.md",
+    "docs/M7_MEMORY.md",
+    "docs/PLANNING_ENGINE_V1.md",
+    "docs/ALGORITHMS.md",
+    "docs/CITY_STORAGE_AND_FACTS.md",
+    "docs/DATA_ENGINEERING_PLAN.md",
+    "docs/DEVELOPMENT_DIRECTION.md",
+    "docs/AMAP_MAP_LOCATION_MVP.md",
+    "docs/CITY_AGENT_V3.md",
+    "docs/KIMI_API.md",
+    "docs/reference/README.md"
+  ],
+  "archived": [
+    {
+      "from": "docs/AGENT_V3_LIVE_ACCEPTANCE.md",
+      "to": "docs/archive/stages-20261020-23/AGENT_V3_LIVE_ACCEPTANCE.md"
+    },
+    {
+      "from": "docs/ALGORITHM_TEST_REPORT.md",
+      "to": "docs/archive/stages-20261020-23/ALGORITHM_TEST_REPORT.md"
+    },
+    {
+      "from": "docs/CITY_STORAGE_ACCEPTANCE.md",
+      "to": "docs/archive/stages-20261020-23/CITY_STORAGE_ACCEPTANCE.md"
+    },
+    {
+      "from": "docs/FRONTEND_TASK_SIMPLIFICATION.md",
+      "to": "docs/archive/stages-20261020-23/FRONTEND_TASK_SIMPLIFICATION.md"
+    },
+    {
+      "from": "docs/CITY_ARCHITECTURE_ACCEPTANCE.md",
+      "to": "docs/archive/stages-20261020-23/CITY_ARCHITECTURE_ACCEPTANCE.md"
+    },
+    {
+      "from": "docs/CITY_ASSISTANT_V2.md",
+      "to": "docs/archive/stages-20261020-23/CITY_ASSISTANT_V2.md"
+    },
+    {
+      "from": "docs/M7_ACCEPTANCE.md",
+      "to": "docs/archive/stages-20261020-23/M7_ACCEPTANCE.md"
+    },
+    {
+      "from": "docs/FRONTEND_REDESIGN.md",
+      "to": "docs/archive/stages-20261020-23/FRONTEND_REDESIGN.md"
+    },
+    {
+      "from": "docs/WORKFLOW_TEST_REPORT.md",
+      "to": "docs/archive/stages-20261020-23/WORKFLOW_TEST_REPORT.md"
+    },
+    {
+      "from": "docs/TEST_REPORT.md",
+      "to": "docs/archive/stages-20261020-23/TEST_REPORT.md"
+    }
+  ],
+  "deleted": [
+    "docs/DETAIL_BASKET_IMPLEMENTATION.md"
+  ],
+  "created": [
+    "docs/PROJECT_STATUS.md",
+    "docs/README.md",
+    "docs/archive/README.md",
+    "docs/reports/documentation-cleanup-20261023.md",
+    "docs/reports/documentation-cleanup-20261023.json"
+  ],
+  "before_sha256": {
+    "README.md": "71919496439e38fe7c0fa5cb8e2d26d68fd973134fece83a25b24cec5dd41ad5",
+    "AGENTS.md": "d45c740dde3fb10d0fd24325ba54fc998324857d6bda6b81c580e1e6d8af8eee",
+    "docs/PLANNING_WORKFLOW.md": "845dfbe47ce2051cbd33c25371b9a69fe79d474b46960d1b09754a2543d378ca",
+    "docs/CITY_ARCHITECTURE.md": "dfbd16ed4fa5ee02134192b57a090df03fe20516eccc9163facfade1ef2c824e",
+    "docs/DATA_SOURCES.md": "3f3242db4aca2e15cfadf29653a303cdb6fa5b2c9137cab4bb49ecd213cb5e07",
+    "docs/AI_ARCHITECTURE.md": "437ed717451df3649fed44cd09ca64d14b5f45ee61eeddc329ff96c1e3121e70",
+    "docs/M7_MEMORY.md": "69162a643d68d54d8bb4b2c18e5784c6fe7bcc711aae61da4e9e0413a32c225f",
+    "docs/PLANNING_ENGINE_V1.md": "9acf5e63b67ec64a97e73f75a5ed0e4c68c90aefed77a9fdccc09792add47fb0",
+    "docs/ALGORITHMS.md": "b3d518b69588baeef54a391c658dfb7d7103fb680940dee5bab66a62b899876b",
+    "docs/CITY_STORAGE_AND_FACTS.md": "8dbcd61c7097d5db68bd96ed76ef49e4b7b3e7b09f158a2de3ec56ec644dc2cf",
+    "docs/DATA_ENGINEERING_PLAN.md": "5c65e7aeb393557dca1ca81812c359b383527b81b74b37da29f536ad3121e7f6",
+    "docs/DEVELOPMENT_DIRECTION.md": "c33252a7f63fce1c62d1b90531197ab88a4f9a3e2d7a967e00dcc11843b0a904",
+    "docs/AMAP_MAP_LOCATION_MVP.md": "5ddfd8b22b84331d7f7c08d55190dfbbdcc304a4c6d5e63b06588a4cb74fe54c",
+    "docs/CITY_AGENT_V3.md": "801853673bd56322b54bd945fe1e06fc63107d818bc868148e2a8ab2023d1190",
+    "docs/KIMI_API.md": "323332fd229d7056ed169e7fd28b374fb75d62dff4013432c80476fcb234fd98",
+    "docs/reference/README.md": "a2092a5ce22e8d5de78a56575b3e5d216904574974f78c3e945197e4f79a5b3b",
+    "docs/AGENT_V3_LIVE_ACCEPTANCE.md": "6c7f04137851d284e513d62638fa91edc61c93879e6668043ee4929c32c28355",
+    "docs/ALGORITHM_TEST_REPORT.md": "a8bb2015097bc0f8b7075a36f434787244194d884496761af5a90d36dc1077a9",
+    "docs/CITY_STORAGE_ACCEPTANCE.md": "daf47e75a226c37ee7d955d406186813a115c2fb058554e49aad95d6b43c27c0",
+    "docs/FRONTEND_TASK_SIMPLIFICATION.md": "ec2b64c0070a29a8a2ebca07e66fb719b076ce3918ce1636af1b508a2a24765d",
+    "docs/DETAIL_BASKET_IMPLEMENTATION.md": "300c4732de6ab74af706f0f1e6d1dd61ac04593f82a1025c90bc8d14cd963fd5",
+    "docs/CITY_ARCHITECTURE_ACCEPTANCE.md": "3c4460e4a1505268aafa01877f6efe92c1ad6846709ec44e8b18521f700e51f7",
+    "docs/CITY_ASSISTANT_V2.md": "b88e1a051fa3e9468fecb979606bacd588d97be8f7528ca3c247e4549a504bfa",
+    "docs/M7_ACCEPTANCE.md": "af285517756d363f1b46b0952cfefc1393487f0a1d0ef6e7fe0b05cfcee5338d",
+    "docs/FRONTEND_REDESIGN.md": "e659e20faee1d00b41aec551e8e440b6e98cbaaa60dedcc86380901169f773f6",
+    "docs/WORKFLOW_TEST_REPORT.md": "9ecfd0691dd8e564f6ac784aaf47314f8de355703cebb75f35f3e14625c5f8a0",
+    "docs/TEST_REPORT.md": "b0e596972ef3d3d8418ab935a1c6dcf9423a8861d313bd13d4a340489d9a3757"
+  },
+  "after_sha256": {
+    "README.md": "ea3258f309c843f08eb95ccf844d04e67661280dcf4dc1ddaa390f78ee01fecf",
+    "AGENTS.md": "ff5a4b3975c536de8da37267c8152bc9b496467ca2cf8ae4fea90f83c0cb9567",
+    "docs/PLANNING_WORKFLOW.md": "61c86270d6a90ca9aeb87d970dd8e3b6a57a99b2537a370d2b948e1dd5e88535",
+    "docs/CITY_ARCHITECTURE.md": "250928c4551430b0f5158a1dce071faa2363d8ae7702c4567c8e5c2d3512efff",
+    "docs/DATA_SOURCES.md": "947df71f4b4b1f1eec2f9df3c319042929eff47ad19515562171d54e6a3d11ae",
+    "docs/AI_ARCHITECTURE.md": "f3f4233fc438cb87003f6f8da7edee915ac36d9078c557e52212c10e4695a9ec",
+    "docs/M7_MEMORY.md": "195623a7dbcd84e14f18cc491885d82d8af9cb858f8019b19c077d18c7efe7df",
+    "docs/PLANNING_ENGINE_V1.md": "b7fc1f459b5d1fe09cffaed8b543fe3e0a06b24c26cc1641c4a3c0ec48023e0e",
+    "docs/ALGORITHMS.md": "66c256ac59ee9db63748554ca43ede00e47887bdcb4c603646658f85c049daca",
+    "docs/CITY_STORAGE_AND_FACTS.md": "66f7b7658cc772ebb9a49af79bae379ab28c5a041a4b9bae5d878bea0a9f6962",
+    "docs/DATA_ENGINEERING_PLAN.md": "7466c84f2f53fc522f37906ee4e100e462be62a896809052cd56eafee64d8e82",
+    "docs/DEVELOPMENT_DIRECTION.md": "82920d747e367d1881e8f16bcd5592b45b0543aac60ec6377152ca0007250977",
+    "docs/AMAP_MAP_LOCATION_MVP.md": "1a3dbe5bceae2feddc9d6959128806bd9253f3b7ad6492d28e292f3a60c3619b",
+    "docs/CITY_AGENT_V3.md": "60a4799d84eac5b126313ee218982e267b54bde786b1a51fd9495322e552a9c7",
+    "docs/KIMI_API.md": "c85190b38140836147948f24de1f70b6d444686d6eca1df375837dd1721a4e67",
+    "docs/reference/README.md": "48611f1ec83c3210a35bd09fc87ebb01b4135a4acc88b86865c2ee5b324d5f86",
+    "docs/PROJECT_STATUS.md": "b227f44579fc11844d4a0e76677812786a5da5b5c8c85cf516375d2cc403f3fc",
+    "docs/README.md": "b73b01d66359b074fcdea58c0d1c848af46bbb2e59d2ae08bd27cca055b39545",
+    "docs/archive/README.md": "fce98f2592d379b28f0be976d87a6e8cb6032719eeaddc3a6a6e8fa65238f516",
+    "docs/reports/documentation-cleanup-20261023.md": "06609f6bbc074254be12f23081686ed992fb2f64a59d0f54ceed70ee5ccaa4c6",
+    "docs/archive/stages-20261020-23/AGENT_V3_LIVE_ACCEPTANCE.md": "108c85e648e12e10320f66681714b1177c0d8871df444ea6caa51cb4f3aa02b6",
+    "docs/archive/stages-20261020-23/ALGORITHM_TEST_REPORT.md": "752cb5fdda1e5732cfdb1b766e2a3416452f010a2ecae8c442aaf3a3417f0c1d",
+    "docs/archive/stages-20261020-23/CITY_STORAGE_ACCEPTANCE.md": "f1dcaef7bd6060b3b9e1902cbb00c76e10f546e49be75510a8c3f6da3db5859b",
+    "docs/archive/stages-20261020-23/FRONTEND_TASK_SIMPLIFICATION.md": "8feb89ad7265bacbecf05ca1b069c38ff61d2dfbb14550940cd7c3d671b5508c",
+    "docs/archive/stages-20261020-23/CITY_ARCHITECTURE_ACCEPTANCE.md": "9b2db435483ac1216e2181985ac3c827dcddd7bdb9fc5403a0bbaad963c29b08",
+    "docs/archive/stages-20261020-23/CITY_ASSISTANT_V2.md": "792bc5f0db26a703fb00c484f08543f3330ff8f0973fe5c41cfab2f41644797c",
+    "docs/archive/stages-20261020-23/M7_ACCEPTANCE.md": "1ea9487bc1686b852f1f6bd162cb1c58f4462255412cd0429eb4894dd9646416",
+    "docs/archive/stages-20261020-23/FRONTEND_REDESIGN.md": "0f44043b059ca9a6370f26c11826e9625968cc11d277b6a51ae602fe4a191a05",
+    "docs/archive/stages-20261020-23/WORKFLOW_TEST_REPORT.md": "feca63206b3b358be0f95613944c9089315269860ff889dac314e05d889f09f4",
+    "docs/archive/stages-20261020-23/TEST_REPORT.md": "c75a38beb4508bedc63963f1cb3e06562fe7c479e32aaa49d41857e1540fab1a"
+  },
+  "validation": {
+    "links_checked": 317,
+    "missing_links": [],
+    "baseline_missing": [],
+    "evidence_changes": []
+  },
+  "concurrent_source_changes_observed": [
+    "collector/ledger.py",
+    "collector/quality.py",
+    "collector/run_collection.py",
+    "collector/report.py"
+  ]
+}

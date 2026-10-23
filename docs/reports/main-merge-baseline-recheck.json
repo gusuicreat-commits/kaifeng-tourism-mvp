@@ -1,0 +1,336 @@
+{
+  "config": {
+    "argv": [
+      "/Users/mac/.local/share/nodejs/node-v26.3.0-darwin-arm64/bin/node",
+      "/Users/mac/Desktop/大挑/kaifeng-main-merge-backup-20261023-161200/baseline-checkout/frontend/node_modules/.bin/playwright",
+      "test",
+      "city-state.spec.ts:38",
+      "flows.spec.ts:6",
+      "guide.spec.ts:2",
+      "--reporter=list,json"
+    ],
+    "configFile": "/Users/mac/Desktop/大挑/kaifeng-main-merge-backup-20261023-161200/baseline-checkout/frontend/playwright.config.ts",
+    "rootDir": "/Users/mac/Desktop/大挑/kaifeng-main-merge-backup-20261023-161200/baseline-checkout/frontend/tests",
+    "failOnFlakyTests": false,
+    "forbidOnly": false,
+    "fullyParallel": false,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "actualWorkers": 1
+    },
+    "preserveOutput": "always",
+    "projects": [
+      {
+        "outputDir": "/Users/mac/Desktop/大挑/kaifeng-main-merge-backup-20261023-161200/baseline-checkout/.test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "",
+        "name": "",
+        "testDir": "/Users/mac/Desktop/大挑/kaifeng-main-merge-backup-20261023-161200/baseline-checkout/frontend/tests",
+        "testIgnore": [
+          "agent-v3.spec.ts"
+        ],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 30000
+      }
+    ],
+    "filteredProjects": [
+      {
+        "grep": {},
+        "grepInvert": null,
+        "outputDir": "/Users/mac/Desktop/大挑/kaifeng-main-merge-backup-20261023-161200/baseline-checkout/.test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "name": "",
+        "testDir": "/Users/mac/Desktop/大挑/kaifeng-main-merge-backup-20261023-161200/baseline-checkout/frontend/tests",
+        "snapshotDir": "/Users/mac/Desktop/大挑/kaifeng-main-merge-backup-20261023-161200/baseline-checkout/frontend/tests",
+        "testIgnore": "agent-v3.spec.ts",
+        "testMatch": "**/*.@(spec|test).?(c|m)[jt]s?(x)",
+        "timeout": 30000,
+        "use": {
+          "baseURL": "http://127.0.0.1:8052",
+          "viewport": {
+            "width": 1440,
+            "height": 1000
+          },
+          "headless": true,
+          "launchOptions": {
+            "args": [
+              "--use-fake-ui-for-media-stream",
+              "--use-fake-device-for-media-stream"
+            ],
+            "executablePath": "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome"
+          }
+        },
+        "dependencies": [],
+        "ignoreSnapshots": false,
+        "__projectId": ""
+      }
+    ],
+    "quiet": false,
+    "reporter": [
+      [
+        "list"
+      ],
+      [
+        "json"
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "shard": null,
+    "tags": [],
+    "updateSnapshots": "default",
+    "updateSourceMethod": "patch",
+    "version": "1.64.1",
+    "workers": 1,
+    "webServer": {
+      "command": "../.venv/bin/python ../scripts/browser_server.py",
+      "url": "http://127.0.0.1:8052/api/health",
+      "reuseExistingServer": false,
+      "timeout": 20000
+    }
+  },
+  "suites": [
+    {
+      "title": "city-state.spec.ts",
+      "file": "city-state.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "城市安排：保存后刷新恢复，记录页与导出读取同一行程",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 5584,
+                  "error": {
+                    "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByRole('link', { name: '继续城市安排', exact: true })\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" getByRole('link', { name: '继续城市安排', exact: true }) with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('link', { name: '继续城市安排', exact: true })\u001b[22m\n",
+                    "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByRole('link', { name: '继续城市安排', exact: true })\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" getByRole('link', { name: '继续城市安排', exact: true }) with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('link', { name: '继续城市安排', exact: true })\u001b[22m\n\n    at /Users/mac/Desktop/大挑/kaifeng-main-merge-backup-20261023-161200/baseline-checkout/frontend/tests/city-state.spec.ts:48:66",
+                    "location": {
+                      "file": "/Users/mac/Desktop/大挑/kaifeng-main-merge-backup-20261023-161200/baseline-checkout/frontend/tests/city-state.spec.ts",
+                      "column": 66,
+                      "line": 48
+                    },
+                    "snippet": "  46 |  expect(trip.readiness.planning_available).toBe(false)\n  47 |  await page.getByRole('link',{name:'返回游览记录',exact:true}).click()\n> 48 |  await expect(page.getByRole('link',{name:'继续城市安排',exact:true})).toBeVisible()\n     |                                                                  ^\n  49 |  const exported=await (await page.request.get('/api/v1/memory/export')).json()\n  50 |  expect(exported.city_trips[0].id).toBe(trip.id)\n  51 |  expect(exported.city_trips[0].draft.dish_interest_ids).toEqual(['test:food'])"
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "/Users/mac/Desktop/大挑/kaifeng-main-merge-backup-20261023-161200/baseline-checkout/frontend/tests/city-state.spec.ts",
+                        "column": 66,
+                        "line": 48
+                      },
+                      "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByRole('link', { name: '继续城市安排', exact: true })\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" getByRole('link', { name: '继续城市安排', exact: true }) with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('link', { name: '继续城市安排', exact: true })\u001b[22m\n\n\n  46 |  expect(trip.readiness.planning_available).toBe(false)\n  47 |  await page.getByRole('link',{name:'返回游览记录',exact:true}).click()\n> 48 |  await expect(page.getByRole('link',{name:'继续城市安排',exact:true})).toBeVisible()\n     |                                                                  ^\n  49 |  const exported=await (await page.request.get('/api/v1/memory/export')).json()\n  50 |  expect(exported.city_trips[0].id).toBe(trip.id)\n  51 |  expect(exported.city_trips[0].draft.dish_interest_ids).toEqual(['test:food'])\n    at /Users/mac/Desktop/大挑/kaifeng-main-merge-backup-20261023-161200/baseline-checkout/frontend/tests/city-state.spec.ts:48:66"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-23T08:34:02.570Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "/Users/mac/Desktop/大挑/kaifeng-main-merge-backup-20261023-161200/baseline-checkout/.test-results/city-state-城市安排：保存后刷新恢复，记录页与导出读取同一行程/error-context.md"
+                    }
+                  ],
+                  "errorLocation": {
+                    "file": "/Users/mac/Desktop/大挑/kaifeng-main-merge-backup-20261023-161200/baseline-checkout/frontend/tests/city-state.spec.ts",
+                    "column": 66,
+                    "line": 48
+                  }
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "df232d6036615a902b72-714ae6db62d5936642a9",
+          "file": "city-state.spec.ts",
+          "line": 38,
+          "column": 1
+        }
+      ]
+    },
+    {
+      "title": "flows.spec.ts",
+      "file": "flows.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "景区直达、详情点位、外部地图降级与手机导航",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 7799,
+                  "error": {
+                    "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByText('在高德地图查看位置和前往路线。')\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" getByText('在高德地图查看位置和前往路线。') with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByText('在高德地图查看位置和前往路线。')\u001b[22m\n",
+                    "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByText('在高德地图查看位置和前往路线。')\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" getByText('在高德地图查看位置和前往路线。') with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByText('在高德地图查看位置和前往路线。')\u001b[22m\n\n    at /Users/mac/Desktop/大挑/kaifeng-main-merge-backup-20261023-161200/baseline-checkout/frontend/tests/flows.spec.ts:19:50",
+                    "location": {
+                      "file": "/Users/mac/Desktop/大挑/kaifeng-main-merge-backup-20261023-161200/baseline-checkout/frontend/tests/flows.spec.ts",
+                      "column": 50,
+                      "line": 19
+                    },
+                    "snippet": "  17 |  await page.getByRole('button',{name:'重置地图'}).click()\n  18 |  await page.getByRole('button',{name:'外部位置地图',exact:true}).click()\n> 19 |  await expect(page.getByText('在高德地图查看位置和前往路线。')).toBeVisible()\n     |                                                  ^\n  20 |  await expect(page.getByRole('link',{name:'高德位置 / 前往路线'})).toHaveAttribute('href',/uri.amap.com\\/search/)\n  21 |  await page.goto('/');await page.setViewportSize({width:390,height:844});await noOverflow(page)\n  22 |  const nav=page.getByRole('navigation',{name:'主导航'})"
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "/Users/mac/Desktop/大挑/kaifeng-main-merge-backup-20261023-161200/baseline-checkout/frontend/tests/flows.spec.ts",
+                        "column": 50,
+                        "line": 19
+                      },
+                      "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByText('在高德地图查看位置和前往路线。')\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" getByText('在高德地图查看位置和前往路线。') with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByText('在高德地图查看位置和前往路线。')\u001b[22m\n\n\n  17 |  await page.getByRole('button',{name:'重置地图'}).click()\n  18 |  await page.getByRole('button',{name:'外部位置地图',exact:true}).click()\n> 19 |  await expect(page.getByText('在高德地图查看位置和前往路线。')).toBeVisible()\n     |                                                  ^\n  20 |  await expect(page.getByRole('link',{name:'高德位置 / 前往路线'})).toHaveAttribute('href',/uri.amap.com\\/search/)\n  21 |  await page.goto('/');await page.setViewportSize({width:390,height:844});await noOverflow(page)\n  22 |  const nav=page.getByRole('navigation',{name:'主导航'})\n    at /Users/mac/Desktop/大挑/kaifeng-main-merge-backup-20261023-161200/baseline-checkout/frontend/tests/flows.spec.ts:19:50"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-23T08:34:09.140Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "/Users/mac/Desktop/大挑/kaifeng-main-merge-backup-20261023-161200/baseline-checkout/.test-results/flows-景区直达、详情点位、外部地图降级与手机导航/error-context.md"
+                    }
+                  ],
+                  "errorLocation": {
+                    "file": "/Users/mac/Desktop/大挑/kaifeng-main-merge-backup-20261023-161200/baseline-checkout/frontend/tests/flows.spec.ts",
+                    "column": 50,
+                    "line": 19
+                  }
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "86d6a544053f1eb9f224-3c9954f517da6e0407ad",
+          "file": "flows.spec.ts",
+          "line": 6,
+          "column": 1
+        }
+      ]
+    },
+    {
+      "title": "guide.spec.ts",
+      "file": "guide.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "景区地图默认没有模拟场次或热力，显式演示才出现示例路线",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 5284,
+                  "error": {
+                    "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByRole('img', { name: /宋风浅立体景区示意地图/ })\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" getByRole('img', { name: /宋风浅立体景区示意地图/ }) with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('img', { name: /宋风浅立体景区示意地图/ })\u001b[22m\n",
+                    "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByRole('img', { name: /宋风浅立体景区示意地图/ })\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" getByRole('img', { name: /宋风浅立体景区示意地图/ }) with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('img', { name: /宋风浅立体景区示意地图/ })\u001b[22m\n\n    at /Users/mac/Desktop/大挑/kaifeng-main-merge-backup-20261023-161200/baseline-checkout/frontend/tests/guide.spec.ts:3:99",
+                    "location": {
+                      "file": "/Users/mac/Desktop/大挑/kaifeng-main-merge-backup-20261023-161200/baseline-checkout/frontend/tests/guide.spec.ts",
+                      "column": 99,
+                      "line": 3
+                    },
+                    "snippet": "  1 | import {test,expect} from '@playwright/test'\n  2 | test('景区地图默认没有模拟场次或热力，显式演示才出现示例路线',async({page})=>{\n> 3 |  await page.goto('/guide?scenic=wansui');await expect(page.getByRole('img',{name:/宋风浅立体景区示意地图/})).toBeVisible()\n    |                                                                                                   ^\n  4 |  await expect(page.getByText('暂无当天可核验的完整场次')).toBeVisible();await expect(page.locator('.guide-crowd-halo')).toHaveCount(0)\n  5 |  await page.getByRole('button',{name:'查看模拟场次与路线交互演示'}).click();await expect(page.locator('.demo-mode-notice')).toContainText('模拟日程')\n  6 |  await page.getByRole('button',{name:'切换地图图层'}).click();await page.getByLabel('演出点位').uncheck()"
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "/Users/mac/Desktop/大挑/kaifeng-main-merge-backup-20261023-161200/baseline-checkout/frontend/tests/guide.spec.ts",
+                        "column": 99,
+                        "line": 3
+                      },
+                      "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByRole('img', { name: /宋风浅立体景区示意地图/ })\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" getByRole('img', { name: /宋风浅立体景区示意地图/ }) with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('img', { name: /宋风浅立体景区示意地图/ })\u001b[22m\n\n\n  1 | import {test,expect} from '@playwright/test'\n  2 | test('景区地图默认没有模拟场次或热力，显式演示才出现示例路线',async({page})=>{\n> 3 |  await page.goto('/guide?scenic=wansui');await expect(page.getByRole('img',{name:/宋风浅立体景区示意地图/})).toBeVisible()\n    |                                                                                                   ^\n  4 |  await expect(page.getByText('暂无当天可核验的完整场次')).toBeVisible();await expect(page.locator('.guide-crowd-halo')).toHaveCount(0)\n  5 |  await page.getByRole('button',{name:'查看模拟场次与路线交互演示'}).click();await expect(page.locator('.demo-mode-notice')).toContainText('模拟日程')\n  6 |  await page.getByRole('button',{name:'切换地图图层'}).click();await page.getByLabel('演出点位').uncheck()\n    at /Users/mac/Desktop/大挑/kaifeng-main-merge-backup-20261023-161200/baseline-checkout/frontend/tests/guide.spec.ts:3:99"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-23T08:34:17.570Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "/Users/mac/Desktop/大挑/kaifeng-main-merge-backup-20261023-161200/baseline-checkout/.test-results/guide-景区地图默认没有模拟场次或热力，显式演示才出现示例路线/error-context.md"
+                    }
+                  ],
+                  "errorLocation": {
+                    "file": "/Users/mac/Desktop/大挑/kaifeng-main-merge-backup-20261023-161200/baseline-checkout/frontend/tests/guide.spec.ts",
+                    "column": 99,
+                    "line": 3
+                  }
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "ae783375225fac93c986-5b3a91c744e8e863a3d6",
+          "file": "guide.spec.ts",
+          "line": 2,
+          "column": 1
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-10-23T08:34:01.423Z",
+    "duration": 21972.629999999997,
+    "expected": 0,
+    "skipped": 0,
+    "unexpected": 3,
+    "flaky": 0
+  }
+}

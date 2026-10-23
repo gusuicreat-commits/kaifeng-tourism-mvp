@@ -1,0 +1,15 @@
+{
+  "date": "2026-10-20",
+  "synthetic": true,
+  "environment": "Darwin arm64 / Python 3.13.15 / temporary SQLite / FastAPI TestClient",
+  "operation": "authenticated context read + fresh fact lookup, excluding external LLM",
+  "samples": 100,
+  "p50_ms": 2.622,
+  "p95_ms": 6.771,
+  "max_ms": 12.597,
+  "engineering_target_ms": 150,
+  "target_met_locally": true,
+  "production_claim": false,
+  "recent_messages": 8,
+  "summary_characters": 575
+}

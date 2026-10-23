@@ -1,0 +1,54 @@
+{
+  "data": "synthetic only, not measured Kaifeng travel",
+  "python": "3.13.15",
+  "platform": "macOS-26.5-arm64-arm-64bit-Mach-O",
+  "ortools": "9.15.6755",
+  "results": [
+    {
+      "input_candidates": 10,
+      "status": "feasible",
+      "wall_ms": 1345.874,
+      "selected": 10,
+      "metrics": {
+        "algorithm": "OR-Tools CP-SAT circuit/time-windows",
+        "candidate_count": 10,
+        "blocked_candidates": [],
+        "defaults": {},
+        "global_optimum_claimed": false,
+        "elapsed_ms": 1006.525,
+        "solver_status": "FEASIBLE"
+      }
+    },
+    {
+      "input_candidates": 20,
+      "status": "feasible",
+      "wall_ms": 1006.384,
+      "selected": 20,
+      "metrics": {
+        "algorithm": "OR-Tools CP-SAT circuit/time-windows",
+        "candidate_count": 20,
+        "blocked_candidates": [],
+        "defaults": {},
+        "global_optimum_claimed": false,
+        "elapsed_ms": 1004.155,
+        "solver_status": "FEASIBLE"
+      }
+    },
+    {
+      "input_candidates": 30,
+      "status": "feasible",
+      "wall_ms": 1013.453,
+      "selected": 24,
+      "metrics": {
+        "algorithm": "OR-Tools CP-SAT circuit/time-windows",
+        "candidate_count": 30,
+        "blocked_candidates": [],
+        "defaults": {},
+        "global_optimum_claimed": false,
+        "elapsed_ms": 1009.493,
+        "solver_status": "FEASIBLE"
+      }
+    }
+  ],
+  "limits": "single run per size on this machine; not a production latency or global optimality guarantee"
+}

@@ -1,0 +1,74 @@
+{
+  "schema_version": "kaifeng-scope/1",
+  "generated_at": "2026-10-23T19:03:02+08:00",
+  "batches": [
+    {
+      "batch_id": "batch_01",
+      "scope_status": "candidate",
+      "city": "开封",
+      "anchor_places": [
+        "开封站",
+        "开封北站",
+        "清明上河园",
+        "第一楼寺后街店",
+        "开封城墙大梁门古马道登城口"
+      ],
+      "transport_modes": [
+        "walk",
+        "public_bus",
+        "taxi_or_ride_hail"
+      ],
+      "included_now": [
+        "station_arrival_candidates",
+        "one_scenic",
+        "one_restaurant_branch",
+        "one_wall_gate"
+      ],
+      "deferred": [
+        "万岁山",
+        "龙亭",
+        "开封府",
+        "铁塔",
+        "小宋城",
+        "鼓楼夜市"
+      ],
+      "reason": "首批先验证站—景区—餐饮—城墙的一条可核查链；其余目的地延后"
+    },
+    {
+      "batch_id": "batch_02",
+      "scope_status": "planned_not_collected",
+      "city": "开封",
+      "anchor_places": [
+        "万岁山",
+        "龙亭",
+        "开封府"
+      ],
+      "transport_modes": [
+        "walk",
+        "public_bus",
+        "taxi_or_ride_hail"
+      ],
+      "included_now": [],
+      "deferred": [],
+      "reason": "待第一链完成入口/场次/供给核验后再扩"
+    },
+    {
+      "batch_id": "batch_03",
+      "scope_status": "planned_not_collected",
+      "city": "开封",
+      "anchor_places": [
+        "铁塔",
+        "小宋城",
+        "鼓楼夜市"
+      ],
+      "transport_modes": [
+        "walk",
+        "public_bus",
+        "taxi_or_ride_hail"
+      ],
+      "included_now": [],
+      "deferred": [],
+      "reason": "夜间与餐饮节点待目标日期确认后补"
+    }
+  ]
+}

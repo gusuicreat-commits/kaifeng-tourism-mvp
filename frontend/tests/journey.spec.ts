@@ -1,0 +1,107 @@
+import {test,expect} from '@playwright/test'
+import type {Page} from '@playwright/test'
+async function openManual(page:Page){await page.getByLabel('更多行程操作',{exact:true}).click();await page.getByRole('button',{name:/^(手动调整行程|补充日期和地点)$/}).click()}
+async function saveReview(page:Page){await page.getByRole('button',{name:'核对这份安排',exact:true}).click();await expect(page.getByRole('dialog',{name:'确认行程修改'})).toBeVisible();await page.getByRole('button',{name:'确认并保存安排',exact:true}).click();await expect(page.getByRole('dialog',{name:'确认行程修改'})).toHaveCount(0)}
+test('城市资料缺失时保留兴趣，保存日期后首页和地图读取同一行程',async({page})=>{
+ await page.route('**/api/city/v1/facts',r=>r.fulfill({json:{items:[]}}));await page.goto('/scenic/qingming')
+ await page.getByRole('button',{name:'加入素材篮：清明上河园',exact:true}).click();await page.getByRole('navigation',{name:'主导航'}).getByRole('link',{name:'行程',exact:true}).click()
+ await expect(page.locator('.journey-candidates')).toHaveCount(0);await expect(page.locator('.trip-plan-empty')).toBeVisible()
+ await page.goto('/basket');await expect(page.locator('.basket-item')).toContainText('清明上河园');await page.goto('/city-trip');await openManual(page)
+ await page.getByLabel('旅行日期',{exact:true}).fill('2026-11-01');await page.getByLabel('开始时间',{exact:true}).fill('09:00');await page.getByLabel('结束时间',{exact:true}).fill('19:00');await saveReview(page)
+ await expect(page.locator('.trip-plan-empty')).toBeVisible();await expect(page.locator('.trip-warning')).toHaveCount(0);await page.reload();await expect(page.locator('.journey-page-heading')).toContainText('2026-11-01')
+ await page.getByRole('navigation',{name:'主导航'}).getByRole('link',{name:'发现',exact:true}).click();await expect(page.getByRole('region',{name:'当前行程'})).toContainText('2026-11-01')
+ await page.getByRole('navigation',{name:'主导航'}).getByRole('link',{name:'地图',exact:true}).click();await expect(page.getByRole('link',{name:'继续我的行程'})).toBeVisible()
+})
+test('城市行程编辑、重要修改确认、撤销和下一站共用后端版本',async({page})=>{
+ test.skip(!process.env.E2E_CITY_FACTS,'使用显式开启的临时合成事实目录，不接触开发数据库')
+ await page.request.post('/api/v1/sessions')
+ const draft={business_date:'2026-10-21',starts_at:'2026-10-21T09:00:00+08:00',ends_at:'2026-10-21T21:00:00+08:00',origin_place_id:'test:gate',destination_place_id:'test:hotel',stops:[{stop_id:'meal',place_id:'test:restaurant',kind:'dining',locked:true,duration_seconds:1800},{stop_id:'rest',place_id:'test:hotel',kind:'rest',duration_seconds:900}]}
+ const trip=await(await page.request.post('/api/city/v1/trips',{data:{request_id:crypto.randomUUID(),draft}})).json()
+ await page.goto('/city-trip/'+trip.id);await expect(page.locator('.journey-timeline')).toContainText('[测试]餐馆')
+ await openManual(page);await page.getByRole('button',{name:'删除：[测试]餐馆',exact:true}).click();await page.getByRole('button',{name:'核对这份安排',exact:true}).click()
+ await expect(page.locator('.change-comparison')).toContainText('[测试]餐馆');expect((await(await page.request.get('/api/city/v1/trips/'+trip.id)).json()).version).toBe(1)
+ await page.getByRole('button',{name:'确认并保存安排',exact:true}).click();await expect(page.locator('.important-change')).toContainText('必选活动')
+ expect((await(await page.request.get('/api/city/v1/trips/'+trip.id)).json()).version).toBe(1)
+ await page.getByRole('button',{name:'确认重要修改',exact:true}).click();await expect(page.locator('.journey-timeline')).not.toContainText('[测试]餐馆')
+ await page.getByLabel('更多行程操作',{exact:true}).click();await page.getByRole('button',{name:'撤销上次修改',exact:true}).click();await page.getByRole('button',{name:'确认并保存安排',exact:true}).click();await expect(page.locator('.journey-timeline')).toContainText('[测试]餐馆')
+ await expect(page.locator('.journey-map-view')).toHaveCount(0)
+ await page.getByRole('link',{name:'在地图查看',exact:true}).click();await expect(page.locator('.map-current-card')).toContainText('[测试]餐馆')
+})
+test('商家收进素材篮不自动写入行程，手动明确选择后才保存为用餐站点',async({page})=>{
+ test.skip(!process.env.E2E_CITY_FACTS,'临时合成数据，非真实商家或供应关系')
+ const catalog=await(await page.request.get('/api/city/v1/facts')).json()
+ // Explicit local-ID binding is supplied to the isolated test server; no production mapping is changed.
+ catalog.items.find((x:{record:{kind:string}})=>x.record.kind==='food').record.name='炒凉粉'
+ await page.route('**/api/city/v1/facts',r=>r.fulfill({json:catalog}));await page.goto('/food/chaoliangfen')
+ await expect(page.locator('.vendor-card')).toContainText('[测试]餐馆');await page.locator('.vendor-card').getByRole('link').click()
+ await page.getByRole('button',{name:'加入素材篮：[测试]餐馆',exact:true}).click();await page.getByRole('navigation',{name:'主导航'}).getByRole('link',{name:'行程',exact:true}).click()
+ await expect(page.locator('.trip-plan-empty')).toBeVisible();await openManual(page)
+ await expect(page.locator('.editor-stop-list article')).toHaveCount(0)
+ await page.getByLabel('旅行日期',{exact:true}).fill('2026-11-01');await saveReview(page)
+ const unchanged=await(await page.request.get('/api/city/v1/trips/current')).json();expect(unchanged.trip.draft.stops).toEqual([])
+ await page.reload();await openManual(page);await expect(page.locator('.editor-stop-list article')).toHaveCount(0)
+ await page.getByRole('combobox',{name:'添加景点 / 餐饮 / 休息地点',exact:true}).selectOption('test:restaurant')
+ await page.getByRole('button',{name:'添加地点',exact:true}).click();await saveReview(page)
+ await expect(page.locator('.journey-timeline')).toContainText('[测试]餐馆')
+ const saved=await(await page.request.get('/api/city/v1/trips/current')).json();expect(saved.trip.draft.stops[0].kind).toBe('dining')
+})
+test('新页面在手机和桌面均无溢出，地图失败可降级且无虚构评分',async({page})=>{
+ const errors:string[]=[];page.on('pageerror',e=>errors.push(e.message))
+ for(const width of [320,390,768,1440]){await page.setViewportSize({width,height:844});for(const url of ['/','/food/taosibao','/city-trip','/guide?mode=city','/guide?scenic=wansui','/me']){await page.goto(url);await expect(page.locator('main').first()).toBeVisible();expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true)}}
+ expect(errors).toEqual([])
+})
+
+test('删除本次记录会清空新收藏和待安排清单，刷新也不恢复',async({page})=>{
+ await page.goto('/scenic/qingming');await page.getByRole('button',{name:'收藏清明上河园',exact:true}).click();await page.getByRole('button',{name:'加入素材篮：清明上河园',exact:true}).click()
+ await page.goto('/memory');await page.getByRole('button',{name:'删除我的本次记录',exact:true}).click();await page.getByRole('button',{name:'确认删除本次记录',exact:true}).click();await expect(page.getByRole('status').filter({hasText:'本次记录已清除'})).toBeVisible()
+ await page.goto('/me');await expect(page.locator('.favorite-row')).toHaveCount(0);await page.goto('/basket');await expect(page.locator('.basket-item')).toHaveCount(0);await page.reload();await expect(page.locator('.basket-item')).toHaveCount(0)
+})
+
+
+test('空行程只保留明确下一步，助手入口绑定当前行程，设置不重复列行程',async({page})=>{
+ await page.request.post('/api/v1/sessions')
+ const trip=await(await page.request.post('/api/city/v1/trips',{data:{request_id:crypto.randomUUID(),draft:{}}})).json()
+ await page.setViewportSize({width:482,height:769});await page.goto('/city-trip/'+trip.id)
+ await expect(page.locator('.trip-plan-empty')).toBeVisible()
+ await expect(page.getByRole('button',{name:'开始游玩',exact:true})).toHaveCount(0)
+ await expect(page.getByRole('button',{name:'编辑行程',exact:true})).toHaveCount(0)
+ await expect(page.locator('.journey-map-view,.journey-view-tabs,.journey-progress-row,.trip-warning,.journey-footer')).toHaveCount(0)
+ await expect(page.getByRole('button',{name:/^(手动调整行程|补充日期和地点)$/})).toBeHidden()
+ await page.getByLabel('更多行程操作',{exact:true}).click()
+ await expect(page.getByRole('button',{name:'补充日期和地点',exact:true})).toBeVisible()
+ await expect(page.getByRole('link',{name:'确认当前位置',exact:true})).toHaveCount(0)
+ await expect(page.getByRole('link',{name:'新建行程',exact:true})).toHaveCount(0)
+ await page.getByLabel('更多行程操作',{exact:true}).click()
+ const cta=page.getByRole('link',{name:/让小汴梁安排行程/})
+ await expect(cta).toBeVisible();expect((await cta.boundingBox())!.y).toBeLessThan(260)
+ await page.screenshot({path:'../docs/screenshots/journey-simplified-empty-mobile.png'})
+ await cta.click();await expect(page).toHaveURL(new RegExp('city_trip='+trip.id))
+ await expect(page.getByLabel('告诉小汴梁你的问题或想调整的安排')).toBeEnabled()
+ expect((await(await page.request.get('/api/city/v1/trips/'+trip.id)).json()).version).toBe(trip.version)
+ await page.goto('/me');await expect(page.locator('.session-note,.my-session-card')).toHaveCount(0)
+ await page.getByRole('link',{name:'设置',exact:true}).click();await expect(page.getByRole('heading',{name:'设置',exact:true})).toBeVisible()
+ await expect(page.getByRole('heading',{name:'我的行程',exact:true})).toHaveCount(0)
+ await expect(page.getByRole('heading',{name:'城市行程',exact:true})).toHaveCount(0)
+ await expect(page.getByRole('checkbox',{name:'保留聊天记录',exact:true})).toBeVisible()
+ await page.screenshot({path:'../docs/screenshots/settings-simplified-mobile.png'})
+})
+
+test('有具体站点后可记录实际游玩，免去全局开始按钮且不生成虚假路线',async({page})=>{
+ await page.request.post('/api/v1/sessions')
+ const draft={business_date:'2026-10-21',starts_at:'2026-10-21T09:00:00+08:00',ends_at:'2026-10-21T21:00:00+08:00',origin_place_id:'test:gate',destination_place_id:'test:hotel',stops:[{stop_id:'meal',place_id:'test:restaurant',kind:'dining',locked:false,duration_seconds:1800},{stop_id:'rest',place_id:'test:hotel',kind:'rest',duration_seconds:900}]}
+ const trip=await(await page.request.post('/api/city/v1/trips',{data:{request_id:crypto.randomUUID(),draft}})).json()
+ await page.setViewportSize({width:390,height:844});await page.goto('/city-trip/'+trip.id)
+ await expect(page.locator('.journey-next-card')).toContainText('[测试]餐馆')
+ await expect(page.locator('.journey-timeline')).toContainText('待核算')
+ await expect(page.locator('.journey-map-view,.trip-warning')).toHaveCount(0)
+ await page.screenshot({path:'../docs/screenshots/journey-simplified-stops-mobile.png'})
+ await page.getByRole('button',{name:'标记已游玩',exact:true}).click()
+ await page.getByLabel('实际开始',{exact:true}).fill('2026-10-21T09:30');await page.getByLabel('实际结束',{exact:true}).fill('2026-10-21T10:00')
+ await page.getByRole('button',{name:'确认完成',exact:true}).click()
+ await expect(page.getByRole('dialog',{name:'记录本站完成',exact:true})).toHaveCount(0)
+ await expect(page.locator('.journey-next-card')).toContainText('[测试]返程点')
+ await expect(page.locator('.journey-progress-row')).toContainText('已游玩 1 / 2 站')
+ const latest=await(await page.request.get('/api/city/v1/trips/'+trip.id)).json()
+ expect(latest.draft.stops[0].progress).toBe('completed');expect(latest.route_version).toBe(0)
+ await page.reload();await expect(page.locator('.journey-progress-row')).toContainText('已游玩 1 / 2 站')
+})

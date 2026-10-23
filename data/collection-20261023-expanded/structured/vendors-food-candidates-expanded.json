@@ -1,0 +1,233 @@
+{
+  "schema_version": "kaifeng-vendors-expanded/1",
+  "generated_at": "2026-10-23T19:46:51+08:00",
+  "vendors": [
+    {
+      "vendor_id": "vendor_huangjia_xisi",
+      "place_id": "huangjia_xisi",
+      "name": "黄家老店（西司店）",
+      "hours_candidates": [
+        "10:30-21:00（去哪儿/Trip）"
+      ],
+      "average_spend_candidates": [
+        "¥55 人均（平台）"
+      ],
+      "last_order": null,
+      "reservation": "unknown",
+      "meal_duration": null,
+      "queue_time": null,
+      "food_menu_leads": [
+        "food_guantangbao",
+        "food_tongziji",
+        "food_taohuasuni",
+        "food_liyu_beimian"
+      ],
+      "evidence_status": "third_party",
+      "source_ids": [
+        "src_search_huangjia_20261023"
+      ],
+      "missing": [
+        "目标日营业/最后接单",
+        "商家菜单或现场确认",
+        "真实入口/楼层",
+        "排队与用餐实测"
+      ],
+      "menu_proof": "not_obtained",
+      "supply_status": "candidate_not_supply_proof"
+    },
+    {
+      "vendor_id": "vendor_huangjia_daliang",
+      "place_id": "huangjia_daliang",
+      "name": "黄家老店（大梁路店）",
+      "hours_candidates": [
+        "10:30-22:00（Trip）"
+      ],
+      "average_spend_candidates": [
+        "未取得"
+      ],
+      "last_order": null,
+      "reservation": "unknown",
+      "meal_duration": null,
+      "queue_time": null,
+      "food_menu_leads": [
+        "food_guantangbao"
+      ],
+      "evidence_status": "third_party",
+      "source_ids": [
+        "src_search_huangjia_20261023"
+      ],
+      "missing": [
+        "目标日营业/最后接单",
+        "商家菜单或现场确认",
+        "真实入口/楼层",
+        "排队与用餐实测"
+      ],
+      "menu_proof": "not_obtained",
+      "supply_status": "candidate_not_supply_proof"
+    },
+    {
+      "vendor_id": "vendor_xingjia_daliangmen",
+      "place_id": "xingjia_daliangmen",
+      "name": "邢家锅贴老店（大梁门总店）",
+      "hours_candidates": [
+        "11:00-22:30（平台）",
+        "11:00-14:30/17:30-21:30（去哪儿攻略）"
+      ],
+      "average_spend_candidates": [
+        "¥53-57 人均（平台）"
+      ],
+      "last_order": null,
+      "reservation": "unknown",
+      "meal_duration": null,
+      "queue_time": null,
+      "food_menu_leads": [
+        "food_guotie",
+        "food_tongziji",
+        "food_sanhen_tang"
+      ],
+      "evidence_status": "platform_conflict",
+      "source_ids": [
+        "src_search_xingjia_20261023"
+      ],
+      "missing": [
+        "目标日营业/最后接单",
+        "商家菜单或现场确认",
+        "真实入口/楼层",
+        "排队与用餐实测"
+      ],
+      "menu_proof": "not_obtained",
+      "supply_status": "candidate_not_supply_proof"
+    },
+    {
+      "vendor_id": "vendor_louzhonglou",
+      "place_id": "louzhonglou_xiaosong",
+      "name": "楼中楼酒店（汴梁小宋城店）",
+      "hours_candidates": [
+        "10:00-14:00/17:00-21:00（携程）"
+      ],
+      "average_spend_candidates": [
+        "¥61 人均（平台）"
+      ],
+      "last_order": null,
+      "reservation": "unknown",
+      "meal_duration": null,
+      "queue_time": null,
+      "food_menu_leads": [
+        "food_guantangbao",
+        "food_chaoliangfen",
+        "food_yangrou_kangmo"
+      ],
+      "evidence_status": "third_party",
+      "source_ids": [
+        "src_search_louzhonglou_20261023"
+      ],
+      "missing": [
+        "目标日营业/最后接单",
+        "商家菜单或现场确认",
+        "真实入口/楼层",
+        "排队与用餐实测"
+      ],
+      "menu_proof": "not_obtained",
+      "supply_status": "candidate_not_supply_proof"
+    },
+    {
+      "vendor_id": "vendor_heyuan_hanxing",
+      "place_id": "heyuan_hanxing",
+      "name": "宋都禾源·灌汤包子（汉兴路直营店）",
+      "hours_candidates": [
+        "11:00-14:00/17:00-21:30（去哪儿攻略）"
+      ],
+      "average_spend_candidates": [
+        "¥54 人均（平台）"
+      ],
+      "last_order": null,
+      "reservation": "unknown",
+      "meal_duration": null,
+      "queue_time": null,
+      "food_menu_leads": [
+        "food_guantangbao",
+        "food_tongziji",
+        "food_sanhen_tang"
+      ],
+      "evidence_status": "third_party",
+      "source_ids": [
+        "src_search_heyuan_20261023"
+      ],
+      "missing": [
+        "目标日营业/最后接单",
+        "商家菜单或现场确认",
+        "真实入口/楼层",
+        "排队与用餐实测"
+      ],
+      "menu_proof": "not_obtained",
+      "supply_status": "candidate_not_supply_proof"
+    },
+    {
+      "vendor_id": "vendor_heyuan_jinxiang",
+      "place_id": "heyuan_jinxiang",
+      "name": "禾源灌汤包子（金祥路直营店）",
+      "hours_candidates": [
+        "10:30 开始营业（携程）"
+      ],
+      "average_spend_candidates": [
+        "¥67 人均（平台）"
+      ],
+      "last_order": null,
+      "reservation": "unknown",
+      "meal_duration": null,
+      "queue_time": null,
+      "food_menu_leads": [
+        "food_guantangbao",
+        "food_liyu_beimian"
+      ],
+      "evidence_status": "third_party",
+      "source_ids": [
+        "src_search_heyuan_20261023"
+      ],
+      "missing": [
+        "目标日营业/最后接单",
+        "商家菜单或现场确认",
+        "真实入口/楼层",
+        "排队与用餐实测"
+      ],
+      "menu_proof": "not_obtained",
+      "supply_status": "candidate_not_supply_proof"
+    },
+    {
+      "vendor_id": "vendor_diyilou_sihou",
+      "place_id": "diyilou_sihou",
+      "name": "第一楼（寺后街店）",
+      "hours_candidates": [
+        "10:30-14:00/17:30-21:00（去哪儿）",
+        "10:30 开始营业（携程）"
+      ],
+      "average_spend_candidates": [
+        "约 ¥55-66 人均（平台）"
+      ],
+      "last_order": null,
+      "reservation": "unknown",
+      "meal_duration": null,
+      "queue_time": null,
+      "food_menu_leads": [
+        "food_guantangbao",
+        "food_liyu_beimian",
+        "food_tongziji",
+        "food_hongshuni"
+      ],
+      "evidence_status": "third_party",
+      "source_ids": [
+        "src_qunar_diyilou_20261023",
+        "src_ctrip_diyilou_20261023"
+      ],
+      "missing": [
+        "目标日营业/最后接单",
+        "商家菜单或现场确认",
+        "真实入口/楼层",
+        "排队与用餐实测"
+      ],
+      "menu_proof": "not_obtained",
+      "supply_status": "candidate_not_supply_proof"
+    }
+  ],
+  "notice": "每家店独立记录；平台推荐菜/人均/营业时间仅作线索，不是当前菜单或供应证明。"
+}

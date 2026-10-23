@@ -1,0 +1,2573 @@
+{
+  "schema_version": "city-facts/1",
+  "records": [
+    {
+      "fact_id": "src_qmsyun_program_20261023",
+      "version": 1,
+      "validation_status": "unverified",
+      "business_status": "active",
+      "is_demo": false,
+      "rights_status": "internal_only",
+      "kind": "source",
+      "name": "清明上河园演出节目单",
+      "source_type": "official",
+      "url": "http://www.qmsyun.com/Mobile_page/o_program.php",
+      "locator": "正文节目表与页脚",
+      "publisher": "清明上河园",
+      "collected_at": "2026-10-23T18:43:46+08:00",
+      "published_at": null
+    },
+    {
+      "fact_id": "src_qmsyun_architecture_20261023",
+      "version": 1,
+      "validation_status": "unverified",
+      "business_status": "active",
+      "is_demo": false,
+      "rights_status": "internal_only",
+      "kind": "source",
+      "name": "瑰伟建筑（迎宾门/金水门）",
+      "source_type": "official",
+      "url": "https://2023.qmsyun.com/wechat/q.php",
+      "locator": "迎宾门条目",
+      "publisher": "清明上河园",
+      "collected_at": "2026-10-23T18:43:49+08:00",
+      "published_at": null
+    },
+    {
+      "fact_id": "src_qmsyun_gate_channels_20261023",
+      "version": 1,
+      "validation_status": "unverified",
+      "business_status": "active",
+      "is_demo": false,
+      "rights_status": "internal_only",
+      "kind": "source",
+      "name": "2023 五一游园攻略（三入园通道）",
+      "source_type": "official",
+      "url": "https://www.qmsyun.com/Mobile_page/o_newsinfo.php?softid=3168",
+      "locator": "游园小贴士",
+      "publisher": "清明上河园",
+      "collected_at": "2026-10-23T18:45:27+08:00",
+      "published_at": null
+    },
+    {
+      "fact_id": "src_qmsyun_song_banquet_20261023",
+      "version": 1,
+      "validation_status": "unverified",
+      "business_status": "active",
+      "is_demo": false,
+      "rights_status": "internal_only",
+      "kind": "source",
+      "name": "清明上河·宋宴答疑",
+      "source_type": "official",
+      "url": "https://www.qmsyun.com/Mobile_page/o_newsinfo.php?softid=4096",
+      "locator": "票价/购票/位置/时间/离席问答",
+      "publisher": "清明上河园",
+      "collected_at": "2026-10-23T18:43:49+08:00",
+      "published_at": null
+    },
+    {
+      "fact_id": "src_qmsyun_tokyo_dream_20261023",
+      "version": 1,
+      "validation_status": "unverified",
+      "business_status": "active",
+      "is_demo": false,
+      "rights_status": "internal_only",
+      "kind": "source",
+      "name": "大宋·东京梦华 70 分钟宣传页",
+      "source_type": "official",
+      "url": "https://www.qmsyun.com/Mobile_page/o_newsinfo.php?softid=3363",
+      "locator": "演出时长与票价",
+      "publisher": "清明上河园",
+      "collected_at": "2026-10-23T18:45:24+08:00",
+      "published_at": null
+    },
+    {
+      "fact_id": "src_diyilou_home_20261023",
+      "version": 1,
+      "validation_status": "unverified",
+      "business_status": "active",
+      "is_demo": false,
+      "rights_status": "internal_only",
+      "kind": "source",
+      "name": "第一楼公司首页（门店地址和电话）",
+      "source_type": "operator",
+      "url": "http://www.kfdyl.com/home/",
+      "locator": "寺后街店地址/电话",
+      "publisher": "开封第一楼有限责任公司",
+      "collected_at": "2026-10-23T18:44:10+08:00",
+      "published_at": null
+    },
+    {
+      "fact_id": "src_diyilou_mingcai_20261023",
+      "version": 1,
+      "validation_status": "unverified",
+      "business_status": "active",
+      "is_demo": false,
+      "rights_status": "internal_only",
+      "kind": "source",
+      "name": "第一楼名菜",
+      "source_type": "operator",
+      "url": "http://www.kfdyl.com/mingcai/",
+      "locator": "名菜列表",
+      "publisher": "开封第一楼有限责任公司",
+      "collected_at": "2026-10-23T18:43:49+08:00",
+      "published_at": null
+    },
+    {
+      "fact_id": "src_kaifeng_gov_diyilou_20261023",
+      "version": 1,
+      "validation_status": "unverified",
+      "business_status": "active",
+      "is_demo": false,
+      "rights_status": "internal_only",
+      "kind": "source",
+      "name": "第一楼小笼灌汤包子（非遗介绍）",
+      "source_type": "official",
+      "url": "https://www.kaifeng.gov.cn/kfsrmzfwz/ssjfy/pc/content/content_1767488874204143616.html",
+      "locator": "菜品历史与特色",
+      "publisher": "开封市人民政府",
+      "collected_at": "2026-10-23T18:44:09+08:00",
+      "published_at": null
+    },
+    {
+      "fact_id": "src_qunar_diyilou_20261023",
+      "version": 1,
+      "validation_status": "unverified",
+      "business_status": "active",
+      "is_demo": false,
+      "rights_status": "internal_only",
+      "kind": "source",
+      "name": "第一楼·中华老字号(寺后街总店)（去哪儿）",
+      "source_type": "other",
+      "url": "https://sight.qunar.com/3334343684",
+      "locator": "开放时间",
+      "publisher": "去哪儿",
+      "collected_at": "2026-10-23T18:44:44+08:00",
+      "published_at": null
+    },
+    {
+      "fact_id": "src_ctrip_diyilou_20261023",
+      "version": 1,
+      "validation_status": "unverified",
+      "business_status": "active",
+      "is_demo": false,
+      "rights_status": "internal_only",
+      "kind": "source",
+      "name": "第一楼灌汤包(寺后街店)（携程）",
+      "source_type": "other",
+      "url": "https://gs.ctrip.com/html5/you/foods/kaifeng165/4926446.html",
+      "locator": "餐厅详情/推荐菜/人均",
+      "publisher": "携程",
+      "collected_at": "2026-10-23T18:44:40+08:00",
+      "published_at": null
+    },
+    {
+      "fact_id": "src_kfwt_wall_2022_20261023",
+      "version": 1,
+      "validation_status": "unverified",
+      "business_status": "active",
+      "is_demo": false,
+      "rights_status": "internal_only",
+      "kind": "source",
+      "name": "开封城墙恢复开放公告（2022）",
+      "source_type": "operator",
+      "url": "https://www.kfwt.group/news/22111218_newsdel.html",
+      "locator": "开放时间/登城口",
+      "publisher": "开封市文化旅游投资集团",
+      "collected_at": "2026-10-23T18:44:09+08:00",
+      "published_at": null
+    },
+    {
+      "fact_id": "src_kf_wall_entrances_20260813",
+      "version": 1,
+      "validation_status": "unverified",
+      "business_status": "active",
+      "is_demo": false,
+      "rights_status": "internal_only",
+      "kind": "source",
+      "name": "开封城墙景区入口在哪?怎么去?",
+      "source_type": "other",
+      "url": "https://kf.bendibao.com/tour/2026813/24535.shtm",
+      "locator": "一、入口；交通指南；门票",
+      "publisher": "开封本地宝",
+      "collected_at": "2026-10-23T18:44:21+08:00",
+      "published_at": null
+    },
+    {
+      "fact_id": "src_kf_wall_hours_20260813",
+      "version": 1,
+      "validation_status": "unverified",
+      "business_status": "active",
+      "is_demo": false,
+      "rights_status": "internal_only",
+      "kind": "source",
+      "name": "开封城墙开放时间(演出+节目单)",
+      "source_type": "other",
+      "url": "https://kf.bendibao.com/tour/2026813/24537.shtm",
+      "locator": "一、开放时间；二、演出",
+      "publisher": "开封本地宝",
+      "collected_at": "2026-10-23T18:44:42+08:00",
+      "published_at": null
+    },
+    {
+      "fact_id": "src_kf_wall_closure_20260104",
+      "version": 1,
+      "validation_status": "unverified",
+      "business_status": "active",
+      "is_demo": false,
+      "rights_status": "internal_only",
+      "kind": "source",
+      "name": "大梁门古马道登城口临时暂停通行",
+      "source_type": "other",
+      "url": "http://kf.bendibao.com/tour/202614/23176.shtm",
+      "locator": "通知正文",
+      "publisher": "开封本地宝",
+      "collected_at": "2026-10-23T18:44:42+08:00",
+      "published_at": null
+    },
+    {
+      "fact_id": "src_qmsyun_q_secret_20261023",
+      "version": 1,
+      "validation_status": "unverified",
+      "business_status": "active",
+      "is_demo": false,
+      "rights_status": "internal_only",
+      "kind": "source",
+      "name": "清明上河园游客中心与服务设施",
+      "source_type": "official",
+      "url": "https://www.qmsyun.com/Mobile_page/q_secret.htm",
+      "locator": "游客中心/医疗服务/特殊服务",
+      "publisher": "清明上河园",
+      "collected_at": "2026-10-23T18:52:18+08:00",
+      "published_at": null
+    },
+    {
+      "fact_id": "src_kfcqjq_weimeng_20261023",
+      "version": 1,
+      "validation_status": "unverified",
+      "business_status": "active",
+      "is_demo": false,
+      "rights_status": "internal_only",
+      "kind": "source",
+      "name": "微梦大梁门（官网演出页）",
+      "source_type": "official",
+      "url": "http://www.kfcqjq.com/www/weimeng/index.html",
+      "locator": "演出地点/演出时间/办公地址",
+      "publisher": "开封市宋都城墙景区",
+      "collected_at": "2026-10-23T18:52:19+08:00",
+      "published_at": null
+    },
+    {
+      "fact_id": "src_kaifeng_bus_2022_20261023",
+      "version": 1,
+      "validation_status": "unverified",
+      "business_status": "active",
+      "is_demo": false,
+      "rights_status": "internal_only",
+      "kind": "source",
+      "name": "开封市公共交通2022年各线路运行站点情况",
+      "source_type": "official",
+      "url": "https://www.kaifeng.gov.cn/kfsrmzfwz/cggjtl/pc/content/content_1897825701877071872.html",
+      "locator": "1/8/21/35/53 路等",
+      "publisher": "开封市人民政府",
+      "collected_at": "2026-10-23T18:45:28+08:00",
+      "published_at": null
+    },
+    {
+      "fact_id": "kf_station",
+      "version": 1,
+      "source_ids": [
+        "src_kaifeng_bus_2022_20261023"
+      ],
+      "validation_status": "unverified",
+      "business_status": "active",
+      "is_demo": false,
+      "rights_status": "internal_only",
+      "kind": "place",
+      "name": "开封站",
+      "place_type": "transport",
+      "parent_place_id": null,
+      "address": "开封市禹王台区中山路1号（第三方地址，待官方确认）",
+      "longitude": null,
+      "latitude": null,
+      "coordinate_system": "unknown"
+    },
+    {
+      "fact_id": "kf_north_station",
+      "version": 1,
+      "source_ids": [
+        "src_kaifeng_bus_2022_20261023"
+      ],
+      "validation_status": "unverified",
+      "business_status": "active",
+      "is_demo": false,
+      "rights_status": "internal_only",
+      "kind": "place",
+      "name": "开封北站",
+      "place_type": "transport",
+      "parent_place_id": null,
+      "address": "开封市龙亭区东京大道与四大街交叉口（第三方/百科候选）",
+      "longitude": null,
+      "latitude": null,
+      "coordinate_system": "unknown"
+    },
+    {
+      "fact_id": "qingming",
+      "version": 1,
+      "source_ids": [
+        "src_qmsyun_program_20261023",
+        "src_qmsyun_architecture_20261023"
+      ],
+      "validation_status": "unverified",
+      "business_status": "active",
+      "is_demo": false,
+      "rights_status": "internal_only",
+      "kind": "place",
+      "name": "清明上河园",
+      "place_type": "scenic",
+      "parent_place_id": null,
+      "address": "开封市龙亭西路5号（历史包候选，需复核）",
+      "longitude": null,
+      "latitude": null,
+      "coordinate_system": "unknown"
+    },
+    {
+      "fact_id": "qm_gate_yingbin",
+      "version": 1,
+      "source_ids": [
+        "src_qmsyun_architecture_20261023",
+        "src_qmsyun_gate_channels_20261023"
+      ],
+      "validation_status": "unverified",
+      "business_status": "active",
+      "is_demo": false,
+      "rights_status": "internal_only",
+      "kind": "place",
+      "name": "迎宾门",
+      "place_type": "entrance",
+      "parent_place_id": "qingming",
+      "address": null,
+      "longitude": null,
+      "latitude": null,
+      "coordinate_system": "unknown"
+    },
+    {
+      "fact_id": "qm_gate_jinshui",
+      "version": 1,
+      "source_ids": [
+        "src_qmsyun_architecture_20261023",
+        "src_qmsyun_song_banquet_20261023",
+        "src_qmsyun_gate_channels_20261023"
+      ],
+      "validation_status": "unverified",
+      "business_status": "active",
+      "is_demo": false,
+      "rights_status": "internal_only",
+      "kind": "place",
+      "name": "金水门",
+      "place_type": "entrance",
+      "parent_place_id": "qingming",
+      "address": null,
+      "longitude": null,
+      "latitude": null,
+      "coordinate_system": "unknown"
+    },
+    {
+      "fact_id": "qm_gate_duan",
+      "version": 1,
+      "source_ids": [
+        "src_qmsyun_gate_channels_20261023",
+        "src_qmsyun_song_banquet_20261023"
+      ],
+      "validation_status": "unverified",
+      "business_status": "active",
+      "is_demo": false,
+      "rights_status": "internal_only",
+      "kind": "place",
+      "name": "端门",
+      "place_type": "entrance",
+      "parent_place_id": "qingming",
+      "address": null,
+      "longitude": null,
+      "latitude": null,
+      "coordinate_system": "unknown"
+    },
+    {
+      "fact_id": "diyilou_sihou",
+      "version": 1,
+      "source_ids": [
+        "src_diyilou_home_20261023",
+        "src_qunar_diyilou_20261023"
+      ],
+      "validation_status": "unverified",
+      "business_status": "active",
+      "is_demo": false,
+      "rights_status": "internal_only",
+      "kind": "place",
+      "name": "第一楼（寺后街店）",
+      "place_type": "restaurant",
+      "parent_place_id": null,
+      "address": "开封市寺后街8号",
+      "longitude": null,
+      "latitude": null,
+      "coordinate_system": "unknown"
+    },
+    {
+      "fact_id": "wall_daliang",
+      "version": 1,
+      "source_ids": [
+        "src_kf_wall_entrances_20260813",
+        "src_kf_wall_closure_20260104"
+      ],
+      "validation_status": "unverified",
+      "business_status": "active",
+      "is_demo": false,
+      "rights_status": "internal_only",
+      "kind": "place",
+      "name": "开封城墙大梁门古马道登城口",
+      "place_type": "entrance",
+      "parent_place_id": "wall_daliang_scenic",
+      "address": null,
+      "longitude": null,
+      "latitude": null,
+      "coordinate_system": "unknown"
+    },
+    {
+      "fact_id": "wall_daliang_scenic",
+      "version": 1,
+      "source_ids": [
+        "src_kfwt_wall_2022_20261023",
+        "src_kf_wall_entrances_20260813"
+      ],
+      "validation_status": "unverified",
+      "business_status": "active",
+      "is_demo": false,
+      "rights_status": "internal_only",
+      "kind": "place",
+      "name": "开封城墙（大梁门—安远门开放段）",
+      "place_type": "scenic",
+      "parent_place_id": null,
+      "address": "开封市龙亭区大梁路与内顺城路交叉口（官网办公地址候选）",
+      "longitude": null,
+      "latitude": null,
+      "coordinate_system": "unknown"
+    },
+    {
+      "fact_id": "ent_qm_yingbin_entry",
+      "version": 1,
+      "source_ids": [
+        "src_qmsyun_gate_channels_20261023"
+      ],
+      "validation_status": "unverified",
+      "business_status": "active",
+      "is_demo": false,
+      "rights_status": "internal_only",
+      "kind": "entrance",
+      "place_id": "qingming",
+      "entrance_place_id": "qm_gate_yingbin",
+      "direction": "entry"
+    },
+    {
+      "fact_id": "ent_qm_jinshui_entry",
+      "version": 1,
+      "source_ids": [
+        "src_qmsyun_gate_channels_20261023",
+        "src_qmsyun_song_banquet_20261023"
+      ],
+      "validation_status": "unverified",
+      "business_status": "active",
+      "is_demo": false,
+      "rights_status": "internal_only",
+      "kind": "entrance",
+      "place_id": "qingming",
+      "entrance_place_id": "qm_gate_jinshui",
+      "direction": "entry"
+    },
+    {
+      "fact_id": "ent_qm_duan_entry",
+      "version": 1,
+      "source_ids": [
+        "src_qmsyun_gate_channels_20261023",
+        "src_qmsyun_song_banquet_20261023"
+      ],
+      "validation_status": "unverified",
+      "business_status": "active",
+      "is_demo": false,
+      "rights_status": "internal_only",
+      "kind": "entrance",
+      "place_id": "qingming",
+      "entrance_place_id": "qm_gate_duan",
+      "direction": "entry"
+    },
+    {
+      "fact_id": "ent_wall_daliang_entry",
+      "version": 1,
+      "source_ids": [
+        "src_kf_wall_entrances_20260813"
+      ],
+      "validation_status": "unverified",
+      "business_status": "active",
+      "is_demo": false,
+      "rights_status": "internal_only",
+      "kind": "entrance",
+      "place_id": "wall_daliang_scenic",
+      "entrance_place_id": "wall_daliang",
+      "direction": "entry"
+    },
+    {
+      "fact_id": "program_qm_001",
+      "version": 1,
+      "source_ids": [
+        "src_qmsyun_program_20261023"
+      ],
+      "validation_status": "unverified",
+      "business_status": "active",
+      "is_demo": false,
+      "rights_status": "internal_only",
+      "kind": "program",
+      "name": "中华巨马展演（每周一检修）"
+    },
+    {
+      "fact_id": "program_qm_002",
+      "version": 1,
+      "source_ids": [
+        "src_qmsyun_program_20261023"
+      ],
+      "validation_status": "unverified",
+      "business_status": "active",
+      "is_demo": false,
+      "rights_status": "internal_only",
+      "kind": "program",
+      "name": "大宋百戏•迎宾互动演出"
+    },
+    {
+      "fact_id": "program_qm_003",
+      "version": 1,
+      "source_ids": [
+        "src_qmsyun_program_20261023"
+      ],
+      "validation_status": "unverified",
+      "business_status": "active",
+      "is_demo": false,
+      "rights_status": "internal_only",
+      "kind": "program",
+      "name": "御剑飞行飞天秀"
+    },
+    {
+      "fact_id": "program_qm_004",
+      "version": 1,
+      "source_ids": [
+        "src_qmsyun_program_20261023"
+      ],
+      "validation_status": "unverified",
+      "business_status": "active",
+      "is_demo": false,
+      "rights_status": "internal_only",
+      "kind": "program",
+      "name": "包公迎宾"
+    },
+    {
+      "fact_id": "program_qm_005",
+      "version": 1,
+      "source_ids": [
+        "src_qmsyun_program_20261023"
+      ],
+      "validation_status": "unverified",
+      "business_status": "active",
+      "is_demo": false,
+      "rights_status": "internal_only",
+      "kind": "program",
+      "name": "大宋百戏•快乐小丑"
+    },
+    {
+      "fact_id": "program_qm_006",
+      "version": 1,
+      "source_ids": [
+        "src_qmsyun_program_20261023"
+      ],
+      "validation_status": "unverified",
+      "business_status": "active",
+      "is_demo": false,
+      "rights_status": "internal_only",
+      "kind": "program",
+      "name": "球幕影院《飞越清明上河图》"
+    },
+    {
+      "fact_id": "program_qm_007",
+      "version": 1,
+      "source_ids": [
+        "src_qmsyun_program_20261023"
+      ],
+      "validation_status": "unverified",
+      "business_status": "active",
+      "is_demo": false,
+      "rights_status": "internal_only",
+      "kind": "program",
+      "name": "大宋百戏·水上漂"
+    },
+    {
+      "fact_id": "program_qm_008",
+      "version": 1,
+      "source_ids": [
+        "src_qmsyun_program_20261023"
+      ],
+      "validation_status": "unverified",
+      "business_status": "active",
+      "is_demo": false,
+      "rights_status": "internal_only",
+      "kind": "program",
+      "name": "《清明上河图》沉浸式NPC互动"
+    },
+    {
+      "fact_id": "program_qm_009",
+      "version": 1,
+      "source_ids": [
+        "src_qmsyun_program_20261023"
+      ],
+      "validation_status": "unverified",
+      "business_status": "active",
+      "is_demo": false,
+      "rights_status": "internal_only",
+      "kind": "program",
+      "name": "盘鼓（迎宾门内广场）"
+    },
+    {
+      "fact_id": "program_qm_010",
+      "version": 1,
+      "source_ids": [
+        "src_qmsyun_program_20261023"
+      ],
+      "validation_status": "unverified",
+      "business_status": "active",
+      "is_demo": false,
+      "rights_status": "internal_only",
+      "kind": "program",
+      "name": "气功喷火"
+    },
+    {
+      "fact_id": "program_qm_011",
+      "version": 1,
+      "source_ids": [
+        "src_qmsyun_program_20261023"
+      ],
+      "validation_status": "unverified",
+      "business_status": "active",
+      "is_demo": false,
+      "rights_status": "internal_only",
+      "kind": "program",
+      "name": "大宋百戏·群宠献艺"
+    },
+    {
+      "fact_id": "program_qm_012",
+      "version": 1,
+      "source_ids": [
+        "src_qmsyun_program_20261023"
+      ],
+      "validation_status": "unverified",
+      "business_status": "active",
+      "is_demo": false,
+      "rights_status": "internal_only",
+      "kind": "program",
+      "name": "天女散花飞天秀"
+    },
+    {
+      "fact_id": "program_qm_013",
+      "version": 1,
+      "source_ids": [
+        "src_qmsyun_program_20261023"
+      ],
+      "validation_status": "unverified",
+      "business_status": "active",
+      "is_demo": false,
+      "rights_status": "internal_only",
+      "kind": "program",
+      "name": "机甲武士展演"
+    },
+    {
+      "fact_id": "program_qm_014",
+      "version": 1,
+      "source_ids": [
+        "src_qmsyun_program_20261023"
+      ],
+      "validation_status": "unverified",
+      "business_status": "active",
+      "is_demo": false,
+      "rights_status": "internal_only",
+      "kind": "program",
+      "name": "大宋百戏·高空叠凳"
+    },
+    {
+      "fact_id": "program_qm_015",
+      "version": 1,
+      "source_ids": [
+        "src_qmsyun_program_20261023"
+      ],
+      "validation_status": "unverified",
+      "business_status": "active",
+      "is_demo": false,
+      "rights_status": "internal_only",
+      "kind": "program",
+      "name": "包公巡视汴河漕运"
+    },
+    {
+      "fact_id": "program_qm_016",
+      "version": 1,
+      "source_ids": [
+        "src_qmsyun_program_20261023"
+      ],
+      "validation_status": "unverified",
+      "business_status": "active",
+      "is_demo": false,
+      "rights_status": "internal_only",
+      "kind": "program",
+      "name": "真人秀提线木偶"
+    },
+    {
+      "fact_id": "program_qm_017",
+      "version": 1,
+      "source_ids": [
+        "src_qmsyun_program_20261023"
+      ],
+      "validation_status": "unverified",
+      "business_status": "active",
+      "is_demo": false,
+      "rights_status": "internal_only",
+      "kind": "program",
+      "name": "大宋招兵买马（互动）"
+    },
+    {
+      "fact_id": "program_qm_018",
+      "version": 1,
+      "source_ids": [
+        "src_qmsyun_program_20261023"
+      ],
+      "validation_status": "unverified",
+      "business_status": "active",
+      "is_demo": false,
+      "rights_status": "internal_only",
+      "kind": "program",
+      "name": "小丑嘉年华"
+    },
+    {
+      "fact_id": "program_qm_019",
+      "version": 1,
+      "source_ids": [
+        "src_qmsyun_program_20261023"
+      ],
+      "validation_status": "unverified",
+      "business_status": "active",
+      "is_demo": false,
+      "rights_status": "internal_only",
+      "kind": "program",
+      "name": "大宋百戏·高杆杂技"
+    },
+    {
+      "fact_id": "program_qm_020",
+      "version": 1,
+      "source_ids": [
+        "src_qmsyun_program_20261023"
+      ],
+      "validation_status": "unverified",
+      "business_status": "active",
+      "is_demo": false,
+      "rights_status": "internal_only",
+      "kind": "program",
+      "name": "撂地摊"
+    },
+    {
+      "fact_id": "program_qm_021",
+      "version": 1,
+      "source_ids": [
+        "src_qmsyun_program_20261023"
+      ],
+      "validation_status": "unverified",
+      "business_status": "active",
+      "is_demo": false,
+      "rights_status": "internal_only",
+      "kind": "program",
+      "name": "傀儡木偶"
+    },
+    {
+      "fact_id": "program_qm_022",
+      "version": 1,
+      "source_ids": [
+        "src_qmsyun_program_20261023"
+      ],
+      "validation_status": "unverified",
+      "business_status": "active",
+      "is_demo": false,
+      "rights_status": "internal_only",
+      "kind": "program",
+      "name": "凤舞九天（三期火凤凰）"
+    },
+    {
+      "fact_id": "program_qm_023",
+      "version": 1,
+      "source_ids": [
+        "src_qmsyun_program_20261023"
+      ],
+      "validation_status": "unverified",
+      "business_status": "active",
+      "is_demo": false,
+      "rights_status": "internal_only",
+      "kind": "program",
+      "name": "骕骦千里（三期旋转木马）"
+    },
+    {
+      "fact_id": "program_qm_024",
+      "version": 1,
+      "source_ids": [
+        "src_qmsyun_program_20261023"
+      ],
+      "validation_status": "unverified",
+      "business_status": "active",
+      "is_demo": false,
+      "rights_status": "internal_only",
+      "kind": "program",
+      "name": "花灯初上（三期逍遥花灯）"
+    },
+    {
+      "fact_id": "program_qm_025",
+      "version": 1,
+      "source_ids": [
+        "src_qmsyun_program_20261023"
+      ],
+      "validation_status": "unverified",
+      "business_status": "active",
+      "is_demo": false,
+      "rights_status": "internal_only",
+      "kind": "program",
+      "name": "神舟出海（三期海盗船）"
+    },
+    {
+      "fact_id": "program_qm_026",
+      "version": 1,
+      "source_ids": [
+        "src_qmsyun_program_20261023"
+      ],
+      "validation_status": "unverified",
+      "business_status": "active",
+      "is_demo": false,
+      "rights_status": "internal_only",
+      "kind": "program",
+      "name": "龙腾鼓舞（三期过山车）"
+    },
+    {
+      "fact_id": "program_qm_027",
+      "version": 1,
+      "source_ids": [
+        "src_qmsyun_program_20261023"
+      ],
+      "validation_status": "unverified",
+      "business_status": "active",
+      "is_demo": false,
+      "rights_status": "internal_only",
+      "kind": "program",
+      "name": "高跷"
+    },
+    {
+      "fact_id": "program_qm_028",
+      "version": 1,
+      "source_ids": [
+        "src_qmsyun_program_20261023"
+      ],
+      "validation_status": "unverified",
+      "business_status": "active",
+      "is_demo": false,
+      "rights_status": "internal_only",
+      "kind": "program",
+      "name": "大宋百戏·力王争霸"
+    },
+    {
+      "fact_id": "program_qm_029",
+      "version": 1,
+      "source_ids": [
+        "src_qmsyun_program_20261023"
+      ],
+      "validation_status": "unverified",
+      "business_status": "active",
+      "is_demo": false,
+      "rights_status": "internal_only",
+      "kind": "program",
+      "name": "斗鸡"
+    },
+    {
+      "fact_id": "program_qm_030",
+      "version": 1,
+      "source_ids": [
+        "src_qmsyun_program_20261023"
+      ],
+      "validation_status": "unverified",
+      "business_status": "active",
+      "is_demo": false,
+      "rights_status": "internal_only",
+      "kind": "program",
+      "name": "小丑"
+    },
+    {
+      "fact_id": "program_qm_031",
+      "version": 1,
+      "source_ids": [
+        "src_qmsyun_program_20261023"
+      ],
+      "validation_status": "unverified",
+      "business_status": "active",
+      "is_demo": false,
+      "rights_status": "internal_only",
+      "kind": "program",
+      "name": "跳绳"
+    },
+    {
+      "fact_id": "program_qm_032",
+      "version": 1,
+      "source_ids": [
+        "src_qmsyun_program_20261023"
+      ],
+      "validation_status": "unverified",
+      "business_status": "active",
+      "is_demo": false,
+      "rights_status": "internal_only",
+      "kind": "program",
+      "name": "大宋百戏·走钢丝"
+    },
+    {
+      "fact_id": "program_qm_033",
+      "version": 1,
+      "source_ids": [
+        "src_qmsyun_program_20261023"
+      ],
+      "validation_status": "unverified",
+      "business_status": "active",
+      "is_demo": false,
+      "rights_status": "internal_only",
+      "kind": "program",
+      "name": "民俗绝活"
+    },
+    {
+      "fact_id": "program_qm_034",
+      "version": 1,
+      "source_ids": [
+        "src_qmsyun_program_20261023"
+      ],
+      "validation_status": "unverified",
+      "business_status": "active",
+      "is_demo": false,
+      "rights_status": "internal_only",
+      "kind": "program",
+      "name": "剑上侠客行"
+    },
+    {
+      "fact_id": "program_qm_035",
+      "version": 1,
+      "source_ids": [
+        "src_qmsyun_program_20261023"
+      ],
+      "validation_status": "unverified",
+      "business_status": "active",
+      "is_demo": false,
+      "rights_status": "internal_only",
+      "kind": "program",
+      "name": "动感呼啦圈"
+    },
+    {
+      "fact_id": "program_qm_036",
+      "version": 1,
+      "source_ids": [
+        "src_qmsyun_program_20261023"
+      ],
+      "validation_status": "unverified",
+      "business_status": "active",
+      "is_demo": false,
+      "rights_status": "internal_only",
+      "kind": "program",
+      "name": "大宋百戏·软丝凌云技"
+    },
+    {
+      "fact_id": "program_qm_037",
+      "version": 1,
+      "source_ids": [
+        "src_qmsyun_program_20261023"
+      ],
+      "validation_status": "unverified",
+      "business_status": "active",
+      "is_demo": false,
+      "rights_status": "internal_only",
+      "kind": "program",
+      "name": "大宋百戏·豫剧清唱"
+    },
+    {
+      "fact_id": "program_qm_038",
+      "version": 1,
+      "source_ids": [
+        "src_qmsyun_program_20261023"
+      ],
+      "validation_status": "unverified",
+      "business_status": "active",
+      "is_demo": false,
+      "rights_status": "internal_only",
+      "kind": "program",
+      "name": "大宋·东京保卫战"
+    },
+    {
+      "fact_id": "program_qm_039",
+      "version": 1,
+      "source_ids": [
+        "src_qmsyun_program_20261023"
+      ],
+      "validation_status": "unverified",
+      "business_status": "active",
+      "is_demo": false,
+      "rights_status": "internal_only",
+      "kind": "program",
+      "name": "大宋百戏•飞刀秀"
+    },
+    {
+      "fact_id": "program_qm_040",
+      "version": 1,
+      "source_ids": [
+        "src_qmsyun_program_20261023"
+      ],
+      "validation_status": "unverified",
+      "business_status": "active",
+      "is_demo": false,
+      "rights_status": "internal_only",
+      "kind": "program",
+      "name": "大宋百戏·灵猴献艺"
+    },
+    {
+      "fact_id": "program_qm_041",
+      "version": 1,
+      "source_ids": [
+        "src_qmsyun_program_20261023"
+      ],
+      "validation_status": "unverified",
+      "business_status": "active",
+      "is_demo": false,
+      "rights_status": "internal_only",
+      "kind": "program",
+      "name": "大宋百戏·变脸"
+    },
+    {
+      "fact_id": "program_qm_042",
+      "version": 1,
+      "source_ids": [
+        "src_qmsyun_program_20261023"
+      ],
+      "validation_status": "unverified",
+      "business_status": "active",
+      "is_demo": false,
+      "rights_status": "internal_only",
+      "kind": "program",
+      "name": "大宋百戏·快板"
+    },
+    {
+      "fact_id": "program_qm_043",
+      "version": 1,
+      "source_ids": [
+        "src_qmsyun_program_20261023"
+      ],
+      "validation_status": "unverified",
+      "business_status": "active",
+      "is_demo": false,
+      "rights_status": "internal_only",
+      "kind": "program",
+      "name": "布袋木偶"
+    },
+    {
+      "fact_id": "program_qm_044",
+      "version": 1,
+      "source_ids": [
+        "src_qmsyun_program_20261023"
+      ],
+      "validation_status": "unverified",
+      "business_status": "active",
+      "is_demo": false,
+      "rights_status": "internal_only",
+      "kind": "program",
+      "name": "天空之城"
+    },
+    {
+      "fact_id": "program_qm_045",
+      "version": 1,
+      "source_ids": [
+        "src_qmsyun_program_20261023"
+      ],
+      "validation_status": "unverified",
+      "business_status": "active",
+      "is_demo": false,
+      "rights_status": "internal_only",
+      "kind": "program",
+      "name": "宋廷梦乐"
+    },
+    {
+      "fact_id": "program_qm_046",
+      "version": 1,
+      "source_ids": [
+        "src_qmsyun_program_20261023"
+      ],
+      "validation_status": "unverified",
+      "business_status": "active",
+      "is_demo": false,
+      "rights_status": "internal_only",
+      "kind": "program",
+      "name": "大宋百戏·水上飞人"
+    },
+    {
+      "fact_id": "program_qm_047",
+      "version": 1,
+      "source_ids": [
+        "src_qmsyun_program_20261023"
+      ],
+      "validation_status": "unverified",
+      "business_status": "active",
+      "is_demo": false,
+      "rights_status": "internal_only",
+      "kind": "program",
+      "name": "大宋百戏·舞中幡"
+    },
+    {
+      "fact_id": "program_qm_048",
+      "version": 1,
+      "source_ids": [
+        "src_qmsyun_program_20261023"
+      ],
+      "validation_status": "unverified",
+      "business_status": "active",
+      "is_demo": false,
+      "rights_status": "internal_only",
+      "kind": "program",
+      "name": "水流星"
+    },
+    {
+      "fact_id": "program_qm_049",
+      "version": 1,
+      "source_ids": [
+        "src_qmsyun_program_20261023"
+      ],
+      "validation_status": "unverified",
+      "business_status": "active",
+      "is_demo": false,
+      "rights_status": "internal_only",
+      "kind": "program",
+      "name": "群丑闹东京（虹桥南广场）"
+    },
+    {
+      "fact_id": "program_qm_050",
+      "version": 1,
+      "source_ids": [
+        "src_qmsyun_program_20261023"
+      ],
+      "validation_status": "unverified",
+      "business_status": "active",
+      "is_demo": false,
+      "rights_status": "internal_only",
+      "kind": "program",
+      "name": "绛州鼓乐·牛斗虎"
+    },
+    {
+      "fact_id": "program_qm_051",
+      "version": 1,
+      "source_ids": [
+        "src_qmsyun_program_20261023"
+      ],
+      "validation_status": "unverified",
+      "business_status": "active",
+      "is_demo": false,
+      "rights_status": "internal_only",
+      "kind": "program",
+      "name": "大宋百戏·相声"
+    },
+    {
+      "fact_id": "program_qm_052",
+      "version": 1,
+      "source_ids": [
+        "src_qmsyun_program_20261023"
+      ],
+      "validation_status": "unverified",
+      "business_status": "active",
+      "is_demo": false,
+      "rights_status": "internal_only",
+      "kind": "program",
+      "name": "大宋百戏·扛竿"
+    },
+    {
+      "fact_id": "program_qm_053",
+      "version": 1,
+      "source_ids": [
+        "src_qmsyun_program_20261023"
+      ],
+      "validation_status": "unverified",
+      "business_status": "active",
+      "is_demo": false,
+      "rights_status": "internal_only",
+      "kind": "program",
+      "name": "大宋百戏·豫剧反串"
+    },
+    {
+      "fact_id": "program_qm_054",
+      "version": 1,
+      "source_ids": [
+        "src_qmsyun_program_20261023"
+      ],
+      "validation_status": "unverified",
+      "business_status": "active",
+      "is_demo": false,
+      "rights_status": "internal_only",
+      "kind": "program",
+      "name": "大宋百戏·上刀山"
+    },
+    {
+      "fact_id": "program_qm_055",
+      "version": 1,
+      "source_ids": [
+        "src_qmsyun_program_20261023"
+      ],
+      "validation_status": "unverified",
+      "business_status": "active",
+      "is_demo": false,
+      "rights_status": "internal_only",
+      "kind": "program",
+      "name": "大宋百戏·高空花式扁带"
+    },
+    {
+      "fact_id": "program_qm_056",
+      "version": 1,
+      "source_ids": [
+        "src_qmsyun_program_20261023"
+      ],
+      "validation_status": "unverified",
+      "business_status": "active",
+      "is_demo": false,
+      "rights_status": "internal_only",
+      "kind": "program",
+      "name": "舞龙"
+    },
+    {
+      "fact_id": "program_qm_057",
+      "version": 1,
+      "source_ids": [
+        "src_qmsyun_program_20261023"
+      ],
+      "validation_status": "unverified",
+      "business_status": "active",
+      "is_demo": false,
+      "rights_status": "internal_only",
+      "kind": "program",
+      "name": "大宋百戏·豫剧清唱（梁山面馆）"
+    },
+    {
+      "fact_id": "program_qm_058",
+      "version": 1,
+      "source_ids": [
+        "src_qmsyun_program_20261023"
+      ],
+      "validation_status": "unverified",
+      "business_status": "active",
+      "is_demo": false,
+      "rights_status": "internal_only",
+      "kind": "program",
+      "name": "雄狮争霸"
+    },
+    {
+      "fact_id": "program_qm_059",
+      "version": 1,
+      "source_ids": [
+        "src_qmsyun_program_20261023"
+      ],
+      "validation_status": "unverified",
+      "business_status": "active",
+      "is_demo": false,
+      "rights_status": "internal_only",
+      "kind": "program",
+      "name": "大宋百戏·河南坠子"
+    },
+    {
+      "fact_id": "program_qm_060",
+      "version": 1,
+      "source_ids": [
+        "src_qmsyun_program_20261023"
+      ],
+      "validation_status": "unverified",
+      "business_status": "active",
+      "is_demo": false,
+      "rights_status": "internal_only",
+      "kind": "program",
+      "name": "大宋百戏·奇幻魔术"
+    },
+    {
+      "fact_id": "program_qm_061",
+      "version": 1,
+      "source_ids": [
+        "src_qmsyun_program_20261023"
+      ],
+      "validation_status": "unverified",
+      "business_status": "active",
+      "is_demo": false,
+      "rights_status": "internal_only",
+      "kind": "program",
+      "name": "魔幻大轮"
+    },
+    {
+      "fact_id": "program_qm_062",
+      "version": 1,
+      "source_ids": [
+        "src_qmsyun_program_20261023"
+      ],
+      "validation_status": "unverified",
+      "business_status": "active",
+      "is_demo": false,
+      "rights_status": "internal_only",
+      "kind": "program",
+      "name": "岳飞枪挑小梁王"
+    },
+    {
+      "fact_id": "program_qm_063",
+      "version": 1,
+      "source_ids": [
+        "src_qmsyun_program_20261023"
+      ],
+      "validation_status": "unverified",
+      "business_status": "active",
+      "is_demo": false,
+      "rights_status": "internal_only",
+      "kind": "program",
+      "name": "草帽飞舞"
+    },
+    {
+      "fact_id": "program_qm_064",
+      "version": 1,
+      "source_ids": [
+        "src_qmsyun_program_20261023"
+      ],
+      "validation_status": "unverified",
+      "business_status": "active",
+      "is_demo": false,
+      "rights_status": "internal_only",
+      "kind": "program",
+      "name": "《决战汴梁城·五鼠闹东京》实景高空威亚秀"
+    },
+    {
+      "fact_id": "program_qm_065",
+      "version": 1,
+      "source_ids": [
+        "src_qmsyun_program_20261023"
+      ],
+      "validation_status": "unverified",
+      "business_status": "active",
+      "is_demo": false,
+      "rights_status": "internal_only",
+      "kind": "program",
+      "name": "大宋百戏·耍把戏"
+    },
+    {
+      "fact_id": "program_qm_066",
+      "version": 1,
+      "source_ids": [
+        "src_qmsyun_program_20261023"
+      ],
+      "validation_status": "unverified",
+      "business_status": "active",
+      "is_demo": false,
+      "rights_status": "internal_only",
+      "kind": "program",
+      "name": "双头人"
+    },
+    {
+      "fact_id": "program_qm_067",
+      "version": 1,
+      "source_ids": [
+        "src_qmsyun_program_20261023"
+      ],
+      "validation_status": "unverified",
+      "business_status": "active",
+      "is_demo": false,
+      "rights_status": "internal_only",
+      "kind": "program",
+      "name": "舞中幡互动秀"
+    },
+    {
+      "fact_id": "program_qm_068",
+      "version": 1,
+      "source_ids": [
+        "src_qmsyun_program_20261023"
+      ],
+      "validation_status": "unverified",
+      "business_status": "active",
+      "is_demo": false,
+      "rights_status": "internal_only",
+      "kind": "program",
+      "name": "游戏子弟"
+    },
+    {
+      "fact_id": "program_qm_069",
+      "version": 1,
+      "source_ids": [
+        "src_qmsyun_program_20261023"
+      ],
+      "validation_status": "unverified",
+      "business_status": "active",
+      "is_demo": false,
+      "rights_status": "internal_only",
+      "kind": "program",
+      "name": "吊球技巧"
+    },
+    {
+      "fact_id": "program_qm_070",
+      "version": 1,
+      "source_ids": [
+        "src_qmsyun_program_20261023"
+      ],
+      "validation_status": "unverified",
+      "business_status": "active",
+      "is_demo": false,
+      "rights_status": "internal_only",
+      "kind": "program",
+      "name": "宋廷队舞"
+    },
+    {
+      "fact_id": "program_qm_071",
+      "version": 1,
+      "source_ids": [
+        "src_qmsyun_program_20261023"
+      ],
+      "validation_status": "unverified",
+      "business_status": "active",
+      "is_demo": false,
+      "rights_status": "internal_only",
+      "kind": "program",
+      "name": "大宋百戏·快板（梁山面馆）"
+    },
+    {
+      "fact_id": "program_qm_072",
+      "version": 1,
+      "source_ids": [
+        "src_qmsyun_program_20261023"
+      ],
+      "validation_status": "unverified",
+      "business_status": "active",
+      "is_demo": false,
+      "rights_status": "internal_only",
+      "kind": "program",
+      "name": "水傀儡"
+    },
+    {
+      "fact_id": "program_qm_073",
+      "version": 1,
+      "source_ids": [
+        "src_qmsyun_program_20261023"
+      ],
+      "validation_status": "unverified",
+      "business_status": "active",
+      "is_demo": false,
+      "rights_status": "internal_only",
+      "kind": "program",
+      "name": "大宋百戏·顶龙凳"
+    },
+    {
+      "fact_id": "program_qm_074",
+      "version": 1,
+      "source_ids": [
+        "src_qmsyun_program_20261023"
+      ],
+      "validation_status": "unverified",
+      "business_status": "active",
+      "is_demo": false,
+      "rights_status": "internal_only",
+      "kind": "program",
+      "name": "大宋百戏·杂技抖杠"
+    },
+    {
+      "fact_id": "program_qm_075",
+      "version": 1,
+      "source_ids": [
+        "src_qmsyun_program_20261023"
+      ],
+      "validation_status": "unverified",
+      "business_status": "active",
+      "is_demo": false,
+      "rights_status": "internal_only",
+      "kind": "program",
+      "name": "大宋百戏·变脸互动秀"
+    },
+    {
+      "fact_id": "program_qm_076",
+      "version": 1,
+      "source_ids": [
+        "src_qmsyun_program_20261023"
+      ],
+      "validation_status": "unverified",
+      "business_status": "active",
+      "is_demo": false,
+      "rights_status": "internal_only",
+      "kind": "program",
+      "name": "群丑闹东京（巡游）"
+    },
+    {
+      "fact_id": "program_qm_077",
+      "version": 1,
+      "source_ids": [
+        "src_qmsyun_program_20261023"
+      ],
+      "validation_status": "unverified",
+      "business_status": "active",
+      "is_demo": false,
+      "rights_status": "internal_only",
+      "kind": "program",
+      "name": "手彩魔术"
+    },
+    {
+      "fact_id": "program_qm_078",
+      "version": 1,
+      "source_ids": [
+        "src_qmsyun_program_20261023"
+      ],
+      "validation_status": "unverified",
+      "business_status": "active",
+      "is_demo": false,
+      "rights_status": "internal_only",
+      "kind": "program",
+      "name": "大宋百戏·跳跳龙"
+    },
+    {
+      "fact_id": "program_qm_079",
+      "version": 1,
+      "source_ids": [
+        "src_qmsyun_program_20261023"
+      ],
+      "validation_status": "unverified",
+      "business_status": "active",
+      "is_demo": false,
+      "rights_status": "internal_only",
+      "kind": "program",
+      "name": "大宋百戏·宋韵大鼓"
+    },
+    {
+      "fact_id": "program_qm_080",
+      "version": 1,
+      "source_ids": [
+        "src_qmsyun_program_20261023"
+      ],
+      "validation_status": "unverified",
+      "business_status": "active",
+      "is_demo": false,
+      "rights_status": "internal_only",
+      "kind": "program",
+      "name": "大宋百戏·杂技空山竹语"
+    },
+    {
+      "fact_id": "program_qm_081",
+      "version": 1,
+      "source_ids": [
+        "src_qmsyun_program_20261023"
+      ],
+      "validation_status": "unverified",
+      "business_status": "active",
+      "is_demo": false,
+      "rights_status": "internal_only",
+      "kind": "program",
+      "name": "大宋百戏•相声（梁山书场）"
+    },
+    {
+      "fact_id": "program_qm_082",
+      "version": 1,
+      "source_ids": [
+        "src_qmsyun_program_20261023"
+      ],
+      "validation_status": "unverified",
+      "business_status": "active",
+      "is_demo": false,
+      "rights_status": "internal_only",
+      "kind": "program",
+      "name": "皇家宫廷·武戏法"
+    },
+    {
+      "fact_id": "program_qm_083",
+      "version": 1,
+      "source_ids": [
+        "src_qmsyun_program_20261023"
+      ],
+      "validation_status": "unverified",
+      "business_status": "active",
+      "is_demo": false,
+      "rights_status": "internal_only",
+      "kind": "program",
+      "name": "大宋百戏•乐舞秀"
+    },
+    {
+      "fact_id": "program_qm_084",
+      "version": 1,
+      "source_ids": [
+        "src_qmsyun_program_20261023"
+      ],
+      "validation_status": "unverified",
+      "business_status": "active",
+      "is_demo": false,
+      "rights_status": "internal_only",
+      "kind": "program",
+      "name": "草帽吊球"
+    },
+    {
+      "fact_id": "program_qm_085",
+      "version": 1,
+      "source_ids": [
+        "src_qmsyun_program_20261023"
+      ],
+      "validation_status": "unverified",
+      "business_status": "active",
+      "is_demo": false,
+      "rights_status": "internal_only",
+      "kind": "program",
+      "name": "大宋科举"
+    },
+    {
+      "fact_id": "program_qm_086",
+      "version": 1,
+      "source_ids": [
+        "src_qmsyun_program_20261023"
+      ],
+      "validation_status": "unverified",
+      "business_status": "active",
+      "is_demo": false,
+      "rights_status": "internal_only",
+      "kind": "program",
+      "name": "非遗绝活互动秀"
+    },
+    {
+      "fact_id": "program_qm_087",
+      "version": 1,
+      "source_ids": [
+        "src_qmsyun_program_20261023"
+      ],
+      "validation_status": "unverified",
+      "business_status": "active",
+      "is_demo": false,
+      "rights_status": "internal_only",
+      "kind": "program",
+      "name": "大宋斗舞"
+    },
+    {
+      "fact_id": "program_qm_088",
+      "version": 1,
+      "source_ids": [
+        "src_qmsyun_program_20261023"
+      ],
+      "validation_status": "unverified",
+      "business_status": "active",
+      "is_demo": false,
+      "rights_status": "internal_only",
+      "kind": "program",
+      "name": "王员外招婿"
+    },
+    {
+      "fact_id": "program_qm_089",
+      "version": 1,
+      "source_ids": [
+        "src_qmsyun_program_20261023"
+      ],
+      "validation_status": "unverified",
+      "business_status": "active",
+      "is_demo": false,
+      "rights_status": "internal_only",
+      "kind": "program",
+      "name": "大宋百戏·力撼山河"
+    },
+    {
+      "fact_id": "program_qm_090",
+      "version": 1,
+      "source_ids": [
+        "src_qmsyun_program_20261023"
+      ],
+      "validation_status": "unverified",
+      "business_status": "active",
+      "is_demo": false,
+      "rights_status": "internal_only",
+      "kind": "program",
+      "name": "古代幻术"
+    },
+    {
+      "fact_id": "program_qm_091",
+      "version": 1,
+      "source_ids": [
+        "src_qmsyun_program_20261023"
+      ],
+      "validation_status": "unverified",
+      "business_status": "active",
+      "is_demo": false,
+      "rights_status": "internal_only",
+      "kind": "program",
+      "name": "大宋百戏·太空漫步"
+    },
+    {
+      "fact_id": "program_qm_092",
+      "version": 1,
+      "source_ids": [
+        "src_qmsyun_program_20261023"
+      ],
+      "validation_status": "unverified",
+      "business_status": "active",
+      "is_demo": false,
+      "rights_status": "internal_only",
+      "kind": "program",
+      "name": "大宋·杨门女将"
+    },
+    {
+      "fact_id": "program_qm_093",
+      "version": 1,
+      "source_ids": [
+        "src_qmsyun_program_20261023"
+      ],
+      "validation_status": "unverified",
+      "business_status": "active",
+      "is_demo": false,
+      "rights_status": "internal_only",
+      "kind": "program",
+      "name": "大宋舞王"
+    },
+    {
+      "fact_id": "program_qm_094",
+      "version": 1,
+      "source_ids": [
+        "src_qmsyun_program_20261023"
+      ],
+      "validation_status": "unverified",
+      "business_status": "active",
+      "is_demo": false,
+      "rights_status": "internal_only",
+      "kind": "program",
+      "name": "梁山好汉劫囚车"
+    },
+    {
+      "fact_id": "program_qm_095",
+      "version": 1,
+      "source_ids": [
+        "src_qmsyun_program_20261023"
+      ],
+      "validation_status": "unverified",
+      "business_status": "active",
+      "is_demo": false,
+      "rights_status": "internal_only",
+      "kind": "program",
+      "name": "比武招亲"
+    },
+    {
+      "fact_id": "program_qm_096",
+      "version": 1,
+      "source_ids": [
+        "src_qmsyun_program_20261023"
+      ],
+      "validation_status": "unverified",
+      "business_status": "active",
+      "is_demo": false,
+      "rights_status": "internal_only",
+      "kind": "program",
+      "name": "大宋百戏·豫剧反串（梁山面馆）"
+    },
+    {
+      "fact_id": "program_qm_097",
+      "version": 1,
+      "source_ids": [
+        "src_qmsyun_program_20261023"
+      ],
+      "validation_status": "unverified",
+      "business_status": "active",
+      "is_demo": false,
+      "rights_status": "internal_only",
+      "kind": "program",
+      "name": "大宋百戏·书场坠子"
+    },
+    {
+      "fact_id": "program_qm_098",
+      "version": 1,
+      "source_ids": [
+        "src_qmsyun_program_20261023"
+      ],
+      "validation_status": "unverified",
+      "business_status": "active",
+      "is_demo": false,
+      "rights_status": "internal_only",
+      "kind": "program",
+      "name": "大宋百戏·书场大鼓"
+    },
+    {
+      "fact_id": "program_qm_099",
+      "version": 1,
+      "source_ids": [
+        "src_qmsyun_program_20261023"
+      ],
+      "validation_status": "unverified",
+      "business_status": "active",
+      "is_demo": false,
+      "rights_status": "internal_only",
+      "kind": "program",
+      "name": "大宋歌王"
+    },
+    {
+      "fact_id": "program_qm_100",
+      "version": 1,
+      "source_ids": [
+        "src_qmsyun_program_20261023"
+      ],
+      "validation_status": "unverified",
+      "business_status": "active",
+      "is_demo": false,
+      "rights_status": "internal_only",
+      "kind": "program",
+      "name": "清明上河园大巡游"
+    },
+    {
+      "fact_id": "program_qm_101",
+      "version": 1,
+      "source_ids": [
+        "src_qmsyun_program_20261023"
+      ],
+      "validation_status": "unverified",
+      "business_status": "active",
+      "is_demo": false,
+      "rights_status": "internal_only",
+      "kind": "program",
+      "name": "爱雅宋"
+    },
+    {
+      "fact_id": "program_qm_102",
+      "version": 1,
+      "source_ids": [
+        "src_qmsyun_program_20261023"
+      ],
+      "validation_status": "unverified",
+      "business_status": "active",
+      "is_demo": false,
+      "rights_status": "internal_only",
+      "kind": "program",
+      "name": "大宋百戏·古彩戏法"
+    },
+    {
+      "fact_id": "program_qm_103",
+      "version": 1,
+      "source_ids": [
+        "src_qmsyun_program_20261023"
+      ],
+      "validation_status": "unverified",
+      "business_status": "active",
+      "is_demo": false,
+      "rights_status": "internal_only",
+      "kind": "program",
+      "name": "群丑闹东京（上善门）"
+    },
+    {
+      "fact_id": "program_qm_104",
+      "version": 1,
+      "source_ids": [
+        "src_qmsyun_program_20261023"
+      ],
+      "validation_status": "unverified",
+      "business_status": "active",
+      "is_demo": false,
+      "rights_status": "internal_only",
+      "kind": "program",
+      "name": "燕青打擂"
+    },
+    {
+      "fact_id": "program_qm_105",
+      "version": 1,
+      "source_ids": [
+        "src_qmsyun_program_20261023"
+      ],
+      "validation_status": "unverified",
+      "business_status": "active",
+      "is_demo": false,
+      "rights_status": "internal_only",
+      "kind": "program",
+      "name": "盘鼓"
+    },
+    {
+      "fact_id": "program_qm_106",
+      "version": 1,
+      "source_ids": [
+        "src_qmsyun_program_20261023"
+      ],
+      "validation_status": "unverified",
+      "business_status": "active",
+      "is_demo": false,
+      "rights_status": "internal_only",
+      "kind": "program",
+      "name": "黄袍加身"
+    },
+    {
+      "fact_id": "program_qm_107",
+      "version": 1,
+      "source_ids": [
+        "src_qmsyun_program_20261023"
+      ],
+      "validation_status": "unverified",
+      "business_status": "active",
+      "is_demo": false,
+      "rights_status": "internal_only",
+      "kind": "program",
+      "name": "大宋百戏·快闪秀"
+    },
+    {
+      "fact_id": "program_qm_108",
+      "version": 1,
+      "source_ids": [
+        "src_qmsyun_program_20261023"
+      ],
+      "validation_status": "unverified",
+      "business_status": "active",
+      "is_demo": false,
+      "rights_status": "internal_only",
+      "kind": "program",
+      "name": "龙马花车巡游"
+    },
+    {
+      "fact_id": "program_qm_109",
+      "version": 1,
+      "source_ids": [
+        "src_qmsyun_program_20261023"
+      ],
+      "validation_status": "unverified",
+      "business_status": "active",
+      "is_demo": false,
+      "rights_status": "internal_only",
+      "kind": "program",
+      "name": "非遗滚灯舞"
+    },
+    {
+      "fact_id": "program_qm_110",
+      "version": 1,
+      "source_ids": [
+        "src_qmsyun_program_20261023"
+      ],
+      "validation_status": "unverified",
+      "business_status": "active",
+      "is_demo": false,
+      "rights_status": "internal_only",
+      "kind": "program",
+      "name": "群丑闹东京（东京食坊南口）"
+    },
+    {
+      "fact_id": "program_qm_111",
+      "version": 1,
+      "source_ids": [
+        "src_qmsyun_program_20261023"
+      ],
+      "validation_status": "unverified",
+      "business_status": "active",
+      "is_demo": false,
+      "rights_status": "internal_only",
+      "kind": "program",
+      "name": "龙马花车巡游（音乐广场）"
+    },
+    {
+      "fact_id": "program_qm_112",
+      "version": 1,
+      "source_ids": [
+        "src_qmsyun_program_20261023"
+      ],
+      "validation_status": "unverified",
+      "business_status": "active",
+      "is_demo": false,
+      "rights_status": "internal_only",
+      "kind": "program",
+      "name": "大宋不倒翁（虞美人桥南侧）"
+    },
+    {
+      "fact_id": "program_qm_113",
+      "version": 1,
+      "source_ids": [
+        "src_qmsyun_program_20261023"
+      ],
+      "validation_status": "unverified",
+      "business_status": "active",
+      "is_demo": false,
+      "rights_status": "internal_only",
+      "kind": "program",
+      "name": "丝路行歌花车巡游"
+    },
+    {
+      "fact_id": "program_qm_114",
+      "version": 1,
+      "source_ids": [
+        "src_qmsyun_program_20261023"
+      ],
+      "validation_status": "unverified",
+      "business_status": "active",
+      "is_demo": false,
+      "rights_status": "internal_only",
+      "kind": "program",
+      "name": "《决战汴梁城·跟着岳飞打金贼》攻城抗金实景互动"
+    },
+    {
+      "fact_id": "program_qm_115",
+      "version": 1,
+      "source_ids": [
+        "src_qmsyun_program_20261023"
+      ],
+      "validation_status": "unverified",
+      "business_status": "active",
+      "is_demo": false,
+      "rights_status": "internal_only",
+      "kind": "program",
+      "name": "玉面佳人执扇舞"
+    },
+    {
+      "fact_id": "program_qm_116",
+      "version": 1,
+      "source_ids": [
+        "src_qmsyun_program_20261023"
+      ],
+      "validation_status": "unverified",
+      "business_status": "active",
+      "is_demo": false,
+      "rights_status": "internal_only",
+      "kind": "program",
+      "name": "玉面书生大巡游"
+    },
+    {
+      "fact_id": "program_qm_117",
+      "version": 1,
+      "source_ids": [
+        "src_qmsyun_program_20261023"
+      ],
+      "validation_status": "unverified",
+      "business_status": "active",
+      "is_demo": false,
+      "rights_status": "internal_only",
+      "kind": "program",
+      "name": "大宋也疯狂"
+    },
+    {
+      "fact_id": "program_qm_118",
+      "version": 1,
+      "source_ids": [
+        "src_qmsyun_program_20261023"
+      ],
+      "validation_status": "unverified",
+      "business_status": "active",
+      "is_demo": false,
+      "rights_status": "internal_only",
+      "kind": "program",
+      "name": "大型魔术秀"
+    },
+    {
+      "fact_id": "program_qm_119",
+      "version": 1,
+      "source_ids": [
+        "src_qmsyun_program_20261023"
+      ],
+      "validation_status": "unverified",
+      "business_status": "active",
+      "is_demo": false,
+      "rights_status": "internal_only",
+      "kind": "program",
+      "name": "大宋百戏•变脸（梁山书场）"
+    },
+    {
+      "fact_id": "program_qm_120",
+      "version": 1,
+      "source_ids": [
+        "src_qmsyun_program_20261023"
+      ],
+      "validation_status": "unverified",
+      "business_status": "active",
+      "is_demo": false,
+      "rights_status": "internal_only",
+      "kind": "program",
+      "name": "高杆不倒翁"
+    },
+    {
+      "fact_id": "program_qm_121",
+      "version": 1,
+      "source_ids": [
+        "src_qmsyun_program_20261023"
+      ],
+      "validation_status": "unverified",
+      "business_status": "active",
+      "is_demo": false,
+      "rights_status": "internal_only",
+      "kind": "program",
+      "name": "大宋歌友会"
+    },
+    {
+      "fact_id": "program_qm_122",
+      "version": 1,
+      "source_ids": [
+        "src_qmsyun_program_20261023"
+      ],
+      "validation_status": "unverified",
+      "business_status": "active",
+      "is_demo": false,
+      "rights_status": "internal_only",
+      "kind": "program",
+      "name": "大宋不夜城·开市迎宾"
+    },
+    {
+      "fact_id": "program_qm_123",
+      "version": 1,
+      "source_ids": [
+        "src_qmsyun_program_20261023"
+      ],
+      "validation_status": "unverified",
+      "business_status": "active",
+      "is_demo": false,
+      "rights_status": "internal_only",
+      "kind": "program",
+      "name": "千人打跳"
+    },
+    {
+      "fact_id": "program_qm_124",
+      "version": 1,
+      "source_ids": [
+        "src_qmsyun_program_20261023"
+      ],
+      "validation_status": "unverified",
+      "business_status": "active",
+      "is_demo": false,
+      "rights_status": "internal_only",
+      "kind": "program",
+      "name": "我在宋朝点霓裳"
+    },
+    {
+      "fact_id": "program_qm_125",
+      "version": 1,
+      "source_ids": [
+        "src_qmsyun_program_20261023"
+      ],
+      "validation_status": "unverified",
+      "business_status": "active",
+      "is_demo": false,
+      "rights_status": "internal_only",
+      "kind": "program",
+      "name": "金莲茶馆那些事儿"
+    },
+    {
+      "fact_id": "program_qm_126",
+      "version": 1,
+      "source_ids": [
+        "src_qmsyun_program_20261023"
+      ],
+      "validation_status": "unverified",
+      "business_status": "active",
+      "is_demo": false,
+      "rights_status": "internal_only",
+      "kind": "program",
+      "name": "鱼灯巡游"
+    },
+    {
+      "fact_id": "program_qm_127",
+      "version": 1,
+      "source_ids": [
+        "src_qmsyun_program_20261023"
+      ],
+      "validation_status": "unverified",
+      "business_status": "active",
+      "is_demo": false,
+      "rights_status": "internal_only",
+      "kind": "program",
+      "name": "大宋拍卖会"
+    },
+    {
+      "fact_id": "program_qm_128",
+      "version": 1,
+      "source_ids": [
+        "src_qmsyun_program_20261023"
+      ],
+      "validation_status": "unverified",
+      "business_status": "active",
+      "is_demo": false,
+      "rights_status": "internal_only",
+      "kind": "program",
+      "name": "国风大巡游"
+    },
+    {
+      "fact_id": "program_qm_129",
+      "version": 1,
+      "source_ids": [
+        "src_qmsyun_program_20261023"
+      ],
+      "validation_status": "unverified",
+      "business_status": "active",
+      "is_demo": false,
+      "rights_status": "internal_only",
+      "kind": "program",
+      "name": "汴梁凤舞"
+    },
+    {
+      "fact_id": "program_qm_130",
+      "version": 1,
+      "source_ids": [
+        "src_qmsyun_program_20261023"
+      ],
+      "validation_status": "unverified",
+      "business_status": "active",
+      "is_demo": false,
+      "rights_status": "internal_only",
+      "kind": "program",
+      "name": "口吐火龙"
+    },
+    {
+      "fact_id": "program_qm_131",
+      "version": 1,
+      "source_ids": [
+        "src_qmsyun_program_20261023"
+      ],
+      "validation_status": "unverified",
+      "business_status": "active",
+      "is_demo": false,
+      "rights_status": "internal_only",
+      "kind": "program",
+      "name": "欢乐宋"
+    },
+    {
+      "fact_id": "program_qm_132",
+      "version": 1,
+      "source_ids": [
+        "src_qmsyun_program_20261023"
+      ],
+      "validation_status": "unverified",
+      "business_status": "active",
+      "is_demo": false,
+      "rights_status": "internal_only",
+      "kind": "program",
+      "name": "月影霓裳"
+    },
+    {
+      "fact_id": "program_qm_133",
+      "version": 1,
+      "source_ids": [
+        "src_qmsyun_program_20261023"
+      ],
+      "validation_status": "unverified",
+      "business_status": "active",
+      "is_demo": false,
+      "rights_status": "internal_only",
+      "kind": "program",
+      "name": "菊美人"
+    },
+    {
+      "fact_id": "program_qm_134",
+      "version": 1,
+      "source_ids": [
+        "src_qmsyun_program_20261023"
+      ],
+      "validation_status": "unverified",
+      "business_status": "active",
+      "is_demo": false,
+      "rights_status": "internal_only",
+      "kind": "program",
+      "name": "大宋·国潮民乐秀"
+    },
+    {
+      "fact_id": "program_qm_135",
+      "version": 1,
+      "source_ids": [
+        "src_qmsyun_program_20261023"
+      ],
+      "validation_status": "unverified",
+      "business_status": "active",
+      "is_demo": false,
+      "rights_status": "internal_only",
+      "kind": "program",
+      "name": "大宋九品官途快闪秀"
+    },
+    {
+      "fact_id": "program_qm_136",
+      "version": 1,
+      "source_ids": [
+        "src_qmsyun_program_20261023"
+      ],
+      "validation_status": "unverified",
+      "business_status": "active",
+      "is_demo": false,
+      "rights_status": "internal_only",
+      "kind": "program",
+      "name": "火裙舞"
+    },
+    {
+      "fact_id": "program_qm_137",
+      "version": 1,
+      "source_ids": [
+        "src_qmsyun_program_20261023"
+      ],
+      "validation_status": "unverified",
+      "business_status": "active",
+      "is_demo": false,
+      "rights_status": "internal_only",
+      "kind": "program",
+      "name": "药发傀儡•盛世焰歌"
+    },
+    {
+      "fact_id": "program_qm_138",
+      "version": 1,
+      "source_ids": [
+        "src_qmsyun_program_20261023"
+      ],
+      "validation_status": "unverified",
+      "business_status": "active",
+      "is_demo": false,
+      "rights_status": "internal_only",
+      "kind": "program",
+      "name": "丝路行歌花车巡游（音乐广场）"
+    },
+    {
+      "fact_id": "program_qm_139",
+      "version": 1,
+      "source_ids": [
+        "src_qmsyun_program_20261023"
+      ],
+      "validation_status": "unverified",
+      "business_status": "active",
+      "is_demo": false,
+      "rights_status": "internal_only",
+      "kind": "program",
+      "name": "大宋绝技"
+    },
+    {
+      "fact_id": "program_qm_140",
+      "version": 1,
+      "source_ids": [
+        "src_qmsyun_program_20261023"
+      ],
+      "validation_status": "unverified",
+      "business_status": "active",
+      "is_demo": false,
+      "rights_status": "internal_only",
+      "kind": "program",
+      "name": "大宋舞王（音乐广场）"
+    },
+    {
+      "fact_id": "program_qm_141",
+      "version": 1,
+      "source_ids": [
+        "src_qmsyun_program_20261023"
+      ],
+      "validation_status": "unverified",
+      "business_status": "active",
+      "is_demo": false,
+      "rights_status": "internal_only",
+      "kind": "program",
+      "name": "杨志卖刀"
+    },
+    {
+      "fact_id": "program_qm_142",
+      "version": 1,
+      "source_ids": [
+        "src_qmsyun_program_20261023"
+      ],
+      "validation_status": "unverified",
+      "business_status": "active",
+      "is_demo": false,
+      "rights_status": "internal_only",
+      "kind": "program",
+      "name": "大宋歌王（音乐广场）"
+    },
+    {
+      "fact_id": "program_qm_143",
+      "version": 1,
+      "source_ids": [
+        "src_qmsyun_program_20261023"
+      ],
+      "validation_status": "unverified",
+      "business_status": "active",
+      "is_demo": false,
+      "rights_status": "internal_only",
+      "kind": "program",
+      "name": "铁花庆归航"
+    },
+    {
+      "fact_id": "program_qm_144",
+      "version": 1,
+      "source_ids": [
+        "src_qmsyun_program_20261023"
+      ],
+      "validation_status": "unverified",
+      "business_status": "active",
+      "is_demo": false,
+      "rights_status": "internal_only",
+      "kind": "program",
+      "name": "宋潮朋友圈音乐派对"
+    },
+    {
+      "fact_id": "program_qm_145",
+      "version": 1,
+      "source_ids": [
+        "src_qmsyun_program_20261023"
+      ],
+      "validation_status": "unverified",
+      "business_status": "active",
+      "is_demo": false,
+      "rights_status": "internal_only",
+      "kind": "program",
+      "name": "凤舞九天飞天秀"
+    },
+    {
+      "fact_id": "program_qm_146",
+      "version": 1,
+      "source_ids": [
+        "src_qmsyun_program_20261023"
+      ],
+      "validation_status": "unverified",
+      "business_status": "active",
+      "is_demo": false,
+      "rights_status": "internal_only",
+      "kind": "program",
+      "name": "王小姐抛绣球"
+    },
+    {
+      "fact_id": "program_qm_147",
+      "version": 1,
+      "source_ids": [
+        "src_qmsyun_program_20261023"
+      ],
+      "validation_status": "unverified",
+      "business_status": "active",
+      "is_demo": false,
+      "rights_status": "internal_only",
+      "kind": "program",
+      "name": "飞马送福"
+    },
+    {
+      "fact_id": "program_qm_148",
+      "version": 1,
+      "source_ids": [
+        "src_qmsyun_program_20261023"
+      ],
+      "validation_status": "unverified",
+      "business_status": "active",
+      "is_demo": false,
+      "rights_status": "internal_only",
+      "kind": "program",
+      "name": "打铁花之盛世大宋"
+    },
+    {
+      "fact_id": "program_qm_149",
+      "version": 1,
+      "source_ids": [
+        "src_qmsyun_program_20261023"
+      ],
+      "validation_status": "unverified",
+      "business_status": "active",
+      "is_demo": false,
+      "rights_status": "internal_only",
+      "kind": "program",
+      "name": "菊舞千年实景威亚秀"
+    },
+    {
+      "fact_id": "program_qm_150",
+      "version": 1,
+      "source_ids": [
+        "src_qmsyun_program_20261023"
+      ],
+      "validation_status": "unverified",
+      "business_status": "active",
+      "is_demo": false,
+      "rights_status": "internal_only",
+      "kind": "program",
+      "name": "岳飞·郾城大捷"
+    },
+    {
+      "fact_id": "program_qm_151",
+      "version": 1,
+      "source_ids": [
+        "src_qmsyun_program_20261023"
+      ],
+      "validation_status": "unverified",
+      "business_status": "active",
+      "is_demo": false,
+      "rights_status": "internal_only",
+      "kind": "program",
+      "name": "大宋市井狂欢秀"
+    },
+    {
+      "fact_id": "program_qm_152",
+      "version": 1,
+      "source_ids": [
+        "src_qmsyun_program_20261023"
+      ],
+      "validation_status": "unverified",
+      "business_status": "active",
+      "is_demo": false,
+      "rights_status": "internal_only",
+      "kind": "program",
+      "name": "凤舞九天实景威亚秀"
+    },
+    {
+      "fact_id": "program_qm_153",
+      "version": 1,
+      "source_ids": [
+        "src_qmsyun_program_20261023"
+      ],
+      "validation_status": "unverified",
+      "business_status": "active",
+      "is_demo": false,
+      "rights_status": "internal_only",
+      "kind": "program",
+      "name": "《千里共婵娟》答谢仪式"
+    },
+    {
+      "fact_id": "program_qm_154",
+      "version": 1,
+      "source_ids": [
+        "src_qmsyun_program_20261023"
+      ],
+      "validation_status": "unverified",
+      "business_status": "active",
+      "is_demo": false,
+      "rights_status": "internal_only",
+      "kind": "program",
+      "name": "大宋·东京梦华"
+    },
+    {
+      "fact_id": "food_xiaolong_guantangbao",
+      "version": 1,
+      "source_ids": [
+        "src_diyilou_mingcai_20261023",
+        "src_kaifeng_gov_diyilou_20261023"
+      ],
+      "validation_status": "unverified",
+      "business_status": "active",
+      "is_demo": false,
+      "rights_status": "internal_only",
+      "kind": "food",
+      "name": "小笼灌汤包子"
+    },
+    {
+      "fact_id": "food_huanghe_liyu_beimian",
+      "version": 1,
+      "source_ids": [
+        "src_diyilou_mingcai_20261023"
+      ],
+      "validation_status": "unverified",
+      "business_status": "active",
+      "is_demo": false,
+      "rights_status": "internal_only",
+      "kind": "food",
+      "name": "黄河鲤鱼焙面"
+    },
+    {
+      "fact_id": "food_tongziji",
+      "version": 1,
+      "source_ids": [
+        "src_diyilou_mingcai_20261023"
+      ],
+      "validation_status": "unverified",
+      "business_status": "active",
+      "is_demo": false,
+      "rights_status": "internal_only",
+      "kind": "food",
+      "name": "桶子鸡"
+    },
+    {
+      "fact_id": "food_hongshuni",
+      "version": 1,
+      "source_ids": [
+        "src_diyilou_mingcai_20261023"
+      ],
+      "validation_status": "unverified",
+      "business_status": "active",
+      "is_demo": false,
+      "rights_status": "internal_only",
+      "kind": "food",
+      "name": "红薯泥"
+    }
+  ]
+}

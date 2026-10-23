@@ -1,0 +1,37 @@
+{
+  "schema_version": "kaifeng-maintenance/1",
+  "generated_at": "2026-10-23T19:03:02+08:00",
+  "assigned_owner": null,
+  "proposed_owner": "项目数据维护者（待指定）",
+  "assigned": false,
+  "update_cadence": [
+    {
+      "scope": "景区/商家营业与票务规则",
+      "frequency": "每 7 天，出发前 24 小时复核",
+      "trigger": "公告、节假日、临时闭园"
+    },
+    {
+      "scope": "演出与取消状态",
+      "frequency": "目标演出日前 24 小时及当天开演前复核",
+      "trigger": "天气、临时停演、加场"
+    },
+    {
+      "scope": "道路与入口",
+      "frequency": "每次正式走查前复核",
+      "trigger": "施工、封路、临时入口调整"
+    },
+    {
+      "scope": "来源有效性与权限",
+      "frequency": "每月",
+      "trigger": "版权/页面下线/数据更新"
+    }
+  ],
+  "owner_fields": [
+    "姓名/岗位",
+    "复核范围",
+    "有效日期",
+    "复核证据位置"
+  ],
+  "status": "not_assigned",
+  "note": "没有真实负责人，不能写已验证的更新责任链"
+}

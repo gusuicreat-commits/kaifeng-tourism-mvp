@@ -1,0 +1,43 @@
+import {mutate,request} from './api'
+
+export interface CityStop {
+ stop_id:string;place_id:string;kind:'visit'|'show'|'dining'|'rest'|'return';session_id:string|null;scenic_id?:string|null
+ locked:boolean;duration_seconds:number|null;progress:'pending'|'completed'|'skipped'
+ actual_start:string|null;actual_end:string|null;window_start?:string|null;window_end?:string|null;evidence_refs?:string[]
+}
+export interface CityDraft {
+ pace?:'relaxed'|'standard'|'compact';objective?:'balanced'|'less_walking'|'less_waiting'|'lower_cost'
+ business_date:string|null;starts_at:string|null;ends_at:string|null;origin_place_id:string|null;destination_place_id:string|null
+ interests:('show'|'photo'|'food'|'culture')[];dish_interest_ids:string[];modes:('walking'|'driving'|'transit')[];stops:CityStop[]
+}
+export interface CityTripState {
+ id:string;schema_version:'city-state/1';status:'DRAFT'|'ACTIVE'|'PAUSED'|'COMPLETED'|'CANCELLED'|'ARCHIVED'
+ draft:CityDraft;anchor:{place_id:string;confirmed_at:string;source:'manual_known_place'}|null
+ version:number;route_version:number;updated_at:string
+ readiness:{missing_fields:string[];issues:{code:string;stop_id?:string}[];planning_available:false;notice:string}
+}
+export interface CatalogItem {
+ record:{kind:string;fact_id:string;name?:string;place_type?:string;stage_place_id?:string;program_id?:string;starts_at?:string;ends_at?:string|null;
+  entrance_place_id?:string;direction?:string;parent_place_id?:string|null;address?:string|null;longitude?:number|null;latitude?:number|null;coordinate_system?:string;business_date?:string;
+  food_id?:string;vendor_id?:string;place_id?:string;opens_at?:string|null;closes_at?:string|null;source_ids?:string[];url?:string;
+  validation_status?:string;business_status?:string;is_demo?:boolean;effective_to?:string|null;verified_at?:string|null}
+ ready:boolean;issues:string[]
+}
+export type CityAction = {operation:'save_draft';draft:CityDraft}|{operation:'set_anchor';anchor:{place_id:string;confirmed_at:string}}
+ |{operation:'mark_completed';stop_id:string;actual_start:string;actual_end:string}|{operation:'skip_stop';stop_id:string}
+ |{operation:'transition';status:CityTripState['status']}
+export type CityProposal = {status:'needs_confirmation';proposal_id:string;important_change:boolean;expires_at:string;impacts:string[]}
+ |{status:'proposal_cleared';message:string}
+export const emptyCityDraft=():CityDraft=>({business_date:null,starts_at:null,ends_at:null,origin_place_id:null,
+ destination_place_id:null,interests:[],dish_interest_ids:[],modes:['walking'],stops:[]})
+export const cityApi={
+ facts:()=>request<{items:CatalogItem[]}>('/city/v1/facts',{},5000),
+ current:()=>request<{trip:CityTripState|null}>('/city/v1/trips/current',{},5000),
+ list:()=>request<{items:CityTripState[]}>('/city/v1/trips'),
+ get:(id:string)=>request<CityTripState>('/city/v1/trips/'+encodeURIComponent(id)),
+ activate:(id:string)=>mutate<CityTripState>('/city/v1/trips/'+encodeURIComponent(id)+'/activate'),
+ create:(draft:CityDraft)=>mutate<CityTripState>('/city/v1/trips',{draft}),
+ update:(t:CityTripState,action:CityAction)=>mutate<CityTripState>(`/city/v1/trips/${t.id}`,{expected_version:t.version,action},'PATCH'),
+ propose:(t:CityTripState,action:CityAction)=>mutate<CityProposal>(`/city/v1/trips/${t.id}/changes`,{expected_version:t.version,action}),
+ confirm:(t:CityTripState,proposal_id:string)=>mutate<CityTripState>(`/city/v1/trips/${t.id}/confirm`,{expected_version:t.version,proposal_id})
+}
