@@ -1,0 +1,59 @@
+{
+  "objective": "首条真实路线目标日证据补采：开封府、第一楼寺后街总店、鼓楼夜市的公开页面与地点页。仅保存原始响应，字段是否可用另行人工核验。",
+  "category": "route_acceptance",
+  "scope_district": "鼓楼区",
+  "priority": "high",
+  "include_outside": false,
+  "fetch": [
+    {
+      "url": "https://www.ctsb.com.cn/wap/SceneryShow?ID=15",
+      "source_key": "src_route_live_ctsb_kaifengfu",
+      "register_as": "开封府公开旅游页面（路线补采）",
+      "source_type": "other",
+      "access_kind": "platform",
+      "notes": "公开旅游页面；只作当前开放信息线索，不自动证明2026-10-25夜游规则。"
+    },
+    {
+      "url": "https://www.gulou.gov.cn/kfsglqwz/c00173/pc/content/content_1889528282980225024.html",
+      "source_key": "src_route_live_gulou_official",
+      "register_as": "开封市鼓楼夜市（鼓楼区人民政府，路线补采）",
+      "source_type": "official",
+      "publisher": "鼓楼区人民政府",
+      "access_kind": "official_site",
+      "notes": "官方历史与管理页面；只作夜市身份/管理线索，不自动证明目标日营业时段。"
+    },
+    {
+      "url": "https://ditu.amap.com/place/B017A007A3",
+      "source_key": "src_route_live_amap_kaifengfu",
+      "register_as": "高德地点页：开封府（路线补采）",
+      "source_type": "map_service",
+      "access_kind": "map_service",
+      "notes": "地点实体与坐标线索；坐标系、入口方向和路线适用性仍需项目核验。"
+    },
+    {
+      "url": "https://ditu.amap.com/place/B017A0N05A",
+      "source_key": "src_route_live_amap_gulou",
+      "register_as": "高德地点页：鼓楼夜市（路线补采）",
+      "source_type": "map_service",
+      "access_kind": "map_service",
+      "notes": "地点实体与坐标线索；地图服务坐标不能单独证明实际入口或目标日营业。"
+    },
+    {
+      "url": "https://www.amap.com/place/B017A00HWY",
+      "source_key": "src_route_live_amap_first_floor",
+      "register_as": "高德地点页：第一楼寺后街总店（路线补采）",
+      "source_type": "map_service",
+      "access_kind": "map_service",
+      "notes": "地点实体线索；不能单独证明当前营业或灌汤包供应。"
+    },
+    {
+      "url": "https://4travel.jp/os_shisetsu/10453016",
+      "source_key": "src_route_live_4travel_first_floor",
+      "register_as": "第一楼寺后街店第三方营业信息（路线补采）",
+      "source_type": "other",
+      "access_kind": "platform",
+      "notes": "第三方营业信息；可能过期，只作冲突核验线索。"
+    }
+  ],
+  "extract": []
+}

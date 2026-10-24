@@ -1,0 +1,36 @@
+{
+  "objective": "首条路线经营者与权威来源正文补采；只归档来源，不自动抽取或提升事实核验状态。",
+  "category": "mixed",
+  "scope_district": "鼓楼区",
+  "priority": "high",
+  "fetch": [
+    {
+      "url": "http://www.kaifengfu.cn/contact/goupiao.asp",
+      "source_key": "src_route_primary_kaifengfu_booking",
+      "register_as": "开封府预约购票页（原始正文）",
+      "source_type": "operator",
+      "publisher": "开封府",
+      "access_kind": "official_site",
+      "notes": "重点区分开售、入园及闭园，不从抓取日推断目标业务日。"
+    },
+    {
+      "url": "http://www.kfdyl.com/home/",
+      "source_key": "src_route_primary_first_floor_operator",
+      "register_as": "开封第一楼经营者首页（原始正文）",
+      "source_type": "operator",
+      "publisher": "开封第一楼有限责任公司",
+      "access_kind": "official_site",
+      "notes": "门店地址、订餐联系方式及品牌菜品线索，不证明当前营业或分店当日库存。"
+    },
+    {
+      "url": "https://zhlzh.mofcom.gov.cn/news/entp_view/5320",
+      "source_key": "src_route_primary_first_floor_mofcom",
+      "register_as": "商务部中华老字号第一楼展示页（原始正文）",
+      "source_type": "official",
+      "publisher": "商务部中华老字号信息管理系统",
+      "access_kind": "official_site",
+      "notes": "企业/品牌身份线索，不当作分店目标日营业或供应证明。"
+    }
+  ],
+  "extract": []
+}

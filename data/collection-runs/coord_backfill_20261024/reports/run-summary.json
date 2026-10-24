@@ -1,0 +1,20 @@
+{
+  "run_id": "coord_backfill_20261024",
+  "run_dir": "data/collection-runs/coord_backfill_20261024",
+  "records": 48,
+  "duplicates": 0,
+  "conflicts": 0,
+  "review_tasks_created": 15,
+  "failures": 0,
+  "bundle_path": "data/collection-runs/coord_backfill_20261024/bundle/city-facts-candidate.json",
+  "dry_run": {
+    "status": "dry_run",
+    "received": 70,
+    "changed": 70
+  },
+  "quality_report": "data/collection-runs/coord_backfill_20261024/reports/quality-report-2026-10-24.md",
+  "coordinate_systems": {
+    "GCJ02": 3,
+    "unknown": 45
+  }
+}

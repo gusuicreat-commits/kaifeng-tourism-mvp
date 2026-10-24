@@ -1,0 +1,582 @@
+{
+  "records": [
+    {
+      "record_id": "pl_wb_000001",
+      "category": "scenic",
+      "name": "清明上河园",
+      "district": "龙亭区",
+      "source_keys": [
+        "src_teamworkbook_places",
+        "src_wb_src_000004"
+      ],
+      "parent_record_id": null,
+      "place_type": "scenic",
+      "address": "河南省开封市龙亭西路5号",
+      "longitude": null,
+      "latitude": null,
+      "coordinate_system": "unknown",
+      "business_date": null,
+      "opens_at": null,
+      "closes_at": null,
+      "last_entry_at": null,
+      "evidence_note": null,
+      "evidence_quotes": {
+        "address": "河南省开封市龙亭西路5号",
+        "description": "国家5A级旅游景区，以《清明上河图》为蓝本1:1复原的大型宋代历史文化主题公园，占地超过540亩。"
+      },
+      "conflicts": [],
+      "spatial_status": "inside",
+      "spatial_reason": "declared_district:longting",
+      "review_items": [
+        "景区坐标缺失，本地来源无候选"
+      ],
+      "raw_path": null,
+      "entrance_direction": null,
+      "place_id": null,
+      "reentry": null,
+      "reservation": null,
+      "ticket_scope": null
+    },
+    {
+      "record_id": "pl_wb_000002",
+      "category": "scenic",
+      "name": "万岁山武侠城",
+      "district": "龙亭区",
+      "source_keys": [
+        "src_teamworkbook_places",
+        "src_wb_src_000010"
+      ],
+      "parent_record_id": null,
+      "place_type": "scenic",
+      "address": "河南省开封市龙亭区东京大道中段",
+      "longitude": null,
+      "latitude": null,
+      "coordinate_system": "unknown",
+      "business_date": null,
+      "opens_at": null,
+      "closes_at": null,
+      "last_entry_at": null,
+      "evidence_note": null,
+      "evidence_quotes": {
+        "address": "河南省开封市龙亭区东京大道中段",
+        "description": "以武侠文化为核心的景区，包含江湖狂欢艺术区、武侠影视街区、山水田园区、仙侠奇境区、水浒区、十里洋场区等主题区。"
+      },
+      "conflicts": [],
+      "spatial_status": "inside",
+      "spatial_reason": "address_district:longting",
+      "review_items": [
+        "景区坐标缺失，本地来源无候选"
+      ],
+      "raw_path": null,
+      "entrance_direction": null,
+      "place_id": null,
+      "reentry": null,
+      "reservation": null,
+      "ticket_scope": null
+    },
+    {
+      "record_id": "pl_wb_000003",
+      "category": "scenic",
+      "name": "开封府",
+      "district": "鼓楼区",
+      "source_keys": [
+        "src_teamworkbook_places",
+        "src_wb_src_000015"
+      ],
+      "parent_record_id": null,
+      "place_type": "scenic",
+      "address": "河南省开封市鼓楼区包公东湖北岸",
+      "longitude": null,
+      "latitude": null,
+      "coordinate_system": "unknown",
+      "business_date": null,
+      "opens_at": null,
+      "closes_at": null,
+      "last_entry_at": null,
+      "evidence_note": null,
+      "evidence_quotes": {
+        "address": "河南省开封市鼓楼区包公东湖北岸",
+        "description": "国家4A级旅游景区，北宋管理国都及京畿地区的重要机构复原，被誉为“天下首府”。"
+      },
+      "conflicts": [],
+      "spatial_status": "inside",
+      "spatial_reason": "address_district:gulou",
+      "review_items": [
+        "景区坐标缺失，本地来源无候选"
+      ],
+      "raw_path": null,
+      "entrance_direction": null,
+      "place_id": null,
+      "reentry": null,
+      "reservation": null,
+      "ticket_scope": null
+    },
+    {
+      "record_id": "pl_wb_000004",
+      "category": "scenic",
+      "name": "龙亭景区",
+      "district": "待核验",
+      "source_keys": [
+        "src_teamworkbook_places",
+        "src_wb_src_000019"
+      ],
+      "parent_record_id": null,
+      "place_type": "scenic",
+      "address": "开封市宋都御街北段",
+      "longitude": null,
+      "latitude": null,
+      "coordinate_system": "unknown",
+      "business_date": null,
+      "opens_at": null,
+      "closes_at": null,
+      "last_entry_at": null,
+      "evidence_note": null,
+      "evidence_quotes": {
+        "address": "开封市宋都御街北段",
+        "description": "国家AAAA级旅游景区，集皇家园林、历史文物和秀美风光于一体，历史上曾是六个朝代的皇宫所在地，距今1200多年。"
+      },
+      "conflicts": [],
+      "spatial_status": "pending",
+      "spatial_reason": "no_coords_no_district_hint",
+      "review_items": [
+        "地址未声明城区，且无坐标可做粗判定，城区归属待核验",
+        "景区坐标缺失，本地来源无候选",
+        "空间归属待核验：no_coords_no_district_hint"
+      ],
+      "raw_path": null,
+      "entrance_direction": null,
+      "place_id": null,
+      "reentry": null,
+      "reservation": null,
+      "ticket_scope": null
+    },
+    {
+      "record_id": "pl_wb_000005",
+      "category": "scenic",
+      "name": "大相国寺",
+      "district": "鼓楼区",
+      "source_keys": [
+        "src_teamworkbook_places",
+        "src_wb_src_000023"
+      ],
+      "parent_record_id": null,
+      "place_type": "scenic",
+      "address": "河南省开封市鼓楼区自由路西段36号",
+      "longitude": null,
+      "latitude": null,
+      "coordinate_system": "unknown",
+      "business_date": null,
+      "opens_at": null,
+      "closes_at": null,
+      "last_entry_at": null,
+      "evidence_note": null,
+      "evidence_quotes": {
+        "address": "河南省开封市鼓楼区自由路西段36号",
+        "description": "中国汉传佛教十大名寺之一，国家4A级旅游景区，始建于北齐天保六年（555年），北宋时期为皇家寺院。"
+      },
+      "conflicts": [],
+      "spatial_status": "inside",
+      "spatial_reason": "address_district:gulou",
+      "review_items": [
+        "景区坐标缺失，本地来源无候选",
+        "工作簿标记 pending_review，字段存在未裁定冲突"
+      ],
+      "raw_path": null,
+      "entrance_direction": null,
+      "place_id": null,
+      "reentry": null,
+      "reservation": null,
+      "ticket_scope": null
+    },
+    {
+      "record_id": "pl_wb_000006",
+      "category": "scenic",
+      "name": "铁塔景区",
+      "district": "顺河回族区",
+      "source_keys": [
+        "src_teamworkbook_places",
+        "src_wb_src_000026"
+      ],
+      "parent_record_id": null,
+      "place_type": "scenic",
+      "address": "河南省开封市顺河回族区北门大街210号",
+      "longitude": null,
+      "latitude": null,
+      "coordinate_system": "unknown",
+      "business_date": null,
+      "opens_at": null,
+      "closes_at": null,
+      "last_entry_at": null,
+      "evidence_note": null,
+      "evidence_quotes": {
+        "address": "河南省开封市顺河回族区北门大街210号",
+        "description": "国家4A级旅游景区，以现存铁塔（开宝寺塔）为核心的名胜古迹公园；铁塔为全国重点文物保护单位，高55.08米、八角十三层。"
+      },
+      "conflicts": [],
+      "spatial_status": "inside",
+      "spatial_reason": "address_district:shunhe",
+      "review_items": [
+        "景区坐标缺失，本地来源无候选",
+        "工作簿标记 pending_review，字段存在未裁定冲突"
+      ],
+      "raw_path": null,
+      "entrance_direction": null,
+      "place_id": null,
+      "reentry": null,
+      "reservation": null,
+      "ticket_scope": null
+    },
+    {
+      "record_id": "pl_wb_000007",
+      "category": "scenic",
+      "name": "中国翰园碑林",
+      "district": "龙亭区",
+      "source_keys": [
+        "src_teamworkbook_places",
+        "src_wb_src_000030"
+      ],
+      "parent_record_id": null,
+      "place_type": "scenic",
+      "address": "河南省开封市龙亭区龙亭北路15号",
+      "longitude": null,
+      "latitude": null,
+      "coordinate_system": "unknown",
+      "business_date": null,
+      "opens_at": null,
+      "closes_at": null,
+      "last_entry_at": null,
+      "evidence_note": null,
+      "evidence_quotes": {
+        "address": "河南省开封市龙亭区龙亭北路15号",
+        "description": "国家4A级旅游景区，集书画碑刻艺术与古典园林建筑于一体的文化园林，占地120亩，刻碑4000多块。"
+      },
+      "conflicts": [],
+      "spatial_status": "inside",
+      "spatial_reason": "address_district:longting",
+      "review_items": [
+        "景区坐标缺失，本地来源无候选"
+      ],
+      "raw_path": null,
+      "entrance_direction": null,
+      "place_id": null,
+      "reentry": null,
+      "reservation": null,
+      "ticket_scope": null
+    },
+    {
+      "record_id": "pl_wb_000008",
+      "category": "scenic",
+      "name": "包公祠",
+      "district": "鼓楼区",
+      "source_keys": [
+        "src_teamworkbook_places",
+        "src_wb_src_000032"
+      ],
+      "parent_record_id": null,
+      "place_type": "scenic",
+      "address": "河南省开封市鼓楼区向阳路1号",
+      "longitude": null,
+      "latitude": null,
+      "coordinate_system": "unknown",
+      "business_date": null,
+      "opens_at": null,
+      "closes_at": null,
+      "last_entry_at": null,
+      "evidence_note": null,
+      "evidence_quotes": {
+        "address": "河南省开封市鼓楼区向阳路1号",
+        "description": "国家4A级旅游景区，纪念北宋名臣包拯的祠堂，位于包公湖西畔，占地1公顷多，由大殿、二殿、东西配殿、半壁廊、碑亭组成。"
+      },
+      "conflicts": [],
+      "spatial_status": "inside",
+      "spatial_reason": "address_district:gulou",
+      "review_items": [
+        "景区坐标缺失，本地来源无候选"
+      ],
+      "raw_path": null,
+      "entrance_direction": null,
+      "place_id": null,
+      "reentry": null,
+      "reservation": null,
+      "ticket_scope": null
+    },
+    {
+      "record_id": "pl_wb_000009",
+      "category": "scenic",
+      "name": "天波杨府",
+      "district": "龙亭区",
+      "source_keys": [
+        "src_teamworkbook_places",
+        "src_wb_src_000035"
+      ],
+      "parent_record_id": null,
+      "place_type": "scenic",
+      "address": "河南省开封市龙亭区龙亭北路14号",
+      "longitude": null,
+      "latitude": null,
+      "coordinate_system": "unknown",
+      "business_date": null,
+      "opens_at": null,
+      "closes_at": null,
+      "last_entry_at": null,
+      "evidence_note": null,
+      "evidence_quotes": {
+        "address": "河南省开封市龙亭区龙亭北路14号",
+        "description": "北宋抗辽名将杨业府邸的仿宋重建建筑群，国家4A级旅游景区，由中院府衙、西院花园、东院演兵场组成。"
+      },
+      "conflicts": [],
+      "spatial_status": "inside",
+      "spatial_reason": "address_district:longting",
+      "review_items": [
+        "景区坐标缺失，本地来源无候选",
+        "工作簿标记 pending_review，字段存在未裁定冲突"
+      ],
+      "raw_path": null,
+      "entrance_direction": null,
+      "place_id": null,
+      "reentry": null,
+      "reservation": null,
+      "ticket_scope": null
+    },
+    {
+      "record_id": "pl_wb_000010",
+      "category": "scenic",
+      "name": "开封城墙",
+      "district": "龙亭区",
+      "source_keys": [
+        "src_teamworkbook_places",
+        "src_wb_src_000038"
+      ],
+      "parent_record_id": null,
+      "place_type": "scenic",
+      "address": "河南省开封市龙亭区大梁路与内顺城路交叉口",
+      "longitude": null,
+      "latitude": null,
+      "coordinate_system": "unknown",
+      "business_date": null,
+      "opens_at": null,
+      "closes_at": null,
+      "last_entry_at": null,
+      "evidence_note": null,
+      "evidence_quotes": {
+        "address": "河南省开封市龙亭区大梁路与内顺城路交叉口",
+        "description": "全国重点文物保护单位，开封城墙景区开放大梁门至安远门段，含古马道遗址、大梁门、玻璃栈道等。"
+      },
+      "conflicts": [],
+      "spatial_status": "inside",
+      "spatial_reason": "address_district:longting",
+      "review_items": [
+        "景区坐标缺失，本地来源无候选"
+      ],
+      "raw_path": null,
+      "entrance_direction": null,
+      "place_id": null,
+      "reentry": null,
+      "reservation": null,
+      "ticket_scope": null
+    },
+    {
+      "record_id": "pl_wb_000011",
+      "category": "scenic",
+      "name": "山陕甘会馆",
+      "district": "龙亭区",
+      "source_keys": [
+        "src_teamworkbook_places",
+        "src_wb_src_000040"
+      ],
+      "parent_record_id": null,
+      "place_type": "scenic",
+      "address": "河南省开封市龙亭区徐府街85号",
+      "longitude": null,
+      "latitude": null,
+      "coordinate_system": "unknown",
+      "business_date": null,
+      "opens_at": null,
+      "closes_at": null,
+      "last_entry_at": null,
+      "evidence_note": null,
+      "evidence_quotes": {
+        "address": "河南省开封市龙亭区徐府街85号",
+        "description": "全国重点文物保护单位，清代晋陕甘三省商帮会馆，以砖、石、木雕“三绝”著称，现存照壁、戏楼、牌楼、正殿等。"
+      },
+      "conflicts": [],
+      "spatial_status": "inside",
+      "spatial_reason": "address_district:longting",
+      "review_items": [
+        "跨命名空间潜在重复：与 place_shanshangan_museum（开封市艺术博物馆（山陕甘会馆），run_1d70ae0fdd19）名称互相包含，需人工裁定是否同一地点",
+        "景区坐标缺失，本地来源无候选"
+      ],
+      "raw_path": null,
+      "entrance_direction": null,
+      "place_id": null,
+      "reentry": null,
+      "reservation": null,
+      "ticket_scope": null
+    },
+    {
+      "record_id": "pl_wb_000012",
+      "category": "scenic",
+      "name": "延庆观",
+      "district": "鼓楼区",
+      "source_keys": [
+        "src_teamworkbook_places",
+        "src_wb_src_000044"
+      ],
+      "parent_record_id": null,
+      "place_type": "scenic",
+      "address": "河南省开封市鼓楼区观前街53号",
+      "longitude": null,
+      "latitude": null,
+      "coordinate_system": "unknown",
+      "business_date": null,
+      "opens_at": null,
+      "closes_at": null,
+      "last_entry_at": null,
+      "evidence_note": null,
+      "evidence_quotes": {
+        "address": "河南省开封市鼓楼区观前街53号",
+        "description": "全国重点文物保护单位，元代玉皇阁为开封现存唯一元代建筑，与北京白云观、四川常道观并称中国三大名观。"
+      },
+      "conflicts": [],
+      "spatial_status": "inside",
+      "spatial_reason": "address_district:gulou",
+      "review_items": [
+        "景区坐标缺失，本地来源无候选",
+        "工作簿标记 pending_review，字段存在未裁定冲突"
+      ],
+      "raw_path": null,
+      "entrance_direction": null,
+      "place_id": null,
+      "reentry": null,
+      "reservation": null,
+      "ticket_scope": null
+    }
+  ],
+  "duplicates": [],
+  "conflicts": [],
+  "spatial": {
+    "inside": 11,
+    "pending": 1,
+    "outside": 0,
+    "with_coordinates": 0,
+    "coordinate_systems": {
+      "unknown": 12
+    }
+  },
+  "review_tasks": [
+    {
+      "record_id": "pl_wb_000001",
+      "name": "清明上河园",
+      "category": "scenic",
+      "check_item": "景区坐标缺失，本地来源无候选"
+    },
+    {
+      "record_id": "pl_wb_000002",
+      "name": "万岁山武侠城",
+      "category": "scenic",
+      "check_item": "景区坐标缺失，本地来源无候选"
+    },
+    {
+      "record_id": "pl_wb_000003",
+      "name": "开封府",
+      "category": "scenic",
+      "check_item": "景区坐标缺失，本地来源无候选"
+    },
+    {
+      "record_id": "pl_wb_000004",
+      "name": "龙亭景区",
+      "category": "scenic",
+      "check_item": "地址未声明城区，且无坐标可做粗判定，城区归属待核验"
+    },
+    {
+      "record_id": "pl_wb_000004",
+      "name": "龙亭景区",
+      "category": "scenic",
+      "check_item": "景区坐标缺失，本地来源无候选"
+    },
+    {
+      "record_id": "pl_wb_000004",
+      "name": "龙亭景区",
+      "category": "scenic",
+      "check_item": "空间归属待核验：no_coords_no_district_hint"
+    },
+    {
+      "record_id": "pl_wb_000005",
+      "name": "大相国寺",
+      "category": "scenic",
+      "check_item": "景区坐标缺失，本地来源无候选"
+    },
+    {
+      "record_id": "pl_wb_000005",
+      "name": "大相国寺",
+      "category": "scenic",
+      "check_item": "工作簿标记 pending_review，字段存在未裁定冲突"
+    },
+    {
+      "record_id": "pl_wb_000006",
+      "name": "铁塔景区",
+      "category": "scenic",
+      "check_item": "景区坐标缺失，本地来源无候选"
+    },
+    {
+      "record_id": "pl_wb_000006",
+      "name": "铁塔景区",
+      "category": "scenic",
+      "check_item": "工作簿标记 pending_review，字段存在未裁定冲突"
+    },
+    {
+      "record_id": "pl_wb_000007",
+      "name": "中国翰园碑林",
+      "category": "scenic",
+      "check_item": "景区坐标缺失，本地来源无候选"
+    },
+    {
+      "record_id": "pl_wb_000008",
+      "name": "包公祠",
+      "category": "scenic",
+      "check_item": "景区坐标缺失，本地来源无候选"
+    },
+    {
+      "record_id": "pl_wb_000009",
+      "name": "天波杨府",
+      "category": "scenic",
+      "check_item": "景区坐标缺失，本地来源无候选"
+    },
+    {
+      "record_id": "pl_wb_000009",
+      "name": "天波杨府",
+      "category": "scenic",
+      "check_item": "工作簿标记 pending_review，字段存在未裁定冲突"
+    },
+    {
+      "record_id": "pl_wb_000010",
+      "name": "开封城墙",
+      "category": "scenic",
+      "check_item": "景区坐标缺失，本地来源无候选"
+    },
+    {
+      "record_id": "pl_wb_000011",
+      "name": "山陕甘会馆",
+      "category": "scenic",
+      "check_item": "跨命名空间潜在重复：与 place_shanshangan_museum（开封市艺术博物馆（山陕甘会馆），run_1d70ae0fdd19）名称互相包含，需人工裁定是否同一地点"
+    },
+    {
+      "record_id": "pl_wb_000011",
+      "name": "山陕甘会馆",
+      "category": "scenic",
+      "check_item": "景区坐标缺失，本地来源无候选"
+    },
+    {
+      "record_id": "pl_wb_000012",
+      "name": "延庆观",
+      "category": "scenic",
+      "check_item": "景区坐标缺失，本地来源无候选"
+    },
+    {
+      "record_id": "pl_wb_000012",
+      "name": "延庆观",
+      "category": "scenic",
+      "check_item": "工作簿标记 pending_review，字段存在未裁定冲突"
+    }
+  ]
+}

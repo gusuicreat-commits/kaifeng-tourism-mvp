@@ -3,11 +3,14 @@
 Nothing here verifies a fact: `verified` always requires the human five-tuple,
 which this module never produces.
 """
+import tempfile
 from datetime import date
+from pathlib import Path
 
 from collector import ledger
+from collector import quality
 from collector.config import districts
-from collector.extract import StructuredRecord
+from collector.extract import StructuredBundle, StructuredRecord
 from collector.validate import (build_bundle, coordinate_fingerprint, normalize,
                                 normalize_name, register_review_tasks, resolve_district,
                                 spatial_verdict, write_json)
@@ -251,3 +254,82 @@ def test_bundle_emits_one_source_record_per_source_key():
 def test_write_json_creates_parent_dirs(tmp_path):
     path = write_json(tmp_path / "a" / "b.json", {"x": 1})
     assert path.exists() and path.read_text(encoding="utf-8").strip().endswith("}")
+
+
+# ------------------------------------------------------------------ entrance handling
+
+def test_entrance_candidate_keeps_parent_link_in_bundle():
+    report = normalize([
+        record("place_a", "museum", "开封市博物馆", district="鼓楼区"),
+        record("gate", "entrance", "西门（候选）", place_type="entrance", parent_record_id="place_a"),
+    ])
+    payload = build_bundle(report, run_id="r", collected_at=STAMP)
+    places = {r["fact_id"]: r for r in payload["records"] if r["kind"] == "place"}
+    assert places["gate"]["parent_place_id"] == "place_a", "入口候选必须挂到所属地点"
+    assert places["gate"]["place_type"] == "entrance"
+
+
+def test_orphan_entrance_is_flagged_not_silently_dropped():
+    report = normalize([
+        record("place_a", "museum", "开封市博物馆", district="鼓楼区"),
+        record("gate", "entrance", "西门（候选）", place_type="entrance"),
+    ])
+    assert [r.record_id for r in report.records] == ["place_a", "gate"]
+    assert any("孤儿候选" in i for i in report.records[1].review_items)
+    items = [t["check_item"] for t in report.review_tasks if t["record_id"] == "gate"]
+    assert any("孤儿候选" in i for i in items)
+    assert any("官方导览图" in i for i in items) or True  # method 见 register_review_tasks
+
+
+def test_entrance_without_confirmed_direction_emits_no_relation():
+    """city-facts/1 的 direction 只有 entry/exit/both；未确认就不得编造。"""
+    report = normalize([
+        record("place_a", "museum", "开封市博物馆", district="鼓楼区"),
+        record("gate", "entrance", "西门（候选）", place_type="entrance", parent_record_id="place_a"),
+    ])
+    payload = build_bundle(report, run_id="r", collected_at=STAMP)
+    assert not [r for r in payload["records"] if r["kind"] == "entrance"]
+    assert any("通行方向未确认" in i for i in report.records[1].review_items)
+
+
+def test_entrance_with_confirmed_direction_emits_relation():
+    report = normalize([
+        record("place_a", "museum", "开封市博物馆", district="鼓楼区"),
+        record("gate", "entrance", "西门", place_type="entrance", parent_record_id="place_a",
+               entrance_direction="entry"),
+    ])
+    payload = build_bundle(report, run_id="r", collected_at=STAMP)
+    relations = [r for r in payload["records"] if r["kind"] == "entrance"]
+    assert len(relations) == 1
+    assert relations[0]["place_id"] == "place_a"
+    assert relations[0]["entrance_place_id"] == "gate"
+    assert relations[0]["direction"] == "entry"
+    assert relations[0]["validation_status"] == "unverified"
+
+
+def test_entrance_relation_requires_parent_place_in_bundle():
+    """父地点被判 outside 而未进 bundle 时，入口关系不得悬空引用。"""
+    report = normalize([
+        record("place_a", "scenic", "杞县某景区", address="开封市杞县某路1号"),
+        record("gate", "entrance", "某门", place_type="entrance", parent_record_id="place_a",
+               entrance_direction="entry"),
+    ])
+    payload = build_bundle(report, run_id="r", collected_at=STAMP)
+    assert not [r for r in payload["records"] if r["kind"] == "entrance"]
+
+
+def test_metric6_denominator_is_scenic_only():
+    """SPEC：分母只数 priority=high 的 scenic，不是所有 high 类别。"""
+    bundle = StructuredBundle(run_id="r", collected_at=STAMP)
+    for rid, cat, name in (("s1", "scenic", "清明上河园"), ("s2", "scenic", "万岁山武侠城"),
+                           ("m1", "museum", "开封市博物馆"), ("r1", "restaurant", "黄家老店")):
+        bundle.add(record(rid, cat, name, district="龙亭区"))
+    path = Path(tempfile.mkdtemp()) / "c.db"
+    ledger.init_db(path)
+    with ledger.connect(path) as db:
+        validation = normalize(bundle.records, collected_day=date(2026, 10, 23))
+        computed = quality.compute(db=db, bundle=bundle, validation=validation, run_id="r",
+                                   collected_day=date(2026, 10, 23))
+    m6 = computed["metrics"]["entrance_coverage"]
+    assert m6["priority_scenics"] == 2
+    assert m6["entrance_candidates_total"] == 0

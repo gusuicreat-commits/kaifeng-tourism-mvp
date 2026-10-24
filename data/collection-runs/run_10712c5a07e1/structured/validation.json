@@ -1,0 +1,164 @@
+{
+  "records": [
+    {
+      "record_id": "place_kfsbwg",
+      "category": "museum",
+      "name": "开封市博物馆",
+      "district": "待核验",
+      "source_keys": [
+        "src_kfsbwg_tips_openinfo",
+        "src_kfsfq_museum_directory",
+        "src_bendibao_kfsbwg_address",
+        "src_kfsbwg_tips_openinfo_live"
+      ],
+      "parent_record_id": null,
+      "place_type": "poi",
+      "address": "开封市郑开大道与六大街交叉口",
+      "longitude": null,
+      "latitude": null,
+      "coordinate_system": "unknown",
+      "business_date": null,
+      "opens_at": null,
+      "closes_at": null,
+      "last_entry_at": null,
+      "evidence_note": "名录地址写郑开大道与六大街交叉口；本地宝称位于龙亭区；官网未给门牌号与坐标。城区归属两种说法并存，标待核验。",
+      "evidence_quotes": {
+        "address": "开封市博物馆 开封市郑开大道与六大街交叉口（示范区管委会名录）",
+        "district": "位于龙亭区，具体场馆地址（开封本地宝 2025-12-25）",
+        "hours": "开放时间：周二至周日9:00-17:00（16:00停止派票、16:30停止进馆），周一闭馆（法定节假日和特殊情况除外）"
+      },
+      "conflicts": [
+        "城区归属：示范区管委会名录未写区，本地宝写龙亭区",
+        "门牌号缺失，只有交叉口描述"
+      ],
+      "spatial_status": "pending",
+      "spatial_reason": "no_coords_no_district_hint",
+      "review_items": [
+        "空间归属待核验：no_coords_no_district_hint"
+      ],
+      "raw_path": "/Users/mac/Desktop/大挑/kaifeng-tourism-mvp/data/evidence-20261023/kfsbwg_api_tips_text.html",
+      "entrance_direction": null
+    },
+    {
+      "record_id": "place_kfsbwg_newgate",
+      "category": "entrance",
+      "name": "开封市博物馆主体建筑西门（入口候选）",
+      "district": "待核验",
+      "source_keys": [
+        "src_bendibao_kfsbwg_address"
+      ],
+      "parent_record_id": "place_kfsbwg",
+      "place_type": "entrance",
+      "address": null,
+      "longitude": null,
+      "latitude": null,
+      "coordinate_system": "unknown",
+      "business_date": null,
+      "opens_at": null,
+      "closes_at": null,
+      "last_entry_at": null,
+      "evidence_note": "入口描述来自第三方转述，未见官网入口图或现场核验；不作为正式入口事实。通行方向未确认，故不生成 city-facts/1 入口关系。",
+      "evidence_quotes": {
+        "entrance": "开封市博物馆位于郑开大道六大街，入口位于主体建筑西门（开封本地宝转述）"
+      },
+      "conflicts": [],
+      "spatial_status": "pending",
+      "spatial_reason": "no_coords_no_district_hint",
+      "review_items": [
+        "空间归属待核验：no_coords_no_district_hint",
+        "入口候选通行方向未确认，city-facts/1 无 unknown 方向，暂不生成入口关系"
+      ],
+      "raw_path": "/Users/mac/Desktop/大挑/kaifeng-tourism-mvp/data/evidence-20261023/bendibao_kfsbwg_address.html",
+      "entrance_direction": null
+    },
+    {
+      "record_id": "place_shudianjie",
+      "category": "street_block",
+      "name": "书店街",
+      "district": "鼓楼区",
+      "source_keys": [
+        "src_gulou_shudianjie"
+      ],
+      "parent_record_id": null,
+      "place_type": "poi",
+      "address": "开封市鼓楼区书店街",
+      "longitude": null,
+      "latitude": null,
+      "coordinate_system": "unknown",
+      "business_date": null,
+      "opens_at": null,
+      "closes_at": null,
+      "last_entry_at": null,
+      "evidence_note": "名录给出名称与地址；无开放时间、无票务、无坐标",
+      "evidence_quotes": {
+        "address": "书店街 开封市鼓楼区（鼓楼区政府页面）"
+      },
+      "conflicts": [],
+      "spatial_status": "inside",
+      "spatial_reason": "address_district:gulou",
+      "review_items": [],
+      "raw_path": "/Users/mac/Desktop/大挑/kaifeng-tourism-mvp/data/evidence-20261023/gulou_shudianjie.html",
+      "entrance_direction": null
+    },
+    {
+      "record_id": "place_gulou_night_market",
+      "category": "night_market",
+      "name": "鼓楼夜市",
+      "district": "鼓楼区",
+      "source_keys": [
+        "src_gulou_night_market"
+      ],
+      "parent_record_id": null,
+      "place_type": "night_visit",
+      "address": null,
+      "longitude": null,
+      "latitude": null,
+      "coordinate_system": "unknown",
+      "business_date": null,
+      "opens_at": null,
+      "closes_at": null,
+      "last_entry_at": null,
+      "evidence_note": "政府页面确认夜市存在；未取得按目标日的开市时间与摊位数",
+      "evidence_quotes": {
+        "night": "鼓楼夜市（鼓楼区政府页面）"
+      },
+      "conflicts": [],
+      "spatial_status": "inside",
+      "spatial_reason": "declared_district:gulou",
+      "review_items": [],
+      "raw_path": "/Users/mac/Desktop/大挑/kaifeng-tourism-mvp/data/evidence-20261023/gulou_night_market.html",
+      "entrance_direction": null
+    }
+  ],
+  "duplicates": [],
+  "conflicts": [],
+  "spatial": {
+    "inside": 2,
+    "pending": 2,
+    "outside": 0,
+    "with_coordinates": 0,
+    "coordinate_systems": {
+      "unknown": 4
+    }
+  },
+  "review_tasks": [
+    {
+      "record_id": "place_kfsbwg",
+      "name": "开封市博物馆",
+      "category": "museum",
+      "check_item": "空间归属待核验：no_coords_no_district_hint"
+    },
+    {
+      "record_id": "place_kfsbwg_newgate",
+      "name": "开封市博物馆主体建筑西门（入口候选）",
+      "category": "entrance",
+      "check_item": "空间归属待核验：no_coords_no_district_hint"
+    },
+    {
+      "record_id": "place_kfsbwg_newgate",
+      "name": "开封市博物馆主体建筑西门（入口候选）",
+      "category": "entrance",
+      "check_item": "入口候选通行方向未确认，city-facts/1 无 unknown 方向，暂不生成入口关系"
+    }
+  ]
+}

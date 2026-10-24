@@ -959,6 +959,7 @@
           "default": "unknown",
           "enum": [
             "verified",
+            "estimated",
             "demo",
             "unknown"
           ],

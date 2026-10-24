@@ -1,0 +1,229 @@
+{
+  "schema_version": "kaifeng-quality-report/1",
+  "run_id": "coord_backfill_20261024",
+  "generated_at": "2026-10-24T15:27:49+08:00",
+  "collected_day": "2026-10-24",
+  "spec": "docs/DATA_QUALITY_REPORT_SPEC.md",
+  "scope": {
+    "museum": {
+      "龙亭区": 5,
+      "鼓楼区": 5,
+      "顺河回族区": 2,
+      "禹王台区": 1,
+      "城乡一体化示范区": 4,
+      "待核验": 5
+    },
+    "street_block": {
+      "龙亭区": 0,
+      "鼓楼区": 1,
+      "顺河回族区": 0,
+      "禹王台区": 0,
+      "城乡一体化示范区": 0,
+      "待核验": 0
+    },
+    "night_market": {
+      "龙亭区": 1,
+      "鼓楼区": 3,
+      "顺河回族区": 1,
+      "禹王台区": 0,
+      "城乡一体化示范区": 0,
+      "待核验": 0
+    },
+    "food": {
+      "龙亭区": 0,
+      "鼓楼区": 0,
+      "顺河回族区": 0,
+      "禹王台区": 0,
+      "城乡一体化示范区": 0,
+      "待核验": 7
+    },
+    "restaurant": {
+      "龙亭区": 5,
+      "鼓楼区": 5,
+      "顺河回族区": 0,
+      "禹王台区": 0,
+      "城乡一体化示范区": 1,
+      "待核验": 1
+    },
+    "entrance": {
+      "龙亭区": 0,
+      "鼓楼区": 0,
+      "顺河回族区": 0,
+      "禹王台区": 0,
+      "城乡一体化示范区": 0,
+      "待核验": 1
+    }
+  },
+  "totals": {
+    "records": 48,
+    "sources": 197,
+    "duplicates": 0,
+    "conflicts": 0,
+    "failures": 0,
+    "review_tasks": 15
+  },
+  "bundle_dry_run": {
+    "status": "dry_run",
+    "received": 70,
+    "changed": 70,
+    "unchanged": 0,
+    "ready": 0,
+    "issues": 70
+  },
+  "red_lines": {
+    "fabricated_data": 0,
+    "ai_completion": 0,
+    "bypass_import_channel": 0,
+    "bypass_waf": 0,
+    "note": "自检口径：本工具只做代码抽取与候选生成，未写运行库、未绕过访问控制。"
+  },
+  "metrics": {
+    "source_traceability": {
+      "total_records": 48,
+      "with_source": 48,
+      "registry_matched": 45,
+      "hash_matched": 45,
+      "rate": 0.9375,
+      "missing_source_records": [],
+      "unregistered_source_keys": [
+        "src_teamworkbook_food_vendors"
+      ],
+      "hash_unverified_records": []
+    },
+    "field_completeness": {
+      "per_category": [
+        {
+          "category": "museum",
+          "fields_filled": 39,
+          "fields_total": 44,
+          "records_complete": 17,
+          "records_total": 22,
+          "required_fields": [
+            "name",
+            "district"
+          ]
+        },
+        {
+          "category": "street_block",
+          "fields_filled": 2,
+          "fields_total": 2,
+          "records_complete": 1,
+          "records_total": 1,
+          "required_fields": [
+            "name",
+            "district"
+          ]
+        },
+        {
+          "category": "night_market",
+          "fields_filled": 10,
+          "fields_total": 10,
+          "records_complete": 5,
+          "records_total": 5,
+          "required_fields": [
+            "name",
+            "district"
+          ]
+        },
+        {
+          "category": "food",
+          "fields_filled": 7,
+          "fields_total": 7,
+          "records_complete": 7,
+          "records_total": 7,
+          "required_fields": [
+            "name"
+          ]
+        },
+        {
+          "category": "restaurant",
+          "fields_filled": 23,
+          "fields_total": 24,
+          "records_complete": 11,
+          "records_total": 12,
+          "required_fields": [
+            "name",
+            "district"
+          ]
+        },
+        {
+          "category": "entrance",
+          "fields_filled": 1,
+          "fields_total": 1,
+          "records_complete": 1,
+          "records_total": 1,
+          "required_fields": [
+            "name"
+          ]
+        }
+      ],
+      "note": "缺失即缺失，null 不被默认值替换；缺口用于补采排队。"
+    },
+    "coordinate_readiness": {
+      "places_total": 41,
+      "with_coords": 3,
+      "system_wgs84": 0,
+      "system_gcj02": 3,
+      "system_unknown": 38,
+      "demo_coords": 0,
+      "rate": 0.0732
+    },
+    "date_validity": {
+      "rules_total": 0,
+      "with_business_date": 0,
+      "date_in_future": 0,
+      "date_is_collection_day": 0,
+      "date_null": 0,
+      "collection_day_records": []
+    },
+    "network_evidence": {
+      "edges_total": 0,
+      "with_source_locator": 0,
+      "connected": 0,
+      "disconnected": 0,
+      "unchecked": 0,
+      "note": "本轮未采园内道路与入口衔接候选；unchecked 不得声称为可导航。"
+    },
+    "entrance_coverage": {
+      "priority_scenics": 0,
+      "with_entrance_candidate": 0,
+      "entrance_candidates_total": 1,
+      "rejected_fake_entrances": 0,
+      "note": "停车场/地图中心点不得计为入口候选。",
+      "orphan_entrance_candidates": []
+    },
+    "vendor_supply_evidence": {
+      "vendors_total": 12,
+      "with_location": 12,
+      "supply_total": 0,
+      "evidence_strong": 0,
+      "evidence_candidate_only": 0,
+      "note": "平台推荐菜只算候选，不得升级为供应事实。"
+    },
+    "conflict_handling": {
+      "conflicts_total": 0,
+      "preserved_all_values": 0,
+      "resolved": 0,
+      "silently_picked": 0,
+      "items": [],
+      "note": "解决须注明依据；本轮 0 条已解决。"
+    }
+  },
+  "gaps_top": [
+    {
+      "priority": "high",
+      "gap": "来源可追踪率未达 100%",
+      "detail": "hash_matched=45/48；未登记来源：src_teamworkbook_food_vendors"
+    },
+    {
+      "priority": "high",
+      "gap": "地点坐标缺失",
+      "detail": "38 条无坐标"
+    },
+    {
+      "priority": "medium",
+      "gap": "空间归属待核验",
+      "detail": "place_kfsbwg, place_kfsbwg_newgate, place_jingcha_museum, place_dezhuang_ceramic_museum, place_kaifeng_culture_hall_old, place_kaifeng_library, place_heyuan_jinxiang, food_guantangbao, food_siweicai, food_liyu_beimian, food_tongziji, food_chaoliangfen, food_yangrou_kangmo, food_xingrencha"
+    }
+  ]
+}

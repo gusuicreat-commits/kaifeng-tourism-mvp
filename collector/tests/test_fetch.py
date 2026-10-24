@@ -189,3 +189,60 @@ def test_safe_name_is_stable_and_bounded():
 def test_source_key_for_url_is_deterministic():
     assert fetch_mod._source_key_for("https://a.test/x") == fetch_mod._source_key_for("https://a.test/x")
     assert fetch_mod._source_key_for("https://a.test/x") != fetch_mod._source_key_for("https://a.test/y")
+
+
+ZHIHU_ROBOTS = """User-agent: Googlebot
+Disallow: /appview/
+Disallow: /search
+Disallow: /notifications
+
+User-agent: Baiduspider
+Disallow: /p/
+
+User-agent: *
+Disallow: /admin
+"""
+
+OUR_AGENT = "kaifeng-tourism-collector/1.0 (data engineering; contact: repository maintainer)"
+
+
+def test_robots_honours_only_the_matching_user_agent_group(tmp_path):
+    robots = fetch_mod.RobotsCache(tmp_path / "r.json", fetcher=lambda url: ZHIHU_ROBOTS,
+                                   user_agent=OUR_AGENT)
+    # Googlebot/Baiduspider 的规则不得套到本采集器 UA 上
+    assert robots.allows("https://www.zhihu.com/search?q=x")[0] is True
+    assert robots.allows("https://www.zhihu.com/p/123")[0] is True
+    # 通配组的规则仍然生效
+    assert robots.allows("https://www.zhihu.com/admin/panel")[0] is False
+
+
+def test_robots_specific_agent_group_wins_over_wildcard():
+    text = "User-agent: kaifeng-tourism-collector\nDisallow: /x\n\nUser-agent: *\nDisallow: /y\n"
+    robots = fetch_mod.RobotsCache(None, fetcher=lambda url: text,
+                                   user_agent="kaifeng-tourism-collector/1.0")
+    assert robots.allows("https://a.test/x")[0] is False
+    assert robots.allows("https://a.test/y")[0] is True, "命中专有组后不再叠加通配组"
+
+
+def test_robots_without_user_agent_prefix_belongs_to_wildcard():
+    robots = fetch_mod.RobotsCache(None, fetcher=lambda url: "Disallow: /private\n")
+    assert robots.allows("https://a.test/private/x")[0] is False
+    assert robots.allows("https://a.test/public")[0] is True
+
+
+def test_robots_fetch_failure_allows_and_is_not_treated_as_block():
+    def boom(url):
+        raise OSError("network down")
+
+    robots = fetch_mod.RobotsCache(None, fetcher=boom)
+    allowed, reason = robots.allows("https://a.test/x")
+    assert allowed is True and reason == "", "取不到 robots.txt 不得编造拦截理由"
+
+
+def test_robots_cache_round_trips_groups(tmp_path):
+    cache = tmp_path / "r.json"
+    first = fetch_mod.RobotsCache(cache, fetcher=lambda url: ZHIHU_ROBOTS, user_agent=OUR_AGENT)
+    assert first.allows("https://a.test/search")[0] is True
+    reloaded = fetch_mod.RobotsCache(cache, fetcher=None, user_agent=OUR_AGENT)
+    assert reloaded.allows("https://a.test/search")[0] is True
+    assert reloaded.allows("https://a.test/admin")[0] is False

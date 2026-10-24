@@ -1,0 +1,120 @@
+{
+  "run_id": "run_2a28ab0d0081",
+  "task_id": "task_f90dcc5f5edf",
+  "run_dir": "/Users/mac/Desktop/大挑/kaifeng-tourism-mvp/data/collection-runs/run_2a28ab0d0081",
+  "ingested": [],
+  "fetched": [
+    {
+      "url": "https://www.ctsb.com.cn/wap/SceneryShow?ID=15",
+      "ok": true,
+      "status_code": 200,
+      "error_kind": null,
+      "sha256": "72d540790415f68e05b922428a21228cd5bd3bc8fd523ec4de283418c20b3c77",
+      "raw_path": "/Users/mac/Desktop/大挑/kaifeng-tourism-mvp/data/collection-runs/run_2a28ab0d0081/raw/www.ctsb.com.cn_wap_SceneryShow_fda15486.html",
+      "source_key": "src_route_live_ctsb_kaifengfu",
+      "label": null
+    },
+    {
+      "url": "https://www.gulou.gov.cn/kfsglqwz/c00173/pc/content/content_1889528282980225024.html",
+      "ok": false,
+      "status_code": null,
+      "error_kind": "network_error",
+      "sha256": null,
+      "raw_path": null,
+      "source_key": "src_route_live_gulou_official",
+      "label": null
+    },
+    {
+      "url": "https://ditu.amap.com/place/B017A007A3",
+      "ok": true,
+      "status_code": 200,
+      "error_kind": null,
+      "sha256": "8dfbb9a3c46543a308acf680d9cd85ce2fd22b3997f285d13c9fd6aa7a3f10a0",
+      "raw_path": "/Users/mac/Desktop/大挑/kaifeng-tourism-mvp/data/collection-runs/run_2a28ab0d0081/raw/ditu.amap.com_place_B017A007A3_1be6aaa9.html",
+      "source_key": "src_route_live_amap_kaifengfu",
+      "label": null
+    },
+    {
+      "url": "https://ditu.amap.com/place/B017A0N05A",
+      "ok": true,
+      "status_code": 200,
+      "error_kind": null,
+      "sha256": "c76bf6bc12ba5e19a8a4c37160ef8352281f99b8cbbb519e1002dc93e78f098d",
+      "raw_path": "/Users/mac/Desktop/大挑/kaifeng-tourism-mvp/data/collection-runs/run_2a28ab0d0081/raw/ditu.amap.com_place_B017A0N05A_7e8da70f.html",
+      "source_key": "src_route_live_amap_gulou",
+      "label": null
+    },
+    {
+      "url": "https://www.amap.com/place/B017A00HWY",
+      "ok": true,
+      "status_code": 200,
+      "error_kind": null,
+      "sha256": "28fb078f888b2588c9789981c10eea9c0f240a3e394ac46f64de027614df5675",
+      "raw_path": "/Users/mac/Desktop/大挑/kaifeng-tourism-mvp/data/collection-runs/run_2a28ab0d0081/raw/www.amap.com_place_B017A00HWY_15732178.html",
+      "source_key": "src_route_live_amap_first_floor",
+      "label": null
+    },
+    {
+      "url": "https://4travel.jp/os_shisetsu/10453016",
+      "ok": true,
+      "status_code": 200,
+      "error_kind": null,
+      "sha256": "d213d9ec889ee8f633257806fd373ebd1f14296d135bf768e41b69783681396e",
+      "raw_path": "/Users/mac/Desktop/大挑/kaifeng-tourism-mvp/data/collection-runs/run_2a28ab0d0081/raw/4travel.jp_os_shisetsu_10453016_bc596a01.html",
+      "source_key": "src_route_live_4travel_first_floor",
+      "label": null
+    }
+  ],
+  "extracted": [],
+  "records": 0,
+  "duplicates": 0,
+  "conflicts": 0,
+  "review_tasks": 0,
+  "failures": [
+    {
+      "failure_id": "fail_d3d36d5f74f8",
+      "run_id": "run_2a28ab0d0081",
+      "source_key": "src_route_live_gulou_official",
+      "failure_kind": "network_error",
+      "detail": "ConnectError: [SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: Hostname mismatch, certificate is not valid for 'www.gulou.gov.cn'. (_ssl.c:1032)",
+      "occurred_at": "2026-10-24T16:59:44+08:00",
+      "retry_of": null
+    },
+    {
+      "failure_id": "fail_7703b571a092",
+      "run_id": "run_2a28ab0d0081",
+      "source_key": "src_route_live_amap_kaifengfu",
+      "failure_kind": "page_shell",
+      "detail": "只有地图通用页面壳，未取得目标POI字段。",
+      "occurred_at": "2026-10-24T17:08:20+08:00",
+      "retry_of": null
+    },
+    {
+      "failure_id": "fail_e68ff51cf2e8",
+      "run_id": "run_2a28ab0d0081",
+      "source_key": "src_route_live_amap_gulou",
+      "failure_kind": "page_shell",
+      "detail": "只有地图通用页面壳，未取得目标POI字段。",
+      "occurred_at": "2026-10-24T17:08:20+08:00",
+      "retry_of": null
+    },
+    {
+      "failure_id": "fail_b6ec99f82644",
+      "run_id": "run_2a28ab0d0081",
+      "source_key": "src_route_live_amap_first_floor",
+      "failure_kind": "page_shell",
+      "detail": "只有地图通用页面壳，未取得目标POI字段。",
+      "occurred_at": "2026-10-24T17:08:20+08:00",
+      "retry_of": null
+    }
+  ],
+  "bundle_path": "/Users/mac/Desktop/大挑/kaifeng-tourism-mvp/data/collection-runs/run_2a28ab0d0081/bundle/city-facts-candidate.json",
+  "dry_run": {
+    "status": "dry_run",
+    "received": 0,
+    "changed": 0
+  },
+  "http_fetch_status": "partial",
+  "content_review": "data/route-acceptance/evidence/source-content-review-20261024.json",
+  "status": "partial"
+}

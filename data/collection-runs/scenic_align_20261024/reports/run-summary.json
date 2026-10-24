@@ -1,0 +1,24 @@
+{
+  "run_id": "scenic_align_20261024",
+  "run_dir": "data/collection-runs/scenic_align_20261024",
+  "kind": "scenic_alignment",
+  "records": 12,
+  "scenics": 12,
+  "duplicates": 0,
+  "conflicts": 0,
+  "review_tasks_created": 19,
+  "carried_team_records": 13,
+  "extra_sources": 0,
+  "ledger_sources_registered": 171,
+  "failures": 0,
+  "bundle_path": "data/collection-runs/scenic_align_20261024/bundle/city-facts-candidate.json",
+  "dry_run": {
+    "status": "dry_run",
+    "received": 25,
+    "changed": 25
+  },
+  "quality_report": "data/collection-runs/scenic_align_20261024/reports/quality-report-2026-10-24.md",
+  "coordinate_systems": {
+    "unknown": 12
+  }
+}

@@ -356,7 +356,7 @@
       "latitude": null,
       "coordinate_system": "unknown",
       "place_type": "entrance",
-      "parent_record_id": null,
+      "parent_record_id": "place_kfsbwg",
       "opens_at": null,
       "closes_at": null,
       "last_entry_at": null,

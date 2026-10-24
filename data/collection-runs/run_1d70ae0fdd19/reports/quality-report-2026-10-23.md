@@ -1,13 +1,13 @@
 # 开封主城区旅游数据质量报告
 
 - run_id：`run_1d70ae0fdd19`
-- 生成时间：2026-10-23T23:52:09+08:00
+- 生成时间：2026-10-24T12:09:58+08:00
 - 采集日：2026-10-23
 - 指标口径：[docs/DATA_QUALITY_REPORT_SPEC.md](docs/DATA_QUALITY_REPORT_SPEC.md)
 
 ## 汇总
 
-- 记录总数：48；来源登记：25；重复：0；冲突：0；失败：0；待核验任务：14
+- 记录总数：48；来源登记：26；重复：0；冲突：0；失败：0；待核验任务：15
 - bundle dry-run：{"status": "dry_run", "received": 71, "changed": 71, "ready": 0, "issues": 71}
 
 ## 类别 × 城区 覆盖
@@ -69,11 +69,12 @@
 
 ### 6. 真实入口覆盖率
 
-- `priority_scenics`: 40
+- `priority_scenics`: 0
 - `with_entrance_candidate`: 0
 - `entrance_candidates_total`: 1
 - `rejected_fake_entrances`: 0
 - `note`: 停车场/地图中心点不得计为入口候选。
+- `orphan_entrance_candidates`: ["place_kfsbwg_newgate"]
 
 ### 7. 商户定位与供应证据
 
@@ -105,3 +106,4 @@
 
 - [high] 地点坐标缺失：41 条无坐标
 - [medium] 空间归属待核验：place_kfsbwg, place_kfsbwg_newgate, place_jingcha_museum, place_dezhuang_ceramic_museum, place_kaifeng_culture_hall_old, place_kaifeng_library, place_heyuan_jinxiang, food_guantangbao, food_siweicai, food_liyu_beimian, food_tongziji, food_chaoliangfen, food_yangrou_kangmo, food_xingrencha
+- [medium] 入口候选未关联地点或方向未确认：place_kfsbwg_newgate

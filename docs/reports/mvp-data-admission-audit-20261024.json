@@ -1,0 +1,183 @@
+{
+  "checked_at": "2026-10-24T21:58:35.255339+08:00",
+  "scope": "diagnosis_only",
+  "candidate_checks": [
+    {
+      "path": "data/team-handoff/city-facts-teamhandoff-20261023.json",
+      "sha256": "f35b9d7d440fdfc5790d13a65250c4cae6cb28ca6ff746dcd2266c3f4e35a372",
+      "status": "dry_run",
+      "received": 469,
+      "ready": 0,
+      "direct_issue_counts": {
+        "UNVERIFIED": 469,
+        "RIGHTS_NOT_CONFIRMED": 469,
+        "OUTSIDE_VALIDITY_OR_UNKNOWN": 469,
+        "LOCATION_UNKNOWN": 51
+      }
+    },
+    {
+      "path": "data/collection-20261023/city-facts-candidate.json",
+      "sha256": "1f7b8f510332c9c0470446fa00c7f76df252e6d588e23dfbc4e752ceefda5ff9",
+      "status": "dry_run",
+      "received": 188,
+      "ready": 0,
+      "direct_issue_counts": {
+        "UNVERIFIED": 188,
+        "RIGHTS_NOT_CONFIRMED": 188,
+        "OUTSIDE_VALIDITY_OR_UNKNOWN": 188,
+        "LOCATION_UNKNOWN": 9
+      }
+    },
+    {
+      "path": "data/collection-20261023-expanded/city-facts-candidate-expanded.json",
+      "sha256": "68e8f2178197c575b2dad7fb9b977a2f9d7719a7707a9057b2e95ba98088990d",
+      "status": "dry_run",
+      "received": 112,
+      "ready": 0,
+      "direct_issue_counts": {
+        "UNVERIFIED": 112,
+        "RIGHTS_NOT_CONFIRMED": 112,
+        "OUTSIDE_VALIDITY_OR_UNKNOWN": 112,
+        "LOCATION_UNKNOWN": 48
+      }
+    },
+    {
+      "path": "data/collection-runs/coord_backfill_20261024/bundle/city-facts-candidate.json",
+      "sha256": "7d2da8f838576ea3f442123560fb73fbd6df07cdffa481539daa544af07421ba",
+      "status": "dry_run",
+      "received": 70,
+      "ready": 0,
+      "direct_issue_counts": {
+        "UNVERIFIED": 70,
+        "RIGHTS_NOT_CONFIRMED": 70,
+        "OUTSIDE_VALIDITY_OR_UNKNOWN": 70,
+        "LOCATION_UNKNOWN": 38
+      }
+    },
+    {
+      "path": "data/collection-runs/open_rules_2026-10-24/bundle/city-facts-candidate.json",
+      "sha256": "32c20f0cbe01dac37e1ac588cbbb24f6103b7787e4e6581f0228262474e0dd29",
+      "status": "dry_run",
+      "received": 56,
+      "ready": 0,
+      "direct_issue_counts": {
+        "UNVERIFIED": 56,
+        "RIGHTS_NOT_CONFIRMED": 56,
+        "OUTSIDE_VALIDITY_OR_UNKNOWN": 56,
+        "LOCATION_UNKNOWN": 15
+      }
+    },
+    {
+      "path": "data/collection-runs/run_10712c5a07e1/bundle/city-facts-candidate.json",
+      "sha256": "957de96f1785fbb9efc67da091efc104158ea9bd2166911e364d9fe8be5fff95",
+      "status": "dry_run",
+      "received": 10,
+      "ready": 0,
+      "direct_issue_counts": {
+        "UNVERIFIED": 10,
+        "RIGHTS_NOT_CONFIRMED": 10,
+        "OUTSIDE_VALIDITY_OR_UNKNOWN": 10,
+        "LOCATION_UNKNOWN": 4
+      }
+    },
+    {
+      "path": "data/collection-runs/run_1d70ae0fdd19/bundle/city-facts-candidate.json",
+      "sha256": "565069f0f0fb704685c63e1dc0c52138bdc4fdaedfd6e1c729008f9e6427f5aa",
+      "status": "dry_run",
+      "received": 71,
+      "ready": 0,
+      "direct_issue_counts": {
+        "UNVERIFIED": 71,
+        "RIGHTS_NOT_CONFIRMED": 71,
+        "OUTSIDE_VALIDITY_OR_UNKNOWN": 71,
+        "LOCATION_UNKNOWN": 41
+      }
+    },
+    {
+      "path": "data/collection-runs/run_2a28ab0d0081/bundle/city-facts-candidate.json",
+      "sha256": "b5cac110e035242271cf8f39ea107bf1f71466d20d12a3187ba82d82f72b68ce",
+      "status": "dry_run",
+      "received": 0,
+      "ready": 0,
+      "direct_issue_counts": {}
+    },
+    {
+      "path": "data/collection-runs/run_a1a57d6a95a1/bundle/city-facts-candidate.json",
+      "sha256": "b5cac110e035242271cf8f39ea107bf1f71466d20d12a3187ba82d82f72b68ce",
+      "status": "dry_run",
+      "received": 0,
+      "ready": 0,
+      "direct_issue_counts": {}
+    },
+    {
+      "path": "data/collection-runs/run_c85cfe6bbe80/bundle/city-facts-candidate.json",
+      "sha256": "b5cac110e035242271cf8f39ea107bf1f71466d20d12a3187ba82d82f72b68ce",
+      "status": "dry_run",
+      "received": 0,
+      "ready": 0,
+      "direct_issue_counts": {}
+    },
+    {
+      "path": "data/collection-runs/scenic_align_20261024/bundle/city-facts-candidate.json",
+      "sha256": "0212ce7fce73936db2658ac32b57fcb32f2f242b2ee743f5cda01ddc6013938a",
+      "status": "dry_run",
+      "received": 25,
+      "ready": 0,
+      "direct_issue_counts": {
+        "UNVERIFIED": 25,
+        "RIGHTS_NOT_CONFIRMED": 25,
+        "OUTSIDE_VALIDITY_OR_UNKNOWN": 25,
+        "LOCATION_UNKNOWN": 12
+      }
+    },
+    {
+      "path": "data/route-acceptance/kaifeng-real-route-v1-20261024-facts-candidate.json",
+      "sha256": "bb938b9ca1fb5ba27b5aacbf68a2bb6d1cf581ff0ec1e0e866109719cafade4d",
+      "status": "dry_run",
+      "received": 17,
+      "ready": 0,
+      "direct_issue_counts": {
+        "UNVERIFIED": 17,
+        "RIGHTS_NOT_CONFIRMED": 17,
+        "OUTSIDE_VALIDITY_OR_UNKNOWN": 17,
+        "LOCATION_UNKNOWN": 2
+      }
+    },
+    {
+      "path": "data/route-acceptance/kaifeng-real-route-v2-20261025-facts-candidate.json",
+      "sha256": "3633e44d55e41ccac59f62bfc3f4249eda839cf6059dc84a6ee615270f0f6458",
+      "status": "dry_run",
+      "received": 21,
+      "ready": 0,
+      "direct_issue_counts": {
+        "UNVERIFIED": 21,
+        "RIGHTS_NOT_CONFIRMED": 21,
+        "OUTSIDE_VALIDITY_OR_UNKNOWN": 21,
+        "LOCATION_UNKNOWN": 1,
+        "BUSINESS_DATE_NOT_APPLICABLE": 2
+      }
+    }
+  ],
+  "counts_are_not_deduplicated": true,
+  "runtime_database_access": "read_only",
+  "runtime_counts": {
+    "city_facts": 0,
+    "city_fact_revisions": 0,
+    "city_engine_operations": 0,
+    "city_engine_routes": 0
+  },
+  "business_code_changed": false,
+  "runtime_written": false,
+  "new_external_requests": 0,
+  "controlled_memory_probe_results": {
+    "baseline_place_ready": true,
+    "only_source_internal_only_place_ready": false,
+    "future_validity_covers_trip_but_previous_day_planning_ready": false,
+    "successful_amap_quote_maps_to": "unknown"
+  },
+  "limitations": [
+    "No full regression run",
+    "No new live provider validation",
+    "Candidate structure acceptance does not verify field values"
+  ]
+}

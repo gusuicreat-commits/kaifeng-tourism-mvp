@@ -1,0 +1,176 @@
+{
+  "objective": "第二轮真实采集：验证 fetch 真实抓取路径、受控源失败登记与入口候选 parent 关联",
+  "category": "mixed",
+  "scope_district": "鼓楼区/龙亭区/示范区",
+  "priority": "high",
+  "include_outside": false,
+  "ingest_existing": [
+    {
+      "source_key": "src_kfsbwg_tips_openinfo",
+      "name": "开封市博物馆官网开放信息与参观须知",
+      "source_type": "official",
+      "url": "https://www.kfsbwg.com/api/tips/text?p=w&text_key=KGSJ,BGSJ,TSSJ,KBGTS,CGXZ",
+      "publisher": "开封市博物馆",
+      "access_kind": "official_site",
+      "access_status": "reachable",
+      "license_status": "unknown",
+      "notes": "官网公开接口返回开馆/闭馆/停售/提示/参观须知五个 text_key；采集时刻快照，不代替目标日公告",
+      "path": "data/evidence-20261023/kfsbwg_api_tips_text.html"
+    },
+    {
+      "source_key": "src_kfsfq_museum_directory",
+      "name": "示范区管委会公共文化场馆名录",
+      "source_type": "official",
+      "url": "http://www.kfsfq.gov.cn/cxythsfq/c00869/pc/content/content_18815105038",
+      "publisher": "城乡一体化示范区管委会",
+      "access_kind": "official_site",
+      "access_status": "reachable",
+      "license_status": "unknown",
+      "notes": "管委会公开名录页",
+      "path": "data/evidence-20261023/kfsfq_museum_directory.html"
+    },
+    {
+      "source_key": "src_gulou_shudianjie",
+      "name": "鼓楼区政府书店街介绍",
+      "source_type": "official",
+      "url": "http://www.gulou.gov.cn/kfsglqwz/c00173/pc/content/content_19116983454",
+      "publisher": "鼓楼区人民政府",
+      "access_kind": "official_site",
+      "access_status": "reachable",
+      "license_status": "unknown",
+      "notes": "区政府公开页面",
+      "path": "data/evidence-20261023/gulou_shudianjie.html"
+    },
+    {
+      "source_key": "src_gulou_night_market",
+      "name": "鼓楼区政府夜市介绍",
+      "source_type": "official",
+      "url": "http://www.gulou.gov.cn/kfsglqwz/c00173/pc/content/content_18895282829",
+      "publisher": "鼓楼区人民政府",
+      "access_kind": "official_site",
+      "access_status": "reachable",
+      "license_status": "unknown",
+      "notes": "区政府公开页面",
+      "path": "data/evidence-20261023/gulou_night_market.html"
+    },
+    {
+      "source_key": "src_bendibao_kfsbwg_address",
+      "name": "本地宝开封市博物馆地址转述",
+      "source_type": "other",
+      "url": "http://kf.bendibao.com/tour/20251225/23069.shtm",
+      "publisher": "开封本地宝",
+      "access_kind": "platform",
+      "access_status": "reachable",
+      "license_status": "unknown",
+      "notes": "第三方平台，城区归属说法与官方名录不一致，需核验",
+      "path": "data/evidence-20261023/bendibao_kfsbwg_address.html"
+    }
+  ],
+  "fetch": [
+    {
+      "url": "https://www.kfsbwg.com/api/tips/text?p=w&text_key=KGSJ,BGSJ,TSSJ,KBGTS,CGXZ",
+      "source_key": "src_kfsbwg_tips_openinfo_live",
+      "register_as": "开封市博物馆官网开放信息（实时复抓）",
+      "source_type": "official",
+      "access_kind": "official_site",
+      "notes": "第二轮实时复抓，用于验证 fetch 真实抓取路径与 SHA-256 存档"
+    },
+    {
+      "url": "http://www.kfsfq.gov.cn/cxythsfq/c00869/pc/content/content_18815105038",
+      "source_key": "src_kfsfq_museum_directory_live",
+      "register_as": "示范区管委会名录（实时复抓）",
+      "source_type": "official",
+      "access_kind": "official_site",
+      "notes": "第二轮实时复抓"
+    },
+    {
+      "url": "https://api.github.com/user",
+      "source_key": "src_controlled_probe_auth",
+      "register_as": "受控源探测：需认证接口（auth_required）",
+      "source_type": "other",
+      "access_kind": "platform",
+      "notes": "已知返回 401 的受控端点。用于验证 401 一律登记失败、不尝试绕过认证；本项目不使用该数据。"
+    },
+    {
+      "url": "https://www.zhihu.com/search?type=content&q=%E5%BC%80%E5%B0%81%E5%A4%9C%E5%B8%82",
+      "source_key": "src_controlled_probe_robots",
+      "register_as": "受控源探测：robots 全站禁抓",
+      "source_type": "other",
+      "access_kind": "platform",
+      "notes": "知乎 robots.txt 通配段为 Disallow: /。用于验证 robots_block 在请求前生效；本项目不使用该数据。"
+    }
+  ],
+  "extract": [
+    {
+      "record_id": "place_kfsbwg",
+      "category": "museum",
+      "name": "开封市博物馆",
+      "district": "待核验",
+      "address": "开封市郑开大道与六大街交叉口",
+      "place_type": "poi",
+      "source_keys": [
+        "src_kfsbwg_tips_openinfo",
+        "src_kfsfq_museum_directory",
+        "src_bendibao_kfsbwg_address",
+        "src_kfsbwg_tips_openinfo_live"
+      ],
+      "evidence_quotes": {
+        "address": "开封市博物馆 开封市郑开大道与六大街交叉口（示范区管委会名录）",
+        "district": "位于龙亭区，具体场馆地址（开封本地宝 2025-12-25）",
+        "hours": "开放时间：周二至周日9:00-17:00（16:00停止派票、16:30停止进馆），周一闭馆（法定节假日和特殊情况除外）"
+      },
+      "conflicts": [
+        "城区归属：示范区管委会名录未写区，本地宝写龙亭区",
+        "门牌号缺失，只有交叉口描述"
+      ],
+      "evidence_note": "名录地址写郑开大道与六大街交叉口；本地宝称位于龙亭区；官网未给门牌号与坐标。城区归属两种说法并存，标待核验。",
+      "confidence_note": "名称与地址有官方名录支持；开放时间来自官网接口快照，未按目标日复核"
+    },
+    {
+      "record_id": "place_kfsbwg_newgate",
+      "category": "entrance",
+      "name": "开封市博物馆主体建筑西门（入口候选）",
+      "place_type": "entrance",
+      "parent_record_id": "place_kfsbwg",
+      "source_keys": [
+        "src_bendibao_kfsbwg_address"
+      ],
+      "evidence_quotes": {
+        "entrance": "开封市博物馆位于郑开大道六大街，入口位于主体建筑西门（开封本地宝转述）"
+      },
+      "evidence_note": "入口描述来自第三方转述，未见官网入口图或现场核验；不作为正式入口事实。通行方向未确认，故不生成 city-facts/1 入口关系。",
+      "confidence_note": "候选入口，需现场或官方导览确认"
+    },
+    {
+      "record_id": "place_shudianjie",
+      "category": "street_block",
+      "name": "书店街",
+      "district": "鼓楼区",
+      "address": "开封市鼓楼区书店街",
+      "place_type": "poi",
+      "source_keys": [
+        "src_gulou_shudianjie"
+      ],
+      "evidence_quotes": {
+        "address": "书店街 开封市鼓楼区（鼓楼区政府页面）"
+      },
+      "evidence_note": "名录给出名称与地址；无开放时间、无票务、无坐标",
+      "confidence_note": "政府页面条目，未取得运营方当前公告"
+    },
+    {
+      "record_id": "place_gulou_night_market",
+      "category": "night_market",
+      "name": "鼓楼夜市",
+      "district": "鼓楼区",
+      "place_type": "night_visit",
+      "source_keys": [
+        "src_gulou_night_market"
+      ],
+      "evidence_quotes": {
+        "night": "鼓楼夜市（鼓楼区政府页面）"
+      },
+      "evidence_note": "政府页面确认夜市存在；未取得按目标日的开市时间与摊位数",
+      "confidence_note": "官方确认存在，营业规则待目标日核验"
+    }
+  ]
+}

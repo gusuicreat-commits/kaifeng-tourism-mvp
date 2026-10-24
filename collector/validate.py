@@ -47,6 +47,15 @@ class NormalizedRecord:
     spatial_reason: str = ""
     review_items: list[str] = field(default_factory=list)
     raw_path: str | None = None
+    # 入口候选的通行方向。city-facts/1 的 Literal 只有 entry/exit/both，
+    # 未确认时保持 None，不得猜一个方向。
+    entrance_direction: str | None = None
+    # open_rule 落点字段。closes_at 早于 opens_at 即跨日，bundle 层必须拆成
+    # 两条或整条丢弃，绝不把 18:30-01:00 塞进同一个 business_date。
+    place_id: str | None = None
+    reentry: str | None = None
+    reservation: str | None = None
+    ticket_scope: str | None = None
 
     def to_dict(self) -> dict:
         return {
@@ -60,7 +69,9 @@ class NormalizedRecord:
             "evidence_note": self.evidence_note, "evidence_quotes": dict(self.evidence_quotes),
             "conflicts": list(self.conflicts), "spatial_status": self.spatial_status,
             "spatial_reason": self.spatial_reason, "review_items": list(self.review_items),
-            "raw_path": self.raw_path,
+            "raw_path": self.raw_path, "entrance_direction": self.entrance_direction,
+            "place_id": self.place_id, "reentry": self.reentry,
+            "reservation": self.reservation, "ticket_scope": self.ticket_scope,
         }
 
 
@@ -203,8 +214,15 @@ def normalize(records: Iterable[StructuredRecord], *, collected_day: date | None
             opens_at=record.opens_at, closes_at=record.closes_at, last_entry_at=record.last_entry_at,
             evidence_note=record.evidence_note, evidence_quotes=dict(record.evidence_quotes),
             conflicts=list(record.conflicts), spatial_status=status, spatial_reason=reason,
-            raw_path=record.raw_path,
+            raw_path=record.raw_path, entrance_direction=record.entrance_direction,
+            place_id=record.place_id, reentry=record.reentry,
+            reservation=record.reservation, ticket_scope=record.ticket_scope,
         )
+        # 抽取层声明的核验项先落地，normalize() 自己发现的缺口追加在后，
+        # 同一事项重复出现时只保留一条，避免 review 队列被刷屏。
+        for item in record.review_items:
+            if item not in entry.review_items:
+                entry.review_items.append(item)
         name_key = (normalize_name(name), record.category)
         if name_key in seen_name:
             duplicates.append({"kind": "name", "kept": seen_name[name_key], "dropped": record.record_id,
@@ -235,6 +253,28 @@ def normalize(records: Iterable[StructuredRecord], *, collected_day: date | None
             entry.review_items.append("坐标存在但坐标系未声明")
         if entry.coordinate_system == "local_demo":
             entry.review_items.append("示意坐标不得用于正式规划")
+        if entry.category == "entrance":
+            if not entry.parent_record_id:
+                entry.review_items.append("入口候选未关联任何地点，属孤儿候选，不得当作可用入口")
+            elif entry.entrance_direction not in ("entry", "exit", "both"):
+                entry.review_items.append("入口候选通行方向未确认，city-facts/1 无 unknown 方向，暂不生成入口关系")
+        if record.category == "open_rule":
+            if not entry.place_id:
+                entry.review_items.append("开放规则未关联地点（place_id 缺失），不能进入 city-facts/1")
+            if not entry.business_date:
+                entry.review_items.append("开放规则缺业务日期：周期规则必须按目标游玩日逐日实例化，不得用采集日代替")
+            elif collected_day and entry.business_date == collected_day.isoformat():
+                entry.conflicts.append("business_date 等于采集日，疑似把采集日当游玩日")
+            if (entry.opens_at is None) != (entry.closes_at is None):
+                entry.review_items.append("营业起止不完整：city-facts/1 要求同时给出或同时 unknown")
+            elif entry.opens_at and entry.closes_at and entry.opens_at >= entry.closes_at:
+                entry.review_items.append(
+                    f"营业区间跨日（{entry.opens_at}-{entry.closes_at}）：city-facts/1 要求按业务日拆分，暂不实例化")
+            if entry.last_entry_at and entry.opens_at and entry.closes_at:
+                if not (entry.opens_at <= entry.last_entry_at <= entry.closes_at):
+                    entry.review_items.append("停止入园时间不在营业区间内")
+            elif entry.last_entry_at and not (entry.opens_at and entry.closes_at):
+                entry.review_items.append("停止入园时间存在但营业区间未知")
         if record.business_date and collected_day and record.business_date == collected_day.isoformat():
             entry.conflicts.append("business_date 等于采集日，疑似把采集日当游玩日")
 
@@ -306,6 +346,12 @@ def _method_for(check_item: str) -> str:
         return "人工比对地址与经营主体"
     if "供应" in check_item:
         return "带门店名菜单或现场点单记录"
+    if "入口" in check_item or "通行方向" in check_item:
+        return "官方导览图/现场走查确认入口位置与通行方向"
+    if "命名空间" in check_item or "跨批次" in check_item:
+        return "人工比对两个命名空间记录的地址与经营主体，裁定是否同一地点"
+    if "跨日" in check_item:
+        return "运营方官网/电话确认闭园时间，必要时按业务日拆分"
     return "人工核验"
 
 
@@ -314,13 +360,60 @@ def _method_for(check_item: str) -> str:
 FACT_KIND_FOR_CATEGORY = {
     "scenic": "place", "museum": "place", "street_block": "place", "park": "place",
     "night_market": "place", "restaurant": "place", "transport": "place", "rest": "place",
-    "entrance": "place", "food": "food",
+    "entrance": "place", "food": "food", "open_rule": "open_rule",
 }
 PLACE_TYPE_FOR_CATEGORY = {
     "scenic": "scenic", "museum": "poi", "street_block": "poi", "park": "poi",
     "night_market": "night_visit", "restaurant": "restaurant", "transport": "transport",
     "rest": "rest", "entrance": "entrance",
 }
+
+
+REENTRY_VALUES = {"allowed", "forbidden", "unknown"}
+RESERVATION_VALUES = {"required", "not_required", "unknown"}
+
+
+def _aware(time_text: str, business_date: str) -> str:
+    """Attach the record's business date to an HH:MM clock value."""
+    return f"{business_date}T{time_text}:00+08:00"
+
+
+def open_rule_records(record: NormalizedRecord) -> list[dict]:
+    """Emit city-facts/1 open_rule records for one normalized rule.
+
+    Returns an empty list when the rule cannot be instantiated: no place, no
+    business date, an incomplete or cross-midnight range. city-facts/1 refuses
+    those, and inventing a date or forcing a night shift into the same
+    business_date would fabricate a fact, so the gap stays a review item.
+    """
+    if not (record.place_id and record.business_date):
+        return []
+    opens, closes = record.opens_at, record.closes_at
+    if (opens is None) != (closes is None):
+        return []
+    if opens and closes and opens >= closes:
+        return []  # 跨日区间：需要按目标日拆分，本层不猜
+    last_entry = record.last_entry_at
+    if last_entry and opens and closes and not (opens <= last_entry <= closes):
+        return []
+    base = {
+        "fact_id": record.record_id, "version": 1, "source_ids": sorted(record.source_keys),
+        "validation_status": "unverified", "business_status": "active", "is_demo": False,
+        "rights_status": "internal_only",
+        "kind": "open_rule", "place_id": record.place_id,
+        "business_date": record.business_date,
+        "reentry": record.reentry if record.reentry in REENTRY_VALUES else "unknown",
+        "reservation": record.reservation if record.reservation in RESERVATION_VALUES else "unknown",
+    }
+    if opens and closes:
+        base["opens_at"] = _aware(opens, record.business_date)
+        base["closes_at"] = _aware(closes, record.business_date)
+        if last_entry:
+            base["last_entry_at"] = _aware(last_entry, record.business_date)
+    scope = (record.ticket_scope or "").strip()
+    if scope:
+        base["ticket_scope"] = scope[:200]
+    return [base]
 
 
 def build_bundle(report: ValidationReport, *, run_id: str, collected_at: str,
@@ -333,6 +426,7 @@ def build_bundle(report: ValidationReport, *, run_id: str, collected_at: str,
     """
     records: list[dict] = []
     source_ids: set[str] = set()
+    place_ids: set[str] = set()
     for r in report.records:
         if r.spatial_status == "outside" and not include_outside:
             continue
@@ -341,6 +435,8 @@ def build_bundle(report: ValidationReport, *, run_id: str, collected_at: str,
         fact_kind = FACT_KIND_FOR_CATEGORY.get(r.category)
         if fact_kind is None:
             continue
+        if fact_kind == "place":
+            place_ids.add(r.record_id)
         base = {
             "fact_id": r.record_id, "version": 1, "source_ids": sorted(r.source_keys),
             "validation_status": "unverified", "business_status": "active", "is_demo": False,
@@ -351,18 +447,52 @@ def build_bundle(report: ValidationReport, *, run_id: str, collected_at: str,
             system = r.coordinate_system if r.coordinate_system in COORD_SYSTEMS else "unknown"
             records.append({**base, "kind": "place", "name": r.name,
                             "place_type": PLACE_TYPE_FOR_CATEGORY.get(r.category, "poi"),
-                            "parent_place_id": None, "address": r.address,
+                            "parent_place_id": r.parent_record_id, "address": r.address,
                             "longitude": r.longitude if coords and system != "unknown" else None,
                             "latitude": r.latitude if coords and system != "unknown" else None,
                             "coordinate_system": system if coords else "unknown"})
         elif fact_kind == "food":
             records.append({**base, "kind": "food", "name": r.name})
+        elif fact_kind == "open_rule":
+            # place_id 必须落在同一批次内，否则 dry-run 的引用完整性会拒绝整包。
+            if r.place_id in place_ids:
+                records.extend(open_rule_records(r))
+    records.extend(_entrance_relations(report, place_ids=place_ids))
     for key in sorted(source_ids):
         records.append({"fact_id": key, "version": 1, "source_ids": (), "validation_status": "unverified",
                         "business_status": "active", "is_demo": False, "rights_status": "internal_only",
                         "kind": "source", "name": key, "source_type": "other", "url": None,
                         "locator": f"run:{run_id}", "publisher": None, "collected_at": collected_at})
     return {"schema_version": "city-facts/1", "records": records}
+
+
+def _entrance_relations(report: ValidationReport, *, place_ids: set[str]) -> list[dict]:
+    """Emit city-facts/1 `kind=entrance` relations for confirmed entrance candidates.
+
+    city-facts/1 has no "direction unknown": the Literal only allows entry, exit
+    or both. A candidate whose direction was never confirmed therefore must not
+    become an entrance relation -- inventing `entry` would be fabricating a
+    fact. Such candidates keep only their place-level parent link and stay
+    visible in the quality report as an open gap.
+    """
+    out: list[dict] = []
+    for r in report.records:
+        if r.category != "entrance" or not r.parent_record_id:
+            continue
+        if r.parent_record_id not in place_ids:
+            continue
+        direction = getattr(r, "entrance_direction", None)
+        if direction not in ("entry", "exit", "both"):
+            continue
+        out.append({
+            "fact_id": f"entrance_{r.record_id}", "version": 1,
+            "source_ids": sorted(r.source_keys),
+            "validation_status": "unverified", "business_status": "active", "is_demo": False,
+            "rights_status": "internal_only",
+            "kind": "entrance", "place_id": r.parent_record_id,
+            "entrance_place_id": r.record_id, "direction": direction,
+        })
+    return out
 
 
 def write_json(path: Path, payload: dict) -> Path:

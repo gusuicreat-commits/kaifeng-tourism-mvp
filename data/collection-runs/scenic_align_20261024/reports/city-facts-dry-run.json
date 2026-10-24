@@ -1,0 +1,294 @@
+{
+  "status": "dry_run",
+  "received": 25,
+  "changed": 25,
+  "unchanged": 0,
+  "records": [
+    {
+      "kind": "place",
+      "id": "pl_wb_000001",
+      "ready": false,
+      "issues": [
+        "UNVERIFIED",
+        "RIGHTS_NOT_CONFIRMED",
+        "OUTSIDE_VALIDITY_OR_UNKNOWN",
+        "LOCATION_UNKNOWN",
+        "DEPENDENCY_NOT_READY:source:src_teamworkbook_places",
+        "DEPENDENCY_NOT_READY:source:src_wb_src_000004"
+      ]
+    },
+    {
+      "kind": "place",
+      "id": "pl_wb_000002",
+      "ready": false,
+      "issues": [
+        "UNVERIFIED",
+        "RIGHTS_NOT_CONFIRMED",
+        "OUTSIDE_VALIDITY_OR_UNKNOWN",
+        "LOCATION_UNKNOWN",
+        "DEPENDENCY_NOT_READY:source:src_teamworkbook_places",
+        "DEPENDENCY_NOT_READY:source:src_wb_src_000010"
+      ]
+    },
+    {
+      "kind": "place",
+      "id": "pl_wb_000003",
+      "ready": false,
+      "issues": [
+        "UNVERIFIED",
+        "RIGHTS_NOT_CONFIRMED",
+        "OUTSIDE_VALIDITY_OR_UNKNOWN",
+        "LOCATION_UNKNOWN",
+        "DEPENDENCY_NOT_READY:source:src_teamworkbook_places",
+        "DEPENDENCY_NOT_READY:source:src_wb_src_000015"
+      ]
+    },
+    {
+      "kind": "place",
+      "id": "pl_wb_000004",
+      "ready": false,
+      "issues": [
+        "UNVERIFIED",
+        "RIGHTS_NOT_CONFIRMED",
+        "OUTSIDE_VALIDITY_OR_UNKNOWN",
+        "LOCATION_UNKNOWN",
+        "DEPENDENCY_NOT_READY:source:src_teamworkbook_places",
+        "DEPENDENCY_NOT_READY:source:src_wb_src_000019"
+      ]
+    },
+    {
+      "kind": "place",
+      "id": "pl_wb_000005",
+      "ready": false,
+      "issues": [
+        "UNVERIFIED",
+        "RIGHTS_NOT_CONFIRMED",
+        "OUTSIDE_VALIDITY_OR_UNKNOWN",
+        "LOCATION_UNKNOWN",
+        "DEPENDENCY_NOT_READY:source:src_teamworkbook_places",
+        "DEPENDENCY_NOT_READY:source:src_wb_src_000023"
+      ]
+    },
+    {
+      "kind": "place",
+      "id": "pl_wb_000006",
+      "ready": false,
+      "issues": [
+        "UNVERIFIED",
+        "RIGHTS_NOT_CONFIRMED",
+        "OUTSIDE_VALIDITY_OR_UNKNOWN",
+        "LOCATION_UNKNOWN",
+        "DEPENDENCY_NOT_READY:source:src_teamworkbook_places",
+        "DEPENDENCY_NOT_READY:source:src_wb_src_000026"
+      ]
+    },
+    {
+      "kind": "place",
+      "id": "pl_wb_000007",
+      "ready": false,
+      "issues": [
+        "UNVERIFIED",
+        "RIGHTS_NOT_CONFIRMED",
+        "OUTSIDE_VALIDITY_OR_UNKNOWN",
+        "LOCATION_UNKNOWN",
+        "DEPENDENCY_NOT_READY:source:src_teamworkbook_places",
+        "DEPENDENCY_NOT_READY:source:src_wb_src_000030"
+      ]
+    },
+    {
+      "kind": "place",
+      "id": "pl_wb_000008",
+      "ready": false,
+      "issues": [
+        "UNVERIFIED",
+        "RIGHTS_NOT_CONFIRMED",
+        "OUTSIDE_VALIDITY_OR_UNKNOWN",
+        "LOCATION_UNKNOWN",
+        "DEPENDENCY_NOT_READY:source:src_teamworkbook_places",
+        "DEPENDENCY_NOT_READY:source:src_wb_src_000032"
+      ]
+    },
+    {
+      "kind": "place",
+      "id": "pl_wb_000009",
+      "ready": false,
+      "issues": [
+        "UNVERIFIED",
+        "RIGHTS_NOT_CONFIRMED",
+        "OUTSIDE_VALIDITY_OR_UNKNOWN",
+        "LOCATION_UNKNOWN",
+        "DEPENDENCY_NOT_READY:source:src_teamworkbook_places",
+        "DEPENDENCY_NOT_READY:source:src_wb_src_000035"
+      ]
+    },
+    {
+      "kind": "place",
+      "id": "pl_wb_000010",
+      "ready": false,
+      "issues": [
+        "UNVERIFIED",
+        "RIGHTS_NOT_CONFIRMED",
+        "OUTSIDE_VALIDITY_OR_UNKNOWN",
+        "LOCATION_UNKNOWN",
+        "DEPENDENCY_NOT_READY:source:src_teamworkbook_places",
+        "DEPENDENCY_NOT_READY:source:src_wb_src_000038"
+      ]
+    },
+    {
+      "kind": "place",
+      "id": "pl_wb_000011",
+      "ready": false,
+      "issues": [
+        "UNVERIFIED",
+        "RIGHTS_NOT_CONFIRMED",
+        "OUTSIDE_VALIDITY_OR_UNKNOWN",
+        "LOCATION_UNKNOWN",
+        "DEPENDENCY_NOT_READY:source:src_teamworkbook_places",
+        "DEPENDENCY_NOT_READY:source:src_wb_src_000040"
+      ]
+    },
+    {
+      "kind": "place",
+      "id": "pl_wb_000012",
+      "ready": false,
+      "issues": [
+        "UNVERIFIED",
+        "RIGHTS_NOT_CONFIRMED",
+        "OUTSIDE_VALIDITY_OR_UNKNOWN",
+        "LOCATION_UNKNOWN",
+        "DEPENDENCY_NOT_READY:source:src_teamworkbook_places",
+        "DEPENDENCY_NOT_READY:source:src_wb_src_000044"
+      ]
+    },
+    {
+      "kind": "source",
+      "id": "src_teamworkbook_places",
+      "ready": false,
+      "issues": [
+        "UNVERIFIED",
+        "RIGHTS_NOT_CONFIRMED",
+        "OUTSIDE_VALIDITY_OR_UNKNOWN"
+      ]
+    },
+    {
+      "kind": "source",
+      "id": "src_wb_src_000004",
+      "ready": false,
+      "issues": [
+        "UNVERIFIED",
+        "RIGHTS_NOT_CONFIRMED",
+        "OUTSIDE_VALIDITY_OR_UNKNOWN"
+      ]
+    },
+    {
+      "kind": "source",
+      "id": "src_wb_src_000010",
+      "ready": false,
+      "issues": [
+        "UNVERIFIED",
+        "RIGHTS_NOT_CONFIRMED",
+        "OUTSIDE_VALIDITY_OR_UNKNOWN"
+      ]
+    },
+    {
+      "kind": "source",
+      "id": "src_wb_src_000015",
+      "ready": false,
+      "issues": [
+        "UNVERIFIED",
+        "RIGHTS_NOT_CONFIRMED",
+        "OUTSIDE_VALIDITY_OR_UNKNOWN"
+      ]
+    },
+    {
+      "kind": "source",
+      "id": "src_wb_src_000019",
+      "ready": false,
+      "issues": [
+        "UNVERIFIED",
+        "RIGHTS_NOT_CONFIRMED",
+        "OUTSIDE_VALIDITY_OR_UNKNOWN"
+      ]
+    },
+    {
+      "kind": "source",
+      "id": "src_wb_src_000023",
+      "ready": false,
+      "issues": [
+        "UNVERIFIED",
+        "RIGHTS_NOT_CONFIRMED",
+        "OUTSIDE_VALIDITY_OR_UNKNOWN"
+      ]
+    },
+    {
+      "kind": "source",
+      "id": "src_wb_src_000026",
+      "ready": false,
+      "issues": [
+        "UNVERIFIED",
+        "RIGHTS_NOT_CONFIRMED",
+        "OUTSIDE_VALIDITY_OR_UNKNOWN"
+      ]
+    },
+    {
+      "kind": "source",
+      "id": "src_wb_src_000030",
+      "ready": false,
+      "issues": [
+        "UNVERIFIED",
+        "RIGHTS_NOT_CONFIRMED",
+        "OUTSIDE_VALIDITY_OR_UNKNOWN"
+      ]
+    },
+    {
+      "kind": "source",
+      "id": "src_wb_src_000032",
+      "ready": false,
+      "issues": [
+        "UNVERIFIED",
+        "RIGHTS_NOT_CONFIRMED",
+        "OUTSIDE_VALIDITY_OR_UNKNOWN"
+      ]
+    },
+    {
+      "kind": "source",
+      "id": "src_wb_src_000035",
+      "ready": false,
+      "issues": [
+        "UNVERIFIED",
+        "RIGHTS_NOT_CONFIRMED",
+        "OUTSIDE_VALIDITY_OR_UNKNOWN"
+      ]
+    },
+    {
+      "kind": "source",
+      "id": "src_wb_src_000038",
+      "ready": false,
+      "issues": [
+        "UNVERIFIED",
+        "RIGHTS_NOT_CONFIRMED",
+        "OUTSIDE_VALIDITY_OR_UNKNOWN"
+      ]
+    },
+    {
+      "kind": "source",
+      "id": "src_wb_src_000040",
+      "ready": false,
+      "issues": [
+        "UNVERIFIED",
+        "RIGHTS_NOT_CONFIRMED",
+        "OUTSIDE_VALIDITY_OR_UNKNOWN"
+      ]
+    },
+    {
+      "kind": "source",
+      "id": "src_wb_src_000044",
+      "ready": false,
+      "issues": [
+        "UNVERIFIED",
+        "RIGHTS_NOT_CONFIRMED",
+        "OUTSIDE_VALIDITY_OR_UNKNOWN"
+      ]
+    }
+  ]
+}

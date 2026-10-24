@@ -8,12 +8,11 @@ column. Workbook evidence files are not present in this repository, so nothing
 here may become 'verified'.
 
 Sheets converted: 18_source_records, 10_places, 11_place_entrances,
-13_programs, 15_food_items, 16_food_vendors, 17_vendor_foods.
+13_programs, 15_food_items, 16_food_vendors, 17_vendor_foods, 24_highlights.
 Sheets intentionally skipped:
-- 12_open_rules: weekly recurring rules cannot map to city-facts/1's concrete
-  business_date; converting would fabricate a date. Kept as handoff reference.
+- 12_open_rules: the MVP inventory materializes these for the selected day.
 - 14_show_sessions: empty in v1.1.
-- 19_change_log / 22/23/24 media & highlights: no city-facts/1 kind; archive only.
+- 19_change_log / 22/23 media: existing frontend media pipeline owns display.
 
 Usage:
     .venv/bin/python scripts/import_team_workbook.py \
@@ -39,6 +38,7 @@ WORKBOOK_LOCATOR = (
     "data/team-handoff/汴梁智游_最新数据模板_v1.1_成员1媒体试点_20261022_v17.xlsx"
     f"#{WORKBOOK_SHA256[:16]}"
 )
+WORKBOOK_PATH = ROOT / 'data/team-handoff/汴梁智游_最新数据模板_v1.1_成员1媒体试点_20261022_v17.xlsx'
 
 SOURCE_TYPE_MAP = {"official": "official", "field": "field", "field_check": "field"}
 PLACE_TYPE_MAP = {
@@ -131,6 +131,38 @@ def source_refs(row: dict, table: str) -> list[str]:
     if sid:
         refs.append(f"src_wb_{sid}")
     return refs
+
+
+def split_text(value) -> list[str]:
+    import re
+    return [x for x in re.split(r'[；;]', clean(value) or '') if x][:20]
+
+
+def enrich_records(records: list[dict], wb) -> None:
+    """Restore MVP fields dropped by the original minimal converter."""
+    places = load_sheet_rows(wb, '10_places')
+    places += [dict(r, place_id='pl_vendor_'+(clean(r.get('vendor_id')) or '')[4:]) for r in load_sheet_rows(wb, '16_food_vendors')]
+    for row in places:
+        pid=clean(row.get('place_id')) or ''
+        item=next((r for r in records if r['kind']=='place' and r['fact_id']=='pl_wb_'+pid[3:]),None)
+        if not item:continue
+        item.update(aliases=split_text(row.get('aliases')),external_poi_id=clean(row.get('external_poi_id')),
+                    description=clip(row.get('description') if row.get('description') else (None if row.get('vendor_id') else row.get('notes')),2000),
+                    suggested_stay_min=int(row['suggested_stay_min']) if row.get('suggested_stay_min') not in (None,'') else None,
+                    business_hours=clip(row.get('business_hours'),300),price_band=clip(row.get('price_band'),100),notes=clip(row.get('notes'),2000))
+        vendor=next((r for r in records if r['kind']=='vendor' and r['place_id']==item['fact_id']),None)
+        if vendor:vendor.update(external_poi_id=item['external_poi_id'],business_hours=item['business_hours'],price_band=item['price_band'])
+    for row in load_sheet_rows(wb,'13_programs'):
+        item=next((r for r in records if r['kind']=='program' and r['fact_id']=='prg_wb_'+(clean(row.get('program_id')) or '')[4:]),None)
+        if item:item.update(place_id='pl_wb_'+(clean(row.get('park_place_id')) or '')[3:],description=clip(row.get('description'),2000),notes=clip(row.get('notes'),2000))
+    for row in load_sheet_rows(wb,'15_food_items'):
+        item=next((r for r in records if r['kind']=='food' and r['fact_id']=='food_wb_'+(clean(row.get('food_id')) or '')[5:]),None)
+        if item:item.update(description=clip(row.get('intro'),2000),aliases=split_text(row.get('aliases')))
+    for row in load_sheet_rows(wb,'24_highlights'):
+        hid=clean(row.get('highlight_id'));pid=clean(row.get('place_id'))
+        if hid and pid:records.append({'kind':'highlight',**base_fact('hl_wb_'+hid[3:],source_refs(row,'highlights')),
+            'place_id':'pl_wb_'+pid[3:],'name':clip(row.get('name'),120),'category':clip(row.get('category'),100),
+            'description':clip(row.get('description'),2000),'sort_order':int(row.get('sort_order') or 0)})
 
 
 def base_fact(row_id: str, refs: list[str]) -> dict:
@@ -318,7 +350,7 @@ def main() -> int:
     wb = openpyxl.load_workbook(args.workbook, data_only=True, read_only=True)
 
     sources = [handoff_source(t) for t in
-               ("source_records", "places", "place_entrances", "food_items", "food_vendors", "vendor_foods", "programs")]
+               ("source_records", "places", "place_entrances", "food_items", "food_vendors", "vendor_foods", "programs", "highlights")]
     declared = [s for s in (declared_source(r) for r in load_sheet_rows(wb, "18_source_records")) if s]
 
     records: list[dict] = sources + declared
@@ -352,8 +384,7 @@ def main() -> int:
     warnings += prog_warnings
     records += programs
 
-    # 12_open_rules skipped deliberately: weekly rules have no business_date.
-    warnings.append("12_open_rules: 19 条周期规则全部跳过（city-facts/1 需要具体 business_date，按目标游玩日逐日生成）")
+    if args.workbook.resolve() == WORKBOOK_PATH.resolve():enrich_records(records,wb)
 
     # Validate through the real contract before writing anything.
     from app.city.facts import FactBundle

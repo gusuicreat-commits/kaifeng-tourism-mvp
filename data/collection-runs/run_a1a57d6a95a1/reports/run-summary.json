@@ -1,0 +1,135 @@
+{
+  "run_id": "run_a1a57d6a95a1",
+  "task_id": "task_44d5b658f6a6",
+  "run_dir": "/Users/mac/Desktop/大挑/kaifeng-tourism-mvp/data/collection-runs/run_a1a57d6a95a1",
+  "ingested": [],
+  "fetched": [
+    {
+      "url": "https://www.ctsb.com.cn/wap/SceneryShow?ID=15",
+      "ok": false,
+      "status_code": null,
+      "error_kind": "network_error",
+      "sha256": null,
+      "raw_path": null,
+      "source_key": "src_route_live_ctsb_kaifengfu",
+      "label": null
+    },
+    {
+      "url": "https://www.gulou.gov.cn/kfsglqwz/c00173/pc/content/content_1889528282980225024.html",
+      "ok": false,
+      "status_code": null,
+      "error_kind": "network_error",
+      "sha256": null,
+      "raw_path": null,
+      "source_key": "src_route_live_gulou_official",
+      "label": null
+    },
+    {
+      "url": "https://ditu.amap.com/place/B017A007A3",
+      "ok": false,
+      "status_code": null,
+      "error_kind": "network_error",
+      "sha256": null,
+      "raw_path": null,
+      "source_key": "src_route_live_amap_kaifengfu",
+      "label": null
+    },
+    {
+      "url": "https://ditu.amap.com/place/B017A0N05A",
+      "ok": false,
+      "status_code": null,
+      "error_kind": "network_error",
+      "sha256": null,
+      "raw_path": null,
+      "source_key": "src_route_live_amap_gulou",
+      "label": null
+    },
+    {
+      "url": "https://www.amap.com/place/B017A00HWY",
+      "ok": false,
+      "status_code": null,
+      "error_kind": "network_error",
+      "sha256": null,
+      "raw_path": null,
+      "source_key": "src_route_live_amap_first_floor",
+      "label": null
+    },
+    {
+      "url": "https://4travel.jp/os_shisetsu/10453016",
+      "ok": false,
+      "status_code": null,
+      "error_kind": "network_error",
+      "sha256": null,
+      "raw_path": null,
+      "source_key": "src_route_live_4travel_first_floor",
+      "label": null
+    }
+  ],
+  "extracted": [],
+  "records": 0,
+  "duplicates": 0,
+  "conflicts": 0,
+  "review_tasks": 0,
+  "failures": [
+    {
+      "failure_id": "fail_2c7e943f6ff4",
+      "run_id": "run_a1a57d6a95a1",
+      "source_key": "src_route_live_ctsb_kaifengfu",
+      "failure_kind": "network_error",
+      "detail": "ConnectError: [Errno 8] nodename nor servname provided, or not known",
+      "occurred_at": "2026-10-24T16:56:47+08:00",
+      "retry_of": null
+    },
+    {
+      "failure_id": "fail_4096503d20f4",
+      "run_id": "run_a1a57d6a95a1",
+      "source_key": "src_route_live_gulou_official",
+      "failure_kind": "network_error",
+      "detail": "ConnectError: [Errno 8] nodename nor servname provided, or not known",
+      "occurred_at": "2026-10-24T16:57:04+08:00",
+      "retry_of": null
+    },
+    {
+      "failure_id": "fail_c4e67d649d5b",
+      "run_id": "run_a1a57d6a95a1",
+      "source_key": "src_route_live_amap_kaifengfu",
+      "failure_kind": "network_error",
+      "detail": "ConnectError: [Errno 8] nodename nor servname provided, or not known",
+      "occurred_at": "2026-10-24T16:57:21+08:00",
+      "retry_of": null
+    },
+    {
+      "failure_id": "fail_f56624c36c0d",
+      "run_id": "run_a1a57d6a95a1",
+      "source_key": "src_route_live_amap_gulou",
+      "failure_kind": "network_error",
+      "detail": "ConnectError: [Errno 8] nodename nor servname provided, or not known",
+      "occurred_at": "2026-10-24T16:57:38+08:00",
+      "retry_of": null
+    },
+    {
+      "failure_id": "fail_bf4db326b1b1",
+      "run_id": "run_a1a57d6a95a1",
+      "source_key": "src_route_live_amap_first_floor",
+      "failure_kind": "network_error",
+      "detail": "ConnectError: [Errno 8] nodename nor servname provided, or not known",
+      "occurred_at": "2026-10-24T16:57:55+08:00",
+      "retry_of": null
+    },
+    {
+      "failure_id": "fail_c9beae7e1b6e",
+      "run_id": "run_a1a57d6a95a1",
+      "source_key": "src_route_live_4travel_first_floor",
+      "failure_kind": "network_error",
+      "detail": "ConnectError: [Errno 8] nodename nor servname provided, or not known",
+      "occurred_at": "2026-10-24T16:58:12+08:00",
+      "retry_of": null
+    }
+  ],
+  "bundle_path": "/Users/mac/Desktop/大挑/kaifeng-tourism-mvp/data/collection-runs/run_a1a57d6a95a1/bundle/city-facts-candidate.json",
+  "dry_run": {
+    "status": "dry_run",
+    "received": 0,
+    "changed": 0
+  }
+}

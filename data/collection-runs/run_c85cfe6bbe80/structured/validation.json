@@ -1,0 +1,15 @@
+{
+  "records": [],
+  "duplicates": [],
+  "conflicts": [],
+  "spatial": {
+    "inside": 0,
+    "pending": 0,
+    "outside": 0,
+    "with_coordinates": 0,
+    "coordinate_systems": {
+      "unknown": 0
+    }
+  },
+  "review_tasks": []
+}

@@ -1,0 +1,123 @@
+{
+  "status": "dry_run",
+  "received": 10,
+  "changed": 10,
+  "unchanged": 0,
+  "records": [
+    {
+      "kind": "place",
+      "id": "place_kfsbwg",
+      "ready": false,
+      "issues": [
+        "UNVERIFIED",
+        "RIGHTS_NOT_CONFIRMED",
+        "OUTSIDE_VALIDITY_OR_UNKNOWN",
+        "LOCATION_UNKNOWN",
+        "DEPENDENCY_NOT_READY:source:src_bendibao_kfsbwg_address",
+        "DEPENDENCY_NOT_READY:source:src_kfsbwg_tips_openinfo",
+        "DEPENDENCY_NOT_READY:source:src_kfsbwg_tips_openinfo_live",
+        "DEPENDENCY_NOT_READY:source:src_kfsfq_museum_directory"
+      ]
+    },
+    {
+      "kind": "place",
+      "id": "place_kfsbwg_newgate",
+      "ready": false,
+      "issues": [
+        "UNVERIFIED",
+        "RIGHTS_NOT_CONFIRMED",
+        "OUTSIDE_VALIDITY_OR_UNKNOWN",
+        "LOCATION_UNKNOWN",
+        "DEPENDENCY_NOT_READY:source:src_bendibao_kfsbwg_address",
+        "DEPENDENCY_NOT_READY:place:place_kfsbwg",
+        "DEPENDENCY_NOT_READY:source:src_kfsbwg_tips_openinfo",
+        "DEPENDENCY_NOT_READY:source:src_kfsbwg_tips_openinfo_live",
+        "DEPENDENCY_NOT_READY:source:src_kfsfq_museum_directory"
+      ]
+    },
+    {
+      "kind": "place",
+      "id": "place_shudianjie",
+      "ready": false,
+      "issues": [
+        "UNVERIFIED",
+        "RIGHTS_NOT_CONFIRMED",
+        "OUTSIDE_VALIDITY_OR_UNKNOWN",
+        "LOCATION_UNKNOWN",
+        "DEPENDENCY_NOT_READY:source:src_gulou_shudianjie"
+      ]
+    },
+    {
+      "kind": "place",
+      "id": "place_gulou_night_market",
+      "ready": false,
+      "issues": [
+        "UNVERIFIED",
+        "RIGHTS_NOT_CONFIRMED",
+        "OUTSIDE_VALIDITY_OR_UNKNOWN",
+        "LOCATION_UNKNOWN",
+        "DEPENDENCY_NOT_READY:source:src_gulou_night_market"
+      ]
+    },
+    {
+      "kind": "source",
+      "id": "src_bendibao_kfsbwg_address",
+      "ready": false,
+      "issues": [
+        "UNVERIFIED",
+        "RIGHTS_NOT_CONFIRMED",
+        "OUTSIDE_VALIDITY_OR_UNKNOWN"
+      ]
+    },
+    {
+      "kind": "source",
+      "id": "src_gulou_night_market",
+      "ready": false,
+      "issues": [
+        "UNVERIFIED",
+        "RIGHTS_NOT_CONFIRMED",
+        "OUTSIDE_VALIDITY_OR_UNKNOWN"
+      ]
+    },
+    {
+      "kind": "source",
+      "id": "src_gulou_shudianjie",
+      "ready": false,
+      "issues": [
+        "UNVERIFIED",
+        "RIGHTS_NOT_CONFIRMED",
+        "OUTSIDE_VALIDITY_OR_UNKNOWN"
+      ]
+    },
+    {
+      "kind": "source",
+      "id": "src_kfsbwg_tips_openinfo",
+      "ready": false,
+      "issues": [
+        "UNVERIFIED",
+        "RIGHTS_NOT_CONFIRMED",
+        "OUTSIDE_VALIDITY_OR_UNKNOWN"
+      ]
+    },
+    {
+      "kind": "source",
+      "id": "src_kfsbwg_tips_openinfo_live",
+      "ready": false,
+      "issues": [
+        "UNVERIFIED",
+        "RIGHTS_NOT_CONFIRMED",
+        "OUTSIDE_VALIDITY_OR_UNKNOWN"
+      ]
+    },
+    {
+      "kind": "source",
+      "id": "src_kfsfq_museum_directory",
+      "ready": false,
+      "issues": [
+        "UNVERIFIED",
+        "RIGHTS_NOT_CONFIRMED",
+        "OUTSIDE_VALIDITY_OR_UNKNOWN"
+      ]
+    }
+  ]
+}

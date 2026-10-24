@@ -76,39 +76,44 @@ class RateLimiter:
 
 
 class RobotsCache:
-    """Minimal robots.txt cache: allow-all unless a matching Disallow exists."""
+    """robots.txt cache that honours User-agent groups.
 
-    def __init__(self, cache_path: Path | None = None, fetcher=None):
+    Only the group matching our user agent (falling back to `*`) applies.
+    Mixing every group together would apply Googlebot's Disallow rules to this
+    collector and over-block legitimate targets, which is its own compliance
+    bug: we would claim a robots block that the site never asked for.
+    """
+
+    def __init__(self, cache_path: Path | None = None, fetcher=None,
+                 user_agent: str = USER_AGENT_DEFAULT):
         self.cache_path = Path(cache_path) if cache_path else None
         self.fetcher = fetcher
-        self._memory: dict[str, list[str]] = {}
+        self.user_agent = user_agent
+        self._memory: dict[str, dict[str, list[str]]] = {}
         if self.cache_path and self.cache_path.exists():
             try:
-                self._memory = json.loads(self.cache_path.read_text(encoding="utf-8"))
+                loaded = json.loads(self.cache_path.read_text(encoding="utf-8"))
+                if isinstance(loaded, dict):
+                    self._memory = loaded
             except (ValueError, OSError):
                 self._memory = {}
 
-    def _load_domain(self, domain: str) -> list[str]:
-        if domain in self._memory:
-            return self._memory[domain]
-        rules: list[str] = []
-        if self.fetcher is not None:
-            robots_url = urlunparse(("https", domain, "/robots.txt", "", "", ""))
-            try:
-                text = self.fetcher(robots_url)
-            except Exception:
-                text = None
-            if text:
-                for line in text.splitlines():
-                    stripped = line.split("#", 1)[0].strip()
-                    if not stripped.lower().startswith("disallow"):
-                        continue
-                    value = stripped.split(":", 1)[1].strip() if ":" in stripped else ""
-                    if value:
-                        rules.append(value)
-        self._memory[domain] = rules
-        self._save()
-        return rules
+    def _rules_for(self, domain: str) -> list[str]:
+        """Disallow rules of the group that governs our user agent."""
+        groups = self._memory.get(domain)
+        if groups is None:
+            groups = {}
+            if self.fetcher is not None:
+                robots_url = urlunparse(("https", domain, "/robots.txt", "", "", ""))
+                try:
+                    text = self.fetcher(robots_url)
+                except Exception:
+                    text = None
+                if text:
+                    groups = _parse_robots_groups(text)
+            self._memory[domain] = groups
+            self._save()
+        return _select_group(groups, self.user_agent)
 
     def _save(self) -> None:
         if not self.cache_path:
@@ -123,12 +128,46 @@ class RobotsCache:
         parsed = urlparse(url)
         if parsed.scheme not in ("http", "https"):
             return False, f"scheme_not_allowed:{parsed.scheme}"
-        rules = self._load_domain(parsed.netloc)
+        rules = self._rules_for(parsed.netloc)
         path = parsed.path or "/"
         for rule in rules:
             if rule == "/" or path.startswith(rule):
                 return False, f"robots_disallow:{rule}"
         return True, ""
+
+
+def _parse_robots_groups(text: str) -> dict[str, list[str]]:
+    """Split robots.txt into {agent: [disallow, ...]} groups."""
+    groups: dict[str, list[str]] = {}
+    # 规则出现在任何 User-agent 行之前时归属通配组
+    current: list[str] = groups.setdefault("*", [])
+    for raw_line in text.splitlines():
+        line = raw_line.split("#", 1)[0].strip()
+        if not line or ":" not in line:
+            continue
+        field, value = line.split(":", 1)
+        field, value = field.strip().lower(), value.strip()
+        if field == "user-agent":
+            # 连续多个 User-agent 行同属一组
+            agent = value.lower()
+            if agent not in groups:
+                groups[agent] = []
+            current = groups[agent]
+            continue
+        if field == "disallow":
+            if value:
+                current.append(value)
+    return groups
+
+
+def _select_group(groups: dict[str, list[str]], user_agent: str) -> list[str]:
+    """Pick the most specific matching group, else `*`, else allow-all."""
+    agent = (user_agent or "").lower()
+    for name, rules in groups.items():
+        if name and name != "*" and name in agent:
+            return rules
+    return groups.get("*", [])
+
 
 
 @dataclass
@@ -153,6 +192,7 @@ class Fetcher:
         self.robots = RobotsCache(
             Path(policy.robots["cache_path"]) if policy.robots.get("cache_path") else None,
             fetcher=self._fetch_robots,
+            user_agent=self.user_agent,
         ) if self.respect_robots else None
         self.raw_dir = Path(self.runs_dir) / self.run_id / "raw"
         self.raw_dir.mkdir(parents=True, exist_ok=True)

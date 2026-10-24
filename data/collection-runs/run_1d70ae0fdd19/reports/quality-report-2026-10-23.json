@@ -1,7 +1,7 @@
 {
   "schema_version": "kaifeng-quality-report/1",
   "run_id": "run_1d70ae0fdd19",
-  "generated_at": "2026-10-23T23:52:09+08:00",
+  "generated_at": "2026-10-24T12:09:58+08:00",
   "collected_day": "2026-10-23",
   "spec": "docs/DATA_QUALITY_REPORT_SPEC.md",
   "scope": {
@@ -56,11 +56,11 @@
   },
   "totals": {
     "records": 48,
-    "sources": 25,
+    "sources": 26,
     "duplicates": 0,
     "conflicts": 0,
     "failures": 0,
-    "review_tasks": 14
+    "review_tasks": 15
   },
   "bundle_dry_run": {
     "status": "dry_run",
@@ -182,11 +182,14 @@
       "note": "本轮未采园内道路与入口衔接候选；unchecked 不得声称为可导航。"
     },
     "entrance_coverage": {
-      "priority_scenics": 40,
+      "priority_scenics": 0,
       "with_entrance_candidate": 0,
       "entrance_candidates_total": 1,
       "rejected_fake_entrances": 0,
-      "note": "停车场/地图中心点不得计为入口候选。"
+      "note": "停车场/地图中心点不得计为入口候选。",
+      "orphan_entrance_candidates": [
+        "place_kfsbwg_newgate"
+      ]
     },
     "vendor_supply_evidence": {
       "vendors_total": 12,
@@ -215,6 +218,11 @@
       "priority": "medium",
       "gap": "空间归属待核验",
       "detail": "place_kfsbwg, place_kfsbwg_newgate, place_jingcha_museum, place_dezhuang_ceramic_museum, place_kaifeng_culture_hall_old, place_kaifeng_library, place_heyuan_jinxiang, food_guantangbao, food_siweicai, food_liyu_beimian, food_tongziji, food_chaoliangfen, food_yangrou_kangmo, food_xingrencha"
+    },
+    {
+      "priority": "medium",
+      "gap": "入口候选未关联地点或方向未确认",
+      "detail": "place_kfsbwg_newgate"
     }
   ]
 }

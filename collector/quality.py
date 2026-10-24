@@ -131,18 +131,23 @@ def compute(*, db: sqlite3.Connection, bundle: StructuredBundle, validation: Val
           "note": "本轮未采园内道路与入口衔接候选；unchecked 不得声称为可导航。"}
 
     # 6. entrance coverage
-    priority_keys = {c.key for c in categories() if c.priority == "high"}
-    priority_records = [r for r in records if r.category in priority_keys]
+    # SPEC 口径：分母只数 category=scenic 且 priority=high 的景区，
+    # 不是"所有 high 优先级类别的记录数"。
+    priority_scenic_keys = {c.key for c in categories()
+                            if c.priority == "high" and c.place_type == "scenic"}
+    priority_records = [r for r in records if r.category in priority_scenic_keys]
     entrance_records = [r for r in records if r.category == "entrance"]
     # 入口候选通过 parent_record_id 挂到具体地点；仅统计被引用的候选，
     # 未挂到任何地点的候选不算覆盖。
     covered = {r.parent_record_id for r in entrance_records if r.parent_record_id}
+    orphan_entrances = [r.record_id for r in entrance_records if not r.parent_record_id]
     m6 = {
         "priority_scenics": len(priority_records),
         "with_entrance_candidate": len([r for r in priority_records if r.record_id in covered]),
         "entrance_candidates_total": len(entrance_records),
         "rejected_fake_entrances": 0,
         "note": "停车场/地图中心点不得计为入口候选。",
+        "orphan_entrance_candidates": orphan_entrances,
     }
 
     # 7. vendor & supply evidence
@@ -199,7 +204,7 @@ def compute(*, db: sqlite3.Connection, bundle: StructuredBundle, validation: Val
             "failures": len(failures),
             "review_tasks": len(validation.review_tasks),
         },
-        "bundle_dry_run": bundle_dry_run or {},
+        "bundle_dry_run": _dry_run_summary(bundle_dry_run),
         "red_lines": {
             "fabricated_data": 0, "ai_completion": 0, "bypass_import_channel": 0, "bypass_waf": 0,
             "note": "自检口径：本工具只做代码抽取与候选生成，未写运行库、未绕过访问控制。",
@@ -209,8 +214,26 @@ def compute(*, db: sqlite3.Connection, bundle: StructuredBundle, validation: Val
             "date_validity": m4, "network_evidence": m5, "entrance_coverage": m6,
             "vendor_supply_evidence": m7, "conflict_handling": m8,
         },
-        "gaps_top": _gaps(m1, m3, m4, m8, validation),
+        "gaps_top": _gaps(m1, m3, m4, m8, validation, m6),
     }
+
+
+def _dry_run_summary(bundle_dry_run: dict | None) -> dict:
+    """Keep the dry-run counts, drop the per-record detail.
+
+    The import script returns one entry per record; pasting all of them into the
+    markdown summary makes the report unreadable. Counts stay, and the full
+    response remains in `reports/city-facts-dry-run.json`.
+    """
+    if not bundle_dry_run:
+        return {}
+    summary = {key: bundle_dry_run[key] for key in
+               ("status", "received", "changed", "unchanged") if key in bundle_dry_run}
+    records = bundle_dry_run.get("records")
+    if isinstance(records, list):
+        summary["ready"] = sum(1 for r in records if r.get("ready"))
+        summary["issues"] = len(records)
+    return summary
 
 
 def _field_values(record) -> dict[str, Any]:
@@ -227,11 +250,18 @@ def _field_values(record) -> dict[str, Any]:
     }
 
 
-def _gaps(m1, m3, m4, m8, validation: ValidationReport) -> list[dict]:
+def _gaps(m1, m3, m4, m8, validation: ValidationReport, m6: dict | None = None) -> list[dict]:
     gaps: list[dict] = []
     if m1["rate"] < 1.0:
-        gaps.append({"priority": "high", "gap": "来源可追踪率未达 100%",
-                     "detail": f"hash_matched={m1['hash_matched']}/{m1['total_records']}"})
+        # 区分两种不同的未追踪原因：来源未登记 vs 已登记但 raw 字节无法复算
+        # （例如来源声明的证据文件不在本仓库）。两者的补救动作不同。
+        detail = f"hash_matched={m1['hash_matched']}/{m1['total_records']}"
+        if m1["unregistered_source_keys"]:
+            detail += f"；未登记来源：{', '.join(m1['unregistered_source_keys'])}"
+        if m1["hash_unverified_records"]:
+            detail += (f"；{len(m1['hash_unverified_records'])} 条来源已登记但 raw 缺失或"
+                       f"SHA-256 不匹配，需补原始证据文件")
+        gaps.append({"priority": "high", "gap": "来源可追踪率未达 100%", "detail": detail})
     if m3["with_coords"] < m3["places_total"]:
         gaps.append({"priority": "high", "gap": "地点坐标缺失",
                      "detail": f"{m3['places_total'] - m3['with_coords']} 条无坐标"})
@@ -248,6 +278,11 @@ def _gaps(m1, m3, m4, m8, validation: ValidationReport) -> list[dict]:
     if validation.duplicates:
         gaps.append({"priority": "medium", "gap": "同名/同坐标重复待区分",
                      "detail": f"{len(validation.duplicates)} 组"})
+    if m6:
+        orphans = m6.get("orphan_entrance_candidates") or []
+        if orphans:
+            gaps.append({"priority": "medium", "gap": "入口候选未关联地点或方向未确认",
+                         "detail": ", ".join(orphans)})
     return gaps
 
 

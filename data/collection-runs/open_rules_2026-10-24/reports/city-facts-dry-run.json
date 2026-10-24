@@ -1,0 +1,707 @@
+{
+  "status": "dry_run",
+  "received": 58,
+  "changed": 58,
+  "unchanged": 0,
+  "records": [
+    {
+      "kind": "source",
+      "id": "src_teamworkbook_open_rules",
+      "ready": false,
+      "issues": [
+        "UNVERIFIED",
+        "RIGHTS_NOT_CONFIRMED",
+        "OUTSIDE_VALIDITY_OR_UNKNOWN"
+      ]
+    },
+    {
+      "kind": "place",
+      "id": "pl_wb_000001",
+      "ready": false,
+      "issues": [
+        "UNVERIFIED",
+        "RIGHTS_NOT_CONFIRMED",
+        "OUTSIDE_VALIDITY_OR_UNKNOWN",
+        "LOCATION_UNKNOWN",
+        "DEPENDENCY_NOT_READY:source:src_teamworkbook_places",
+        "DEPENDENCY_NOT_READY:source:src_wb_src_000004"
+      ]
+    },
+    {
+      "kind": "place",
+      "id": "pl_wb_000002",
+      "ready": false,
+      "issues": [
+        "UNVERIFIED",
+        "RIGHTS_NOT_CONFIRMED",
+        "OUTSIDE_VALIDITY_OR_UNKNOWN",
+        "LOCATION_UNKNOWN",
+        "DEPENDENCY_NOT_READY:source:src_teamworkbook_places",
+        "DEPENDENCY_NOT_READY:source:src_wb_src_000010"
+      ]
+    },
+    {
+      "kind": "place",
+      "id": "pl_wb_000003",
+      "ready": false,
+      "issues": [
+        "UNVERIFIED",
+        "RIGHTS_NOT_CONFIRMED",
+        "OUTSIDE_VALIDITY_OR_UNKNOWN",
+        "LOCATION_UNKNOWN",
+        "DEPENDENCY_NOT_READY:source:src_teamworkbook_places",
+        "DEPENDENCY_NOT_READY:source:src_wb_src_000015"
+      ]
+    },
+    {
+      "kind": "place",
+      "id": "pl_wb_000004",
+      "ready": false,
+      "issues": [
+        "UNVERIFIED",
+        "RIGHTS_NOT_CONFIRMED",
+        "OUTSIDE_VALIDITY_OR_UNKNOWN",
+        "LOCATION_UNKNOWN",
+        "DEPENDENCY_NOT_READY:source:src_teamworkbook_places",
+        "DEPENDENCY_NOT_READY:source:src_wb_src_000019"
+      ]
+    },
+    {
+      "kind": "place",
+      "id": "pl_wb_000005",
+      "ready": false,
+      "issues": [
+        "UNVERIFIED",
+        "RIGHTS_NOT_CONFIRMED",
+        "OUTSIDE_VALIDITY_OR_UNKNOWN",
+        "LOCATION_UNKNOWN",
+        "DEPENDENCY_NOT_READY:source:src_teamworkbook_places",
+        "DEPENDENCY_NOT_READY:source:src_wb_src_000023"
+      ]
+    },
+    {
+      "kind": "place",
+      "id": "pl_wb_000006",
+      "ready": false,
+      "issues": [
+        "UNVERIFIED",
+        "RIGHTS_NOT_CONFIRMED",
+        "OUTSIDE_VALIDITY_OR_UNKNOWN",
+        "LOCATION_UNKNOWN",
+        "DEPENDENCY_NOT_READY:source:src_teamworkbook_places",
+        "DEPENDENCY_NOT_READY:source:src_wb_src_000026"
+      ]
+    },
+    {
+      "kind": "place",
+      "id": "pl_wb_000007",
+      "ready": false,
+      "issues": [
+        "UNVERIFIED",
+        "RIGHTS_NOT_CONFIRMED",
+        "OUTSIDE_VALIDITY_OR_UNKNOWN",
+        "LOCATION_UNKNOWN",
+        "DEPENDENCY_NOT_READY:source:src_teamworkbook_places",
+        "DEPENDENCY_NOT_READY:source:src_wb_src_000030"
+      ]
+    },
+    {
+      "kind": "place",
+      "id": "pl_wb_000008",
+      "ready": false,
+      "issues": [
+        "UNVERIFIED",
+        "RIGHTS_NOT_CONFIRMED",
+        "OUTSIDE_VALIDITY_OR_UNKNOWN",
+        "LOCATION_UNKNOWN",
+        "DEPENDENCY_NOT_READY:source:src_teamworkbook_places",
+        "DEPENDENCY_NOT_READY:source:src_wb_src_000032"
+      ]
+    },
+    {
+      "kind": "place",
+      "id": "pl_wb_000009",
+      "ready": false,
+      "issues": [
+        "UNVERIFIED",
+        "RIGHTS_NOT_CONFIRMED",
+        "OUTSIDE_VALIDITY_OR_UNKNOWN",
+        "LOCATION_UNKNOWN",
+        "DEPENDENCY_NOT_READY:source:src_teamworkbook_places",
+        "DEPENDENCY_NOT_READY:source:src_wb_src_000035"
+      ]
+    },
+    {
+      "kind": "place",
+      "id": "pl_wb_000010",
+      "ready": false,
+      "issues": [
+        "UNVERIFIED",
+        "RIGHTS_NOT_CONFIRMED",
+        "OUTSIDE_VALIDITY_OR_UNKNOWN",
+        "LOCATION_UNKNOWN",
+        "DEPENDENCY_NOT_READY:source:src_teamworkbook_places",
+        "DEPENDENCY_NOT_READY:source:src_wb_src_000038"
+      ]
+    },
+    {
+      "kind": "place",
+      "id": "pl_wb_000011",
+      "ready": false,
+      "issues": [
+        "UNVERIFIED",
+        "RIGHTS_NOT_CONFIRMED",
+        "OUTSIDE_VALIDITY_OR_UNKNOWN",
+        "LOCATION_UNKNOWN",
+        "DEPENDENCY_NOT_READY:source:src_teamworkbook_places",
+        "DEPENDENCY_NOT_READY:source:src_wb_src_000040"
+      ]
+    },
+    {
+      "kind": "place",
+      "id": "pl_wb_000012",
+      "ready": false,
+      "issues": [
+        "UNVERIFIED",
+        "RIGHTS_NOT_CONFIRMED",
+        "OUTSIDE_VALIDITY_OR_UNKNOWN",
+        "LOCATION_UNKNOWN",
+        "DEPENDENCY_NOT_READY:source:src_teamworkbook_places",
+        "DEPENDENCY_NOT_READY:source:src_wb_src_000044"
+      ]
+    },
+    {
+      "kind": "place",
+      "id": "pl_wb_000013",
+      "ready": false,
+      "issues": [
+        "UNVERIFIED",
+        "RIGHTS_NOT_CONFIRMED",
+        "OUTSIDE_VALIDITY_OR_UNKNOWN",
+        "LOCATION_UNKNOWN",
+        "DEPENDENCY_NOT_READY:source:src_teamworkbook_places",
+        "DEPENDENCY_NOT_READY:source:src_wb_src_000049"
+      ]
+    },
+    {
+      "kind": "place",
+      "id": "pl_wb_000014",
+      "ready": false,
+      "issues": [
+        "UNVERIFIED",
+        "RIGHTS_NOT_CONFIRMED",
+        "OUTSIDE_VALIDITY_OR_UNKNOWN",
+        "LOCATION_UNKNOWN",
+        "DEPENDENCY_NOT_READY:source:src_teamworkbook_places",
+        "DEPENDENCY_NOT_READY:source:src_wb_src_000050"
+      ]
+    },
+    {
+      "kind": "place",
+      "id": "pl_wb_000016",
+      "ready": false,
+      "issues": [
+        "UNVERIFIED",
+        "RIGHTS_NOT_CONFIRMED",
+        "OUTSIDE_VALIDITY_OR_UNKNOWN",
+        "LOCATION_UNKNOWN",
+        "DEPENDENCY_NOT_READY:source:src_teamworkbook_places",
+        "DEPENDENCY_NOT_READY:source:src_wb_src_000057"
+      ]
+    },
+    {
+      "kind": "source",
+      "id": "src_teamworkbook_places",
+      "ready": false,
+      "issues": [
+        "UNVERIFIED",
+        "RIGHTS_NOT_CONFIRMED",
+        "OUTSIDE_VALIDITY_OR_UNKNOWN"
+      ]
+    },
+    {
+      "kind": "source",
+      "id": "src_wb_src_000002",
+      "ready": false,
+      "issues": [
+        "UNVERIFIED",
+        "RIGHTS_NOT_CONFIRMED",
+        "OUTSIDE_VALIDITY_OR_UNKNOWN"
+      ]
+    },
+    {
+      "kind": "source",
+      "id": "src_wb_src_000004",
+      "ready": false,
+      "issues": [
+        "UNVERIFIED",
+        "RIGHTS_NOT_CONFIRMED",
+        "OUTSIDE_VALIDITY_OR_UNKNOWN"
+      ]
+    },
+    {
+      "kind": "source",
+      "id": "src_wb_src_000010",
+      "ready": false,
+      "issues": [
+        "UNVERIFIED",
+        "RIGHTS_NOT_CONFIRMED",
+        "OUTSIDE_VALIDITY_OR_UNKNOWN"
+      ]
+    },
+    {
+      "kind": "source",
+      "id": "src_wb_src_000013",
+      "ready": false,
+      "issues": [
+        "UNVERIFIED",
+        "RIGHTS_NOT_CONFIRMED",
+        "OUTSIDE_VALIDITY_OR_UNKNOWN"
+      ]
+    },
+    {
+      "kind": "source",
+      "id": "src_wb_src_000015",
+      "ready": false,
+      "issues": [
+        "UNVERIFIED",
+        "RIGHTS_NOT_CONFIRMED",
+        "OUTSIDE_VALIDITY_OR_UNKNOWN"
+      ]
+    },
+    {
+      "kind": "source",
+      "id": "src_wb_src_000016",
+      "ready": false,
+      "issues": [
+        "UNVERIFIED",
+        "RIGHTS_NOT_CONFIRMED",
+        "OUTSIDE_VALIDITY_OR_UNKNOWN"
+      ]
+    },
+    {
+      "kind": "source",
+      "id": "src_wb_src_000018",
+      "ready": false,
+      "issues": [
+        "UNVERIFIED",
+        "RIGHTS_NOT_CONFIRMED",
+        "OUTSIDE_VALIDITY_OR_UNKNOWN"
+      ]
+    },
+    {
+      "kind": "source",
+      "id": "src_wb_src_000019",
+      "ready": false,
+      "issues": [
+        "UNVERIFIED",
+        "RIGHTS_NOT_CONFIRMED",
+        "OUTSIDE_VALIDITY_OR_UNKNOWN"
+      ]
+    },
+    {
+      "kind": "source",
+      "id": "src_wb_src_000023",
+      "ready": false,
+      "issues": [
+        "UNVERIFIED",
+        "RIGHTS_NOT_CONFIRMED",
+        "OUTSIDE_VALIDITY_OR_UNKNOWN"
+      ]
+    },
+    {
+      "kind": "source",
+      "id": "src_wb_src_000026",
+      "ready": false,
+      "issues": [
+        "UNVERIFIED",
+        "RIGHTS_NOT_CONFIRMED",
+        "OUTSIDE_VALIDITY_OR_UNKNOWN"
+      ]
+    },
+    {
+      "kind": "source",
+      "id": "src_wb_src_000030",
+      "ready": false,
+      "issues": [
+        "UNVERIFIED",
+        "RIGHTS_NOT_CONFIRMED",
+        "OUTSIDE_VALIDITY_OR_UNKNOWN"
+      ]
+    },
+    {
+      "kind": "source",
+      "id": "src_wb_src_000032",
+      "ready": false,
+      "issues": [
+        "UNVERIFIED",
+        "RIGHTS_NOT_CONFIRMED",
+        "OUTSIDE_VALIDITY_OR_UNKNOWN"
+      ]
+    },
+    {
+      "kind": "source",
+      "id": "src_wb_src_000033",
+      "ready": false,
+      "issues": [
+        "UNVERIFIED",
+        "RIGHTS_NOT_CONFIRMED",
+        "OUTSIDE_VALIDITY_OR_UNKNOWN"
+      ]
+    },
+    {
+      "kind": "source",
+      "id": "src_wb_src_000035",
+      "ready": false,
+      "issues": [
+        "UNVERIFIED",
+        "RIGHTS_NOT_CONFIRMED",
+        "OUTSIDE_VALIDITY_OR_UNKNOWN"
+      ]
+    },
+    {
+      "kind": "source",
+      "id": "src_wb_src_000038",
+      "ready": false,
+      "issues": [
+        "UNVERIFIED",
+        "RIGHTS_NOT_CONFIRMED",
+        "OUTSIDE_VALIDITY_OR_UNKNOWN"
+      ]
+    },
+    {
+      "kind": "source",
+      "id": "src_wb_src_000040",
+      "ready": false,
+      "issues": [
+        "UNVERIFIED",
+        "RIGHTS_NOT_CONFIRMED",
+        "OUTSIDE_VALIDITY_OR_UNKNOWN"
+      ]
+    },
+    {
+      "kind": "source",
+      "id": "src_wb_src_000042",
+      "ready": false,
+      "issues": [
+        "UNVERIFIED",
+        "RIGHTS_NOT_CONFIRMED",
+        "OUTSIDE_VALIDITY_OR_UNKNOWN"
+      ]
+    },
+    {
+      "kind": "source",
+      "id": "src_wb_src_000043",
+      "ready": false,
+      "issues": [
+        "UNVERIFIED",
+        "RIGHTS_NOT_CONFIRMED",
+        "OUTSIDE_VALIDITY_OR_UNKNOWN"
+      ]
+    },
+    {
+      "kind": "source",
+      "id": "src_wb_src_000044",
+      "ready": false,
+      "issues": [
+        "UNVERIFIED",
+        "RIGHTS_NOT_CONFIRMED",
+        "OUTSIDE_VALIDITY_OR_UNKNOWN"
+      ]
+    },
+    {
+      "kind": "source",
+      "id": "src_wb_src_000049",
+      "ready": false,
+      "issues": [
+        "UNVERIFIED",
+        "RIGHTS_NOT_CONFIRMED",
+        "OUTSIDE_VALIDITY_OR_UNKNOWN"
+      ]
+    },
+    {
+      "kind": "source",
+      "id": "src_wb_src_000050",
+      "ready": false,
+      "issues": [
+        "UNVERIFIED",
+        "RIGHTS_NOT_CONFIRMED",
+        "OUTSIDE_VALIDITY_OR_UNKNOWN"
+      ]
+    },
+    {
+      "kind": "source",
+      "id": "src_wb_src_000051",
+      "ready": false,
+      "issues": [
+        "UNVERIFIED",
+        "RIGHTS_NOT_CONFIRMED",
+        "OUTSIDE_VALIDITY_OR_UNKNOWN"
+      ]
+    },
+    {
+      "kind": "source",
+      "id": "src_wb_src_000055",
+      "ready": false,
+      "issues": [
+        "UNVERIFIED",
+        "RIGHTS_NOT_CONFIRMED",
+        "OUTSIDE_VALIDITY_OR_UNKNOWN"
+      ]
+    },
+    {
+      "kind": "source",
+      "id": "src_wb_src_000057",
+      "ready": false,
+      "issues": [
+        "UNVERIFIED",
+        "RIGHTS_NOT_CONFIRMED",
+        "OUTSIDE_VALIDITY_OR_UNKNOWN"
+      ]
+    },
+    {
+      "kind": "source",
+      "id": "src_wb_src_000059",
+      "ready": false,
+      "issues": [
+        "UNVERIFIED",
+        "RIGHTS_NOT_CONFIRMED",
+        "OUTSIDE_VALIDITY_OR_UNKNOWN"
+      ]
+    },
+    {
+      "kind": "open_rule",
+      "id": "open_rule_wb_000001_2026-10-24",
+      "ready": false,
+      "issues": [
+        "UNVERIFIED",
+        "RIGHTS_NOT_CONFIRMED",
+        "OUTSIDE_VALIDITY_OR_UNKNOWN",
+        "DEPENDENCY_NOT_READY:source:src_teamworkbook_open_rules",
+        "DEPENDENCY_NOT_READY:source:src_wb_src_000002",
+        "DEPENDENCY_NOT_READY:place:pl_wb_000001",
+        "DEPENDENCY_NOT_READY:source:src_teamworkbook_places",
+        "DEPENDENCY_NOT_READY:source:src_wb_src_000004"
+      ]
+    },
+    {
+      "kind": "open_rule",
+      "id": "open_rule_wb_000002_2026-10-24",
+      "ready": false,
+      "issues": [
+        "UNVERIFIED",
+        "RIGHTS_NOT_CONFIRMED",
+        "OUTSIDE_VALIDITY_OR_UNKNOWN",
+        "DEPENDENCY_NOT_READY:source:src_teamworkbook_open_rules",
+        "DEPENDENCY_NOT_READY:source:src_wb_src_000013",
+        "DEPENDENCY_NOT_READY:place:pl_wb_000002",
+        "DEPENDENCY_NOT_READY:source:src_teamworkbook_places",
+        "DEPENDENCY_NOT_READY:source:src_wb_src_000010"
+      ]
+    },
+    {
+      "kind": "open_rule",
+      "id": "open_rule_wb_000003_2026-10-24",
+      "ready": false,
+      "issues": [
+        "UNVERIFIED",
+        "RIGHTS_NOT_CONFIRMED",
+        "OUTSIDE_VALIDITY_OR_UNKNOWN",
+        "DEPENDENCY_NOT_READY:source:src_teamworkbook_open_rules",
+        "DEPENDENCY_NOT_READY:source:src_wb_src_000016",
+        "DEPENDENCY_NOT_READY:place:pl_wb_000003",
+        "DEPENDENCY_NOT_READY:source:src_teamworkbook_places",
+        "DEPENDENCY_NOT_READY:source:src_wb_src_000015"
+      ]
+    },
+    {
+      "kind": "open_rule",
+      "id": "open_rule_wb_000004_2026-10-24",
+      "ready": false,
+      "issues": [
+        "UNVERIFIED",
+        "RIGHTS_NOT_CONFIRMED",
+        "OUTSIDE_VALIDITY_OR_UNKNOWN",
+        "DEPENDENCY_NOT_READY:source:src_teamworkbook_open_rules",
+        "DEPENDENCY_NOT_READY:source:src_wb_src_000015",
+        "DEPENDENCY_NOT_READY:place:pl_wb_000003",
+        "DEPENDENCY_NOT_READY:source:src_teamworkbook_places"
+      ]
+    },
+    {
+      "kind": "open_rule",
+      "id": "open_rule_wb_000005_2026-10-24",
+      "ready": false,
+      "issues": [
+        "UNVERIFIED",
+        "RIGHTS_NOT_CONFIRMED",
+        "OUTSIDE_VALIDITY_OR_UNKNOWN",
+        "DEPENDENCY_NOT_READY:source:src_teamworkbook_open_rules",
+        "DEPENDENCY_NOT_READY:source:src_wb_src_000018",
+        "DEPENDENCY_NOT_READY:place:pl_wb_000004",
+        "DEPENDENCY_NOT_READY:source:src_teamworkbook_places",
+        "DEPENDENCY_NOT_READY:source:src_wb_src_000019"
+      ]
+    },
+    {
+      "kind": "open_rule",
+      "id": "open_rule_wb_000006_2026-10-24",
+      "ready": false,
+      "issues": [
+        "UNVERIFIED",
+        "RIGHTS_NOT_CONFIRMED",
+        "OUTSIDE_VALIDITY_OR_UNKNOWN",
+        "DEPENDENCY_NOT_READY:source:src_teamworkbook_open_rules",
+        "DEPENDENCY_NOT_READY:source:src_wb_src_000051",
+        "DEPENDENCY_NOT_READY:place:pl_wb_000005",
+        "DEPENDENCY_NOT_READY:source:src_teamworkbook_places",
+        "DEPENDENCY_NOT_READY:source:src_wb_src_000023"
+      ]
+    },
+    {
+      "kind": "open_rule",
+      "id": "open_rule_wb_000008_2026-10-24",
+      "ready": false,
+      "issues": [
+        "UNVERIFIED",
+        "RIGHTS_NOT_CONFIRMED",
+        "OUTSIDE_VALIDITY_OR_UNKNOWN",
+        "DEPENDENCY_NOT_READY:source:src_teamworkbook_open_rules",
+        "DEPENDENCY_NOT_READY:source:src_wb_src_000055",
+        "DEPENDENCY_NOT_READY:place:pl_wb_000006",
+        "DEPENDENCY_NOT_READY:source:src_teamworkbook_places",
+        "DEPENDENCY_NOT_READY:source:src_wb_src_000026"
+      ]
+    },
+    {
+      "kind": "open_rule",
+      "id": "open_rule_wb_000009_2026-10-24",
+      "ready": false,
+      "issues": [
+        "UNVERIFIED",
+        "RIGHTS_NOT_CONFIRMED",
+        "OUTSIDE_VALIDITY_OR_UNKNOWN",
+        "DEPENDENCY_NOT_READY:source:src_teamworkbook_open_rules",
+        "DEPENDENCY_NOT_READY:source:src_wb_src_000030",
+        "DEPENDENCY_NOT_READY:place:pl_wb_000007",
+        "DEPENDENCY_NOT_READY:source:src_teamworkbook_places"
+      ]
+    },
+    {
+      "kind": "open_rule",
+      "id": "open_rule_wb_000010_2026-10-24",
+      "ready": false,
+      "issues": [
+        "UNVERIFIED",
+        "RIGHTS_NOT_CONFIRMED",
+        "OUTSIDE_VALIDITY_OR_UNKNOWN",
+        "DEPENDENCY_NOT_READY:source:src_teamworkbook_open_rules",
+        "DEPENDENCY_NOT_READY:source:src_wb_src_000033",
+        "DEPENDENCY_NOT_READY:place:pl_wb_000008",
+        "DEPENDENCY_NOT_READY:source:src_teamworkbook_places",
+        "DEPENDENCY_NOT_READY:source:src_wb_src_000032"
+      ]
+    },
+    {
+      "kind": "open_rule",
+      "id": "open_rule_wb_000012_2026-10-24",
+      "ready": false,
+      "issues": [
+        "UNVERIFIED",
+        "RIGHTS_NOT_CONFIRMED",
+        "OUTSIDE_VALIDITY_OR_UNKNOWN",
+        "DEPENDENCY_NOT_READY:source:src_teamworkbook_open_rules",
+        "DEPENDENCY_NOT_READY:source:src_wb_src_000035",
+        "DEPENDENCY_NOT_READY:place:pl_wb_000009",
+        "DEPENDENCY_NOT_READY:source:src_teamworkbook_places"
+      ]
+    },
+    {
+      "kind": "open_rule",
+      "id": "open_rule_wb_000013_2026-10-24",
+      "ready": false,
+      "issues": [
+        "UNVERIFIED",
+        "RIGHTS_NOT_CONFIRMED",
+        "OUTSIDE_VALIDITY_OR_UNKNOWN",
+        "DEPENDENCY_NOT_READY:source:src_teamworkbook_open_rules",
+        "DEPENDENCY_NOT_READY:source:src_wb_src_000038",
+        "DEPENDENCY_NOT_READY:place:pl_wb_000010",
+        "DEPENDENCY_NOT_READY:source:src_teamworkbook_places"
+      ]
+    },
+    {
+      "kind": "open_rule",
+      "id": "open_rule_wb_000014_2026-10-24",
+      "ready": false,
+      "issues": [
+        "UNVERIFIED",
+        "RIGHTS_NOT_CONFIRMED",
+        "OUTSIDE_VALIDITY_OR_UNKNOWN",
+        "DEPENDENCY_NOT_READY:source:src_teamworkbook_open_rules",
+        "DEPENDENCY_NOT_READY:source:src_wb_src_000042",
+        "DEPENDENCY_NOT_READY:place:pl_wb_000011",
+        "DEPENDENCY_NOT_READY:source:src_teamworkbook_places",
+        "DEPENDENCY_NOT_READY:source:src_wb_src_000040"
+      ]
+    },
+    {
+      "kind": "open_rule",
+      "id": "open_rule_wb_000015_2026-10-24",
+      "ready": false,
+      "issues": [
+        "UNVERIFIED",
+        "RIGHTS_NOT_CONFIRMED",
+        "OUTSIDE_VALIDITY_OR_UNKNOWN",
+        "DEPENDENCY_NOT_READY:source:src_teamworkbook_open_rules",
+        "DEPENDENCY_NOT_READY:source:src_wb_src_000043",
+        "DEPENDENCY_NOT_READY:place:pl_wb_000012",
+        "DEPENDENCY_NOT_READY:source:src_teamworkbook_places",
+        "DEPENDENCY_NOT_READY:source:src_wb_src_000044"
+      ]
+    },
+    {
+      "kind": "open_rule",
+      "id": "open_rule_wb_000016_2026-10-24",
+      "ready": false,
+      "issues": [
+        "UNVERIFIED",
+        "RIGHTS_NOT_CONFIRMED",
+        "OUTSIDE_VALIDITY_OR_UNKNOWN",
+        "DEPENDENCY_NOT_READY:source:src_teamworkbook_open_rules",
+        "DEPENDENCY_NOT_READY:source:src_wb_src_000049",
+        "DEPENDENCY_NOT_READY:place:pl_wb_000013",
+        "DEPENDENCY_NOT_READY:source:src_teamworkbook_places"
+      ]
+    },
+    {
+      "kind": "open_rule",
+      "id": "open_rule_wb_000017_2026-10-24",
+      "ready": false,
+      "issues": [
+        "UNVERIFIED",
+        "RIGHTS_NOT_CONFIRMED",
+        "OUTSIDE_VALIDITY_OR_UNKNOWN",
+        "DEPENDENCY_NOT_READY:source:src_teamworkbook_open_rules",
+        "DEPENDENCY_NOT_READY:source:src_wb_src_000050",
+        "DEPENDENCY_NOT_READY:place:pl_wb_000014",
+        "DEPENDENCY_NOT_READY:source:src_teamworkbook_places"
+      ]
+    },
+    {
+      "kind": "open_rule",
+      "id": "open_rule_wb_000019_2026-10-24",
+      "ready": false,
+      "issues": [
+        "UNVERIFIED",
+        "RIGHTS_NOT_CONFIRMED",
+        "OUTSIDE_VALIDITY_OR_UNKNOWN",
+        "DEPENDENCY_NOT_READY:source:src_teamworkbook_open_rules",
+        "DEPENDENCY_NOT_READY:source:src_wb_src_000059",
+        "DEPENDENCY_NOT_READY:place:pl_wb_000016",
+        "DEPENDENCY_NOT_READY:source:src_teamworkbook_places",
+        "DEPENDENCY_NOT_READY:source:src_wb_src_000057"
+      ]
+    }
+  ]
+}

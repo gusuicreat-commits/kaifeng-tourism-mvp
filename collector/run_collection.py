@@ -134,6 +134,7 @@ def apply_extractions(job: dict, *, run_id: str, db, bundle: StructuredBundle,
             evidence_quotes=spec.get("evidence_quotes", {}),
             conflicts=list(spec.get("conflicts", [])),
             confidence_note=spec.get("confidence_note"), raw_path=raw_path,
+            entrance_direction=spec.get("entrance_direction"),
         )
         bundle.add(record)
         applied.append({"record_id": record.record_id, "category": record.category})

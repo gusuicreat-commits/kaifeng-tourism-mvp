@@ -754,6 +754,7 @@
         "evidence_mode": {
           "enum": [
             "verified_with_estimates",
+            "reference_with_estimates",
             "synthetic"
           ],
           "title": "Evidence Mode",
@@ -861,6 +862,40 @@
           ],
           "title": "Time Basis",
           "type": "string"
+        },
+        "estimated_seconds": {
+          "anyOf": [
+            {
+              "maximum": 172800,
+              "minimum": 0,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Estimated Seconds"
+        },
+        "planning_buffer_seconds": {
+          "default": 0,
+          "maximum": 7200,
+          "minimum": 0,
+          "title": "Planning Buffer Seconds",
+          "type": "integer"
+        },
+        "quote_expires_at": {
+          "anyOf": [
+            {
+              "format": "date-time",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Quote Expires At"
         }
       },
       "required": [
@@ -1384,6 +1419,7 @@
         "data_status": {
           "enum": [
             "verified",
+            "reference",
             "synthetic"
           ],
           "title": "Data Status",
@@ -1731,6 +1767,7 @@
           "default": "unknown",
           "enum": [
             "verified",
+            "estimated",
             "demo",
             "unknown"
           ],

@@ -1,0 +1,298 @@
+{
+  "scenics_total": 12,
+  "scenics": [
+    {
+      "fact_id": "pl_wb_000001",
+      "name": "清明上河园",
+      "district": "龙亭区",
+      "district_source": "城区取自既有 run 的同景区地址声明（龙亭区），属来源声明而非核验",
+      "address": "河南省开封市龙亭西路5号",
+      "description": "国家5A级旅游景区，以《清明上河图》为蓝本1:1复原的大型宋代历史文化主题公园，占地超过540亩。",
+      "aliases": "清园",
+      "source_keys": [
+        "src_teamworkbook_places",
+        "src_wb_src_000004"
+      ],
+      "coordinate_system": "unknown",
+      "workbook_validation_status": "candidate",
+      "team_bundle_present": true,
+      "team_bundle_address": "河南省开封市龙亭西路5号"
+    },
+    {
+      "fact_id": "pl_wb_000002",
+      "name": "万岁山武侠城",
+      "district": "龙亭区",
+      "district_source": "工作簿地址文本",
+      "address": "河南省开封市龙亭区东京大道中段",
+      "description": "以武侠文化为核心的景区，包含江湖狂欢艺术区、武侠影视街区、山水田园区、仙侠奇境区、水浒区、十里洋场区等主题区。",
+      "aliases": "万岁山；大宋武侠城",
+      "source_keys": [
+        "src_teamworkbook_places",
+        "src_wb_src_000010"
+      ],
+      "coordinate_system": "unknown",
+      "workbook_validation_status": "candidate",
+      "team_bundle_present": true,
+      "team_bundle_address": "河南省开封市龙亭区东京大道中段"
+    },
+    {
+      "fact_id": "pl_wb_000003",
+      "name": "开封府",
+      "district": "鼓楼区",
+      "district_source": "工作簿地址文本",
+      "address": "河南省开封市鼓楼区包公东湖北岸",
+      "description": "国家4A级旅游景区，北宋管理国都及京畿地区的重要机构复原，被誉为“天下首府”。",
+      "aliases": "开封府景区；南衙",
+      "source_keys": [
+        "src_teamworkbook_places",
+        "src_wb_src_000015"
+      ],
+      "coordinate_system": "unknown",
+      "workbook_validation_status": "candidate",
+      "team_bundle_present": true,
+      "team_bundle_address": "河南省开封市鼓楼区包公东湖北岸"
+    },
+    {
+      "fact_id": "pl_wb_000004",
+      "name": "龙亭景区",
+      "district": null,
+      "district_source": "工作簿地址文本",
+      "address": "开封市宋都御街北段",
+      "description": "国家AAAA级旅游景区，集皇家园林、历史文物和秀美风光于一体，历史上曾是六个朝代的皇宫所在地，距今1200多年。",
+      "aliases": "龙亭公园；开封市龙亭景区",
+      "source_keys": [
+        "src_teamworkbook_places",
+        "src_wb_src_000019"
+      ],
+      "coordinate_system": "unknown",
+      "workbook_validation_status": "candidate",
+      "team_bundle_present": true,
+      "team_bundle_address": "开封市宋都御街北段"
+    },
+    {
+      "fact_id": "pl_wb_000005",
+      "name": "大相国寺",
+      "district": "鼓楼区",
+      "district_source": "工作簿地址文本",
+      "address": "河南省开封市鼓楼区自由路西段36号",
+      "description": "中国汉传佛教十大名寺之一，国家4A级旅游景区，始建于北齐天保六年（555年），北宋时期为皇家寺院。",
+      "aliases": "相国寺；开封大相国寺",
+      "source_keys": [
+        "src_teamworkbook_places",
+        "src_wb_src_000023"
+      ],
+      "coordinate_system": "unknown",
+      "workbook_validation_status": "pending_review",
+      "team_bundle_present": true,
+      "team_bundle_address": "河南省开封市鼓楼区自由路西段36号"
+    },
+    {
+      "fact_id": "pl_wb_000006",
+      "name": "铁塔景区",
+      "district": "顺河回族区",
+      "district_source": "工作簿地址文本",
+      "address": "河南省开封市顺河回族区北门大街210号",
+      "description": "国家4A级旅游景区，以现存铁塔（开宝寺塔）为核心的名胜古迹公园；铁塔为全国重点文物保护单位，高55.08米、八角十三层。",
+      "aliases": "铁塔公园；开封铁塔",
+      "source_keys": [
+        "src_teamworkbook_places",
+        "src_wb_src_000026"
+      ],
+      "coordinate_system": "unknown",
+      "workbook_validation_status": "pending_review",
+      "team_bundle_present": true,
+      "team_bundle_address": "河南省开封市顺河回族区北门大街210号"
+    },
+    {
+      "fact_id": "pl_wb_000007",
+      "name": "中国翰园碑林",
+      "district": "龙亭区",
+      "district_source": "工作簿地址文本",
+      "address": "河南省开封市龙亭区龙亭北路15号",
+      "description": "国家4A级旅游景区，集书画碑刻艺术与古典园林建筑于一体的文化园林，占地120亩，刻碑4000多块。",
+      "aliases": "翰园碑林；中国翰园",
+      "source_keys": [
+        "src_teamworkbook_places",
+        "src_wb_src_000030"
+      ],
+      "coordinate_system": "unknown",
+      "workbook_validation_status": "candidate",
+      "team_bundle_present": true,
+      "team_bundle_address": "河南省开封市龙亭区龙亭北路15号"
+    },
+    {
+      "fact_id": "pl_wb_000008",
+      "name": "包公祠",
+      "district": "鼓楼区",
+      "district_source": "工作簿地址文本",
+      "address": "河南省开封市鼓楼区向阳路1号",
+      "description": "国家4A级旅游景区，纪念北宋名臣包拯的祠堂，位于包公湖西畔，占地1公顷多，由大殿、二殿、东西配殿、半壁廊、碑亭组成。",
+      "aliases": "开封包公祠；包公祠景区",
+      "source_keys": [
+        "src_teamworkbook_places",
+        "src_wb_src_000032"
+      ],
+      "coordinate_system": "unknown",
+      "workbook_validation_status": "candidate",
+      "team_bundle_present": true,
+      "team_bundle_address": "河南省开封市鼓楼区向阳路1号"
+    },
+    {
+      "fact_id": "pl_wb_000009",
+      "name": "天波杨府",
+      "district": "龙亭区",
+      "district_source": "工作簿地址文本",
+      "address": "河南省开封市龙亭区龙亭北路14号",
+      "description": "北宋抗辽名将杨业府邸的仿宋重建建筑群，国家4A级旅游景区，由中院府衙、西院花园、东院演兵场组成。",
+      "aliases": "开封天波杨府；天波府",
+      "source_keys": [
+        "src_teamworkbook_places",
+        "src_wb_src_000035"
+      ],
+      "coordinate_system": "unknown",
+      "workbook_validation_status": "pending_review",
+      "team_bundle_present": true,
+      "team_bundle_address": "河南省开封市龙亭区龙亭北路14号"
+    },
+    {
+      "fact_id": "pl_wb_000010",
+      "name": "开封城墙",
+      "district": "龙亭区",
+      "district_source": "工作簿地址文本",
+      "address": "河南省开封市龙亭区大梁路与内顺城路交叉口",
+      "description": "全国重点文物保护单位，开封城墙景区开放大梁门至安远门段，含古马道遗址、大梁门、玻璃栈道等。",
+      "aliases": "开封城墙景区；宋都城墙",
+      "source_keys": [
+        "src_teamworkbook_places",
+        "src_wb_src_000038"
+      ],
+      "coordinate_system": "unknown",
+      "workbook_validation_status": "candidate",
+      "team_bundle_present": true,
+      "team_bundle_address": "河南省开封市龙亭区大梁路与内顺城路交叉口"
+    },
+    {
+      "fact_id": "pl_wb_000011",
+      "name": "山陕甘会馆",
+      "district": "龙亭区",
+      "district_source": "工作簿地址文本",
+      "address": "河南省开封市龙亭区徐府街85号",
+      "description": "全国重点文物保护单位，清代晋陕甘三省商帮会馆，以砖、石、木雕“三绝”著称，现存照壁、戏楼、牌楼、正殿等。",
+      "aliases": "开封山陕甘会馆",
+      "source_keys": [
+        "src_teamworkbook_places",
+        "src_wb_src_000040"
+      ],
+      "coordinate_system": "unknown",
+      "workbook_validation_status": "candidate",
+      "team_bundle_present": true,
+      "team_bundle_address": "河南省开封市龙亭区徐府街85号"
+    },
+    {
+      "fact_id": "pl_wb_000012",
+      "name": "延庆观",
+      "district": "鼓楼区",
+      "district_source": "工作簿地址文本",
+      "address": "河南省开封市鼓楼区观前街53号",
+      "description": "全国重点文物保护单位，元代玉皇阁为开封现存唯一元代建筑，与北京白云观、四川常道观并称中国三大名观。",
+      "aliases": "开封延庆观；重阳观",
+      "source_keys": [
+        "src_teamworkbook_places",
+        "src_wb_src_000044"
+      ],
+      "coordinate_system": "unknown",
+      "workbook_validation_status": "pending_review",
+      "team_bundle_present": true,
+      "team_bundle_address": "河南省开封市鼓楼区观前街53号"
+    }
+  ],
+  "cross_namespace_duplicates": [
+    {
+      "kept": [
+        "place_shanshangan_museum",
+        "pl_wb_000011"
+      ],
+      "names": [
+        "开封市艺术博物馆（山陕甘会馆）",
+        "山陕甘会馆"
+      ],
+      "existing_run": "run_1d70ae0fdd19",
+      "resolution": "命名空间不同，两套记录都保留；由人工比对地址与经营主体后裁定是否同一地点"
+    }
+  ],
+  "coordinates_from_backfill": [],
+  "coordinates_missing": [
+    {
+      "fact_id": "pl_wb_000001",
+      "name": "清明上河园",
+      "reason": "坐标回填未覆盖该景区；团队工作簿与 OSM 快照均无该景区坐标",
+      "workbook_notes": "官网地址与介绍；官网另提到端门、丹凤门等门名，未明确为游客入口；坐标未取得，待成员3核验。"
+    },
+    {
+      "fact_id": "pl_wb_000002",
+      "name": "万岁山武侠城",
+      "reason": "坐标回填未覆盖该景区；团队工作簿与 OSM 快照均无该景区坐标",
+      "workbook_notes": "官网首页地址；入口名单见 src_000011；坐标未取得，待成员3核验；官网首页标注 8:00~21:00 检票时间。"
+    },
+    {
+      "fact_id": "pl_wb_000003",
+      "name": "开封府",
+      "reason": "坐标回填未覆盖该景区；团队工作簿与 OSM 快照均无该景区坐标",
+      "workbook_notes": "官网地址；日间/夜游时间与票价见 src_000015/000016；入口只确认府门，其他入口待核验；坐标待成员3。"
+    },
+    {
+      "fact_id": "pl_wb_000004",
+      "name": "龙亭景区",
+      "reason": "坐标回填未覆盖该景区；团队工作簿与 OSM 快照均无该景区坐标",
+      "workbook_notes": "官网地址/介绍；开放时间、票价、入口见 src_000018；坐标待成员3；节目时间待公众号节目单。"
+    },
+    {
+      "fact_id": "pl_wb_000005",
+      "name": "大相国寺",
+      "reason": "坐标回填未覆盖该景区；团队工作簿与 OSM 快照均无该景区坐标",
+      "workbook_notes": "官方官网域名已失效；政府名录确认4A（src_000021）、省退役军人事务厅确认鼓楼区（src_000022）；地址/时间/票价来自OTA（src_000023/000024），待官方核实。入口/坐标未找到官方来源。"
+    },
+    {
+      "fact_id": "pl_wb_000006",
+      "name": "铁塔景区",
+      "reason": "坐标回填未覆盖该景区；团队工作簿与 OSM 快照均无该景区坐标",
+      "workbook_notes": "政府名录确认4A（src_000021）；地址/活动来自本地宝（src_000027）；时间/票价来自河南交通广播转述的景区公告（src_000026）；官网 kaifengtieta.com 无法访问，待官方核实。"
+    },
+    {
+      "fact_id": "pl_wb_000007",
+      "name": "中国翰园碑林",
+      "reason": "坐标回填未覆盖该景区；团队工作簿与 OSM 快照均无该景区坐标",
+      "workbook_notes": "官网地址/电话/开放时间（src_000030）；介绍（src_000028）；入口（src_000029）；票价来自OTA（src_000031），待官方；坐标待成员3。"
+    },
+    {
+      "fact_id": "pl_wb_000008",
+      "name": "包公祠",
+      "reason": "坐标回填未覆盖该景区；团队工作簿与 OSM 快照均无该景区坐标",
+      "workbook_notes": "政府/旅游网确认4A、地址、介绍（src_000032/000034）；季节时间和线上票价来自大河票务（src_000033），待官方；入口/坐标待核实。"
+    },
+    {
+      "fact_id": "pl_wb_000009",
+      "name": "天波杨府",
+      "reason": "坐标回填未覆盖该景区；团队工作簿与 OSM 快照均无该景区坐标",
+      "workbook_notes": "政府名录确认4A（src_000021）、省退役军人事务厅确认龙亭区（src_000036）；地址/时间/介绍来自去哪儿（src_000035）；电话/旧信息来自河南景区详情（src_000037）；官网多个候选域名均无法解析；坐标/入口待核实。"
+    },
+    {
+      "fact_id": "pl_wb_000010",
+      "name": "开封城墙",
+      "reason": "坐标回填未覆盖该景区；团队工作簿与 OSM 快照均无该景区坐标",
+      "workbook_notes": "官网游玩指南：夏8:30-22:00/冬8:30-21:30，票价40/20，四个登城口；政府A级名录为3A，另有2024年升4A说法待核实；坐标待成员3。"
+    },
+    {
+      "fact_id": "pl_wb_000011",
+      "name": "山陕甘会馆",
+      "reason": "坐标回填未覆盖该景区；团队工作簿与 OSM 快照均无该景区坐标",
+      "workbook_notes": "政府页确认地址/介绍（src_000040）、省退役军人事务厅确认龙亭区/优待免票（src_000041）；开放时间和票价来自大河票务（src_000042），待官方；政府A级名录为2A，第三方称4A，待核实；入口/坐标待补。"
+    },
+    {
+      "fact_id": "pl_wb_000012",
+      "name": "延庆观",
+      "reason": "坐标回填未覆盖该景区；团队工作簿与 OSM 快照均无该景区坐标",
+      "workbook_notes": "政府A级名录为2A（src_000021）；忆起追迹称2012年AAA，待核实；地址/时间/票价来自忆起追迹/要出发（src_000043/000045），待官方；入口/坐标待补。"
+    }
+  ]
+}

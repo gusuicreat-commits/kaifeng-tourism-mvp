@@ -1,0 +1,145 @@
+{
+  "schema_version": "kaifeng-quality-report/1",
+  "run_id": "scenic_align_20261024",
+  "generated_at": "2026-10-24T14:32:08+08:00",
+  "collected_day": "2026-10-24",
+  "spec": "docs/DATA_QUALITY_REPORT_SPEC.md",
+  "scope": {
+    "scenic": {
+      "龙亭区": 6,
+      "鼓楼区": 4,
+      "顺河回族区": 1,
+      "待核验": 1
+    }
+  },
+  "totals": {
+    "records": 12,
+    "sources": 197,
+    "duplicates": 0,
+    "conflicts": 0,
+    "failures": 0,
+    "review_tasks": 19
+  },
+  "bundle_dry_run": {
+    "status": "dry_run",
+    "received": 25,
+    "changed": 25,
+    "unchanged": 0,
+    "ready": 0,
+    "issues": 25
+  },
+  "red_lines": {
+    "fabricated_data": 0,
+    "ai_completion": 0,
+    "bypass_import_channel": 0,
+    "bypass_waf": 0,
+    "note": "自检口径：本工具只做代码抽取与候选生成，未写运行库、未绕过访问控制。"
+  },
+  "metrics": {
+    "source_traceability": {
+      "total_records": 12,
+      "with_source": 12,
+      "registry_matched": 12,
+      "hash_matched": 0,
+      "rate": 0.0,
+      "missing_source_records": [],
+      "unregistered_source_keys": [],
+      "hash_unverified_records": [
+        "pl_wb_000001",
+        "pl_wb_000002",
+        "pl_wb_000003",
+        "pl_wb_000004",
+        "pl_wb_000005",
+        "pl_wb_000006",
+        "pl_wb_000007",
+        "pl_wb_000008",
+        "pl_wb_000009",
+        "pl_wb_000010",
+        "pl_wb_000011",
+        "pl_wb_000012"
+      ]
+    },
+    "field_completeness": {
+      "per_category": [
+        {
+          "category": "scenic",
+          "fields_filled": 23,
+          "fields_total": 24,
+          "records_complete": 11,
+          "records_total": 12,
+          "required_fields": [
+            "name",
+            "district"
+          ]
+        }
+      ],
+      "note": "缺失即缺失，null 不被默认值替换；缺口用于补采排队。"
+    },
+    "coordinate_readiness": {
+      "places_total": 12,
+      "with_coords": 0,
+      "system_wgs84": 0,
+      "system_gcj02": 0,
+      "system_unknown": 12,
+      "demo_coords": 0,
+      "rate": 0.0
+    },
+    "date_validity": {
+      "rules_total": 0,
+      "with_business_date": 0,
+      "date_in_future": 0,
+      "date_is_collection_day": 0,
+      "date_null": 0,
+      "collection_day_records": []
+    },
+    "network_evidence": {
+      "edges_total": 0,
+      "with_source_locator": 0,
+      "connected": 0,
+      "disconnected": 0,
+      "unchecked": 0,
+      "note": "本轮未采园内道路与入口衔接候选；unchecked 不得声称为可导航。"
+    },
+    "entrance_coverage": {
+      "priority_scenics": 12,
+      "with_entrance_candidate": 0,
+      "entrance_candidates_total": 0,
+      "rejected_fake_entrances": 0,
+      "note": "停车场/地图中心点不得计为入口候选。",
+      "orphan_entrance_candidates": []
+    },
+    "vendor_supply_evidence": {
+      "vendors_total": 0,
+      "with_location": 0,
+      "supply_total": 0,
+      "evidence_strong": 0,
+      "evidence_candidate_only": 0,
+      "note": "平台推荐菜只算候选，不得升级为供应事实。"
+    },
+    "conflict_handling": {
+      "conflicts_total": 0,
+      "preserved_all_values": 0,
+      "resolved": 0,
+      "silently_picked": 0,
+      "items": [],
+      "note": "解决须注明依据；本轮 0 条已解决。"
+    }
+  },
+  "gaps_top": [
+    {
+      "priority": "high",
+      "gap": "来源可追踪率未达 100%",
+      "detail": "hash_matched=0/12；12 条来源已登记但 raw 缺失或SHA-256 不匹配，需补原始证据文件"
+    },
+    {
+      "priority": "high",
+      "gap": "地点坐标缺失",
+      "detail": "12 条无坐标"
+    },
+    {
+      "priority": "medium",
+      "gap": "空间归属待核验",
+      "detail": "pl_wb_000004"
+    }
+  ]
+}

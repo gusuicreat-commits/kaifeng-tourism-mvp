@@ -146,6 +146,20 @@ def test_metric5_network_evidence_is_honest_about_gaps(db):
                   "note": "本轮未采园内道路与入口衔接候选；unchecked 不得声称为可导航。"}
 
 
+def test_metric6_counts_only_priority_scenic_places(db):
+    """SPEC 口径：分母只数 category=scenic 且 priority=high 的景区。"""
+    report, _ = _build(db, Path("."), records=[
+        _record("p1", "scenic", "清明上河园", district="龙亭区"),
+        _record("p2", "scenic", "万岁山武侠城", district="龙亭区"),
+        _record("p3", "museum", "开封市博物馆", district="鼓楼区"),
+        _record("p4", "restaurant", "黄家老店", district="鼓楼区"),
+    ])
+    m6 = report["metrics"]["entrance_coverage"]
+    assert m6["priority_scenics"] == 2, "high 优先级的 scenic 才算分母"
+    assert m6["entrance_candidates_total"] == 0
+    assert m6["with_entrance_candidate"] == 0
+
+
 def test_metric6_counts_only_entrances_linked_to_a_place(db):
     report, _ = _build(db, Path("."), records=[
         _record("p1", "scenic", "清明上河园", district="龙亭区"),
@@ -154,9 +168,10 @@ def test_metric6_counts_only_entrances_linked_to_a_place(db):
         _record("e2", "entrance", "西门（候选）", place_type="entrance"),
     ])
     m6 = report["metrics"]["entrance_coverage"]
-    assert m6["priority_scenics"] == 2
-    assert m6["with_entrance_candidate"] == 1, "未挂到地点的候选不得算覆盖"
+    assert m6["priority_scenics"] == 1, "museum 不是 scenic，不进分母"
+    assert m6["with_entrance_candidate"] == 1
     assert m6["entrance_candidates_total"] == 2
+    assert m6["orphan_entrance_candidates"] == ["e2"], "未挂到地点的候选必须可见"
 
 
 def test_metric7_separates_strong_supply_from_platform_leads(db):
@@ -251,3 +266,16 @@ def test_compute_is_reproducible_for_the_same_inputs(db, evidence):
     second, _ = _build(db, evidence, records=records)
     for key in ("scope", "totals", "metrics", "red_lines", "gaps_top"):
         assert first[key] == second[key], f"{key} 必须可复算"
+
+
+def test_dry_run_summary_keeps_counts_and_drops_record_detail():
+    """报告摘要只留计数；逐条 issues 会让 markdown 不可读。"""
+    from collector.quality import _dry_run_summary
+    summary = _dry_run_summary({"status": "dry_run", "received": 25, "changed": 25,
+                                "unchanged": 0,
+                                "records": [{"kind": "place", "id": "a", "ready": False,
+                                             "issues": ["UNVERIFIED"]}]})
+    assert summary == {"status": "dry_run", "received": 25, "changed": 25,
+                       "unchanged": 0, "ready": 0, "issues": 1}
+    assert _dry_run_summary(None) == {}
+    assert _dry_run_summary({}) == {}

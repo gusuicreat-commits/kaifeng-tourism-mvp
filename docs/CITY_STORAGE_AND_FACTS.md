@@ -52,7 +52,9 @@ flowchart LR
 
 所有记录使用稳定 `fact_id`、从 1 开始的 `version`，记录 `source_ids`、`validation_status`、`business_status`、`is_demo`、`rights_status` 及有效期。已核验还必须提供 `verified_at`、`reviewer`、`verification_method` 和完整有效区间。非来源实体的 verified 记录必须有来源；来源不能嵌套引用。时间必须带时区，当前业务日期以 Asia/Shanghai 为准，不支持跨日营业或演出区间，应拆分。
 
-`unverified`、缺坐标、缺结束时刻、过期、取消、演示、许可未知均可作为显式候选保存，不能返回 `ready=true`。依赖事实不可用会传递到上层状态；目标日期与场次/营业规则日期不同也不可用。`ready` 只证明这条事实满足当前入口的可用性检查，**不证明其关联整条路线已核验**。来源字段及核验声明仍需人工真实性审查，格式校验不是自动事实查证。
+`unverified`、缺坐标、缺结束时刻、过期、取消、演示、许可未知均可作为显式候选保存。2026-10-24 新增独立的 `planning_status`：默认 `candidate` 仍不能进入规划；有来源、非演示且非禁止使用的资料，经维护导入可标为 `reference`，允许 MVP 参考规划，但仍保持 `unverified`，不伪造核验元数据。`reference + internal_only` 可用于内部规划及明确标注参考状态的展示；`prohibited`、演示资料和缺地点坐标仍不能据此生成路线。来源字段及核验声明仍需人工真实性审查，格式校验不是自动事实查证。
+
+参考数据的高德 `provider_estimate` 会连同规划缓冲、报价有效期进入候选；过期需重新查询。营业、供应、入口及节目场次的不确定性仍按各自证据保留，`ready` 只证明这条事实满足当前入口的可用性检查，**不证明其关联整条路线已核验或保证现场执行**。团队与既有采集资料的正式 MVP 合并方式见 [MVP 数据接入清单](MVP_DATA_INVENTORY_20261024.md)。
 
 同一 `(kind,fact_id)` 的变更必须逐版递增；完全相同的重试不产生新修订。不可静默删除事实，撤销用新版本 `business_status=cancelled` 表达。跨实体引用、类型错误、地点归属循环、重复 ID 或版本冲突使整批拒绝，原库保持不变。当前不提供多来源冲突裁决、审核后台、营业规则继承或道路 GeoJSON 导入；原始冲突证据应继续保留在采集包，解决后再升版。
 
@@ -85,8 +87,8 @@ cd /Users/mac/Desktop/大挑/kaifeng-tourism-mvp
 
 | 方法与路径（前缀 `/api/city/v1`） | 行为 |
 | --- | --- |
-| `GET /capabilities` | 当前工程能力；明确城市规划未开放 |
-| `GET /facts?kind=place` | 仅返回公开使用许可为 permitted 的记录，附 ready/issues；不包含游客状态 |
+| `GET /capabilities` | 当前工程能力，含参考规划的实际接线状态 |
+| `GET /facts?kind=place` | 返回 permitted 及可用于 MVP 的 reference/internal_only 记录，附 ready/issues；不包含游客状态 |
 | `POST /trips` | 创建部分或完整草稿，服务端分配身份 |
 | `GET /trips`、`GET /trips/current`、`GET /trips/{id}` | 仅当前会话可读，恢复权威版本 |
 | `PATCH /trips/{id}` | 类型化保存、手动当前位置、完成、跳过或状态转换 |

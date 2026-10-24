@@ -1,0 +1,131 @@
+{
+  "run_id": "run_10712c5a07e1",
+  "task_id": "task_b7f0099ebbe9",
+  "run_dir": "/Users/mac/Desktop/大挑/kaifeng-tourism-mvp/data/collection-runs/run_10712c5a07e1",
+  "ingested": [
+    {
+      "source_key": "src_kfsbwg_tips_openinfo",
+      "raw_path": "/Users/mac/Desktop/大挑/kaifeng-tourism-mvp/data/collection-runs/run_10712c5a07e1/raw/kfsbwg_api_tips_text.html",
+      "sha256": "97d8156dd27540ad4684b8ca3fa634933037f257b8fc2a6ee67b8b81b967c819"
+    },
+    {
+      "source_key": "src_kfsfq_museum_directory",
+      "raw_path": "/Users/mac/Desktop/大挑/kaifeng-tourism-mvp/data/collection-runs/run_10712c5a07e1/raw/kfsfq_museum_directory.html",
+      "sha256": "7480dc23496c74b5e4ea65ebd74f8841836688e98f7cc2201b6550df123481d9"
+    },
+    {
+      "source_key": "src_gulou_shudianjie",
+      "raw_path": "/Users/mac/Desktop/大挑/kaifeng-tourism-mvp/data/collection-runs/run_10712c5a07e1/raw/gulou_shudianjie.html",
+      "sha256": "a66c44ed8b740db2641110cfab8f9819bfe939a6a8bd80eb2fa01ef644bfb278"
+    },
+    {
+      "source_key": "src_gulou_night_market",
+      "raw_path": "/Users/mac/Desktop/大挑/kaifeng-tourism-mvp/data/collection-runs/run_10712c5a07e1/raw/gulou_night_market.html",
+      "sha256": "6c19b393fc72d9f4598d1af6f92913ce5f92c72a3c133b43bbbfb9c283d0a671"
+    },
+    {
+      "source_key": "src_bendibao_kfsbwg_address",
+      "raw_path": "/Users/mac/Desktop/大挑/kaifeng-tourism-mvp/data/collection-runs/run_10712c5a07e1/raw/bendibao_kfsbwg_address.html",
+      "sha256": "2958c03c3b5a2c47fe04f9c8b012dec171999ade4c3ccb12c44e2034d14b8ca3"
+    }
+  ],
+  "fetched": [
+    {
+      "url": "https://www.kfsbwg.com/api/tips/text?p=w&text_key=KGSJ,BGSJ,TSSJ,KBGTS,CGXZ",
+      "ok": true,
+      "status_code": 200,
+      "error_kind": null,
+      "sha256": "97d8156dd27540ad4684b8ca3fa634933037f257b8fc2a6ee67b8b81b967c819",
+      "raw_path": "/Users/mac/Desktop/大挑/kaifeng-tourism-mvp/data/collection-runs/run_10712c5a07e1/raw/www.kfsbwg.com_api_tips_text_1f8cfa76.html",
+      "source_key": "src_kfsbwg_tips_openinfo_live",
+      "label": null
+    },
+    {
+      "url": "http://www.kfsfq.gov.cn/cxythsfq/c00869/pc/content/content_18815105038",
+      "ok": false,
+      "status_code": 404,
+      "error_kind": "http_error",
+      "sha256": null,
+      "raw_path": null,
+      "source_key": "src_kfsfq_museum_directory_live",
+      "label": null
+    },
+    {
+      "url": "https://api.github.com/user",
+      "ok": false,
+      "status_code": 401,
+      "error_kind": "auth_required",
+      "sha256": null,
+      "raw_path": null,
+      "source_key": "src_controlled_probe_auth",
+      "label": null
+    },
+    {
+      "url": "https://www.zhihu.com/search?type=content&q=%E5%BC%80%E5%B0%81%E5%A4%9C%E5%B8%82",
+      "ok": false,
+      "status_code": null,
+      "error_kind": "robots_block",
+      "sha256": null,
+      "raw_path": null,
+      "source_key": "src_controlled_probe_robots",
+      "label": null
+    }
+  ],
+  "extracted": [
+    {
+      "record_id": "place_kfsbwg",
+      "category": "museum"
+    },
+    {
+      "record_id": "place_kfsbwg_newgate",
+      "category": "entrance"
+    },
+    {
+      "record_id": "place_shudianjie",
+      "category": "street_block"
+    },
+    {
+      "record_id": "place_gulou_night_market",
+      "category": "night_market"
+    }
+  ],
+  "records": 4,
+  "duplicates": 0,
+  "conflicts": 0,
+  "review_tasks": 3,
+  "failures": [
+    {
+      "failure_id": "fail_9eb91b796c19",
+      "run_id": "run_10712c5a07e1",
+      "source_key": "src_kfsfq_museum_directory_live",
+      "failure_kind": "http_error",
+      "detail": "HTTP 404 http://www.kfsfq.gov.cn/cxythsfq/c00869/pc/content/content_18815105038",
+      "occurred_at": "2026-10-24T00:20:20+08:00",
+      "retry_of": null
+    },
+    {
+      "failure_id": "fail_819f5cc39507",
+      "run_id": "run_10712c5a07e1",
+      "source_key": "src_controlled_probe_auth",
+      "failure_kind": "auth_required",
+      "detail": "HTTP 401 https://api.github.com/user",
+      "occurred_at": "2026-10-24T00:20:23+08:00",
+      "retry_of": null
+    },
+    {
+      "failure_id": "fail_e23336b6c6fd",
+      "run_id": "run_10712c5a07e1",
+      "source_key": "src_controlled_probe_robots",
+      "failure_kind": "robots_block",
+      "detail": "robots_disallow:/",
+      "occurred_at": "2026-10-24T00:20:23+08:00",
+      "retry_of": null
+    }
+  ],
+  "bundle_path": "/Users/mac/Desktop/大挑/kaifeng-tourism-mvp/data/collection-runs/run_10712c5a07e1/bundle/city-facts-candidate.json",
+  "dry_run": {
+    "status": "dry_run",
+    "received": 10,
+    "changed": 10
+  }
+}

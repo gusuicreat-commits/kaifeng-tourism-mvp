@@ -88,6 +88,13 @@ CREATE TABLE IF NOT EXISTS verify_task (
 );
 """
 
+# 同一事实的同一待核验项只应存在一条 open 任务。历史台账没有这个约束，
+# 所以索引单独维护：先折叠残留重复行，再建索引（反序会在升级旧库时失败）。
+VERIFY_TASK_UNIQUE_INDEX = """
+CREATE UNIQUE INDEX IF NOT EXISTS idx_verify_task_unique_open
+  ON verify_task(fact_ref, check_item) WHERE status='open';
+"""
+
 
 def now_iso() -> str:
     return datetime.now(TZ).isoformat(timespec="seconds")
@@ -103,8 +110,29 @@ def init_db(db_path: Path | str = DEFAULT_DB_PATH) -> Path:
     path.parent.mkdir(parents=True, exist_ok=True)
     with connect(path) as db:
         db.executescript(SCHEMA)
+        _fold_duplicate_open_verify_tasks(db)
+        db.executescript(VERIFY_TASK_UNIQUE_INDEX)
     return path
 
+
+def _fold_duplicate_open_verify_tasks(db: sqlite3.Connection) -> int:
+    """Collapse pre-existing duplicate open verify tasks before the unique index applies.
+
+    Keeps the earliest row per (fact_ref, check_item) so a ledger created by an
+    older, non-idempotent build can be upgraded without losing the task.
+    """
+    rows = db.execute("""SELECT verify_id, fact_ref, check_item, created_at FROM verify_task
+                         WHERE status='open' ORDER BY created_at, verify_id""").fetchall()
+    seen: set[tuple[str, str]] = set()
+    removed = 0
+    for row in rows:
+        key = (row["fact_ref"], row["check_item"])
+        if key in seen:
+            db.execute("DELETE FROM verify_task WHERE verify_id=?", (row["verify_id"],))
+            removed += 1
+        else:
+            seen.add(key)
+    return removed
 
 @contextmanager
 def connect(db_path: Path | str = DEFAULT_DB_PATH) -> Iterator[sqlite3.Connection]:
@@ -269,12 +297,31 @@ def list_failures(db: sqlite3.Connection, run_id: str | None = None) -> list[dic
 
 def add_verify_task(db: sqlite3.Connection, *, fact_ref: str, check_item: str,
                     method_required: str, note: str | None = None) -> str:
+    """Register an open verify task, idempotent on (fact_ref, check_item).
+
+    Re-running the same job refreshes the existing task instead of stacking a
+    duplicate, so the queue count stays comparable across runs.
+    """
+    existing = one(db, """SELECT * FROM verify_task WHERE fact_ref=? AND check_item=?
+                          ORDER BY created_at LIMIT 1""", (fact_ref, check_item))
+    if existing is not None:
+        if existing["status"] == "open":
+            # 已存在且仍开放：只刷新说明，不新增行
+            db.execute("UPDATE verify_task SET method_required=?, note=? WHERE verify_id=?",
+                       (method_required, note, existing["verify_id"]))
+            return existing["verify_id"]
+        # 已核验/拒绝过的同一事项被再次报出：按新任务重新开放，避免
+        # "旧结论把新缺口永久关掉"。旧行保留为历史，唯一索引按 status 过滤。
+        verify_id = new_id("verify")
+        db.execute("""INSERT INTO verify_task (verify_id, fact_ref, check_item, method_required,
+                       status, note, created_at) VALUES (?,?,?,?,?,?,?)""",
+                   (verify_id, fact_ref, check_item, method_required, "open", note, now_iso()))
+        return verify_id
     verify_id = new_id("verify")
     db.execute("""INSERT INTO verify_task (verify_id, fact_ref, check_item, method_required, status,
                    note, created_at) VALUES (?,?,?,?,?,?,?)""",
                (verify_id, fact_ref, check_item, method_required, "open", note, now_iso()))
     return verify_id
-
 
 def set_verify_status(db: sqlite3.Connection, verify_id: str, status: str, *,
                       reviewer: str | None = None, note: str | None = None) -> None:

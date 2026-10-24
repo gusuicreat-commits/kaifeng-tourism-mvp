@@ -87,11 +87,21 @@ class StructuredRecord:
     ends_at: str | None = None
     vendor_record_id: str | None = None
     food_record_id: str | None = None
+    # open_rule 落点：city-facts/1 的 OpenRule 需要 place_id 与业务日期。
+    place_id: str | None = None
+    reentry: str | None = None
+    reservation: str | None = None
+    ticket_scope: str | None = None
     evidence_note: str | None = None
     evidence_quotes: dict[str, str] = field(default_factory=dict)
     conflicts: list[str] = field(default_factory=list)
     confidence_note: str | None = None
     raw_path: str | None = None
+    # 入口候选的通行方向；city-facts/1 只接受 entry/exit/both，未确认留 None。
+    entrance_direction: str | None = None
+    # 抽取层直接声明的待核验项。用于跨命名空间去重、坐标候选冲突这类
+    # normalize() 自己看不出来的缺口，避免每条都去改 validate 的判据。
+    review_items: list[str] = field(default_factory=list)
 
     def to_dict(self) -> dict:
         return {
@@ -105,9 +115,12 @@ class StructuredRecord:
             "business_date": self.business_date, "ticket_text": self.ticket_text,
             "program_name": self.program_name, "starts_at": self.starts_at, "ends_at": self.ends_at,
             "vendor_record_id": self.vendor_record_id, "food_record_id": self.food_record_id,
+            "place_id": self.place_id, "reentry": self.reentry,
+            "reservation": self.reservation, "ticket_scope": self.ticket_scope,
             "evidence_note": self.evidence_note, "evidence_quotes": dict(self.evidence_quotes),
             "conflicts": list(self.conflicts), "confidence_note": self.confidence_note,
-            "raw_path": self.raw_path,
+            "raw_path": self.raw_path, "entrance_direction": self.entrance_direction,
+            "review_items": list(self.review_items),
         }
 
     @staticmethod

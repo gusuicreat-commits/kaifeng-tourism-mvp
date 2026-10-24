@@ -142,6 +142,29 @@
           "title": "Rights Status",
           "type": "string"
         },
+        "planning_status": {
+          "default": "candidate",
+          "enum": [
+            "candidate",
+            "reference"
+          ],
+          "title": "Planning Status",
+          "type": "string"
+        },
+        "planning_note": {
+          "anyOf": [
+            {
+              "maxLength": 500,
+              "minLength": 1,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Planning Note"
+        },
         "kind": {
           "const": "entrance",
           "title": "Kind",
@@ -179,6 +202,225 @@
         "direction"
       ],
       "title": "Entrance",
+      "type": "object"
+    },
+    "Facility": {
+      "additionalProperties": false,
+      "properties": {
+        "fact_id": {
+          "maxLength": 120,
+          "minLength": 1,
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]*$",
+          "title": "Fact Id",
+          "type": "string"
+        },
+        "version": {
+          "default": 1,
+          "minimum": 1,
+          "title": "Version",
+          "type": "integer"
+        },
+        "source_ids": {
+          "default": [],
+          "items": {
+            "maxLength": 120,
+            "minLength": 1,
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]*$",
+            "type": "string"
+          },
+          "maxItems": 20,
+          "title": "Source Ids",
+          "type": "array"
+        },
+        "validation_status": {
+          "default": "unverified",
+          "enum": [
+            "unverified",
+            "verified"
+          ],
+          "title": "Validation Status",
+          "type": "string"
+        },
+        "business_status": {
+          "default": "active",
+          "enum": [
+            "active",
+            "cancelled"
+          ],
+          "title": "Business Status",
+          "type": "string"
+        },
+        "is_demo": {
+          "default": false,
+          "title": "Is Demo",
+          "type": "boolean"
+        },
+        "verified_at": {
+          "anyOf": [
+            {
+              "format": "date-time",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Verified At"
+        },
+        "reviewer": {
+          "anyOf": [
+            {
+              "maxLength": 100,
+              "minLength": 1,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Reviewer"
+        },
+        "verification_method": {
+          "anyOf": [
+            {
+              "maxLength": 300,
+              "minLength": 1,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Verification Method"
+        },
+        "observed_at": {
+          "anyOf": [
+            {
+              "format": "date-time",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Observed At"
+        },
+        "effective_from": {
+          "anyOf": [
+            {
+              "format": "date-time",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Effective From"
+        },
+        "effective_to": {
+          "anyOf": [
+            {
+              "format": "date-time",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Effective To"
+        },
+        "rights_status": {
+          "default": "unknown",
+          "enum": [
+            "permitted",
+            "internal_only",
+            "unknown",
+            "prohibited"
+          ],
+          "title": "Rights Status",
+          "type": "string"
+        },
+        "planning_status": {
+          "default": "candidate",
+          "enum": [
+            "candidate",
+            "reference"
+          ],
+          "title": "Planning Status",
+          "type": "string"
+        },
+        "planning_note": {
+          "anyOf": [
+            {
+              "maxLength": 500,
+              "minLength": 1,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Planning Note"
+        },
+        "kind": {
+          "const": "facility",
+          "title": "Kind",
+          "type": "string"
+        },
+        "place_id": {
+          "maxLength": 120,
+          "minLength": 1,
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]*$",
+          "title": "Place Id",
+          "type": "string"
+        },
+        "name": {
+          "maxLength": 120,
+          "minLength": 1,
+          "title": "Name",
+          "type": "string"
+        },
+        "category": {
+          "anyOf": [
+            {
+              "maxLength": 100,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Category"
+        },
+        "description": {
+          "anyOf": [
+            {
+              "maxLength": 2000,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Description"
+        }
+      },
+      "required": [
+        "fact_id",
+        "kind",
+        "place_id",
+        "name"
+      ],
+      "title": "Facility",
       "type": "object"
     },
     "Food": {
@@ -323,6 +565,29 @@
           "title": "Rights Status",
           "type": "string"
         },
+        "planning_status": {
+          "default": "candidate",
+          "enum": [
+            "candidate",
+            "reference"
+          ],
+          "title": "Planning Status",
+          "type": "string"
+        },
+        "planning_note": {
+          "anyOf": [
+            {
+              "maxLength": 500,
+              "minLength": 1,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Planning Note"
+        },
         "kind": {
           "const": "food",
           "title": "Kind",
@@ -333,6 +598,28 @@
           "minLength": 1,
           "title": "Name",
           "type": "string"
+        },
+        "description": {
+          "anyOf": [
+            {
+              "maxLength": 2000,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Description"
+        },
+        "aliases": {
+          "default": [],
+          "items": {
+            "type": "string"
+          },
+          "maxItems": 20,
+          "title": "Aliases",
+          "type": "array"
         }
       },
       "required": [
@@ -341,6 +628,231 @@
         "name"
       ],
       "title": "Food",
+      "type": "object"
+    },
+    "Highlight": {
+      "additionalProperties": false,
+      "properties": {
+        "fact_id": {
+          "maxLength": 120,
+          "minLength": 1,
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]*$",
+          "title": "Fact Id",
+          "type": "string"
+        },
+        "version": {
+          "default": 1,
+          "minimum": 1,
+          "title": "Version",
+          "type": "integer"
+        },
+        "source_ids": {
+          "default": [],
+          "items": {
+            "maxLength": 120,
+            "minLength": 1,
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]*$",
+            "type": "string"
+          },
+          "maxItems": 20,
+          "title": "Source Ids",
+          "type": "array"
+        },
+        "validation_status": {
+          "default": "unverified",
+          "enum": [
+            "unverified",
+            "verified"
+          ],
+          "title": "Validation Status",
+          "type": "string"
+        },
+        "business_status": {
+          "default": "active",
+          "enum": [
+            "active",
+            "cancelled"
+          ],
+          "title": "Business Status",
+          "type": "string"
+        },
+        "is_demo": {
+          "default": false,
+          "title": "Is Demo",
+          "type": "boolean"
+        },
+        "verified_at": {
+          "anyOf": [
+            {
+              "format": "date-time",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Verified At"
+        },
+        "reviewer": {
+          "anyOf": [
+            {
+              "maxLength": 100,
+              "minLength": 1,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Reviewer"
+        },
+        "verification_method": {
+          "anyOf": [
+            {
+              "maxLength": 300,
+              "minLength": 1,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Verification Method"
+        },
+        "observed_at": {
+          "anyOf": [
+            {
+              "format": "date-time",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Observed At"
+        },
+        "effective_from": {
+          "anyOf": [
+            {
+              "format": "date-time",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Effective From"
+        },
+        "effective_to": {
+          "anyOf": [
+            {
+              "format": "date-time",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Effective To"
+        },
+        "rights_status": {
+          "default": "unknown",
+          "enum": [
+            "permitted",
+            "internal_only",
+            "unknown",
+            "prohibited"
+          ],
+          "title": "Rights Status",
+          "type": "string"
+        },
+        "planning_status": {
+          "default": "candidate",
+          "enum": [
+            "candidate",
+            "reference"
+          ],
+          "title": "Planning Status",
+          "type": "string"
+        },
+        "planning_note": {
+          "anyOf": [
+            {
+              "maxLength": 500,
+              "minLength": 1,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Planning Note"
+        },
+        "kind": {
+          "const": "highlight",
+          "title": "Kind",
+          "type": "string"
+        },
+        "place_id": {
+          "maxLength": 120,
+          "minLength": 1,
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]*$",
+          "title": "Place Id",
+          "type": "string"
+        },
+        "name": {
+          "maxLength": 120,
+          "minLength": 1,
+          "title": "Name",
+          "type": "string"
+        },
+        "category": {
+          "anyOf": [
+            {
+              "maxLength": 100,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Category"
+        },
+        "description": {
+          "anyOf": [
+            {
+              "maxLength": 2000,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Description"
+        },
+        "sort_order": {
+          "default": 0,
+          "minimum": 0,
+          "title": "Sort Order",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "fact_id",
+        "kind",
+        "place_id",
+        "name"
+      ],
+      "title": "Highlight",
       "type": "object"
     },
     "OpenRule": {
@@ -485,6 +997,29 @@
           "title": "Rights Status",
           "type": "string"
         },
+        "planning_status": {
+          "default": "candidate",
+          "enum": [
+            "candidate",
+            "reference"
+          ],
+          "title": "Planning Status",
+          "type": "string"
+        },
+        "planning_note": {
+          "anyOf": [
+            {
+              "maxLength": 500,
+              "minLength": 1,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Planning Note"
+        },
         "kind": {
           "const": "open_rule",
           "title": "Kind",
@@ -573,6 +1108,18 @@
           ],
           "default": null,
           "title": "Ticket Scope"
+        },
+        "ticket_required": {
+          "anyOf": [
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Ticket Required"
         }
       },
       "required": [
@@ -726,6 +1273,29 @@
           "title": "Rights Status",
           "type": "string"
         },
+        "planning_status": {
+          "default": "candidate",
+          "enum": [
+            "candidate",
+            "reference"
+          ],
+          "title": "Planning Status",
+          "type": "string"
+        },
+        "planning_note": {
+          "anyOf": [
+            {
+              "maxLength": 500,
+              "minLength": 1,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Planning Note"
+        },
         "kind": {
           "const": "place",
           "title": "Kind",
@@ -817,6 +1387,109 @@
           ],
           "title": "Coordinate System",
           "type": "string"
+        },
+        "aliases": {
+          "default": [],
+          "items": {
+            "type": "string"
+          },
+          "maxItems": 20,
+          "title": "Aliases",
+          "type": "array"
+        },
+        "external_poi_id": {
+          "anyOf": [
+            {
+              "maxLength": 120,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "External Poi Id"
+        },
+        "description": {
+          "anyOf": [
+            {
+              "maxLength": 2000,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Description"
+        },
+        "suggested_stay_min": {
+          "anyOf": [
+            {
+              "maximum": 720,
+              "minimum": 1,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Suggested Stay Min"
+        },
+        "business_hours": {
+          "anyOf": [
+            {
+              "maxLength": 300,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Business Hours"
+        },
+        "price_band": {
+          "anyOf": [
+            {
+              "maxLength": 100,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Price Band"
+        },
+        "notes": {
+          "anyOf": [
+            {
+              "maxLength": 2000,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Notes"
+        },
+        "superseded_by": {
+          "anyOf": [
+            {
+              "maxLength": 120,
+              "minLength": 1,
+              "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]*$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Superseded By"
         }
       },
       "required": [
@@ -970,6 +1643,29 @@
           "title": "Rights Status",
           "type": "string"
         },
+        "planning_status": {
+          "default": "candidate",
+          "enum": [
+            "candidate",
+            "reference"
+          ],
+          "title": "Planning Status",
+          "type": "string"
+        },
+        "planning_note": {
+          "anyOf": [
+            {
+              "maxLength": 500,
+              "minLength": 1,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Planning Note"
+        },
         "kind": {
           "const": "program",
           "title": "Kind",
@@ -980,6 +1676,73 @@
           "minLength": 1,
           "title": "Name",
           "type": "string"
+        },
+        "place_id": {
+          "anyOf": [
+            {
+              "maxLength": 120,
+              "minLength": 1,
+              "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]*$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Place Id"
+        },
+        "stage_name": {
+          "anyOf": [
+            {
+              "maxLength": 200,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Stage Name"
+        },
+        "description": {
+          "anyOf": [
+            {
+              "maxLength": 2000,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Description"
+        },
+        "schedule_text": {
+          "anyOf": [
+            {
+              "maxLength": 1000,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Schedule Text"
+        },
+        "notes": {
+          "anyOf": [
+            {
+              "maxLength": 2000,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Notes"
         }
       },
       "required": [
@@ -1131,6 +1894,29 @@
           ],
           "title": "Rights Status",
           "type": "string"
+        },
+        "planning_status": {
+          "default": "candidate",
+          "enum": [
+            "candidate",
+            "reference"
+          ],
+          "title": "Planning Status",
+          "type": "string"
+        },
+        "planning_note": {
+          "anyOf": [
+            {
+              "maxLength": 500,
+              "minLength": 1,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Planning Note"
         },
         "kind": {
           "const": "show_session",
@@ -1340,6 +2126,29 @@
           ],
           "title": "Rights Status",
           "type": "string"
+        },
+        "planning_status": {
+          "default": "candidate",
+          "enum": [
+            "candidate",
+            "reference"
+          ],
+          "title": "Planning Status",
+          "type": "string"
+        },
+        "planning_note": {
+          "anyOf": [
+            {
+              "maxLength": 500,
+              "minLength": 1,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Planning Note"
         },
         "kind": {
           "const": "source",
@@ -1577,6 +2386,29 @@
           "title": "Rights Status",
           "type": "string"
         },
+        "planning_status": {
+          "default": "candidate",
+          "enum": [
+            "candidate",
+            "reference"
+          ],
+          "title": "Planning Status",
+          "type": "string"
+        },
+        "planning_note": {
+          "anyOf": [
+            {
+              "maxLength": 500,
+              "minLength": 1,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Planning Note"
+        },
         "kind": {
           "const": "supply",
           "title": "Kind",
@@ -1755,6 +2587,29 @@
           "title": "Rights Status",
           "type": "string"
         },
+        "planning_status": {
+          "default": "candidate",
+          "enum": [
+            "candidate",
+            "reference"
+          ],
+          "title": "Planning Status",
+          "type": "string"
+        },
+        "planning_note": {
+          "anyOf": [
+            {
+              "maxLength": 500,
+              "minLength": 1,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Planning Note"
+        },
         "kind": {
           "const": "vendor",
           "title": "Kind",
@@ -1766,6 +2621,45 @@
           "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]*$",
           "title": "Place Id",
           "type": "string"
+        },
+        "external_poi_id": {
+          "anyOf": [
+            {
+              "maxLength": 120,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "External Poi Id"
+        },
+        "business_hours": {
+          "anyOf": [
+            {
+              "maxLength": 300,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Business Hours"
+        },
+        "price_band": {
+          "anyOf": [
+            {
+              "maxLength": 100,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Price Band"
         }
       },
       "required": [
@@ -1790,7 +2684,9 @@
         "discriminator": {
           "mapping": {
             "entrance": "#/$defs/Entrance",
+            "facility": "#/$defs/Facility",
             "food": "#/$defs/Food",
+            "highlight": "#/$defs/Highlight",
             "open_rule": "#/$defs/OpenRule",
             "place": "#/$defs/Place",
             "program": "#/$defs/Program",
@@ -1816,6 +2712,12 @@
           },
           {
             "$ref": "#/$defs/Program"
+          },
+          {
+            "$ref": "#/$defs/Highlight"
+          },
+          {
+            "$ref": "#/$defs/Facility"
           },
           {
             "$ref": "#/$defs/ShowSession"

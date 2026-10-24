@@ -1,0 +1,63 @@
+{
+  "run_id": "run_c85cfe6bbe80",
+  "task_id": "task_b35066d05f03",
+  "run_dir": "/Users/mac/Desktop/大挑/kaifeng-tourism-mvp/data/collection-runs/run_c85cfe6bbe80",
+  "ingested": [],
+  "fetched": [
+    {
+      "url": "http://www.kaifengfu.cn/contact/goupiao.asp",
+      "ok": true,
+      "status_code": 200,
+      "error_kind": null,
+      "sha256": "c4fa268d84c836245a314bade6938f0504f7af504abcfd14c51ace3692deea3f",
+      "raw_path": "/Users/mac/Desktop/大挑/kaifeng-tourism-mvp/data/collection-runs/run_c85cfe6bbe80/raw/www.kaifengfu.cn_contact_goupiao.asp_55ef7db0.html",
+      "source_key": "src_route_primary_kaifengfu_booking",
+      "label": null
+    },
+    {
+      "url": "http://www.kfdyl.com/home/",
+      "ok": true,
+      "status_code": 200,
+      "error_kind": null,
+      "sha256": "78b208beb08b1698de2d79c1ee315a76912597162a485f239c5f12872c44c117",
+      "raw_path": "/Users/mac/Desktop/大挑/kaifeng-tourism-mvp/data/collection-runs/run_c85cfe6bbe80/raw/www.kfdyl.com_home_addc7075.html",
+      "source_key": "src_route_primary_first_floor_operator",
+      "label": null
+    },
+    {
+      "url": "https://zhlzh.mofcom.gov.cn/news/entp_view/5320",
+      "ok": true,
+      "status_code": 200,
+      "error_kind": null,
+      "sha256": "1ae015ffd9762e1ce2cf4b124c9f3f1bfb5f3a82db173ef9f2f062bd71cf0fca",
+      "raw_path": "/Users/mac/Desktop/大挑/kaifeng-tourism-mvp/data/collection-runs/run_c85cfe6bbe80/raw/zhlzh.mofcom.gov.cn_news_entp_view_5320_c0dcbaeb.html",
+      "source_key": "src_route_primary_first_floor_mofcom",
+      "label": null
+    }
+  ],
+  "extracted": [],
+  "records": 0,
+  "duplicates": 0,
+  "conflicts": 0,
+  "review_tasks": 0,
+  "failures": [
+    {
+      "failure_id": "fail_4a6b6e7e8fae",
+      "run_id": "run_c85cfe6bbe80",
+      "source_key": "src_route_primary_first_floor_mofcom",
+      "failure_kind": "content_error_page",
+      "detail": "HTTP200正文为用户访问错误或资源授权认证发生问题，不是企业展示详情。",
+      "occurred_at": "2026-10-24T17:08:21+08:00",
+      "retry_of": null
+    }
+  ],
+  "bundle_path": "/Users/mac/Desktop/大挑/kaifeng-tourism-mvp/data/collection-runs/run_c85cfe6bbe80/bundle/city-facts-candidate.json",
+  "dry_run": {
+    "status": "dry_run",
+    "received": 0,
+    "changed": 0
+  },
+  "http_fetch_status": "success",
+  "content_review": "data/route-acceptance/evidence/source-content-review-20261024.json",
+  "status": "partial"
+}
