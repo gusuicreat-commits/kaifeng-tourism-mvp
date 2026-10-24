@@ -1,0 +1,457 @@
+{
+  "source": "79(2).xlsx",
+  "sha256": "2fee473c88de688f44492880bb1f45f3d65303dd5f9eb6d7b25cd21d6563b988",
+  "status": "团队资料整理，商家信息与供应关系待复核",
+  "foods": [
+    {
+      "id": "xingrentea",
+      "intro": "宫廷杏仁茶是开封传统甜饮，通常以杏仁浆为基础熬制或冲调，呈乳白色，口感细腻顺滑，带有温和的杏仁香。成品常搭配山楂、果脯、芝麻、花生等配料，酸甜与坚果香交织，既有甜品的丰富层次，也保留了开封夜市小吃的特色。不同店家的配方和配料会有所差异。",
+      "video": "https://v.douyin.com/QmgouYf1QkI/",
+      "photos": [
+        "/images/food-workbook/xingrentea-r02-dish-1.jpg",
+        "/images/food-workbook/xingrentea-r03-dish-1.jpg",
+        "/images/food-workbook/xingrentea-r04-dish-1.jpg",
+        "/images/food-workbook/xingrentea-r04-dish-2.jpg"
+      ],
+      "vendors": [
+        {
+          "id": "xingrentea-r02",
+          "name": "周记杏仁茶（西司夜市店）",
+          "address": "鼓楼区龙亭北路23号宋都皇城旅游度假区(西南角)",
+          "hours": "17:00-24:00",
+          "perCapita": "14元",
+          "dishPrice": null,
+          "photos": [
+            "/images/food-workbook/xingrentea-r02-shop-1.jpg",
+            "/images/food-workbook/xingrentea-r02-shop-2.jpg"
+          ],
+          "dishPhotos": [
+            "/images/food-workbook/xingrentea-r02-dish-1.jpg"
+          ]
+        },
+        {
+          "id": "xingrentea-r03",
+          "name": "孙羊正店",
+          "address": "开封市龙亭区内顺城路清明上河园内（西南角）",
+          "hours": "10:00-14:00；17:00-21:00",
+          "perCapita": "66元",
+          "dishPrice": "杏仁茶10元",
+          "photos": [
+            "/images/food-workbook/xingrentea-r03-shop-1.jpg",
+            "/images/food-workbook/xingrentea-r03-shop-2.jpg"
+          ],
+          "dishPhotos": [
+            "/images/food-workbook/xingrentea-r03-dish-1.jpg"
+          ]
+        },
+        {
+          "id": "xingrentea-r04",
+          "name": "利娜家杏仁茶(大梁路店)",
+          "address": "龙亭区大梁路梁苑新村1号楼8号营业房",
+          "hours": "09:30-21:30",
+          "perCapita": "10元",
+          "dishPrice": null,
+          "photos": [
+            "/images/food-workbook/xingrentea-r04-shop-1.jpg",
+            "/images/food-workbook/xingrentea-r04-shop-2.jpg"
+          ],
+          "dishPhotos": [
+            "/images/food-workbook/xingrentea-r04-dish-1.jpg",
+            "/images/food-workbook/xingrentea-r04-dish-2.jpg"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "huashenggao",
+      "intro": "开封花生糕是当地具有代表性的传统糕点，主要以花生仁、白糖或饴糖等为原料，经炒制、熬糖、拌料、压制或敲打成形。成品多呈浅黄或米黄色，层次细密，质地酥松，花生香浓郁，入口香甜而易化。它既是开封传统风味小吃，也常被游客作为伴手礼带走。",
+      "video": "https://v.douyin.com/6Ym4nb4q9Zo/",
+      "photos": [
+        "/images/food-workbook/huashenggao-r05-dish-1.jpg",
+        "/images/food-workbook/huashenggao-r06-dish-1.jpg",
+        "/images/food-workbook/huashenggao-r07-dish-1.jpg"
+      ],
+      "vendors": [
+        {
+          "id": "huashenggao-r05",
+          "name": "百年白记直营(星光天地店)",
+          "address": "龙亭区黄河大街北段99号星光天地A馆负1层永辉超市烟酒礼品对面",
+          "hours": "09:30-22:00",
+          "perCapita": "34元",
+          "dishPrice": null,
+          "photos": [
+            "/images/food-workbook/huashenggao-r05-shop-1.jpg",
+            "/images/food-workbook/huashenggao-r05-shop-2.jpg"
+          ],
+          "dishPhotos": [
+            "/images/food-workbook/huashenggao-r05-dish-1.jpg"
+          ]
+        },
+        {
+          "id": "huashenggao-r06",
+          "name": "兴盛德(中山路老店)",
+          "address": "龙亭区中山路北段84号",
+          "hours": "08:00-21:00",
+          "perCapita": "12元",
+          "dishPrice": null,
+          "photos": [
+            "/images/food-workbook/huashenggao-r06-shop-1.jpg",
+            "/images/food-workbook/huashenggao-r06-shop-2.jpg"
+          ],
+          "dishPhotos": [
+            "/images/food-workbook/huashenggao-r06-dish-1.jpg"
+          ]
+        },
+        {
+          "id": "huashenggao-r07",
+          "name": "包公府开封特产(西环路店)",
+          "address": "龙亭区日月汇综合楼101号",
+          "hours": "08:00-23:00",
+          "perCapita": "美食价格：花生糕10元",
+          "dishPrice": "花生糕10元",
+          "photos": [
+            "/images/food-workbook/huashenggao-r07-shop-1.jpg"
+          ],
+          "dishPhotos": [
+            "/images/food-workbook/huashenggao-r07-dish-1.jpg"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "chaoliangfen",
+      "intro": "开封炒凉粉是夜市常见的特色小吃，通常以红薯淀粉制成的凉粉为主料，切块后放入铁锅，加入豆酱、蒜、辣椒等调味料煎炒。凉粉外层受热后带有焦香，内部软嫩滑糯，酱香、蒜香和微辣滋味融合。趁热食用风味更足，是体验开封市井饮食和夜市烟火气的代表之一。",
+      "video": "https://v.douyin.com/5bbjZxzYZLE/",
+      "photos": [
+        "/images/food-workbook/chaoliangfen-r08-dish-1.jpg",
+        "/images/food-workbook/chaoliangfen-r09-dish-1.jpg",
+        "/images/food-workbook/chaoliangfen-r10-dish-1.jpg"
+      ],
+      "vendors": [
+        {
+          "id": "chaoliangfen-r08",
+          "name": "小虎炒凉粉（鼓楼夜市店）",
+          "address": "鼓楼区鼓楼街南广场夜市",
+          "hours": "17:00-24:00",
+          "perCapita": "13元",
+          "dishPrice": "炒凉粉6元",
+          "photos": [
+            "/images/food-workbook/chaoliangfen-r08-shop-1.jpg",
+            "/images/food-workbook/chaoliangfen-r08-shop-2.jpg"
+          ],
+          "dishPhotos": [
+            "/images/food-workbook/chaoliangfen-r08-dish-1.jpg"
+          ]
+        },
+        {
+          "id": "chaoliangfen-r09",
+          "name": "连根炒凉粉",
+          "address": "龙亭区城西街道翠园路24号楼西单元1-2号",
+          "hours": "17:00-22:00",
+          "perCapita": "17元",
+          "dishPrice": "炒凉粉8元",
+          "photos": [
+            "/images/food-workbook/chaoliangfen-r09-shop-1.jpg"
+          ],
+          "dishPhotos": [
+            "/images/food-workbook/chaoliangfen-r09-dish-1.jpg"
+          ]
+        },
+        {
+          "id": "chaoliangfen-r10",
+          "name": "小勇炒凉粉(小勇店)",
+          "address": "龙亭区黄河路与汉兴路交叉口路东向南20米5号",
+          "hours": "11:00-13:30；17:00-24:00",
+          "perCapita": "23元",
+          "dishPrice": "炒凉粉10元",
+          "photos": [
+            "/images/food-workbook/chaoliangfen-r10-shop-1.jpg"
+          ],
+          "dishPhotos": [
+            "/images/food-workbook/chaoliangfen-r10-dish-1.jpg"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "xiaolongbao",
+      "intro": "制作时将调好的肉馅包入面皮，捏出细密褶纹，再上笼蒸制，成品外形小巧，皮薄而有韧性，入口能感受到鲜香肉馅与热汤。品尝时宜轻轻夹起，先小口吸汤，再吃包子，避免汤汁洒出或烫口。",
+      "video": "https://v.douyin.com/s1GYBz3WwiY/",
+      "photos": [
+        "/images/food-workbook/xiaolongbao-r11-dish-1.jpg",
+        "/images/food-workbook/xiaolongbao-r11-dish-2.jpg",
+        "/images/food-workbook/xiaolongbao-r12-dish-1.jpg",
+        "/images/food-workbook/xiaolongbao-r13-dish-1.jpg"
+      ],
+      "vendors": [
+        {
+          "id": "xiaolongbao-r11",
+          "name": "第一楼（寺后街总店）",
+          "address": "鼓楼区寺后街8号",
+          "hours": "10:30-14:00；17:30-21:00",
+          "perCapita": "65元",
+          "dishPrice": "灌汤包25元",
+          "photos": [
+            "/images/food-workbook/xiaolongbao-r11-shop-1.jpg",
+            "/images/food-workbook/xiaolongbao-r11-shop-2.jpg"
+          ],
+          "dishPhotos": [
+            "/images/food-workbook/xiaolongbao-r11-dish-1.jpg",
+            "/images/food-workbook/xiaolongbao-r11-dish-2.jpg"
+          ]
+        },
+        {
+          "id": "xiaolongbao-r12",
+          "name": "黄家老店（西司广场店）",
+          "address": "鼓楼区省府西街西司广场",
+          "hours": "10:30-21:00",
+          "perCapita": "49元",
+          "dishPrice": "灌汤包18元",
+          "photos": [
+            "/images/food-workbook/xiaolongbao-r12-shop-1.jpg",
+            "/images/food-workbook/xiaolongbao-r12-shop-2.jpg"
+          ],
+          "dishPhotos": [
+            "/images/food-workbook/xiaolongbao-r12-dish-1.jpg"
+          ]
+        },
+        {
+          "id": "xiaolongbao-r13",
+          "name": "又一新饭店",
+          "address": "龙亭区金明大道159号开元广场",
+          "hours": "10:00-14:00；17:00-21:00",
+          "perCapita": "74元",
+          "dishPrice": "灌汤包12元",
+          "photos": [
+            "/images/food-workbook/xiaolongbao-r13-shop-1.jpg"
+          ],
+          "dishPhotos": [
+            "/images/food-workbook/xiaolongbao-r13-dish-1.jpg"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "tongziji",
+      "intro": "桶子鸡是开封有代表性的传统熟食，通常选用整只鸡，以老卤或配制卤汤浸煮、焖制入味。成品外观金黄，鸡肉咸香，肉质鲜嫩而有嚼劲，鸡皮则带有爽韧口感，冷食也能保留浓郁风味。它适合作为凉菜或熟食切盘，也是开封老字号饮食文化中颇具辨识度的一道特色美食。",
+      "video": "https://v.douyin.com/ai5mzuaMG5w/",
+      "photos": [
+        "/images/food-workbook/tongziji-r14-dish-1.jpg",
+        "/images/food-workbook/tongziji-r15-dish-1.jpg",
+        "/images/food-workbook/tongziji-r15-dish-2.jpg",
+        "/images/food-workbook/tongziji-r16-dish-1.jpg"
+      ],
+      "vendors": [
+        {
+          "id": "tongziji-r14",
+          "name": "马豫兴桶子鸡（宋城路店）",
+          "address": "龙亭区广电大厦往东150米路北宋城路76号",
+          "hours": "08:00-22:00",
+          "perCapita": "42元",
+          "dishPrice": null,
+          "photos": [
+            "/images/food-workbook/tongziji-r14-shop-1.jpg"
+          ],
+          "dishPhotos": [
+            "/images/food-workbook/tongziji-r14-dish-1.jpg"
+          ]
+        },
+        {
+          "id": "tongziji-r15",
+          "name": "福兴斋桶子鸡（徐府街店）",
+          "address": "鼓楼区徐府街中段",
+          "hours": "08:30-19:00",
+          "perCapita": "38元",
+          "dishPrice": null,
+          "photos": [
+            "/images/food-workbook/tongziji-r15-shop-1.jpg"
+          ],
+          "dishPhotos": [
+            "/images/food-workbook/tongziji-r15-dish-1.jpg",
+            "/images/food-workbook/tongziji-r15-dish-2.jpg"
+          ]
+        },
+        {
+          "id": "tongziji-r16",
+          "name": "慈民斋桶子鸡老店（徐府街店）",
+          "address": "鼓楼区新天地13号楼一楼",
+          "hours": "08:30-19:30",
+          "perCapita": "41元",
+          "dishPrice": null,
+          "photos": [
+            "/images/food-workbook/tongziji-r16-shop-1.jpg"
+          ],
+          "dishPhotos": [
+            "/images/food-workbook/tongziji-r16-dish-1.jpg"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "yangroukangmo",
+      "intro": "羊肉炕馍是开封夜市常见的特色面食，通常把羊肉末、葱花及调味料夹入或铺在薄面饼中，再放到鏊面上反复炕烙。面饼受热后呈金黄色，外层焦香酥脆，内里带有羊肉的鲜香，常加入孜然等调味增香。趁热吃口感最佳，既有面香，也有肉香，是开封街头风味的代表之一。",
+      "video": "https://v.douyin.com/-J4EQ-A5a0k/",
+      "photos": [
+        "/images/food-workbook/yangroukangmo-r17-dish-1.jpg",
+        "/images/food-workbook/yangroukangmo-r18-dish-1.jpg",
+        "/images/food-workbook/yangroukangmo-r19-dish-1.jpg"
+      ],
+      "vendors": [
+        {
+          "id": "yangroukangmo-r17",
+          "name": "邢家锅贴老店(大梁门总店)",
+          "address": "龙亭区西门大街198号（大梁门东50米路北）",
+          "hours": "11:00-22:30",
+          "perCapita": "59元",
+          "dishPrice": "20元",
+          "photos": [
+            "/images/food-workbook/yangroukangmo-r17-shop-1.jpg",
+            "/images/food-workbook/yangroukangmo-r17-shop-2.jpg"
+          ],
+          "dishPhotos": [
+            "/images/food-workbook/yangroukangmo-r17-dish-1.jpg"
+          ]
+        },
+        {
+          "id": "yangroukangmo-r18",
+          "name": "葛记羊肉炕馍",
+          "address": "禹王台区西铭街1号附4号",
+          "hours": "10:30-14:00,18:00-24:00",
+          "perCapita": "14元",
+          "dishPrice": null,
+          "photos": [
+            "/images/food-workbook/yangroukangmo-r18-shop-1.jpg"
+          ],
+          "dishPhotos": [
+            "/images/food-workbook/yangroukangmo-r18-dish-1.jpg"
+          ]
+        },
+        {
+          "id": "yangroukangmo-r19",
+          "name": "白记羊肉炕馍(汴京公园店)",
+          "address": "顺河回族区水康照明化工有限公司东门旁",
+          "hours": "10:00-21:00",
+          "perCapita": "17元",
+          "dishPrice": "羊肉炕馍12元",
+          "photos": [
+            "/images/food-workbook/yangroukangmo-r19-shop-1.jpg"
+          ],
+          "dishPhotos": [
+            "/images/food-workbook/yangroukangmo-r19-dish-1.jpg"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "liyubeimian",
+      "intro": "鲤鱼焙面是开封传统豫菜名菜，通常将鲤鱼经过改刀、油炸，再以糖醋汁烹制，最后配上细如发丝、炸至蓬松酥脆的焙面。成菜色泽红亮，鱼肉外酥里嫩，味道酸甜鲜香；焙面吸附汤汁后，口感由酥脆转为柔润。鱼与面的组合兼具观赏性和风味层次，常用于宴席和特色豫菜餐馆。",
+      "video": "https://v.douyin.com/0suoROeDfFA/",
+      "photos": [
+        "/images/food-workbook/liyubeimian-r20-dish-1.jpg",
+        "/images/food-workbook/liyubeimian-r21-dish-1.jpg",
+        "/images/food-workbook/liyubeimian-r22-dish-1.jpg"
+      ],
+      "vendors": [
+        {
+          "id": "liyubeimian-r20",
+          "name": "又一新饭店",
+          "address": "龙亭区金明大道159号开元广场",
+          "hours": "10:00-14:00；17:00-21:00",
+          "perCapita": "74元",
+          "dishPrice": null,
+          "photos": [
+            "/images/food-workbook/liyubeimian-r20-shop-1.jpg"
+          ],
+          "dishPhotos": [
+            "/images/food-workbook/liyubeimian-r20-dish-1.jpg"
+          ]
+        },
+        {
+          "id": "liyubeimian-r21",
+          "name": "黄家老店（大梁路店）",
+          "address": "龙亭区大梁路18号（大梁路黄河路交叉口向东50米路南）",
+          "hours": "10:00-22:00",
+          "perCapita": "61元",
+          "dishPrice": null,
+          "photos": [
+            "/images/food-workbook/liyubeimian-r21-shop-1.jpg",
+            "/images/food-workbook/liyubeimian-r21-shop-2.jpg"
+          ],
+          "dishPhotos": [
+            "/images/food-workbook/liyubeimian-r21-dish-1.jpg"
+          ]
+        },
+        {
+          "id": "liyubeimian-r22",
+          "name": "汴梁嘉宴灌汤包(向阳路店)",
+          "address": "龙亭区新西门街32号",
+          "hours": "10：00-21：30",
+          "perCapita": "40元",
+          "dishPrice": "黄河鲤鱼焙面68元",
+          "photos": [
+            "/images/food-workbook/liyubeimian-r22-shop-1.jpg",
+            "/images/food-workbook/liyubeimian-r22-shop-2.jpg"
+          ],
+          "dishPhotos": [
+            "/images/food-workbook/liyubeimian-r22-dish-1.jpg"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "siweicai",
+      "intro": "开封四味菜是当地具有代表性的清真风味早餐，通常以牛肉丸子、小酥肉、面筋、黄花菜等食材为主要搭配，再浇入热羊肉汤或肉汤。汤汁鲜浓，食材口感各异，既有丸子的弹嫩、酥肉的香味，也有面筋的吸汤和黄花菜的清爽。常搭配烧饼等主食食用，是开封本地日常饮食和清晨街巷风味的一部分。",
+      "video": "https://v.douyin.com/ccrZ86IdTVQ/",
+      "photos": [
+        "/images/food-workbook/siweicai-r23-dish-1.jpg",
+        "/images/food-workbook/siweicai-r24-dish-1.jpg",
+        "/images/food-workbook/siweicai-r25-dish-1.jpg"
+      ],
+      "vendors": [
+        {
+          "id": "siweicai-r23",
+          "name": "赵家名吃四味烩菜",
+          "address": "顺河回族区穆家桥街6号楼一单元东数第一间营业房",
+          "hours": "06:00-13:30",
+          "perCapita": "21元",
+          "dishPrice": "四味烩菜30元",
+          "photos": [
+            "/images/food-workbook/siweicai-r23-shop-1.jpg"
+          ],
+          "dishPhotos": [
+            "/images/food-workbook/siweicai-r23-dish-1.jpg"
+          ]
+        },
+        {
+          "id": "siweicai-r24",
+          "name": "一锅汤四味菜",
+          "address": "龙亭区金耀绿城小区11-12号楼之间24号",
+          "hours": "06:00-24:00",
+          "perCapita": "17元",
+          "dishPrice": null,
+          "photos": [
+            "/images/food-workbook/siweicai-r24-shop-1.jpg"
+          ],
+          "dishPhotos": [
+            "/images/food-workbook/siweicai-r24-dish-1.jpg"
+          ]
+        },
+        {
+          "id": "siweicai-r25",
+          "name": "王记烧羊肉清汤馆",
+          "address": "顺河回族区龙亭北路23号宋都皇城旅游度假区（东南角）",
+          "hours": "06:00-14:00",
+          "perCapita": "33元",
+          "dishPrice": "四味菜12元",
+          "photos": [
+            "/images/food-workbook/siweicai-r25-shop-1.jpg",
+            "/images/food-workbook/siweicai-r25-shop-2.jpg"
+          ],
+          "dishPhotos": [
+            "/images/food-workbook/siweicai-r25-dish-1.jpg"
+          ]
+        }
+      ]
+    }
+  ]
+}

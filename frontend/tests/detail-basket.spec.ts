@@ -1,16 +1,42 @@
 import {test,expect} from '@playwright/test'
 
-test('景区和美食详情展示媒体占位，商家骨架不伪造名称地址或播放按钮',async({page})=>{
+test('景区与未提供资料的美食保留媒体占位，不伪造名称地址或播放按钮',async({page})=>{
  const errors:string[]=[];page.on('pageerror',e=>errors.push(e.message))
  for(const width of [320,390,482,1440]){
   await page.setViewportSize({width,height:844})
-  for(const url of ['/scenic/qingming','/food/chaoliangfen','/food/yangroukangmo','/vendor/pending']){
+  for(const url of ['/scenic/qingming','/food/taosibao','/vendor/pending']){
    await page.goto(url);await expect(page.locator('.detail-media')).toBeVisible()
    await expect(page.locator('.photo-strip .media-slot')).toHaveCount(3)
    await expect(page.locator('.video-slot')).toContainText('待添加');await expect(page.locator('video')).toHaveCount(0)
    expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true)
    if(width===390){await page.locator('.detail-media').scrollIntoViewIfNeeded();await page.screenshot({path:'../docs/screenshots/detail-skeleton-'+url.split('/').pop()+'-mobile.png'})}
   }
+ }
+ expect(errors).toEqual([])
+})
+
+test('团队表格中的美食与商家图片资料按行展示',async({page})=>{
+ const errors:string[]=[];page.on('pageerror',e=>errors.push(e.message))
+ for(const width of [390,1440]){
+  await page.setViewportSize({width,height:844});await page.goto('/')
+  await page.getByRole('button',{name:'美食',exact:true}).click()
+  const foodLink=page.locator('.food-card .catalog-main').filter({hasText:'宫廷杏仁茶'})
+  await expect(foodLink.locator('img')).toHaveAttribute('src','/images/foods/xingrentea.jpg')
+  await foodLink.click()
+  await expect(page.locator('.food-detail-hero img')).toHaveAttribute('src','/images/food-workbook/xingrentea-r02-dish-1.jpg')
+  await expect(page.locator('.workbook-vendor')).toHaveCount(3)
+  await expect(page.locator('.detail-media .detail-photo img')).toHaveCount(4)
+  await expect(page.locator('.workbook-vendor').first()).toContainText('周记杏仁茶')
+  await expect(page.locator('.workbook-vendor').first()).toContainText('17:00-24:00')
+  for(const image of await page.locator('.detail-media .detail-photo img').all()){
+   await image.scrollIntoViewIfNeeded()
+   await expect.poll(()=>image.evaluate(image=>(image as HTMLImageElement).naturalWidth)).toBeGreaterThan(0)
+  }
+  await page.locator('.workbook-vendor-main').first().click()
+  await expect(page).toHaveURL('/food-vendor/xingrentea-r02')
+  await expect(page.locator('.detail-fact-grid')).toContainText('14元')
+  await expect(page.locator('.workbook-vendor-gallery img')).toHaveCount(2)
+  expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true)
  }
  expect(errors).toEqual([])
 })

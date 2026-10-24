@@ -13,6 +13,7 @@ import FoodDetail from './pages/FoodDetail.vue'
 import PlaceDetail from './pages/PlaceDetail.vue'
 import MyPage from './pages/MyPage.vue'
 import BasketPage from './pages/BasketPage.vue'
+import FoodVendorDetail from './pages/FoodVendorDetail.vue'
 import './style.css'
 import './journey.css'
 import './details.css'
@@ -21,6 +22,7 @@ const router=createRouter({history:createWebHistory(),scrollBehavior:()=>({top:0
  {path:'/city-trip/manage/:id?',component:CityTrip},
  {path:'/city-trip/:id?',component:JourneyPage},{path:'/food/:id',component:FoodDetail},{path:'/place/:id',component:PlaceDetail},{path:'/me',component:MyPage},
  {path:'/basket',component:BasketPage},{path:'/vendor/:id',component:PlaceDetail},
+ {path:'/food-vendor/:id',component:FoodVendorDetail},
  {path:'/discover',redirect:'/'},{path:'/trip',redirect:'/city-trip'},
  {path:'/plan',redirect:to=>({path:'/assistant',query:to.query})},
  {path:'/crowds',redirect:to=>({path:'/assistant',query:to.query})},{path:'/result/:id',component:Result},
