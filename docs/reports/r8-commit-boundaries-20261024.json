@@ -1,0 +1,7 @@
+{
+  "issue": "R8",
+  "disposition": "existing isolation retained, added regressions",
+  "related_passed": 102,
+  "new_live_calls": 0,
+  "runtime_user_mutations": 0
+}
