@@ -1,0 +1,294 @@
+<html>
+<head>
+    <title>商务部业务系统统一平台-中华老字号信息管理</title>
+    <link href="/css/css.css" rel="stylesheet" type="text/css"/>
+    <link href="/css/reset.css" rel="stylesheet"/>
+    <link rel="stylesheet" href="/css/common.css"/>
+    <link rel="stylesheet" href="/signup/css/union.css"/>
+    <link rel="stylesheet" href="/css/lee.core.css"/>
+    <link rel="stylesheet" href="/css/zhl.css"/>
+    <style>
+
+        body {
+            /*font-family: "Trebuchet MS", "Myriad Pro", Arial, sans-serif; 2020/12/28-zhc-信创字体解决方案 */
+            font-family: "Helvetica Neue", Helvetica, tahoma, Arial, "Noto Sans CJK SC", "PingFang SC", "\5FAE\8F6F\96C5\9ED1", "Microsoft Yahei", "WenQuanYi Micro Hei", sans-serif;
+            font-size: 14px;
+            color: #333;
+            text-shadow: 1px 1px 1px #fff;
+            overflow-y: scroll;
+        }
+
+        .err-wrap {
+            position: relative;
+            padding-top: 30px;
+            padding-bottom: 20px;
+            width: 850px;
+            font-family: "Helvetica Neue", Helvetica, tahoma, Arial, "Noto Sans CJK SC", "PingFang SC", "\5FAE\8F6F\96C5\9ED1", "Microsoft Yahei", "WenQuanYi Micro Hei", sans-serif;
+            color: #272727;
+            margin-left: auto;
+            margin-right: auto;
+            margin-top: 30px;
+            /*height: 60vh;*/
+        }
+
+        .err-wrap table {
+            width: 100%
+        }
+
+        .err-wrap .p1 {
+            font-size: 22px;
+            line-height: 28px
+        }
+
+        .err-wrap .p2 {
+            font-size: 18px
+        }
+
+        .err-wrap .u-btn {
+            font-weight: 400;
+            text-decoration: none
+        }
+
+        .err-wrap a:hover {
+            color: #fff;
+        }
+
+    </style>
+</head>
+<body style="display: flex;flex-direction: column;justify-content: space-between;height: 100%">
+
+
+<div>
+    
+
+
+
+
+
+
+
+<link rel="stylesheet" href="/css/header-index.css">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="index-header">
+    <div class="header-top-red-line"></div>
+    <div class="header-content">
+        <a href="https://www.mofcom.gov.cn/mofcom/typt.shtml" target="_blank" rel="noopener noreferrer">
+            <div class="national-emblem">
+                <img src="/images/head/guohui/国徽1024.png" style="width: 65px" alt="中华人民共和国国徽">
+            </div>
+            <div class="platform">
+                <img src="/images/head/icon_logo_02.png" alt="业务系统统一平台">
+            </div>
+        </a>
+        <div class="gray-line"></div>
+        <div class="title">中华老字号信息管理</div>
+        <div class="logo">
+            <img src="/images/head/logo.png" alt="中华老字号">
+        </div>
+    </div>
+</div>
+
+<nav class="nav w100">
+    <ul class="clearfix w">
+        <li><a class="active" href="/">网站首页</a></li>
+        <li><a href="/news/searchNews/1">工作动态</a></li>
+        <li><a href="/news/searchNews/3">变更公告</a></li>
+        <li><a href="/news/lzhfc">老字号风采</a></li>
+        <li><a href="/news/lzhmr_list">老字号传承</a></li>
+        <li><a href="/news/searchNews/13">地方老字号 </a></li>
+    </ul>
+</nav>
+
+<script type="text/javascript" src="/js/jquery.min.js"></script>
+<script type="text/javascript">
+    var mst;
+    jQuery(".areabox span").hover(function () {
+        const curItem = jQuery(this);
+        mst = setTimeout(function () {//延时触发
+            curItem.find(".childbox").fadeIn('');
+            mst = null;
+        });
+    }, function () {
+        if (mst != null) clearTimeout(mst);
+        jQuery(this).find(".childbox").fadeOut('');
+    });
+
+    // function check() {
+    //     if (document.loginForm.username.value === "") {
+    //         alert("用户名为空！");
+    //         document.loginForm.username.focus();
+    //         return false;
+    //     }
+    //     if (document.loginForm.password.value === "") {
+    //         alert("密码为空！");
+    //         document.loginForm.password.focus();
+    //         return false;
+    //     }
+    //     return true;
+    // }
+</script>
+</div>
+
+
+<div class="err-wrap">
+    <table>
+        <tbody>
+        <tr>
+            <td style="width: 45%">
+                <img src="/img/500.png" alt="">
+            </td>
+            <td style="width: 55%">
+                <div class="tool-wrap">
+                    <p class="p1">用户访问错误或资源授权认证发生问题，请联系管理员解决</p>
+                    <p class="p2 f-mt15">
+                        您还可以：
+                    </p>
+                    <div class="link-wrap f-mt10">
+                        <input type="button" class="u-btn" value="返回上一页" onclick="history.back()">
+                        <input type="button" class="u-btn" value="返回统一平台首页"
+                               onclick="jump2('http://www.mofcom.gov.cn/mofcom/typt.shtml')">
+                    </div>
+                    <p class="f-mt15">如有疑问请联系管理员</p>
+                </div>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+
+
+<div>
+    <html>
+<head>
+    <link rel="stylesheet" type="text/css" href="/css/idangerous.swiper.css"/>
+    <link rel="stylesheet" href="/css/zhl.css"/>
+    <title></title>
+</head>
+<body>
+<div class="footer">
+    <div class="w" style="display: flex;justify-content: space-between">
+        <div class="address clearfix" style="padding-top: 5px;padding-left: 0;">
+            <ul>
+                <li>主办单位：中华人民共和国商务部</li>
+                <li>网站管理：商务部电子商务和信息化司</li>
+            </ul>
+            <ul>
+                <li>网站标识码bm22000001</li>
+                <li>统一平台技术支持电话：010-67801581</li>
+            </ul>
+            <ul style="margin-right: 0;">
+                <li>
+                    <a href="https://beian.miit.gov.cn/" style="color: #232323">京ICP备05004093号-1</a>
+                </li>
+            </ul>
+            <ul>
+                <li>
+                    <a href="http://www.beian.gov.cn/portal/registerSystemInfo?recordcode=11040102700091"
+                       style="color: #232323">
+                        <img src="/images/beian.png" alt=""/>京公网安备
+                        11040102700091号
+                    </a>
+                </li>
+            </ul>
+        </div>
+        <div style="width: 28%;display: flex;align-items: center;">
+            <span id="_span_jiucuo"></span><script id="_jiucuo_" sitecode="bm22000001" src="https://zfwzgl.www.gov.cn/exposure/jiucuo.js" async></script>
+            <img src="/images/zhlzi-icon.png" alt="zhlzh-icon"/>
+            <a href="http://bszs.conac.cn/sitename?method=show&id=0726B28348831856E053012819AC9312">
+                <img src="/images/dangzhengjiguan.png" alt="党政机关"
+                     style="padding-bottom: 12px"/>
+            </a>
+        </div>
+    </div>
+</div>
+</body>
+<script type="text/javascript" src="/js/jquery-3.1.1.js"></script>
+<script src="/js/outSideChain.min.js"></script>
+<script type="text/javascript">
+    //默认配置项
+    const oSC_cofing = {
+        patt1: 'mofcom.gov.cn|211.88.26.177|211.88.40.4|211.88.50.15|localhost|test.ec.com.cn',
+        altTxt: '您访问的链接即将离开<br/><span class="u-web-tt">“中华人民共和国商务部业务系统统一平台”</span><br/>是否继续？',
+        confirm: '继续访问',
+        cancel: '取消',
+        cssPath: '/css/outSideChain.min.css'
+    }
+</script>
+
+</html>
+</div>
+
+
+</body>
+</html>
+
+<script type="text/javascript">
+
+    function jump2(url) {
+        window.open(url, "_self");
+    }
+
+</script>

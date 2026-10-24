@@ -1,0 +1,333 @@
+{
+  "schema_version": "kaifeng-real-route-readiness/1",
+  "route_id": "kaifeng-real-route-v1-20261024",
+  "assessed_at": "2026-10-24T16:47:17.939869+08:00",
+  "status": "blocked",
+  "facts_import": {
+    "status": "imported",
+    "received": 17,
+    "changed": 17,
+    "unchanged": 0,
+    "records": [
+      {
+        "kind": "food",
+        "id": "food_wb_000001",
+        "ready": false,
+        "issues": [
+          "UNVERIFIED",
+          "RIGHTS_NOT_CONFIRMED",
+          "OUTSIDE_VALIDITY_OR_UNKNOWN",
+          "DEPENDENCY_NOT_READY:source:src_teamworkbook_food_items",
+          "DEPENDENCY_NOT_READY:source:src_wb_src_000064"
+        ]
+      },
+      {
+        "kind": "open_rule",
+        "id": "open_rule_wb_000004_2026-10-24",
+        "ready": false,
+        "issues": [
+          "UNVERIFIED",
+          "RIGHTS_NOT_CONFIRMED",
+          "OUTSIDE_VALIDITY_OR_UNKNOWN",
+          "DEPENDENCY_NOT_READY:source:src_teamworkbook_open_rules",
+          "DEPENDENCY_NOT_READY:source:src_wb_src_000015",
+          "DEPENDENCY_NOT_READY:place:pl_wb_000003",
+          "DEPENDENCY_NOT_READY:source:src_teamworkbook_places"
+        ]
+      },
+      {
+        "kind": "open_rule",
+        "id": "open_rule_wb_000016_2026-10-24",
+        "ready": false,
+        "issues": [
+          "UNVERIFIED",
+          "RIGHTS_NOT_CONFIRMED",
+          "OUTSIDE_VALIDITY_OR_UNKNOWN",
+          "DEPENDENCY_NOT_READY:source:src_teamworkbook_open_rules",
+          "DEPENDENCY_NOT_READY:source:src_wb_src_000049",
+          "DEPENDENCY_NOT_READY:place:pl_wb_000013",
+          "DEPENDENCY_NOT_READY:source:src_teamworkbook_places"
+        ]
+      },
+      {
+        "kind": "place",
+        "id": "pl_wb_000003",
+        "ready": false,
+        "issues": [
+          "UNVERIFIED",
+          "RIGHTS_NOT_CONFIRMED",
+          "OUTSIDE_VALIDITY_OR_UNKNOWN",
+          "LOCATION_UNKNOWN",
+          "DEPENDENCY_NOT_READY:source:src_teamworkbook_places",
+          "DEPENDENCY_NOT_READY:source:src_wb_src_000015"
+        ]
+      },
+      {
+        "kind": "place",
+        "id": "pl_wb_000013",
+        "ready": false,
+        "issues": [
+          "UNVERIFIED",
+          "RIGHTS_NOT_CONFIRMED",
+          "OUTSIDE_VALIDITY_OR_UNKNOWN",
+          "LOCATION_UNKNOWN",
+          "DEPENDENCY_NOT_READY:source:src_teamworkbook_places",
+          "DEPENDENCY_NOT_READY:source:src_wb_src_000049"
+        ]
+      },
+      {
+        "kind": "place",
+        "id": "pl_wb_vendor_000001",
+        "ready": false,
+        "issues": [
+          "UNVERIFIED",
+          "RIGHTS_NOT_CONFIRMED",
+          "OUTSIDE_VALIDITY_OR_UNKNOWN",
+          "DEPENDENCY_NOT_READY:source:src_teamworkbook_food_vendors",
+          "DEPENDENCY_NOT_READY:source:src_wb_src_000106"
+        ]
+      },
+      {
+        "kind": "source",
+        "id": "src_teamworkbook_food_items",
+        "ready": false,
+        "issues": [
+          "UNVERIFIED",
+          "RIGHTS_NOT_CONFIRMED",
+          "OUTSIDE_VALIDITY_OR_UNKNOWN"
+        ]
+      },
+      {
+        "kind": "source",
+        "id": "src_teamworkbook_food_vendors",
+        "ready": false,
+        "issues": [
+          "UNVERIFIED",
+          "RIGHTS_NOT_CONFIRMED",
+          "OUTSIDE_VALIDITY_OR_UNKNOWN"
+        ]
+      },
+      {
+        "kind": "source",
+        "id": "src_teamworkbook_open_rules",
+        "ready": false,
+        "issues": [
+          "UNVERIFIED",
+          "RIGHTS_NOT_CONFIRMED",
+          "OUTSIDE_VALIDITY_OR_UNKNOWN"
+        ]
+      },
+      {
+        "kind": "source",
+        "id": "src_teamworkbook_places",
+        "ready": false,
+        "issues": [
+          "UNVERIFIED",
+          "RIGHTS_NOT_CONFIRMED",
+          "OUTSIDE_VALIDITY_OR_UNKNOWN"
+        ]
+      },
+      {
+        "kind": "source",
+        "id": "src_teamworkbook_vendor_foods",
+        "ready": false,
+        "issues": [
+          "UNVERIFIED",
+          "RIGHTS_NOT_CONFIRMED",
+          "OUTSIDE_VALIDITY_OR_UNKNOWN"
+        ]
+      },
+      {
+        "kind": "source",
+        "id": "src_wb_src_000015",
+        "ready": false,
+        "issues": [
+          "UNVERIFIED",
+          "RIGHTS_NOT_CONFIRMED",
+          "OUTSIDE_VALIDITY_OR_UNKNOWN"
+        ]
+      },
+      {
+        "kind": "source",
+        "id": "src_wb_src_000049",
+        "ready": false,
+        "issues": [
+          "UNVERIFIED",
+          "RIGHTS_NOT_CONFIRMED",
+          "OUTSIDE_VALIDITY_OR_UNKNOWN"
+        ]
+      },
+      {
+        "kind": "source",
+        "id": "src_wb_src_000064",
+        "ready": false,
+        "issues": [
+          "UNVERIFIED",
+          "RIGHTS_NOT_CONFIRMED",
+          "OUTSIDE_VALIDITY_OR_UNKNOWN"
+        ]
+      },
+      {
+        "kind": "source",
+        "id": "src_wb_src_000106",
+        "ready": false,
+        "issues": [
+          "UNVERIFIED",
+          "RIGHTS_NOT_CONFIRMED",
+          "OUTSIDE_VALIDITY_OR_UNKNOWN"
+        ]
+      },
+      {
+        "kind": "vendor",
+        "id": "ven_wb_000001",
+        "ready": false,
+        "issues": [
+          "UNVERIFIED",
+          "RIGHTS_NOT_CONFIRMED",
+          "OUTSIDE_VALIDITY_OR_UNKNOWN",
+          "DEPENDENCY_NOT_READY:source:src_teamworkbook_food_vendors",
+          "DEPENDENCY_NOT_READY:source:src_wb_src_000106",
+          "DEPENDENCY_NOT_READY:place:pl_wb_vendor_000001"
+        ]
+      },
+      {
+        "kind": "supply",
+        "id": "vf_wb_000001",
+        "ready": false,
+        "issues": [
+          "UNVERIFIED",
+          "RIGHTS_NOT_CONFIRMED",
+          "OUTSIDE_VALIDITY_OR_UNKNOWN",
+          "DEPENDENCY_NOT_READY:source:src_teamworkbook_vendor_foods",
+          "DEPENDENCY_NOT_READY:source:src_wb_src_000064",
+          "DEPENDENCY_NOT_READY:vendor:ven_wb_000001",
+          "DEPENDENCY_NOT_READY:source:src_teamworkbook_food_vendors",
+          "DEPENDENCY_NOT_READY:source:src_wb_src_000106",
+          "DEPENDENCY_NOT_READY:place:pl_wb_vendor_000001",
+          "DEPENDENCY_NOT_READY:food:food_wb_000001",
+          "DEPENDENCY_NOT_READY:source:src_teamworkbook_food_items"
+        ]
+      }
+    ]
+  },
+  "operations_import": null,
+  "requirements_basis": "unspecified",
+  "demand_assumptions": {},
+  "required_facts": [
+    {
+      "ref": "open_rule:open_rule_wb_000004_2026-10-24",
+      "ready": false,
+      "issues": [
+        "UNVERIFIED",
+        "RIGHTS_NOT_CONFIRMED",
+        "OUTSIDE_VALIDITY_OR_UNKNOWN",
+        "DEPENDENCY_NOT_READY:source:src_teamworkbook_open_rules",
+        "DEPENDENCY_NOT_READY:source:src_wb_src_000015",
+        "DEPENDENCY_NOT_READY:place:pl_wb_000003",
+        "DEPENDENCY_NOT_READY:source:src_teamworkbook_places"
+      ]
+    },
+    {
+      "ref": "open_rule:open_rule_wb_000016_2026-10-24",
+      "ready": false,
+      "issues": [
+        "UNVERIFIED",
+        "RIGHTS_NOT_CONFIRMED",
+        "OUTSIDE_VALIDITY_OR_UNKNOWN",
+        "DEPENDENCY_NOT_READY:source:src_teamworkbook_open_rules",
+        "DEPENDENCY_NOT_READY:source:src_wb_src_000049",
+        "DEPENDENCY_NOT_READY:place:pl_wb_000013",
+        "DEPENDENCY_NOT_READY:source:src_teamworkbook_places"
+      ]
+    },
+    {
+      "ref": "place:pl_wb_000003",
+      "ready": false,
+      "issues": [
+        "UNVERIFIED",
+        "RIGHTS_NOT_CONFIRMED",
+        "OUTSIDE_VALIDITY_OR_UNKNOWN",
+        "LOCATION_UNKNOWN",
+        "DEPENDENCY_NOT_READY:source:src_teamworkbook_places",
+        "DEPENDENCY_NOT_READY:source:src_wb_src_000015"
+      ]
+    },
+    {
+      "ref": "place:pl_wb_000013",
+      "ready": false,
+      "issues": [
+        "UNVERIFIED",
+        "RIGHTS_NOT_CONFIRMED",
+        "OUTSIDE_VALIDITY_OR_UNKNOWN",
+        "LOCATION_UNKNOWN",
+        "DEPENDENCY_NOT_READY:source:src_teamworkbook_places",
+        "DEPENDENCY_NOT_READY:source:src_wb_src_000049"
+      ]
+    },
+    {
+      "ref": "place:pl_wb_vendor_000001",
+      "ready": false,
+      "issues": [
+        "UNVERIFIED",
+        "RIGHTS_NOT_CONFIRMED",
+        "OUTSIDE_VALIDITY_OR_UNKNOWN",
+        "DEPENDENCY_NOT_READY:source:src_teamworkbook_food_vendors",
+        "DEPENDENCY_NOT_READY:source:src_wb_src_000106"
+      ]
+    },
+    {
+      "ref": "supply:vf_wb_000001",
+      "ready": false,
+      "issues": [
+        "UNVERIFIED",
+        "RIGHTS_NOT_CONFIRMED",
+        "OUTSIDE_VALIDITY_OR_UNKNOWN",
+        "DEPENDENCY_NOT_READY:source:src_teamworkbook_vendor_foods",
+        "DEPENDENCY_NOT_READY:source:src_wb_src_000064",
+        "DEPENDENCY_NOT_READY:vendor:ven_wb_000001",
+        "DEPENDENCY_NOT_READY:source:src_teamworkbook_food_vendors",
+        "DEPENDENCY_NOT_READY:source:src_wb_src_000106",
+        "DEPENDENCY_NOT_READY:place:pl_wb_vendor_000001",
+        "DEPENDENCY_NOT_READY:food:food_wb_000001",
+        "DEPENDENCY_NOT_READY:source:src_teamworkbook_food_items"
+      ]
+    },
+    {
+      "ref": "vendor:ven_wb_000001",
+      "ready": false,
+      "issues": [
+        "UNVERIFIED",
+        "RIGHTS_NOT_CONFIRMED",
+        "OUTSIDE_VALIDITY_OR_UNKNOWN",
+        "DEPENDENCY_NOT_READY:source:src_teamworkbook_food_vendors",
+        "DEPENDENCY_NOT_READY:source:src_wb_src_000106",
+        "DEPENDENCY_NOT_READY:place:pl_wb_vendor_000001"
+      ]
+    }
+  ],
+  "blockers": [
+    {
+      "code": "MISSING_ENDPOINT",
+      "step": 4
+    },
+    {
+      "code": "FACTS_NOT_READY"
+    },
+    {
+      "code": "REQUIREMENTS_REQUIRED",
+      "fields": [
+        "business_date",
+        "starts_at",
+        "ends_at",
+        "origin_place_id",
+        "destination_place_id"
+      ]
+    },
+    {
+      "code": "JOURNEYS_REQUIRED"
+    }
+  ],
+  "planning": null,
+  "runtime_database_written": false,
+  "field_acceptance": "not_performed"
+}

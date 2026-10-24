@@ -20,7 +20,9 @@ export interface CatalogItem {
  record:{kind:string;fact_id:string;name?:string;place_type?:string;stage_place_id?:string;program_id?:string;starts_at?:string;ends_at?:string|null;
   entrance_place_id?:string;direction?:string;parent_place_id?:string|null;address?:string|null;longitude?:number|null;latitude?:number|null;coordinate_system?:string;business_date?:string;
   food_id?:string;vendor_id?:string;place_id?:string;opens_at?:string|null;closes_at?:string|null;source_ids?:string[];url?:string;
-  validation_status?:string;business_status?:string;is_demo?:boolean;effective_to?:string|null;verified_at?:string|null}
+  superseded_by?:string|null;description?:string|null;aliases?:string[];external_poi_id?:string|null;suggested_stay_min?:number|null;business_hours?:string|null;price_band?:string|null;
+  category?:string|null;sort_order?:number;schedule_text?:string|null;stage_name?:string|null;
+  validation_status?:string;planning_status?:string;planning_note?:string;business_status?:string;is_demo?:boolean;effective_to?:string|null;verified_at?:string|null}
  ready:boolean;issues:string[]
 }
 export type CityAction = {operation:'save_draft';draft:CityDraft}|{operation:'set_anchor';anchor:{place_id:string;confirmed_at:string}}

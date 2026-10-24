@@ -1,0 +1,136 @@
+{
+  "schema_version": "route-handoff-files/1",
+  "created_at": "2026-10-24T17:17:49.187275+08:00",
+  "files": [
+    {
+      "path": "README.md",
+      "sha256": "403af5a068d8688b4f5ff8c4e049054ab5fd60609bd3901384c76d8d9638159d",
+      "bytes": 2047
+    },
+    {
+      "path": "data/collection-runs/run_2a28ab0d0081/raw/4travel.jp_os_shisetsu_10453016_bc596a01.html",
+      "sha256": "d213d9ec889ee8f633257806fd373ebd1f14296d135bf768e41b69783681396e",
+      "bytes": 76258
+    },
+    {
+      "path": "data/collection-runs/run_2a28ab0d0081/raw/ditu.amap.com_place_B017A007A3_1be6aaa9.html",
+      "sha256": "8dfbb9a3c46543a308acf680d9cd85ce2fd22b3997f285d13c9fd6aa7a3f10a0",
+      "bytes": 2300234
+    },
+    {
+      "path": "data/collection-runs/run_2a28ab0d0081/raw/ditu.amap.com_place_B017A0N05A_7e8da70f.html",
+      "sha256": "c76bf6bc12ba5e19a8a4c37160ef8352281f99b8cbbb519e1002dc93e78f098d",
+      "bytes": 2300234
+    },
+    {
+      "path": "data/collection-runs/run_2a28ab0d0081/raw/www.amap.com_place_B017A00HWY_15732178.html",
+      "sha256": "28fb078f888b2588c9789981c10eea9c0f240a3e394ac46f64de027614df5675",
+      "bytes": 2300234
+    },
+    {
+      "path": "data/collection-runs/run_2a28ab0d0081/raw/www.ctsb.com.cn_wap_SceneryShow_fda15486.html",
+      "sha256": "72d540790415f68e05b922428a21228cd5bd3bc8fd523ec4de283418c20b3c77",
+      "bytes": 12093
+    },
+    {
+      "path": "data/collection-runs/run_c85cfe6bbe80/raw/www.kaifengfu.cn_contact_goupiao.asp_55ef7db0.html",
+      "sha256": "c4fa268d84c836245a314bade6938f0504f7af504abcfd14c51ace3692deea3f",
+      "bytes": 12438
+    },
+    {
+      "path": "data/collection-runs/run_c85cfe6bbe80/raw/www.kfdyl.com_home_addc7075.html",
+      "sha256": "78b208beb08b1698de2d79c1ee315a76912597162a485f239c5f12872c44c117",
+      "bytes": 10522
+    },
+    {
+      "path": "data/collection-runs/run_c85cfe6bbe80/raw/zhlzh.mofcom.gov.cn_news_entp_view_5320_c0dcbaeb.html",
+      "sha256": "1ae015ffd9762e1ce2cf4b124c9f3f1bfb5f3a82db173ef9f2f062bd71cf0fca",
+      "bytes": 8061
+    },
+    {
+      "path": "data/route-acceptance/evidence/first-floor-operator-reader-20261024.json",
+      "sha256": "6424ad156e7e32c18f83d283e4fa2b9c31a5fabf50a1c888ef298662496c5fab",
+      "bytes": 6733
+    },
+    {
+      "path": "data/route-acceptance/evidence/first-floor-source-search.json",
+      "sha256": "1d679b40dd8a8e3f511651f4b652e2839982aee9a9bae2daf709226f355b6e39",
+      "bytes": 10702
+    },
+    {
+      "path": "data/route-acceptance/evidence/gulou-nightmarket-reader-failure.json",
+      "sha256": "06cb83660369034b25741a0010ddb14224671b56bac292ed9fcd6033dc578eaf",
+      "bytes": 787
+    },
+    {
+      "path": "data/route-acceptance/evidence/kaifengfu-booking-reader.json",
+      "sha256": "f784bac0957d4d212ff4e7ef2c9c449e57eb6102009090c038216ef48ea62967",
+      "bytes": 4673
+    },
+    {
+      "path": "data/route-acceptance/evidence/manifest.json",
+      "sha256": "83612069c9b8da6f4b7cc3ab0349074d9b8d6620e526048ad6be0c0e85420303",
+      "bytes": 10248
+    },
+    {
+      "path": "data/route-acceptance/evidence/source-content-review-20261024.json",
+      "sha256": "af041577dbfd0e96bab9c6bee6421b76bc23eae0a589f6dadea791b0a63bb6d2",
+      "bytes": 6231
+    },
+    {
+      "path": "data/route-acceptance/field-handoff-status-20261024.json",
+      "sha256": "77b827f9f969986010e8b8d97c602c59fc32e2288938aa1618b172da9684c3a1",
+      "bytes": 647
+    },
+    {
+      "path": "data/route-acceptance/field-review-template-20261025.json",
+      "sha256": "a43be8c262daf52bb6df85e0260f584bd19889b346a4a1800aeb2e55002b2a1e",
+      "bytes": 6217
+    },
+    {
+      "path": "data/route-acceptance/milestone-20261024.json",
+      "sha256": "9b724ed8540d2d7baaa87bbb8064e06ad74101500f9c2923ee0d264966ae5eda",
+      "bytes": 1196
+    },
+    {
+      "path": "data/route-acceptance/readiness-simulated-demand-20261025.json",
+      "sha256": "898f13fd320c4753db81b3d7025033e88d1229fbd0c136cbd9f7263da90ed86e",
+      "bytes": 13730
+    },
+    {
+      "path": "data/route-acceptance/simulated-demand-20261025-manifest.json",
+      "sha256": "4f84cacd5d3fdc103a7cd2bc06a5ad9882e885e7a49af27cf34c75e6f761b3d3",
+      "bytes": 4845
+    },
+    {
+      "path": "data/route-acceptance/simulated-demand-20261025-requirements.json",
+      "sha256": "17ab4012c79f08b661c1b9e615c99ccd59c9c6a2bc85ae2e15dd9b69be977499",
+      "bytes": 919
+    },
+    {
+      "path": "data/route-acceptance/transport-live-20261024.json",
+      "sha256": "56ac8a10bbd64c6a755d4e9242491aa8e0e88eac2a06a7c8a6a233ea0c71ce8c",
+      "bytes": 4408
+    },
+    {
+      "path": "data/route-acceptance/verification-queue.json",
+      "sha256": "cf82dc8c5dade8c1d15b830b69e70910e151d18172cf7a7c9407a8c096d29374",
+      "bytes": 6068
+    },
+    {
+      "path": "docs/REAL_ROUTE_FIELD_CHECKLIST.md",
+      "sha256": "70471a653c3645ebca2db2b031e50ab28a700a5346737c75a7e256c628b66ac7",
+      "bytes": 5576
+    },
+    {
+      "path": "回交记录.md",
+      "sha256": "5a65b9d01d82ef19a75c5cdb27c93b12bb8955ff0b2b0599d5f9ffc6013465e7",
+      "bytes": 5953
+    },
+    {
+      "path": "回交证据/README.md",
+      "sha256": "37dddb1e1783f1688ec712028eaa0641ffc54e4dc115e41fa972da07217e055b",
+      "bytes": 154
+    }
+  ]
+}

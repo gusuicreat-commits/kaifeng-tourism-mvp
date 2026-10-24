@@ -1,0 +1,162 @@
+{
+  "schema_version": "kaifeng-real-route-acceptance/1",
+  "route_id": "kaifeng-real-route-v1-simulated-demand-20261025",
+  "engineering_target_date": "2026-10-24",
+  "visitor_date": "2026-10-25",
+  "status": "blocked_pending_verification",
+  "sequence": [
+    {
+      "step": 1,
+      "kind": "scenic",
+      "fact_ref": "place:pl_wb_000003",
+      "name": "开封府",
+      "required_rule_ref": "open_rule:open_rule_wb_000004_2026-10-24"
+    },
+    {
+      "step": 2,
+      "kind": "restaurant",
+      "fact_ref": "place:pl_wb_vendor_000001",
+      "vendor_ref": "vendor:ven_wb_000001",
+      "name": "第一楼·中华老字号（寺后街总店）",
+      "required_supply_refs": [
+        "supply:vf_wb_000001"
+      ]
+    },
+    {
+      "step": 3,
+      "kind": "night_visit",
+      "fact_ref": "place:pl_wb_000013",
+      "name": "鼓楼夜市",
+      "required_rule_ref": "open_rule:open_rule_wb_000016_2026-10-24"
+    },
+    {
+      "step": 4,
+      "kind": "return_endpoint",
+      "fact_ref": "place:pl_wb_000003",
+      "name": "开封府（模拟返程选择，具体出口/集合点待核验）",
+      "status": "simulated_choice_pending_location_verification"
+    }
+  ],
+  "required_journeys": [
+    {
+      "leg_id": "origin_to_kaifengfu",
+      "from": "place:pl_wb_000003",
+      "to": "place:pl_wb_000003",
+      "status": "blocked_missing_real_entrance_connection"
+    },
+    {
+      "leg_id": "kaifengfu_to_first_floor",
+      "from": "place:pl_wb_000003",
+      "to": "place:pl_wb_vendor_000001",
+      "status": "blocked_missing_scenic_exit_and_route_evidence"
+    },
+    {
+      "leg_id": "first_floor_to_gulou_night_market",
+      "from": "place:pl_wb_vendor_000001",
+      "to": "place:pl_wb_000013",
+      "status": "blocked_missing_night_market_coordinate_and_route_evidence"
+    },
+    {
+      "leg_id": "night_market_to_return",
+      "from": "place:pl_wb_000013",
+      "to": "place:pl_wb_000003",
+      "status": "blocked_missing_return_gate_and_route_evidence"
+    }
+  ],
+  "gates": [
+    {
+      "gate_id": "facts_verified",
+      "status": "blocked",
+      "required": [
+        "place:pl_wb_000003",
+        "open_rule:open_rule_wb_000004_2026-10-24",
+        "place:pl_wb_vendor_000001",
+        "vendor:ven_wb_000001",
+        "supply:vf_wb_000001",
+        "place:pl_wb_000013",
+        "open_rule:open_rule_wb_000016_2026-10-24"
+      ]
+    },
+    {
+      "gate_id": "transport_ready",
+      "status": "blocked",
+      "required": [
+        "origin",
+        "return_endpoint",
+        "four_usable_journeys",
+        "scenic_entry_exit_evidence"
+      ]
+    },
+    {
+      "gate_id": "isolated_planning_pass",
+      "status": "blocked",
+      "required": [
+        "facts_ready",
+        "journeys_ready",
+        "target_date",
+        "time_window"
+      ]
+    },
+    {
+      "gate_id": "field_walkthrough_pass",
+      "status": "blocked",
+      "required": [
+        "actual_arrival_times",
+        "actual_transfer_times",
+        "mid_trip_change"
+      ]
+    }
+  ],
+  "research_leads": [
+    {
+      "url": "https://www.gulou.gov.cn/kfsglqwz/c00173/pc/content/content_1889528282980225024.html",
+      "status": "lead_only",
+      "supports": [
+        "鼓楼夜市历史身份"
+      ]
+    },
+    {
+      "url": "https://www.ctsb.com.cn/wap/SceneryShow?ID=15",
+      "status": "lead_only",
+      "supports": [
+        "开封府开放和节目线索"
+      ]
+    },
+    {
+      "url": "https://gs.ctrip.com/html5/you/foods/kaifeng165/4926446.html",
+      "status": "lead_only",
+      "supports": [
+        "第一楼门店地址、营业和推荐菜线索"
+      ]
+    },
+    {
+      "url": "https://www.amap.com/place/B017A00HWY",
+      "status": "lead_only",
+      "supports": [
+        "第一楼地点实体线索"
+      ]
+    }
+  ],
+  "origin_place_id": "pl_wb_000003",
+  "sequence_status": "provisional_pending_time_feasibility",
+  "engineering_target_date_basis": "historical_candidate_validation_only_not_visitor_date",
+  "requirements_basis": "agent_simulated_user_authorized",
+  "demand_assumptions": {
+    "basis": "用户授权由 Agent 模拟行程条件；不是实际游客计划",
+    "business_date": "2026-10-25",
+    "starts_at": "2026-10-25T17:30:00+08:00",
+    "ends_at": "2026-10-25T22:00:00+08:00",
+    "mode": "walking",
+    "origin_and_destination": "pl_wb_000003",
+    "endpoint_scope": "仅选择已有开封府地点候选；不声明坐标、入口或零距离转场可用",
+    "desired_durations_seconds": {
+      "kaifengfu": 5400,
+      "dinner": 3600,
+      "night_market": 2700
+    },
+    "duration_basis": "模拟停留偏好，不是景区官方时长、营业时段或实测用时",
+    "candidate_date_policy": "保留原2026-10-24营业规则并报告日期不匹配，不换日复用",
+    "budget": "unspecified",
+    "navigation_verified": false
+  }
+}

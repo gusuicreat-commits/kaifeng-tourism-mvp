@@ -1,0 +1,77 @@
+{
+  "route_id": "kaifeng-route-demo-20261025",
+  "mode": "synthetic_demo",
+  "status": "feasible",
+  "itineraries": [
+    {
+      "returns_at": "2026-10-25T21:29:00+08:00",
+      "total_minutes": 239,
+      "steps": [
+        {
+          "type": "activity",
+          "place_name": "开封府",
+          "kind": "visit",
+          "starts_at": "2026-10-25T17:30:00+08:00",
+          "ends_at": "2026-10-25T19:00:00+08:00",
+          "duration_minutes": 90
+        },
+        {
+          "type": "activity",
+          "place_name": "第一楼·中华老字号（寺后街总店）",
+          "kind": "dining",
+          "starts_at": "2026-10-25T19:16:00+08:00",
+          "ends_at": "2026-10-25T20:16:00+08:00",
+          "duration_minutes": 60
+        },
+        {
+          "type": "activity",
+          "place_name": "鼓楼夜市",
+          "kind": "visit",
+          "starts_at": "2026-10-25T20:22:00+08:00",
+          "ends_at": "2026-10-25T21:07:00+08:00",
+          "duration_minutes": 45
+        },
+        {
+          "type": "leg",
+          "from": "开封府",
+          "to": "开封府",
+          "mode": "walking",
+          "departs_at": "2026-10-25T17:30:00+08:00",
+          "arrives_at": "2026-10-25T17:30:00+08:00",
+          "distance_m": 0.0,
+          "walk_minutes": 0
+        },
+        {
+          "type": "leg",
+          "from": "开封府",
+          "to": "第一楼·中华老字号（寺后街总店）",
+          "mode": "walking",
+          "departs_at": "2026-10-25T19:00:00+08:00",
+          "arrives_at": "2026-10-25T19:16:00+08:00",
+          "distance_m": 1000.0,
+          "walk_minutes": 16
+        },
+        {
+          "type": "leg",
+          "from": "第一楼·中华老字号（寺后街总店）",
+          "to": "鼓楼夜市",
+          "mode": "walking",
+          "departs_at": "2026-10-25T20:16:00+08:00",
+          "arrives_at": "2026-10-25T20:22:00+08:00",
+          "distance_m": 350.0,
+          "walk_minutes": 6
+        },
+        {
+          "type": "leg",
+          "from": "鼓楼夜市",
+          "to": "开封府",
+          "mode": "walking",
+          "departs_at": "2026-10-25T21:07:00+08:00",
+          "arrives_at": "2026-10-25T21:29:00+08:00",
+          "distance_m": 1300.0,
+          "walk_minutes": 22
+        }
+      ]
+    }
+  ]
+}

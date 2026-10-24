@@ -1,0 +1,15 @@
+{
+  "route_id": "kaifeng-real-route-v1-simulated-demand-20261025",
+  "locations": [
+    {"ref": "place:pl_wb_000003", "query": "开封府", "allowed_names": ["开封府"]},
+    {"ref": "place:pl_wb_vendor_000001", "query": "第一楼 寺后街", "allowed_names": ["第一楼·中华老字号(寺后街总店)", "第一楼·中华老字号（寺后街总店）", "第一楼(寺后街店)", "第一楼（寺后街店）", "第一楼灌汤包(寺后街店)"], "address_contains": "寺后街"},
+    {"ref": "place:pl_wb_000013", "query": "鼓楼夜市", "allowed_names": ["鼓楼夜市"]},
+    {"ref": "entrance_candidate:kaifengfu_south", "query": "开封府 南门", "allowed_names": ["开封府(南门)", "开封府（南门）"]}
+  ],
+  "legs": [
+    {"leg_id": "origin_to_kaifengfu", "from": "place:pl_wb_000003", "to": "place:pl_wb_000003"},
+    {"leg_id": "kaifengfu_to_first_floor", "from": "place:pl_wb_000003", "to": "place:pl_wb_vendor_000001"},
+    {"leg_id": "first_floor_to_gulou_night_market", "from": "place:pl_wb_vendor_000001", "to": "place:pl_wb_000013"},
+    {"leg_id": "night_market_to_return", "from": "place:pl_wb_000013", "to": "place:pl_wb_000003"}
+  ]
+}

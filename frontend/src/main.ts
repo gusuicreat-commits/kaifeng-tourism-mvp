@@ -9,11 +9,13 @@ import Guide from './pages/Guide.vue'
 import Memory from './pages/Memory.vue'
 import CityTrip from './pages/CityTrip.vue'
 import JourneyPage from './pages/JourneyPage.vue'
+import CityPlanner from './pages/CityPlanner.vue'
 import FoodDetail from './pages/FoodDetail.vue'
 import PlaceDetail from './pages/PlaceDetail.vue'
 import MyPage from './pages/MyPage.vue'
 import BasketPage from './pages/BasketPage.vue'
 import FoodVendorDetail from './pages/FoodVendorDetail.vue'
+import Catalog from './pages/Catalog.vue'
 import './style.css'
 import './journey.css'
 import './details.css'
@@ -24,6 +26,8 @@ const router=createRouter({history:createWebHistory(),scrollBehavior:()=>({top:0
  {path:'/basket',component:BasketPage},{path:'/vendor/:id',component:PlaceDetail},
  {path:'/food-vendor/:id',component:FoodVendorDetail},
  {path:'/discover',redirect:'/'},{path:'/trip',redirect:'/city-trip'},
+ {path:'/plan-city',component:CityPlanner},
+ {path:'/catalog',component:Catalog},
  {path:'/plan',redirect:to=>({path:'/assistant',query:to.query})},
  {path:'/crowds',redirect:to=>({path:'/assistant',query:to.query})},{path:'/result/:id',component:Result},
  {path:'/:pathMatch(.*)*',redirect:'/'}

@@ -1,0 +1,251 @@
+{
+  "schema_version": "route-evidence/1",
+  "entries": [
+    {
+      "file": "data/route-acceptance/evidence/kaifengfu-booking-reader.json",
+      "sha256": "f784bac0957d4d212ff4e7ef2c9c449e57eb6102009090c038216ef48ea62967",
+      "acquired_at": "2026-10-24T15:56:05.443832+08:00",
+      "acquisition": "agent-reach read",
+      "backend": "jina",
+      "ok": true,
+      "error": null,
+      "items": [
+        {
+          "url": "http://www.kaifengfu.cn/contact/goupiao.asp",
+          "title": "预约购票-开封府",
+          "published_at": null
+        }
+      ],
+      "validation_status": "unverified",
+      "rights_status": "unknown",
+      "scope": "reader/search response snapshot; not raw origin HTML; no inferred target-day validity"
+    },
+    {
+      "file": "data/route-acceptance/evidence/first-floor-source-search.json",
+      "sha256": "1d679b40dd8a8e3f511651f4b652e2839982aee9a9bae2daf709226f355b6e39",
+      "acquired_at": "2026-10-24T15:56:05.444204+08:00",
+      "acquisition": "agent-reach search",
+      "backend": "exa",
+      "ok": true,
+      "error": null,
+      "items": [
+        {
+          "url": "http://www.kfdyl.com/home/",
+          "title": "首页-开封第一楼有限责任公司",
+          "published_at": null
+        },
+        {
+          "url": "http://kfdyl.com/",
+          "title": "首页-开封第一楼有限责任公司",
+          "published_at": null
+        },
+        {
+          "url": "https://zhlzh.mofcom.gov.cn/news/entp_view/5320",
+          "title": "中华老字号信息管理-老字号展示页面",
+          "published_at": null
+        },
+        {
+          "url": "https://sight.qunar.com/3334343684",
+          "title": "去哪儿官网",
+          "published_at": null
+        },
+        {
+          "url": "https://gs.ctrip.com/html5/you/foods/kaifeng165/4926446.html",
+          "title": "开封第一楼灌汤包(寺后街店)攻略,第一楼灌汤包(寺后街店)套餐/特色菜品推荐_菜单/人均消费/电话/地址/菜系/点评/营业时间_餐厅介绍_哪个菜好吃【携程美食】",
+          "published_at": null
+        }
+      ],
+      "validation_status": "unverified",
+      "rights_status": "unknown",
+      "scope": "reader/search response snapshot; not raw origin HTML; no inferred target-day validity"
+    },
+    {
+      "file": "data/route-acceptance/evidence/gulou-nightmarket-reader-failure.json",
+      "sha256": "06cb83660369034b25741a0010ddb14224671b56bac292ed9fcd6033dc578eaf",
+      "acquired_at": "2026-10-24T15:56:05.444422+08:00",
+      "acquisition": "agent-reach read",
+      "backend": null,
+      "ok": false,
+      "error": {
+        "code": "UPSTREAM_BROKEN",
+        "message": "HTTP 422: Unprocessable Entity",
+        "hint": "This channel is temporarily not working; `message` is what was reported. Tell the user in plain words which platform has a problem, without naming tools; suggest `agent-reach update` only if the message points to an outdated tool; do not retry in a loop."
+      },
+      "items": [],
+      "validation_status": "unverified",
+      "rights_status": "unknown",
+      "scope": "reader/search response snapshot; not raw origin HTML; no inferred target-day validity"
+    },
+    {
+      "file": "data/route-acceptance/evidence/first-floor-operator-reader-20261024.json",
+      "sha256": "6424ad156e7e32c18f83d283e4fa2b9c31a5fabf50a1c888ef298662496c5fab",
+      "acquired_at": "2026-10-24T17:01:30.630240+08:00",
+      "acquisition": "agent-reach read",
+      "backend": null,
+      "ok": true,
+      "error": null,
+      "items": [
+        {
+          "url": "http://www.kfdyl.com/home/",
+          "title": "首页-开封第一楼有限责任公司",
+          "published_at": null
+        }
+      ],
+      "validation_status": "unverified",
+      "rights_status": "unknown",
+      "scope": "operator page reader snapshot; supports branch address and brand menu leads only, no target-day hours or branch inventory proof"
+    },
+    {
+      "file": "data/collection-runs/run_2a28ab0d0081/raw/www.ctsb.com.cn_wap_SceneryShow_fda15486.html",
+      "sha256": "72d540790415f68e05b922428a21228cd5bd3bc8fd523ec4de283418c20b3c77",
+      "acquired_at": "2026-10-24T16:59:26+08:00",
+      "acquisition": "collector.fetch HTTP response",
+      "ok": true,
+      "content_status": "historical_third_party_content",
+      "usable_as_evidence_lead": true,
+      "validation_status": "unverified",
+      "rights_status": "unknown",
+      "scope": "第三方正文含2017年公告；不证明目标日开放。",
+      "items": [
+        {
+          "url": "https://www.ctsb.com.cn/wap/SceneryShow?ID=15",
+          "title": "开封开封府",
+          "published_at": null
+        }
+      ]
+    },
+    {
+      "file": "data/collection-runs/run_2a28ab0d0081/raw/ditu.amap.com_place_B017A007A3_1be6aaa9.html",
+      "sha256": "8dfbb9a3c46543a308acf680d9cd85ce2fd22b3997f285d13c9fd6aa7a3f10a0",
+      "acquired_at": "2026-10-24T16:59:26+08:00",
+      "acquisition": "collector.fetch HTTP response",
+      "ok": true,
+      "content_status": "page_shell",
+      "usable_as_evidence_lead": false,
+      "validation_status": "unverified",
+      "rights_status": "unknown",
+      "scope": "只有地图通用页面壳，未取得目标POI字段。",
+      "items": [
+        {
+          "url": "https://ditu.amap.com/place/B017A007A3",
+          "title": "高德地图 - 精准专业的手机地图",
+          "published_at": null
+        }
+      ]
+    },
+    {
+      "file": "data/collection-runs/run_2a28ab0d0081/raw/ditu.amap.com_place_B017A0N05A_7e8da70f.html",
+      "sha256": "c76bf6bc12ba5e19a8a4c37160ef8352281f99b8cbbb519e1002dc93e78f098d",
+      "acquired_at": "2026-10-24T16:59:26+08:00",
+      "acquisition": "collector.fetch HTTP response",
+      "ok": true,
+      "content_status": "page_shell",
+      "usable_as_evidence_lead": false,
+      "validation_status": "unverified",
+      "rights_status": "unknown",
+      "scope": "只有地图通用页面壳，未取得目标POI字段。",
+      "items": [
+        {
+          "url": "https://ditu.amap.com/place/B017A0N05A",
+          "title": "高德地图 - 精准专业的手机地图",
+          "published_at": null
+        }
+      ]
+    },
+    {
+      "file": "data/collection-runs/run_2a28ab0d0081/raw/www.amap.com_place_B017A00HWY_15732178.html",
+      "sha256": "28fb078f888b2588c9789981c10eea9c0f240a3e394ac46f64de027614df5675",
+      "acquired_at": "2026-10-24T16:59:26+08:00",
+      "acquisition": "collector.fetch HTTP response",
+      "ok": true,
+      "content_status": "page_shell",
+      "usable_as_evidence_lead": false,
+      "validation_status": "unverified",
+      "rights_status": "unknown",
+      "scope": "只有地图通用页面壳，未取得目标POI字段。",
+      "items": [
+        {
+          "url": "https://www.amap.com/place/B017A00HWY",
+          "title": "高德地图 - 精准专业的手机地图",
+          "published_at": null
+        }
+      ]
+    },
+    {
+      "file": "data/collection-runs/run_2a28ab0d0081/raw/4travel.jp_os_shisetsu_10453016_bc596a01.html",
+      "sha256": "d213d9ec889ee8f633257806fd373ebd1f14296d135bf768e41b69783681396e",
+      "acquired_at": "2026-10-24T16:59:26+08:00",
+      "acquisition": "collector.fetch HTTP response",
+      "ok": true,
+      "content_status": "historical_third_party_content",
+      "usable_as_evidence_lead": true,
+      "validation_status": "unverified",
+      "rights_status": "unknown",
+      "scope": "地址与营业线索；评论早至2012/2014年，页面提示资料可能过期。",
+      "items": [
+        {
+          "url": "https://4travel.jp/os_shisetsu/10453016",
+          "title": "第一楼 クチコミ・アクセス・営業時間｜開封【フォートラベル】",
+          "published_at": null
+        }
+      ]
+    },
+    {
+      "file": "data/collection-runs/run_c85cfe6bbe80/raw/www.kaifengfu.cn_contact_goupiao.asp_55ef7db0.html",
+      "sha256": "c4fa268d84c836245a314bade6938f0504f7af504abcfd14c51ace3692deea3f",
+      "acquired_at": "2026-10-24T17:05:34+08:00",
+      "acquisition": "collector.fetch HTTP response",
+      "ok": true,
+      "content_status": "operator_content_with_conflicts",
+      "usable_as_evidence_lead": true,
+      "validation_status": "unverified",
+      "rights_status": "unknown",
+      "scope": "GB2312正文；开售不是入园，多个票种/时段需人工裁决。",
+      "items": [
+        {
+          "url": "http://www.kaifengfu.cn/contact/goupiao.asp",
+          "title": "预约购票-开封府",
+          "published_at": null
+        }
+      ]
+    },
+    {
+      "file": "data/collection-runs/run_c85cfe6bbe80/raw/www.kfdyl.com_home_addc7075.html",
+      "sha256": "78b208beb08b1698de2d79c1ee315a76912597162a485f239c5f12872c44c117",
+      "acquired_at": "2026-10-24T17:05:34+08:00",
+      "acquisition": "collector.fetch HTTP response",
+      "ok": true,
+      "content_status": "operator_identity_and_address_content",
+      "usable_as_evidence_lead": true,
+      "validation_status": "unverified",
+      "rights_status": "unknown",
+      "scope": "GB2312正文；支持寺后街8号及品牌菜品线索，不证明当日营业及分店库存。",
+      "items": [
+        {
+          "url": "http://www.kfdyl.com/home/",
+          "title": "首页-开封第一楼有限责任公司",
+          "published_at": null
+        }
+      ]
+    },
+    {
+      "file": "data/collection-runs/run_c85cfe6bbe80/raw/zhlzh.mofcom.gov.cn_news_entp_view_5320_c0dcbaeb.html",
+      "sha256": "1ae015ffd9762e1ce2cf4b124c9f3f1bfb5f3a82db173ef9f2f062bd71cf0fca",
+      "acquired_at": "2026-10-24T17:05:34+08:00",
+      "acquisition": "collector.fetch HTTP response",
+      "ok": true,
+      "content_status": "content_error_page",
+      "usable_as_evidence_lead": false,
+      "validation_status": "unverified",
+      "rights_status": "unknown",
+      "scope": "HTTP200正文为用户访问错误或资源授权认证发生问题，不是企业展示详情。",
+      "items": [
+        {
+          "url": "https://zhlzh.mofcom.gov.cn/news/entp_view/5320",
+          "title": "商务部业务系统统一平台-中华老字号信息管理",
+          "published_at": null
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,550 @@
+{
+  "notice": "SYNTHETIC DEMO ONLY; NEVER IMPORT INTO RUNNING DATABASE",
+  "facts": {
+    "schema_version": "city-facts/1",
+    "records": [
+      {
+        "version": 1,
+        "validation_status": "verified",
+        "is_demo": true,
+        "rights_status": "permitted",
+        "verified_at": "2026-10-24T00:00:00+08:00",
+        "reviewer": "SYNTHETIC DEMO ONLY",
+        "verification_method": "controlled demo fixture, not field-verified",
+        "effective_from": "2026-10-25T00:00:00+08:00",
+        "effective_to": "2026-10-26T00:00:00+08:00",
+        "kind": "source",
+        "fact_id": "demo:source",
+        "source_ids": [
+          "demo:source"
+        ],
+        "name": "SYNTHETIC DEMO ROUTE - NOT REAL NAVIGATION",
+        "source_type": "field",
+        "url": "https://example.invalid/kaifeng-route-demo",
+        "locator": "data/route-acceptance/kaifeng-route-demo-20261025.json",
+        "publisher": "DEMO ONLY",
+        "collected_at": "2026-10-24T00:00:00+08:00",
+        "published_at": null
+      },
+      {
+        "version": 1,
+        "validation_status": "verified",
+        "is_demo": true,
+        "rights_status": "permitted",
+        "verified_at": "2026-10-24T00:00:00+08:00",
+        "reviewer": "SYNTHETIC DEMO ONLY",
+        "verification_method": "controlled demo fixture, not field-verified",
+        "effective_from": "2026-10-25T00:00:00+08:00",
+        "effective_to": "2026-10-26T00:00:00+08:00",
+        "kind": "place",
+        "fact_id": "kaifengfu",
+        "source_ids": [
+          "demo:source"
+        ],
+        "name": "开封府",
+        "place_type": "poi",
+        "parent_place_id": null,
+        "address": null,
+        "longitude": 114.346,
+        "latitude": 34.789,
+        "coordinate_system": "GCJ02"
+      },
+      {
+        "version": 1,
+        "validation_status": "verified",
+        "is_demo": true,
+        "rights_status": "permitted",
+        "verified_at": "2026-10-24T00:00:00+08:00",
+        "reviewer": "SYNTHETIC DEMO ONLY",
+        "verification_method": "controlled demo fixture, not field-verified",
+        "effective_from": "2026-10-25T00:00:00+08:00",
+        "effective_to": "2026-10-26T00:00:00+08:00",
+        "kind": "open_rule",
+        "fact_id": "demo:open:kaifengfu",
+        "source_ids": [
+          "demo:source"
+        ],
+        "place_id": "kaifengfu",
+        "business_date": "2026-10-25",
+        "opens_at": "2026-10-25T17:30:00+08:00",
+        "closes_at": "2026-10-25T22:00:00+08:00",
+        "last_entry_at": null,
+        "reentry": "allowed",
+        "reservation": "not_required",
+        "ticket_scope": null
+      },
+      {
+        "version": 1,
+        "validation_status": "verified",
+        "is_demo": true,
+        "rights_status": "permitted",
+        "verified_at": "2026-10-24T00:00:00+08:00",
+        "reviewer": "SYNTHETIC DEMO ONLY",
+        "verification_method": "controlled demo fixture, not field-verified",
+        "effective_from": "2026-10-25T00:00:00+08:00",
+        "effective_to": "2026-10-26T00:00:00+08:00",
+        "kind": "place",
+        "fact_id": "firstfloor",
+        "source_ids": [
+          "demo:source"
+        ],
+        "name": "第一楼·中华老字号（寺后街总店）",
+        "place_type": "restaurant",
+        "parent_place_id": null,
+        "address": null,
+        "longitude": 114.351924,
+        "latitude": 34.794059,
+        "coordinate_system": "GCJ02"
+      },
+      {
+        "version": 1,
+        "validation_status": "verified",
+        "is_demo": true,
+        "rights_status": "permitted",
+        "verified_at": "2026-10-24T00:00:00+08:00",
+        "reviewer": "SYNTHETIC DEMO ONLY",
+        "verification_method": "controlled demo fixture, not field-verified",
+        "effective_from": "2026-10-25T00:00:00+08:00",
+        "effective_to": "2026-10-26T00:00:00+08:00",
+        "kind": "open_rule",
+        "fact_id": "demo:open:firstfloor",
+        "source_ids": [
+          "demo:source"
+        ],
+        "place_id": "firstfloor",
+        "business_date": "2026-10-25",
+        "opens_at": "2026-10-25T17:30:00+08:00",
+        "closes_at": "2026-10-25T21:00:00+08:00",
+        "last_entry_at": null,
+        "reentry": "allowed",
+        "reservation": "not_required",
+        "ticket_scope": null
+      },
+      {
+        "version": 1,
+        "validation_status": "verified",
+        "is_demo": true,
+        "rights_status": "permitted",
+        "verified_at": "2026-10-24T00:00:00+08:00",
+        "reviewer": "SYNTHETIC DEMO ONLY",
+        "verification_method": "controlled demo fixture, not field-verified",
+        "effective_from": "2026-10-25T00:00:00+08:00",
+        "effective_to": "2026-10-26T00:00:00+08:00",
+        "kind": "vendor",
+        "fact_id": "demo:vendor",
+        "source_ids": [
+          "demo:source"
+        ],
+        "place_id": "firstfloor"
+      },
+      {
+        "version": 1,
+        "validation_status": "verified",
+        "is_demo": true,
+        "rights_status": "permitted",
+        "verified_at": "2026-10-24T00:00:00+08:00",
+        "reviewer": "SYNTHETIC DEMO ONLY",
+        "verification_method": "controlled demo fixture, not field-verified",
+        "effective_from": "2026-10-25T00:00:00+08:00",
+        "effective_to": "2026-10-26T00:00:00+08:00",
+        "kind": "food",
+        "fact_id": "demo:food",
+        "source_ids": [
+          "demo:source"
+        ],
+        "name": "灌汤包"
+      },
+      {
+        "version": 1,
+        "validation_status": "verified",
+        "is_demo": true,
+        "rights_status": "permitted",
+        "verified_at": "2026-10-24T00:00:00+08:00",
+        "reviewer": "SYNTHETIC DEMO ONLY",
+        "verification_method": "controlled demo fixture, not field-verified",
+        "effective_from": "2026-10-25T00:00:00+08:00",
+        "effective_to": "2026-10-26T00:00:00+08:00",
+        "kind": "supply",
+        "fact_id": "demo:supply",
+        "source_ids": [
+          "demo:source"
+        ],
+        "vendor_id": "demo:vendor",
+        "food_id": "demo:food",
+        "evidence_note": "SYNTHETIC MENU TEST ONLY"
+      },
+      {
+        "version": 1,
+        "validation_status": "verified",
+        "is_demo": true,
+        "rights_status": "permitted",
+        "verified_at": "2026-10-24T00:00:00+08:00",
+        "reviewer": "SYNTHETIC DEMO ONLY",
+        "verification_method": "controlled demo fixture, not field-verified",
+        "effective_from": "2026-10-25T00:00:00+08:00",
+        "effective_to": "2026-10-26T00:00:00+08:00",
+        "kind": "place",
+        "fact_id": "gulou",
+        "source_ids": [
+          "demo:source"
+        ],
+        "name": "鼓楼夜市",
+        "place_type": "night_visit",
+        "parent_place_id": null,
+        "address": null,
+        "longitude": 114.352,
+        "latitude": 34.792,
+        "coordinate_system": "GCJ02"
+      },
+      {
+        "version": 1,
+        "validation_status": "verified",
+        "is_demo": true,
+        "rights_status": "permitted",
+        "verified_at": "2026-10-24T00:00:00+08:00",
+        "reviewer": "SYNTHETIC DEMO ONLY",
+        "verification_method": "controlled demo fixture, not field-verified",
+        "effective_from": "2026-10-25T00:00:00+08:00",
+        "effective_to": "2026-10-26T00:00:00+08:00",
+        "kind": "open_rule",
+        "fact_id": "demo:open:gulou",
+        "source_ids": [
+          "demo:source"
+        ],
+        "place_id": "gulou",
+        "business_date": "2026-10-25",
+        "opens_at": "2026-10-25T17:30:00+08:00",
+        "closes_at": "2026-10-25T22:00:00+08:00",
+        "last_entry_at": null,
+        "reentry": "allowed",
+        "reservation": "not_required",
+        "ticket_scope": null
+      }
+    ]
+  },
+  "operations": {
+    "schema_version": "city-operations/1",
+    "journeys": [
+      {
+        "journey_id": "demo:kaifengfu:kaifengfu:walking",
+        "revision": 1,
+        "travel": {
+          "origin_place_id": "kaifengfu",
+          "destination_place_id": "kaifengfu",
+          "mode": "walking",
+          "lower_seconds": 0,
+          "upper_seconds": 0,
+          "evidence": {
+            "evidence_id": "demo:travel",
+            "revision": "1",
+            "kind": "demo",
+            "source": "SYNTHETIC DEMO ONLY",
+            "checked_at": "2026-10-24T00:00:00+08:00",
+            "valid_from": "2026-10-25T00:00:00+08:00",
+            "valid_until": "2026-10-26T00:00:00+08:00"
+          },
+          "path_status": "demo",
+          "path_ref": "demo:path",
+          "coordinate_system": "GCJ02"
+        },
+        "distance_m": 0,
+        "cost_lower_fen": 0,
+        "cost_upper_fen": 0,
+        "boundaries": [],
+        "source_ids": [
+          "demo:source"
+        ],
+        "time_basis": "synthetic"
+      },
+      {
+        "journey_id": "demo:kaifengfu:firstfloor:walking",
+        "revision": 1,
+        "travel": {
+          "origin_place_id": "kaifengfu",
+          "destination_place_id": "firstfloor",
+          "mode": "walking",
+          "lower_seconds": 780,
+          "upper_seconds": 960,
+          "evidence": {
+            "evidence_id": "demo:travel",
+            "revision": "1",
+            "kind": "demo",
+            "source": "SYNTHETIC DEMO ONLY",
+            "checked_at": "2026-10-24T00:00:00+08:00",
+            "valid_from": "2026-10-25T00:00:00+08:00",
+            "valid_until": "2026-10-26T00:00:00+08:00"
+          },
+          "path_status": "demo",
+          "path_ref": "demo:path",
+          "coordinate_system": "GCJ02"
+        },
+        "distance_m": 1000,
+        "cost_lower_fen": 0,
+        "cost_upper_fen": 0,
+        "boundaries": [],
+        "source_ids": [
+          "demo:source"
+        ],
+        "time_basis": "synthetic"
+      },
+      {
+        "journey_id": "demo:kaifengfu:gulou:walking",
+        "revision": 1,
+        "travel": {
+          "origin_place_id": "kaifengfu",
+          "destination_place_id": "gulou",
+          "mode": "walking",
+          "lower_seconds": 1140,
+          "upper_seconds": 1320,
+          "evidence": {
+            "evidence_id": "demo:travel",
+            "revision": "1",
+            "kind": "demo",
+            "source": "SYNTHETIC DEMO ONLY",
+            "checked_at": "2026-10-24T00:00:00+08:00",
+            "valid_from": "2026-10-25T00:00:00+08:00",
+            "valid_until": "2026-10-26T00:00:00+08:00"
+          },
+          "path_status": "demo",
+          "path_ref": "demo:path",
+          "coordinate_system": "GCJ02"
+        },
+        "distance_m": 1300,
+        "cost_lower_fen": 0,
+        "cost_upper_fen": 0,
+        "boundaries": [],
+        "source_ids": [
+          "demo:source"
+        ],
+        "time_basis": "synthetic"
+      },
+      {
+        "journey_id": "demo:firstfloor:kaifengfu:walking",
+        "revision": 1,
+        "travel": {
+          "origin_place_id": "firstfloor",
+          "destination_place_id": "kaifengfu",
+          "mode": "walking",
+          "lower_seconds": 780,
+          "upper_seconds": 960,
+          "evidence": {
+            "evidence_id": "demo:travel",
+            "revision": "1",
+            "kind": "demo",
+            "source": "SYNTHETIC DEMO ONLY",
+            "checked_at": "2026-10-24T00:00:00+08:00",
+            "valid_from": "2026-10-25T00:00:00+08:00",
+            "valid_until": "2026-10-26T00:00:00+08:00"
+          },
+          "path_status": "demo",
+          "path_ref": "demo:path",
+          "coordinate_system": "GCJ02"
+        },
+        "distance_m": 1000,
+        "cost_lower_fen": 0,
+        "cost_upper_fen": 0,
+        "boundaries": [],
+        "source_ids": [
+          "demo:source"
+        ],
+        "time_basis": "synthetic"
+      },
+      {
+        "journey_id": "demo:firstfloor:firstfloor:walking",
+        "revision": 1,
+        "travel": {
+          "origin_place_id": "firstfloor",
+          "destination_place_id": "firstfloor",
+          "mode": "walking",
+          "lower_seconds": 0,
+          "upper_seconds": 0,
+          "evidence": {
+            "evidence_id": "demo:travel",
+            "revision": "1",
+            "kind": "demo",
+            "source": "SYNTHETIC DEMO ONLY",
+            "checked_at": "2026-10-24T00:00:00+08:00",
+            "valid_from": "2026-10-25T00:00:00+08:00",
+            "valid_until": "2026-10-26T00:00:00+08:00"
+          },
+          "path_status": "demo",
+          "path_ref": "demo:path",
+          "coordinate_system": "GCJ02"
+        },
+        "distance_m": 0,
+        "cost_lower_fen": 0,
+        "cost_upper_fen": 0,
+        "boundaries": [],
+        "source_ids": [
+          "demo:source"
+        ],
+        "time_basis": "synthetic"
+      },
+      {
+        "journey_id": "demo:firstfloor:gulou:walking",
+        "revision": 1,
+        "travel": {
+          "origin_place_id": "firstfloor",
+          "destination_place_id": "gulou",
+          "mode": "walking",
+          "lower_seconds": 240,
+          "upper_seconds": 360,
+          "evidence": {
+            "evidence_id": "demo:travel",
+            "revision": "1",
+            "kind": "demo",
+            "source": "SYNTHETIC DEMO ONLY",
+            "checked_at": "2026-10-24T00:00:00+08:00",
+            "valid_from": "2026-10-25T00:00:00+08:00",
+            "valid_until": "2026-10-26T00:00:00+08:00"
+          },
+          "path_status": "demo",
+          "path_ref": "demo:path",
+          "coordinate_system": "GCJ02"
+        },
+        "distance_m": 350,
+        "cost_lower_fen": 0,
+        "cost_upper_fen": 0,
+        "boundaries": [],
+        "source_ids": [
+          "demo:source"
+        ],
+        "time_basis": "synthetic"
+      },
+      {
+        "journey_id": "demo:gulou:kaifengfu:walking",
+        "revision": 1,
+        "travel": {
+          "origin_place_id": "gulou",
+          "destination_place_id": "kaifengfu",
+          "mode": "walking",
+          "lower_seconds": 1140,
+          "upper_seconds": 1320,
+          "evidence": {
+            "evidence_id": "demo:travel",
+            "revision": "1",
+            "kind": "demo",
+            "source": "SYNTHETIC DEMO ONLY",
+            "checked_at": "2026-10-24T00:00:00+08:00",
+            "valid_from": "2026-10-25T00:00:00+08:00",
+            "valid_until": "2026-10-26T00:00:00+08:00"
+          },
+          "path_status": "demo",
+          "path_ref": "demo:path",
+          "coordinate_system": "GCJ02"
+        },
+        "distance_m": 1300,
+        "cost_lower_fen": 0,
+        "cost_upper_fen": 0,
+        "boundaries": [],
+        "source_ids": [
+          "demo:source"
+        ],
+        "time_basis": "synthetic"
+      },
+      {
+        "journey_id": "demo:gulou:firstfloor:walking",
+        "revision": 1,
+        "travel": {
+          "origin_place_id": "gulou",
+          "destination_place_id": "firstfloor",
+          "mode": "walking",
+          "lower_seconds": 240,
+          "upper_seconds": 360,
+          "evidence": {
+            "evidence_id": "demo:travel",
+            "revision": "1",
+            "kind": "demo",
+            "source": "SYNTHETIC DEMO ONLY",
+            "checked_at": "2026-10-24T00:00:00+08:00",
+            "valid_from": "2026-10-25T00:00:00+08:00",
+            "valid_until": "2026-10-26T00:00:00+08:00"
+          },
+          "path_status": "demo",
+          "path_ref": "demo:path",
+          "coordinate_system": "GCJ02"
+        },
+        "distance_m": 350,
+        "cost_lower_fen": 0,
+        "cost_upper_fen": 0,
+        "boundaries": [],
+        "source_ids": [
+          "demo:source"
+        ],
+        "time_basis": "synthetic"
+      },
+      {
+        "journey_id": "demo:gulou:gulou:walking",
+        "revision": 1,
+        "travel": {
+          "origin_place_id": "gulou",
+          "destination_place_id": "gulou",
+          "mode": "walking",
+          "lower_seconds": 0,
+          "upper_seconds": 0,
+          "evidence": {
+            "evidence_id": "demo:travel",
+            "revision": "1",
+            "kind": "demo",
+            "source": "SYNTHETIC DEMO ONLY",
+            "checked_at": "2026-10-24T00:00:00+08:00",
+            "valid_from": "2026-10-25T00:00:00+08:00",
+            "valid_until": "2026-10-26T00:00:00+08:00"
+          },
+          "path_status": "demo",
+          "path_ref": "demo:path",
+          "coordinate_system": "GCJ02"
+        },
+        "distance_m": 0,
+        "cost_lower_fen": 0,
+        "cost_upper_fen": 0,
+        "boundaries": [],
+        "source_ids": [
+          "demo:source"
+        ],
+        "time_basis": "synthetic"
+      }
+    ],
+    "costs": []
+  },
+  "requirements": {
+    "schema_version": "city-engine/1",
+    "business_date": "2026-10-25",
+    "starts_at": "2026-10-25T17:30:00+08:00",
+    "ends_at": "2026-10-25T22:00:00+08:00",
+    "origin_place_id": "kaifengfu",
+    "destination_place_id": "kaifengfu",
+    "modes": [
+      "walking"
+    ],
+    "pace": "standard",
+    "objective": "balanced",
+    "goals": [
+      {
+        "goal_id": "kaifengfu_visit",
+        "target_kind": "place",
+        "target_id": "kaifengfu",
+        "kind": "visit",
+        "required": true,
+        "duration_seconds": 5400
+      },
+      {
+        "goal_id": "firstfloor_dinner",
+        "target_kind": "place",
+        "target_id": "firstfloor",
+        "kind": "dining",
+        "required": true,
+        "duration_seconds": 3600
+      },
+      {
+        "goal_id": "gulou_visit",
+        "target_kind": "place",
+        "target_id": "gulou",
+        "kind": "visit",
+        "required": true,
+        "duration_seconds": 2700
+      }
+    ]
+  },
+  "assessed_at": "2026-10-25T17:30:00+08:00"
+}

@@ -1,0 +1,163 @@
+{
+  "schema_version": "route-transport-probe/1",
+  "route_id": "kaifeng-real-route-v1-simulated-demand-20261025",
+  "queried_at": "2026-10-24T17:03:20.420848+08:00",
+  "status": "reference_partial_formal_blocked",
+  "locations": [
+    {
+      "ref": "place:pl_wb_000003",
+      "provider_status": "found",
+      "matching_candidates": 1,
+      "identity_unique": true,
+      "selection_basis": "configured_name_and_address_match",
+      "entrance_verified": false
+    },
+    {
+      "ref": "place:pl_wb_vendor_000001",
+      "provider_status": "found",
+      "matching_candidates": 1,
+      "identity_unique": true,
+      "selection_basis": "configured_name_and_address_match",
+      "entrance_verified": false
+    },
+    {
+      "ref": "place:pl_wb_000013",
+      "provider_status": "found",
+      "matching_candidates": 1,
+      "identity_unique": true,
+      "selection_basis": "configured_name_and_address_match",
+      "entrance_verified": false
+    },
+    {
+      "ref": "entrance_candidate:kaifengfu_south",
+      "provider_status": "found",
+      "matching_candidates": 0,
+      "identity_unique": false,
+      "selection_basis": "configured_name_and_address_match",
+      "entrance_verified": false
+    }
+  ],
+  "legs": [
+    {
+      "leg_id": "origin_to_kaifengfu",
+      "from": "place:pl_wb_000003",
+      "to": "place:pl_wb_000003",
+      "mode": "walking",
+      "formal_admission": "needs_data",
+      "status": "same_place_entry_connection_unverified"
+    },
+    {
+      "leg_id": "kaifengfu_to_first_floor",
+      "from": "place:pl_wb_000003",
+      "to": "place:pl_wb_vendor_000001",
+      "mode": "walking",
+      "formal_admission": "needs_data",
+      "status": "estimated",
+      "duration_available": true,
+      "distance_available": true,
+      "geometry_available": true
+    },
+    {
+      "leg_id": "first_floor_to_gulou_night_market",
+      "from": "place:pl_wb_vendor_000001",
+      "to": "place:pl_wb_000013",
+      "mode": "walking",
+      "formal_admission": "needs_data",
+      "status": "estimated",
+      "duration_available": true,
+      "distance_available": true,
+      "geometry_available": true
+    },
+    {
+      "leg_id": "night_market_to_return",
+      "from": "place:pl_wb_000013",
+      "to": "place:pl_wb_000003",
+      "mode": "walking",
+      "formal_admission": "needs_data",
+      "status": "estimated",
+      "duration_available": true,
+      "distance_available": true,
+      "geometry_available": true
+    }
+  ],
+  "provider_payload_persisted": false,
+  "runtime_database_written": false,
+  "formal_operations_generated": false,
+  "navigation_verified": false,
+  "target_date_traffic_verified": false,
+  "scope": "current provider reference only; no verified entrances or horizon envelope",
+  "requests": 7,
+  "events": [
+    {
+      "sequence": 1,
+      "endpoint": "/v3/place/text",
+      "http_status": 200,
+      "business_status": "1",
+      "infocode": "10000",
+      "info": "OK",
+      "status": "success",
+      "elapsed_ms": 332.98
+    },
+    {
+      "sequence": 2,
+      "endpoint": "/v3/place/text",
+      "http_status": 200,
+      "business_status": "1",
+      "infocode": "10000",
+      "info": "OK",
+      "status": "success",
+      "elapsed_ms": 545.92
+    },
+    {
+      "sequence": 3,
+      "endpoint": "/v3/place/text",
+      "http_status": 200,
+      "business_status": "1",
+      "infocode": "10000",
+      "info": "OK",
+      "status": "success",
+      "elapsed_ms": 305.52
+    },
+    {
+      "sequence": 4,
+      "endpoint": "/v3/place/text",
+      "http_status": 200,
+      "business_status": "1",
+      "infocode": "10000",
+      "info": "OK",
+      "status": "success",
+      "elapsed_ms": 398.17
+    },
+    {
+      "sequence": 5,
+      "endpoint": "/v5/direction/walking",
+      "http_status": 200,
+      "business_status": "1",
+      "infocode": "10000",
+      "info": "OK",
+      "status": "success",
+      "elapsed_ms": 334.59
+    },
+    {
+      "sequence": 6,
+      "endpoint": "/v5/direction/walking",
+      "http_status": 200,
+      "business_status": "1",
+      "infocode": "10000",
+      "info": "OK",
+      "status": "success",
+      "elapsed_ms": 295.15
+    },
+    {
+      "sequence": 7,
+      "endpoint": "/v5/direction/walking",
+      "http_status": 200,
+      "business_status": "1",
+      "infocode": "10000",
+      "info": "OK",
+      "status": "success",
+      "elapsed_ms": 258.43
+    }
+  ],
+  "halted": null
+}

@@ -1,0 +1,35 @@
+{
+  "schema_version": "real-route-milestone/1",
+  "recorded_at": "2026-10-24T17:12:24.506415+08:00",
+  "milestone": "source_evidence_and_reference_transport_probed_pending_human_review",
+  "scenario_basis": "agent_simulated_user_authorized",
+  "business_date": "2026-10-25",
+  "raw_http_responses": 8,
+  "usable_evidence_leads": 4,
+  "content_rejections": 4,
+  "sha256_entries_checked": 12,
+  "amap_actual_requests": 7,
+  "amap_successful_requests": 7,
+  "estimated_reference_legs": 3,
+  "formal_journeys_generated": 0,
+  "formal_route_count": 0,
+  "open_review_tasks": 10,
+  "runtime_database_read_only_counts": {
+    "city_facts": 0,
+    "city_engine_operations": 0,
+    "city_engine_routes": 0
+  },
+  "checks": {
+    "collector_tests": "262 passed",
+    "route_and_transport_subset": "9 passed"
+  },
+  "remaining": [
+    "target-day opening/admission and branch supply",
+    "actual entrance/exit and connecting paths",
+    "approved traffic envelope and data-use scope",
+    "field walk and mid-trip change"
+  ],
+  "human_checklist": "docs/REAL_ROUTE_FIELD_CHECKLIST.md",
+  "review_template": "data/route-acceptance/field-review-template-20261025.json",
+  "runtime_database_written": false
+}

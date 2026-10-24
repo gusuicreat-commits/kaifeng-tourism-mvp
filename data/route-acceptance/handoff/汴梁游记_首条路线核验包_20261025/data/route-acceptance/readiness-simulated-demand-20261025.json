@@ -1,0 +1,464 @@
+{
+  "schema_version": "kaifeng-real-route-readiness/1",
+  "route_id": "kaifeng-real-route-v1-simulated-demand-20261025",
+  "assessed_at": "2026-10-24T17:11:07.902176+08:00",
+  "status": "blocked",
+  "facts_import": {
+    "status": "imported",
+    "received": 17,
+    "changed": 17,
+    "unchanged": 0,
+    "records": [
+      {
+        "kind": "food",
+        "id": "food_wb_000001",
+        "ready": false,
+        "issues": [
+          "UNVERIFIED",
+          "RIGHTS_NOT_CONFIRMED",
+          "OUTSIDE_VALIDITY_OR_UNKNOWN",
+          "DEPENDENCY_NOT_READY:source:src_teamworkbook_food_items",
+          "DEPENDENCY_NOT_READY:source:src_wb_src_000064"
+        ]
+      },
+      {
+        "kind": "open_rule",
+        "id": "open_rule_wb_000004_2026-10-24",
+        "ready": false,
+        "issues": [
+          "UNVERIFIED",
+          "RIGHTS_NOT_CONFIRMED",
+          "OUTSIDE_VALIDITY_OR_UNKNOWN",
+          "DEPENDENCY_NOT_READY:source:src_teamworkbook_open_rules",
+          "DEPENDENCY_NOT_READY:source:src_wb_src_000015",
+          "DEPENDENCY_NOT_READY:place:pl_wb_000003",
+          "DEPENDENCY_NOT_READY:source:src_teamworkbook_places"
+        ]
+      },
+      {
+        "kind": "open_rule",
+        "id": "open_rule_wb_000016_2026-10-24",
+        "ready": false,
+        "issues": [
+          "UNVERIFIED",
+          "RIGHTS_NOT_CONFIRMED",
+          "OUTSIDE_VALIDITY_OR_UNKNOWN",
+          "DEPENDENCY_NOT_READY:source:src_teamworkbook_open_rules",
+          "DEPENDENCY_NOT_READY:source:src_wb_src_000049",
+          "DEPENDENCY_NOT_READY:place:pl_wb_000013",
+          "DEPENDENCY_NOT_READY:source:src_teamworkbook_places"
+        ]
+      },
+      {
+        "kind": "place",
+        "id": "pl_wb_000003",
+        "ready": false,
+        "issues": [
+          "UNVERIFIED",
+          "RIGHTS_NOT_CONFIRMED",
+          "OUTSIDE_VALIDITY_OR_UNKNOWN",
+          "LOCATION_UNKNOWN",
+          "DEPENDENCY_NOT_READY:source:src_teamworkbook_places",
+          "DEPENDENCY_NOT_READY:source:src_wb_src_000015"
+        ]
+      },
+      {
+        "kind": "place",
+        "id": "pl_wb_000013",
+        "ready": false,
+        "issues": [
+          "UNVERIFIED",
+          "RIGHTS_NOT_CONFIRMED",
+          "OUTSIDE_VALIDITY_OR_UNKNOWN",
+          "LOCATION_UNKNOWN",
+          "DEPENDENCY_NOT_READY:source:src_teamworkbook_places",
+          "DEPENDENCY_NOT_READY:source:src_wb_src_000049"
+        ]
+      },
+      {
+        "kind": "place",
+        "id": "pl_wb_vendor_000001",
+        "ready": false,
+        "issues": [
+          "UNVERIFIED",
+          "RIGHTS_NOT_CONFIRMED",
+          "OUTSIDE_VALIDITY_OR_UNKNOWN",
+          "DEPENDENCY_NOT_READY:source:src_teamworkbook_food_vendors",
+          "DEPENDENCY_NOT_READY:source:src_wb_src_000106"
+        ]
+      },
+      {
+        "kind": "source",
+        "id": "src_teamworkbook_food_items",
+        "ready": false,
+        "issues": [
+          "UNVERIFIED",
+          "RIGHTS_NOT_CONFIRMED",
+          "OUTSIDE_VALIDITY_OR_UNKNOWN"
+        ]
+      },
+      {
+        "kind": "source",
+        "id": "src_teamworkbook_food_vendors",
+        "ready": false,
+        "issues": [
+          "UNVERIFIED",
+          "RIGHTS_NOT_CONFIRMED",
+          "OUTSIDE_VALIDITY_OR_UNKNOWN"
+        ]
+      },
+      {
+        "kind": "source",
+        "id": "src_teamworkbook_open_rules",
+        "ready": false,
+        "issues": [
+          "UNVERIFIED",
+          "RIGHTS_NOT_CONFIRMED",
+          "OUTSIDE_VALIDITY_OR_UNKNOWN"
+        ]
+      },
+      {
+        "kind": "source",
+        "id": "src_teamworkbook_places",
+        "ready": false,
+        "issues": [
+          "UNVERIFIED",
+          "RIGHTS_NOT_CONFIRMED",
+          "OUTSIDE_VALIDITY_OR_UNKNOWN"
+        ]
+      },
+      {
+        "kind": "source",
+        "id": "src_teamworkbook_vendor_foods",
+        "ready": false,
+        "issues": [
+          "UNVERIFIED",
+          "RIGHTS_NOT_CONFIRMED",
+          "OUTSIDE_VALIDITY_OR_UNKNOWN"
+        ]
+      },
+      {
+        "kind": "source",
+        "id": "src_wb_src_000015",
+        "ready": false,
+        "issues": [
+          "UNVERIFIED",
+          "RIGHTS_NOT_CONFIRMED",
+          "OUTSIDE_VALIDITY_OR_UNKNOWN"
+        ]
+      },
+      {
+        "kind": "source",
+        "id": "src_wb_src_000049",
+        "ready": false,
+        "issues": [
+          "UNVERIFIED",
+          "RIGHTS_NOT_CONFIRMED",
+          "OUTSIDE_VALIDITY_OR_UNKNOWN"
+        ]
+      },
+      {
+        "kind": "source",
+        "id": "src_wb_src_000064",
+        "ready": false,
+        "issues": [
+          "UNVERIFIED",
+          "RIGHTS_NOT_CONFIRMED",
+          "OUTSIDE_VALIDITY_OR_UNKNOWN"
+        ]
+      },
+      {
+        "kind": "source",
+        "id": "src_wb_src_000106",
+        "ready": false,
+        "issues": [
+          "UNVERIFIED",
+          "RIGHTS_NOT_CONFIRMED",
+          "OUTSIDE_VALIDITY_OR_UNKNOWN"
+        ]
+      },
+      {
+        "kind": "vendor",
+        "id": "ven_wb_000001",
+        "ready": false,
+        "issues": [
+          "UNVERIFIED",
+          "RIGHTS_NOT_CONFIRMED",
+          "OUTSIDE_VALIDITY_OR_UNKNOWN",
+          "DEPENDENCY_NOT_READY:source:src_teamworkbook_food_vendors",
+          "DEPENDENCY_NOT_READY:source:src_wb_src_000106",
+          "DEPENDENCY_NOT_READY:place:pl_wb_vendor_000001"
+        ]
+      },
+      {
+        "kind": "supply",
+        "id": "vf_wb_000001",
+        "ready": false,
+        "issues": [
+          "UNVERIFIED",
+          "RIGHTS_NOT_CONFIRMED",
+          "OUTSIDE_VALIDITY_OR_UNKNOWN",
+          "DEPENDENCY_NOT_READY:source:src_teamworkbook_vendor_foods",
+          "DEPENDENCY_NOT_READY:source:src_wb_src_000064",
+          "DEPENDENCY_NOT_READY:vendor:ven_wb_000001",
+          "DEPENDENCY_NOT_READY:source:src_teamworkbook_food_vendors",
+          "DEPENDENCY_NOT_READY:source:src_wb_src_000106",
+          "DEPENDENCY_NOT_READY:place:pl_wb_vendor_000001",
+          "DEPENDENCY_NOT_READY:food:food_wb_000001",
+          "DEPENDENCY_NOT_READY:source:src_teamworkbook_food_items"
+        ]
+      }
+    ]
+  },
+  "operations_import": null,
+  "requirements_basis": "agent_simulated_user_authorized",
+  "demand_assumptions": {
+    "basis": "用户授权由 Agent 模拟行程条件；不是实际游客计划",
+    "business_date": "2026-10-25",
+    "starts_at": "2026-10-25T17:30:00+08:00",
+    "ends_at": "2026-10-25T22:00:00+08:00",
+    "mode": "walking",
+    "origin_and_destination": "pl_wb_000003",
+    "endpoint_scope": "仅选择已有开封府地点候选；不声明坐标、入口或零距离转场可用",
+    "desired_durations_seconds": {
+      "kaifengfu": 5400,
+      "dinner": 3600,
+      "night_market": 2700
+    },
+    "duration_basis": "模拟停留偏好，不是景区官方时长、营业时段或实测用时",
+    "candidate_date_policy": "保留原2026-10-24营业规则并报告日期不匹配，不换日复用",
+    "budget": "unspecified",
+    "navigation_verified": false
+  },
+  "required_facts": [
+    {
+      "ref": "open_rule:open_rule_wb_000004_2026-10-24",
+      "ready": false,
+      "issues": [
+        "UNVERIFIED",
+        "RIGHTS_NOT_CONFIRMED",
+        "OUTSIDE_VALIDITY_OR_UNKNOWN",
+        "BUSINESS_DATE_NOT_APPLICABLE",
+        "DEPENDENCY_NOT_READY:source:src_teamworkbook_open_rules",
+        "DEPENDENCY_NOT_READY:source:src_wb_src_000015",
+        "DEPENDENCY_NOT_READY:place:pl_wb_000003",
+        "DEPENDENCY_NOT_READY:source:src_teamworkbook_places"
+      ]
+    },
+    {
+      "ref": "open_rule:open_rule_wb_000016_2026-10-24",
+      "ready": false,
+      "issues": [
+        "UNVERIFIED",
+        "RIGHTS_NOT_CONFIRMED",
+        "OUTSIDE_VALIDITY_OR_UNKNOWN",
+        "BUSINESS_DATE_NOT_APPLICABLE",
+        "DEPENDENCY_NOT_READY:source:src_teamworkbook_open_rules",
+        "DEPENDENCY_NOT_READY:source:src_wb_src_000049",
+        "DEPENDENCY_NOT_READY:place:pl_wb_000013",
+        "DEPENDENCY_NOT_READY:source:src_teamworkbook_places"
+      ]
+    },
+    {
+      "ref": "place:pl_wb_000003",
+      "ready": false,
+      "issues": [
+        "UNVERIFIED",
+        "RIGHTS_NOT_CONFIRMED",
+        "OUTSIDE_VALIDITY_OR_UNKNOWN",
+        "LOCATION_UNKNOWN",
+        "DEPENDENCY_NOT_READY:source:src_teamworkbook_places",
+        "DEPENDENCY_NOT_READY:source:src_wb_src_000015"
+      ]
+    },
+    {
+      "ref": "place:pl_wb_000013",
+      "ready": false,
+      "issues": [
+        "UNVERIFIED",
+        "RIGHTS_NOT_CONFIRMED",
+        "OUTSIDE_VALIDITY_OR_UNKNOWN",
+        "LOCATION_UNKNOWN",
+        "DEPENDENCY_NOT_READY:source:src_teamworkbook_places",
+        "DEPENDENCY_NOT_READY:source:src_wb_src_000049"
+      ]
+    },
+    {
+      "ref": "place:pl_wb_vendor_000001",
+      "ready": false,
+      "issues": [
+        "UNVERIFIED",
+        "RIGHTS_NOT_CONFIRMED",
+        "OUTSIDE_VALIDITY_OR_UNKNOWN",
+        "DEPENDENCY_NOT_READY:source:src_teamworkbook_food_vendors",
+        "DEPENDENCY_NOT_READY:source:src_wb_src_000106"
+      ]
+    },
+    {
+      "ref": "supply:vf_wb_000001",
+      "ready": false,
+      "issues": [
+        "UNVERIFIED",
+        "RIGHTS_NOT_CONFIRMED",
+        "OUTSIDE_VALIDITY_OR_UNKNOWN",
+        "DEPENDENCY_NOT_READY:source:src_teamworkbook_vendor_foods",
+        "DEPENDENCY_NOT_READY:source:src_wb_src_000064",
+        "DEPENDENCY_NOT_READY:vendor:ven_wb_000001",
+        "DEPENDENCY_NOT_READY:source:src_teamworkbook_food_vendors",
+        "DEPENDENCY_NOT_READY:source:src_wb_src_000106",
+        "DEPENDENCY_NOT_READY:place:pl_wb_vendor_000001",
+        "DEPENDENCY_NOT_READY:food:food_wb_000001",
+        "DEPENDENCY_NOT_READY:source:src_teamworkbook_food_items"
+      ]
+    },
+    {
+      "ref": "vendor:ven_wb_000001",
+      "ready": false,
+      "issues": [
+        "UNVERIFIED",
+        "RIGHTS_NOT_CONFIRMED",
+        "OUTSIDE_VALIDITY_OR_UNKNOWN",
+        "DEPENDENCY_NOT_READY:source:src_teamworkbook_food_vendors",
+        "DEPENDENCY_NOT_READY:source:src_wb_src_000106",
+        "DEPENDENCY_NOT_READY:place:pl_wb_vendor_000001"
+      ]
+    }
+  ],
+  "blockers": [
+    {
+      "code": "FACT_DATE_MISMATCH",
+      "ref": "open_rule:open_rule_wb_000004_2026-10-24",
+      "fact_date": "2026-10-24",
+      "requested_date": "2026-10-25"
+    },
+    {
+      "code": "FACT_DATE_MISMATCH",
+      "ref": "open_rule:open_rule_wb_000016_2026-10-24",
+      "fact_date": "2026-10-24",
+      "requested_date": "2026-10-25"
+    },
+    {
+      "code": "FACTS_NOT_READY"
+    },
+    {
+      "code": "JOURNEYS_REQUIRED"
+    },
+    {
+      "code": "ENGINE_NOT_FEASIBLE",
+      "status": "needs_data"
+    }
+  ],
+  "planning": {
+    "status": "needs_data",
+    "itineraries": [],
+    "issues": [
+      {
+        "code": "ENDPOINT_NOT_READY",
+        "message": "起点或返程地点缺少适用的核验资料",
+        "affected_ids": [
+          "pl_wb_000003"
+        ],
+        "suggestions": [
+          "补齐或重新核验相关数据；也可调整目标、时段或交通方式。"
+        ]
+      },
+      {
+        "code": "ENDPOINT_NOT_READY",
+        "message": "起点或返程地点缺少适用的核验资料",
+        "affected_ids": [
+          "pl_wb_000003"
+        ],
+        "suggestions": [
+          "补齐或重新核验相关数据；也可调整目标、时段或交通方式。"
+        ]
+      },
+      {
+        "code": "REQUIRED_GOAL_UNAVAILABLE",
+        "message": "必选目标没有完整、有效且满足时间范围的数据",
+        "affected_ids": [
+          "kaifengfu_visit"
+        ],
+        "suggestions": [
+          "补齐或重新核验相关数据；也可调整目标、时段或交通方式。"
+        ]
+      },
+      {
+        "code": "REQUIRED_GOAL_UNAVAILABLE",
+        "message": "必选目标没有完整、有效且满足时间范围的数据",
+        "affected_ids": [
+          "first_floor_dinner"
+        ],
+        "suggestions": [
+          "补齐或重新核验相关数据；也可调整目标、时段或交通方式。"
+        ]
+      },
+      {
+        "code": "REQUIRED_GOAL_UNAVAILABLE",
+        "message": "必选目标没有完整、有效且满足时间范围的数据",
+        "affected_ids": [
+          "gulou_visit"
+        ],
+        "suggestions": [
+          "补齐或重新核验相关数据；也可调整目标、时段或交通方式。"
+        ]
+      }
+    ],
+    "warnings": [
+      "交通为保守估计；缓冲和默认停留是规划参数，不是排队实测。"
+    ],
+    "metrics": {
+      "algorithm": "OR-Tools CP-SAT circuit/time-windows",
+      "candidate_count": 0,
+      "blocked_candidates": [
+        {
+          "goal_id": "kaifengfu_visit",
+          "place_id": "pl_wb_000003",
+          "reasons": [
+            "PLACE_NOT_READY"
+          ]
+        },
+        {
+          "goal_id": "kaifengfu_visit",
+          "reasons": [
+            "NO_USABLE_VARIANT"
+          ]
+        },
+        {
+          "goal_id": "first_floor_dinner",
+          "place_id": "pl_wb_vendor_000001",
+          "reasons": [
+            "OPENING_UNKNOWN",
+            "PLACE_NOT_READY"
+          ]
+        },
+        {
+          "goal_id": "first_floor_dinner",
+          "reasons": [
+            "NO_USABLE_VARIANT"
+          ]
+        },
+        {
+          "goal_id": "gulou_visit",
+          "place_id": "pl_wb_000013",
+          "reasons": [
+            "OPENING_UNKNOWN",
+            "PLACE_NOT_READY"
+          ]
+        },
+        {
+          "goal_id": "gulou_visit",
+          "reasons": [
+            "NO_USABLE_VARIANT"
+          ]
+        }
+      ],
+      "defaults": {},
+      "global_optimum_claimed": false,
+      "elapsed_ms": 0.005,
+      "solver_status": null
+    },
+    "computed_at": "2026-10-24T17:11:07.902176+08:00"
+  },
+  "runtime_database_written": false,
+  "field_acceptance": "not_performed"
+}

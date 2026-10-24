@@ -1,0 +1,368 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=gb2312" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<title>预约购票-开封府</title>
+<meta name="keywords" content="开封府 包公 府衙文化 宋文化 廉政文化">
+<meta name="description" content="开封府国家4A级旅游景区，河南省十大人文景区。游开封府 品味大宋文化，拜包龙图 领略人间正气！">
+<link rel="stylesheet" href="/template/css/animate.min.css">
+<link rel="stylesheet" type="text/css" href="../template/css/font-awesome.css"/>
+<link rel="stylesheet" type="text/css" href="../template/css/style.css"/>
+<script src="../template/js/jquery.min.js"  type="text/javascript" ></script>
+<script src="../template/js/common.js"  type="text/javascript" ></script>
+<script type="text/javascript" src="http://api.map.baidu.com/api?v=1.3"></script>
+</head>
+<body>
+<div class="topBar">
+	<div class="box">
+		<div class="welcome"></div>
+		<div class="topFav">
+			<a id="setfavorite" href="javascript:void(0)">加入收藏</a>
+			<span>|</span>
+			<a id="sethomepage" href="javascript:void(0)">设为首页</a>
+		</div>
+	</div>
+</div>
+<div class="top">
+	<div class="box">
+		<div class="logo">
+			<a href="http://www.kaifengfu.cn"><img src="../template/Images/logo.png" /></a>
+		</div>
+
+		<div class="topRight">
+			
+			<div class="search">
+				<form action="/news/search.asp" method="get" onsubmit="return check()">
+					<input type="text" name="keys" class="search-keyword" id="search-keyword" value="请输入搜索内容" onfocus="if(this.value=='请输入搜索内容'){this.value='';}" onblur="if(this.value==''){this.value='请输入搜索内容';}">
+					<button type="submit" class="search-submit">搜索</button>
+				</form>
+				<script type="text/javascript">
+					function check() {
+						if($("#keys").val() == "请输入搜索内容…") {
+							alert("请输入搜索内容");
+							return false;
+						}
+					}
+				</script>
+			</div>
+
+		</div>
+	</div>
+</div>
+
+<div class="menuBox">
+	<div class="menu">
+		<ul>
+			<li data-menu="home">
+				<a href="/">首页</a>
+			</li>
+			<li>
+				<a href="/about">府衙简介</a>
+			</li>
+			<li>
+				<a href="/jingqu">主题景区</a>
+			</li>
+			<li>
+				<a href="#">在线游园</a>
+				<dl>
+					<dd><a href="/daolan">在线导览</a></dd>
+					<dd><a href="/kaifengfu" target="_blank">全景游园</a></dd>
+					<dd><a href="http://pg.365daoyou.cn/index.html?accountID=70db37b1-061a-484f-bea4-4f2cada8eba1&scenicSn=510003" target="_blank">语音讲解</a></dd>
+				</dl>
+			</li>	
+			<li>
+				<a href="/news">新闻中心</a>
+			</li>
+			<li>
+				<a href="/fuyin">历代府尹</a>
+			</li>
+			<li>
+				<a href="/biaoyan">文艺表演</a>
+			</li>
+			<li>
+				<a href="/yishi">龙图轶事</a>
+			</li>
+			<li>
+				<a href="/zhinan">参观指南</a>
+			</li>
+			<li>
+				<a href="#">旅游服务</a>
+				<dl>
+					<dd><a href="/contact">在线咨询</a></dd>
+					<dd><a href="/contact/goupiao.asp">预约购票</a></dd>					
+					<dd><a href="/jiaotong">交通指引</a></dd>
+
+				</dl>
+			</li>
+		</ul>
+	</div>
+</div>
+<script>
+$(window).load(function() {
+	if($(window).width()>992){
+		$(".menu ul li").hover(function(){
+			$(this).children("dl").slideDown(300)
+		}, function(){
+			$(this).children("dl").slideUp(100)
+		});
+	}			
+});
+</script>
+
+<div class="mobileNav" id="mobileNav">
+	<li></li>
+	<li></li>
+	<li></li>
+</div>
+
+<script type="text/javascript">
+	$(function() {
+		menu = $("#m").val();
+		$(".menu li").each(function() {
+			if($(this).attr("data-menu") == menu) {
+				$(this).addClass("active");
+			}
+		});
+
+		$("#mobileNav").click(function() {
+			if($(".menuBox").is(":hidden")) {
+				$(".menuBox").slideDown(100);
+			} else {
+				$(".menuBox").slideUp(100);
+			}
+		})
+	})
+</script>
+
+<script type="text/javascript">
+	$(document).ready(function() {
+		// 添加收藏 
+		$("#setfavorite").click(function() {
+			var ctrl = (navigator.userAgent.toLowerCase()).indexOf('mac') != -1 ? 'Command/Cmd' : 'CTRL';
+			if(document.all) {
+				window.external.addFavorite('http://www.kaifengfu.cn', '');
+			} else if(window.sidebar) {
+				window.sidebar.addPanel('', 'http://www.kaifengfu.cn', "");
+			} else {
+				alert('您可以尝试通过快捷键' + ctrl + ' + D 加入到收藏夹~');
+			}
+			return false;
+		});
+		// 设为首页 
+		$("#sethomepage").click(function() {
+			var url = this.href;
+			try {
+				this.style.behavior = "url(#default#homepage)";
+				this.setHomePage(url);
+			} catch(e) {
+				if(document.all) {
+					document.body.style.behavior = "url(#default#homepage)";
+					document.body.setHomePage(url);
+				} else if(window.sidebar) {
+					if(window.netscape) {
+						try {
+							netscape.security.PrivilegeManager.enablePrivilege("UniversalXPConnect");
+						} catch(e) {
+							alert("此操作被浏览器拒绝！\n请在浏览器地址栏输入“about:config”并回车\n然后将 [signed.applets.codebase_principal_support]的值设置为'true',双击即可。");
+							return false;
+						}
+					}
+					var prefs = Components.classes["@mozilla.org/preferences-service;1"].getService(Components.interfaces.nsIPrefBranch);
+					prefs.setCharPref('browser.startup.homepage', url);
+				} else {
+					alert('您的浏览器不支持自动设置首页, 使用浏览器菜单或在浏览器地址栏输入“chrome://settings/browser”手动设置!');
+					//  $("#sethomepage").href(); 
+				}
+			}
+			return false;
+		});
+	});
+</script>
+<div class="in_banner">
+	<h1 class="animated zoomIn">预约购票</h1>
+</div>
+
+<div class="box">
+	<div class="guide"><i class="fa fa-home"></i> 当前位置：<a href="/">首页</a> / 预约购票</div>
+    
+   <div class="clear"></div>
+    
+	<div class="lleft">
+		<div class="leftJemudan"> 
+	<div class="hd">演出节目单</div>
+	<div class="bd">
+		<li>
+			<div class="name">开衙迎宾</div>
+			<div class="didian">演出地点：府门广场</div>
+			<div class="time">时间：9:00</div>
+		</li>
+		<li>
+			<div class="name">包公断案（铡美案）</div>
+			<div class="didian">演出地点：大堂</div>
+			<div class="time">时间：9:30</div>
+		</li>
+		<li>
+			<div class="name">《闸口盘车案》影院版</div>
+			<div class="didian">演出地点：全息剧场</div>
+			<div class="time">时间：9:40 11:55 16:30</div>
+		</li>
+		<li>
+			<div class="name">太子迎驾</div>
+			<div class="didian">演出地点：太子读书台</div>
+			<div class="time">时间：10:00</div>
+		</li>
+		<li>
+			<div class="name">榜前捉婿</div>
+			<div class="didian">演出地点：明礼院</div>
+			<div class="time">时间：10:30 15:30</div>
+		</li>
+		<li>
+			<div class="name">《闸口盘车案》剧场版</div>
+			<div class="didian">演出地点：全息剧场</div>
+			<div class="time">时间：11:00 14:30 17:30</div>
+		</li>
+		<li>
+			<div class="name">太极功夫</div>
+			<div class="didian">演出地点：天庆观</div>
+			<div class="time">时间：11:00 15:00</div>
+		</li>
+		<li>
+			<div class="name">演武迎宾</div>
+			<div class="didian">演出地点：英武楼</div>
+			<div class="time">时间：11:35 16:40</div>
+		</li>
+		<li>
+			<div class="name">包公巡衙之巧遇苏轼</div>
+			<div class="didian">演出地点：街道司</div>
+			<div class="time">时间：12:30 17:00</div>
+		</li>
+		<li>
+			<div class="name">包公断案（铡赵王）</div>
+			<div class="didian">演出地点：大堂</div>
+			<div class="time">时间：14:00</div>
+		</li>
+		<li>
+			<div class="name">校场竞技</div>
+			<div class="didian">演出地点：英武楼</div>
+			<div class="time">时间：14:50 18:15</div>
+		</li>
+		<li>
+			<div class="name">竹竿子之题名记碑</div>
+			<div class="didian">演出地点：东碑亭</div>
+			<div class="time">时间：15:10 16:20 17:40</div>
+		</li>
+		<li>
+			<div class="name">火场惩顽</div>
+			<div class="didian">演出地点：潜火队</div>
+			<div class="time">时间：15:40</div>
+		</li>
+		<li>
+			<div class="name">梅花堂前说四雅</div>
+			<div class="didian">演出地点：梅花堂</div>
+			<div class="time">时间：16:00</div>
+		</li>
+		<li>
+			<div class="name">苏轼罢灯</div>
+			<div class="didian">演出地点：推判院(南门)</div>
+			<div class="time">时间：16:15 17:55</div>
+		</li>
+		<li>
+			<div class="name">漫说苏颂</div>
+			<div class="didian">演出地点：东碑亭</div>
+			<div class="time">时间：19:12</div>
+		</li>
+		<li>
+			<div class="name">水月云天舞+音乐喷泉秀</div>
+			<div class="didian">演出地点：明镜湖</div>
+			<div class="time">时间：18:00</div>
+		</li>
+		<li>
+			<div class="name">东京幻市</div>
+			<div class="didian">演出地点：非遗街区</div>
+			<div class="time">时间：18:35 20:20</div>
+		</li>
+		<li>
+			<div class="name">一盏灯.光启千年</div>
+			<div class="didian">演出地点：府门广场</div>
+			<div class="time">时间：19:00-</div>
+		</li>
+		<li>
+			<div class="name">一座府.天下首府</div>
+			<div class="didian">演出地点：大堂</div>
+			<div class="time">时间：19:20</div>
+		</li>
+		<li>
+			<div class="name">崇正招军</div>
+			<div class="didian">演出地点：崇正门</div>
+			<div class="time">时间：19:45 20:45</div>
+		</li>
+		<li>
+			<div class="name">一台武.侠义家国</div>
+			<div class="didian">演出地点：英武楼</div>
+			<div class="time">时间：20:00</div>
+		</li>
+		<li>
+			<div class="name">一科举.千年魁榜</div>
+			<div class="didian">演出地点：太子读书台</div>
+			<div class="time">时间：20:10</div>
+		</li>
+		<li>
+			<div class="name">一雅集.遇见苏轼</div>
+			<div class="didian">演出地点：明镜湖</div>
+			<div class="time">时间：20:35</div>
+		</li>
+	</div>
+</div>
+
+<div class="leftGuide">
+	<div class="hd">参观导览</div>
+	<div class="bd">
+		<p>开放时间 ：7:30--22:00</p>
+		<p>门票价格 ：</p>
+		<p>日间票 : 成人票价65元 学生票价32元</p>
+		<p>17:30停止入园</p>
+		<p>夜游门票 :90元/人</p>
+		<p>17：00开售，22:00闭园</p>
+		<p class="tel">预约电话 ：0371-23983319</p>
+	</div>
+</div>
+	</div>
+	
+	<div class="in_right">
+		<div class="pageName">预约购票</div>
+		<div class="onepage"><p><span style="font-size: 20px;"></span></p><h3 class="song" style="margin: 0px 0px 10px; color: rgb(171, 140, 64); line-height: 1.1; font-family: STZhongsong, SimSun, sans-serif; font-size: 30px; font-weight: 500; white-space: normal; box-sizing: border-box; background-color: rgb(255, 255, 255);">&nbsp; 开封府门票</h3><p><small style="font-family:; font-size: 11.9px; box-sizing: border-box;" microsoft=""></small></p><p><span style="font-size: 16px;"><span style="font-family:;" microsoft="">请使用微信扫一扫扫码购票</span><span style="font-family:;" microsoft="">。</span></span></p><p><span style="font-size: 18px;"><span style="font-family:;" microsoft=""><img title="xiaochengxu.png" src="/uploads/20210108/16100892428137648.png"/></span></span></p><p><span style="font-size: 20px;"><strong>预定说明</strong></span><br/></p><p><span style="font-size: 16px;">预定时间：当日18:00前（售票处窗口）</span></p><p><span style="font-size: 16px;">有效期：当日有效</span></p><p><span style="font-size: 16px;">票种说明：成人票</span></p><p><strong><span style="font-size: 20px;">费用说明</span></strong></p><p><span style="font-size: 16px;">费用包含：景区全价门票一张 包含景区内全部景点</span></p><p><strong><span style="font-size: 20px;">使用说明</span></strong></p><p><span style="font-size: 16px;">使用方法：凭下单人身份证刷府门入口处闸机入园</span></p><p><span style="font-size: 16px;">入园时间：07:00--19:00&nbsp; 冬季7：30--18：30</span></p><p><span style="font-size: 16px;">退改规则：一旦验证使用，概不退票</span></p></div>
+	</div>
+    
+</div>
+
+<input type="hidden" id="m" value="about" />
+
+<div class="clear"></div>
+
+<div class="footer">
+	<div class="box">
+		<div class="contact">
+			<div class="hd">联系我们</div>
+			<li>地址：河南省开封市鼓楼区包公东湖北岸</li>
+			<li>邮编：475000</li>
+			<li>电话：0371-23963159</li>
+			<li>http://www.kaifengfu.cn</li>
+			<li>传真：0371-23989266</li>
+			<li>Email：2583016781@qq.com</li>
+		</div>
+		<div class="focusOur">
+			<div class="hd">分享平台</div>
+			<div class="bd">
+				<li><img src="/template/images/icon1.png" /></li>
+				<li><img src="/template/images/icon2.png" /></li>
+				<li><img src="/template/images/icon3.png" /></li>
+				<li><img src="/template/images/icon4.png" /></li>
+			</div>
+		</div>
+	</div>	
+</div>
+<div class="copyright"> copyright &copy; 2015-2020 开封“开封府”旅游开发有限公司 All Rights Reserved. <a href="https://beian.miit.gov.cn" target="_black">豫ICP备05007440号-1</a></div>
+</body>
+</html>

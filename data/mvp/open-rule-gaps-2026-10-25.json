@@ -1,0 +1,217 @@
+{
+  "business_date": "2026-10-25",
+  "instantiated": 15,
+  "gaps": 4,
+  "records": [
+    {
+      "rule_id": "or_000001",
+      "place_id": "pl_wb_000001",
+      "name": "常规开放时间",
+      "opens_at": "2026-10-25T09:00:00+08:00",
+      "closes_at": "2026-10-25T22:00:00+08:00",
+      "last_entry_at": null,
+      "reservation": "required",
+      "reentry": "unknown",
+      "ticket_scope": "白天门票（全价票/半价票）",
+      "validation_status_in_workbook": "pending_review"
+    },
+    {
+      "rule_id": "or_000002",
+      "place_id": "pl_wb_000002",
+      "name": "常规检票/开放时间（官网首页）",
+      "opens_at": "2026-10-25T08:00:00+08:00",
+      "closes_at": "2026-10-25T23:00:00+08:00",
+      "last_entry_at": "2026-10-25T21:00:00+08:00",
+      "reservation": "unknown",
+      "reentry": "allowed",
+      "ticket_scope": "成人票、儿童/学生/老人/退役军人票、大马戏票、汴河游船联票、城墙观光车联票（官方公众号购票入口）",
+      "validation_status_in_workbook": "pending_review"
+    },
+    {
+      "rule_id": "or_000004",
+      "place_id": "pl_wb_000003",
+      "name": "夜游《南衙千秋月》",
+      "opens_at": "2026-10-25T17:00:00+08:00",
+      "closes_at": "2026-10-25T22:00:00+08:00",
+      "last_entry_at": null,
+      "reservation": "unknown",
+      "reentry": "allowed",
+      "ticket_scope": "夜游票（成人90元/半价45元，全天不限次入园）",
+      "validation_status_in_workbook": "candidate"
+    },
+    {
+      "rule_id": "or_000005",
+      "place_id": "pl_wb_000004",
+      "name": "常规开放时间（官网游园指南）",
+      "opens_at": "2026-10-25T08:00:00+08:00",
+      "closes_at": "2026-10-25T21:30:00+08:00",
+      "last_entry_at": null,
+      "reservation": "unknown",
+      "reentry": "unknown",
+      "ticket_scope": "全票45元/半价22元（节会期间按实际票价）",
+      "validation_status_in_workbook": "candidate"
+    },
+    {
+      "rule_id": "or_000006",
+      "place_id": "pl_wb_000005",
+      "name": "夏季开放时间（OTA口径，待官方核实）",
+      "opens_at": "2026-10-25T08:00:00+08:00",
+      "closes_at": "2026-10-25T18:00:00+08:00",
+      "last_entry_at": "2026-10-25T18:00:00+08:00",
+      "reservation": "unknown",
+      "reentry": "unknown",
+      "ticket_scope": "成人40元/半价20元（官方小程序）",
+      "validation_status_in_workbook": "candidate"
+    },
+    {
+      "rule_id": "or_000008",
+      "place_id": "pl_wb_000006",
+      "name": "常规营业时间（景区公告，待官方核实）",
+      "opens_at": "2026-10-25T08:30:00+08:00",
+      "closes_at": "2026-10-25T21:00:00+08:00",
+      "last_entry_at": null,
+      "reservation": "unknown",
+      "reentry": "unknown",
+      "ticket_scope": "成人30元/半价15元（官方门票公示牌）",
+      "validation_status_in_workbook": "candidate"
+    },
+    {
+      "rule_id": "or_000009",
+      "place_id": "pl_wb_000007",
+      "name": "常规开放时间（官网页脚）",
+      "opens_at": "2026-10-25T08:00:00+08:00",
+      "closes_at": "2026-10-25T22:00:00+08:00",
+      "last_entry_at": null,
+      "reservation": "unknown",
+      "reentry": "unknown",
+      "ticket_scope": "成人40元/优待20元（OTA口径，待官方）",
+      "validation_status_in_workbook": "candidate"
+    },
+    {
+      "rule_id": "or_000010",
+      "place_id": "pl_wb_000008",
+      "name": "春夏秋季开放时间（OTA口径，待官方）",
+      "opens_at": "2026-10-25T07:00:00+08:00",
+      "closes_at": "2026-10-25T19:00:00+08:00",
+      "last_entry_at": null,
+      "reservation": "unknown",
+      "reentry": "unknown",
+      "ticket_scope": "成人线上27元/门市约30元（OTA口径，待官方）",
+      "validation_status_in_workbook": "pending_review"
+    },
+    {
+      "rule_id": "or_000012",
+      "place_id": "pl_wb_000009",
+      "name": "常规开放时间（OTA口径，待官方）",
+      "opens_at": "2026-10-25T08:00:00+08:00",
+      "closes_at": "2026-10-25T22:00:00+08:00",
+      "last_entry_at": "2026-10-25T21:30:00+08:00",
+      "reservation": "unknown",
+      "reentry": "unknown",
+      "ticket_scope": "成人约30-40元/优待约20元（OTA口径不一致，待官方）",
+      "validation_status_in_workbook": "pending_review"
+    },
+    {
+      "rule_id": "or_000013",
+      "place_id": "pl_wb_000010",
+      "name": "常规开放时间（官网游玩指南）",
+      "opens_at": "2026-10-25T08:30:00+08:00",
+      "closes_at": "2026-10-25T22:00:00+08:00",
+      "last_entry_at": null,
+      "reservation": "unknown",
+      "reentry": "unknown",
+      "ticket_scope": "全价40元/半价20元",
+      "validation_status_in_workbook": "candidate"
+    },
+    {
+      "rule_id": "or_000014",
+      "place_id": "pl_wb_000011",
+      "name": "常规开放时间（OTA口径，待官方）",
+      "opens_at": "2026-10-25T08:00:00+08:00",
+      "closes_at": "2026-10-25T18:00:00+08:00",
+      "last_entry_at": null,
+      "reservation": "unknown",
+      "reentry": "unknown",
+      "ticket_scope": "成人约22-25元（OTA口径，待官方）",
+      "validation_status_in_workbook": "pending_review"
+    },
+    {
+      "rule_id": "or_000015",
+      "place_id": "pl_wb_000012",
+      "name": "常规开放时间（网络资料，待官方）",
+      "opens_at": "2026-10-25T08:00:00+08:00",
+      "closes_at": "2026-10-25T18:30:00+08:00",
+      "last_entry_at": null,
+      "reservation": "unknown",
+      "reentry": "unknown",
+      "ticket_scope": "成人约15-35元（口径不一，待官方）",
+      "validation_status_in_workbook": "pending_review"
+    },
+    {
+      "rule_id": "or_000016",
+      "place_id": "pl_wb_000013",
+      "name": "夜市营业时间（平台口径，待现场核实）",
+      "opens_at": "2026-10-25T10:00:00+08:00",
+      "closes_at": "2026-10-25T22:00:00+08:00",
+      "last_entry_at": null,
+      "reservation": "unknown",
+      "reentry": "unknown",
+      "ticket_scope": "免费进入（摊位消费）",
+      "validation_status_in_workbook": "pending_review"
+    },
+    {
+      "rule_id": "or_000017",
+      "place_id": "pl_wb_000014",
+      "name": "夜市营业时间（第三方口径，待现场核实）",
+      "opens_at": "2026-10-25T17:30:00+08:00",
+      "closes_at": "2026-10-25T23:30:00+08:00",
+      "last_entry_at": null,
+      "reservation": "unknown",
+      "reentry": "unknown",
+      "ticket_scope": "免费进入（摊位消费）",
+      "validation_status_in_workbook": "pending_review"
+    },
+    {
+      "rule_id": "or_000019",
+      "place_id": "pl_wb_000016",
+      "name": "营业时间（第三方口径，待官方）",
+      "opens_at": "2026-10-25T10:00:00+08:00",
+      "closes_at": "2026-10-25T23:30:00+08:00",
+      "last_entry_at": null,
+      "reservation": "unknown",
+      "reentry": "unknown",
+      "ticket_scope": "免费入场（餐饮/演出另付）",
+      "validation_status_in_workbook": "pending_review"
+    }
+  ],
+  "gap_items": [
+    {
+      "rule_id": "or_000003",
+      "place_id": "pl_000003",
+      "name": "日场常规（官网参观导览）",
+      "reason": "规则字段冲突未裁定，需人工核验（不落库）"
+    },
+    {
+      "rule_id": "or_000007",
+      "place_id": "pl_000005",
+      "name": "冬季开放时间（OTA口径，待官方核实）",
+      "reason": "规则状态 expired 不适用"
+    },
+    {
+      "rule_id": "or_000011",
+      "place_id": "pl_000008",
+      "name": "冬季开放时间（OTA口径，待官方）",
+      "reason": "生效区间未开始（2026-11-01 起）"
+    },
+    {
+      "rule_id": "or_000018",
+      "place_id": "pl_000015",
+      "name": "夜市营业时间（第三方口径，待现场核实）",
+      "reason": "营业区间跨日（18:30-01:00），city-facts/1 要求按业务日拆分",
+      "suggested_split": [
+        "2026-10-25 18:30-23:59",
+        "次日 00:00-01:00"
+      ]
+    }
+  ]
+}

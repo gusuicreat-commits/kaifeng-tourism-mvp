@@ -1,0 +1,973 @@
+{
+  "generated_at": "2026-10-24T23:41:18.201721+08:00",
+  "business_date": "2026-10-25",
+  "scope": "显式列出的团队与采集 city-facts 包；不把媒体、节目介绍或抓取成功自动变成当日场次。",
+  "inputs": {
+    "team-workbook": {
+      "path": "data/team-handoff/city-facts-teamhandoff-20261023.json",
+      "records": 518,
+      "sha256": "8fac89853dd9a2058f0618f07735d5d4a197436f37e66d59547440fdeced506a"
+    },
+    "expanded-collection": {
+      "path": "data/collection-20261023-expanded/city-facts-candidate-expanded.json",
+      "records": 112,
+      "sha256": "68e8f2178197c575b2dad7fb9b977a2f9d7719a7707a9057b2e95ba98088990d"
+    },
+    "initial-collection": {
+      "path": "data/collection-20261023/city-facts-candidate.json",
+      "records": 188,
+      "sha256": "1f7b8f510332c9c0470446fa00c7f76df252e6d588e23dfbc4e752ceefda5ff9"
+    },
+    "first-collector-run": {
+      "path": "data/collection-runs/run_1d70ae0fdd19/bundle/city-facts-candidate.json",
+      "records": 71,
+      "sha256": "565069f0f0fb704685c63e1dc0c52138bdc4fdaedfd6e1c729008f9e6427f5aa"
+    },
+    "second-collector-run": {
+      "path": "data/collection-runs/run_10712c5a07e1/bundle/city-facts-candidate.json",
+      "records": 10,
+      "sha256": "957de96f1785fbb9efc67da091efc104158ea9bd2166911e364d9fe8be5fff95"
+    },
+    "coordinate-backfill": {
+      "path": "data/collection-runs/coord_backfill_20261024/bundle/city-facts-candidate.json",
+      "records": 70,
+      "sha256": "7d2da8f838576ea3f442123560fb73fbd6df07cdffa481539daa544af07421ba"
+    },
+    "dated-opening-rules": {
+      "path": "data/collection-runs/open_rules_2026-10-24/bundle/city-facts-candidate.json",
+      "records": 56,
+      "sha256": "32c20f0cbe01dac37e1ac588cbbb24f6103b7787e4e6581f0228262474e0dd29"
+    },
+    "scenic-alignment": {
+      "path": "data/collection-runs/scenic_align_20261024/bundle/city-facts-candidate.json",
+      "records": 25,
+      "sha256": "0212ce7fce73936db2658ac32b57fcb32f2f242b2ee743f5cda01ddc6013938a"
+    },
+    "initial-route-sources": {
+      "path": "data/route-acceptance/kaifeng-real-route-v1-20261024-facts-candidate.json",
+      "records": 17,
+      "sha256": "bb938b9ca1fb5ba27b5aacbf68a2bb6d1cf581ff0ec1e0e866109719cafade4d"
+    }
+  },
+  "historical_package": {
+    "status": "converted",
+    "path": "/Users/mac/Desktop/大挑/开封旅游数据采集_20261020",
+    "records": 840,
+    "excluded": [
+      "osm道路与候选通行图",
+      "模拟客流",
+      "show_session",
+      "媒体公开转载",
+      "无坐标无名POI"
+    ]
+  },
+  "historical_duplicate_matches": [
+    {
+      "kind": "program",
+      "from": "prg_hist_qms_program_003",
+      "to": "prg_wb_000072"
+    },
+    {
+      "kind": "program",
+      "from": "prg_hist_qms_program_004",
+      "to": "prg_wb_000001"
+    },
+    {
+      "kind": "program",
+      "from": "prg_hist_qms_program_006",
+      "to": "prg_wb_000074"
+    },
+    {
+      "kind": "program",
+      "from": "prg_hist_qms_program_007",
+      "to": "prg_wb_000075"
+    },
+    {
+      "kind": "program",
+      "from": "prg_hist_qms_program_010",
+      "to": "prg_wb_000077"
+    },
+    {
+      "kind": "program",
+      "from": "prg_hist_qms_program_011",
+      "to": "prg_wb_000078"
+    },
+    {
+      "kind": "program",
+      "from": "prg_hist_qms_program_012",
+      "to": "prg_wb_000079"
+    },
+    {
+      "kind": "program",
+      "from": "prg_hist_qms_program_013",
+      "to": "prg_wb_000080"
+    },
+    {
+      "kind": "program",
+      "from": "prg_hist_qms_program_015",
+      "to": "prg_wb_000002"
+    },
+    {
+      "kind": "program",
+      "from": "prg_hist_qms_program_016",
+      "to": "prg_wb_000081"
+    },
+    {
+      "kind": "program",
+      "from": "prg_hist_qms_program_017",
+      "to": "prg_wb_000082"
+    },
+    {
+      "kind": "program",
+      "from": "prg_hist_qms_program_037",
+      "to": "prg_wb_000006"
+    },
+    {
+      "kind": "program",
+      "from": "prg_hist_qms_program_045",
+      "to": "prg_wb_000003"
+    },
+    {
+      "kind": "program",
+      "from": "prg_hist_qms_program_061",
+      "to": "prg_wb_000005"
+    },
+    {
+      "kind": "program",
+      "from": "prg_hist_qms_program_084",
+      "to": "prg_wb_000004"
+    },
+    {
+      "kind": "program",
+      "from": "prg_hist_qms_program_097",
+      "to": "prg_wb_000007"
+    },
+    {
+      "kind": "program",
+      "from": "prg_hist_qms_program_102",
+      "to": "prg_wb_000076"
+    },
+    {
+      "kind": "program",
+      "from": "prg_hist_qms_program_148",
+      "to": "prg_wb_000008"
+    },
+    {
+      "kind": "program",
+      "from": "prg_hist_qms_program_153",
+      "to": "prg_wb_000009"
+    },
+    {
+      "kind": "program",
+      "from": "prg_hist_qms_program_153",
+      "to": "prg_wb_000009"
+    },
+    {
+      "kind": "program",
+      "from": "prg_hist_kf_notice_left_01",
+      "to": "prg_wb_000020"
+    },
+    {
+      "kind": "program",
+      "from": "prg_hist_kf_notice_left_02",
+      "to": "prg_wb_000021"
+    },
+    {
+      "kind": "program",
+      "from": "prg_hist_kf_notice_left_03",
+      "to": "prg_wb_000022"
+    },
+    {
+      "kind": "program",
+      "from": "prg_hist_kf_notice_left_04",
+      "to": "prg_wb_000023"
+    },
+    {
+      "kind": "program",
+      "from": "prg_hist_kf_notice_left_05",
+      "to": "prg_wb_000024"
+    },
+    {
+      "kind": "program",
+      "from": "prg_hist_kf_notice_left_06",
+      "to": "prg_wb_000025"
+    },
+    {
+      "kind": "program",
+      "from": "prg_hist_kf_notice_left_07",
+      "to": "prg_wb_000026"
+    },
+    {
+      "kind": "program",
+      "from": "prg_hist_kf_notice_left_08",
+      "to": "prg_wb_000027"
+    },
+    {
+      "kind": "program",
+      "from": "prg_hist_kf_notice_left_09",
+      "to": "prg_wb_000022"
+    },
+    {
+      "kind": "program",
+      "from": "prg_hist_kf_notice_left_10",
+      "to": "prg_wb_000028"
+    },
+    {
+      "kind": "program",
+      "from": "prg_hist_kf_notice_left_11",
+      "to": "prg_wb_000029"
+    },
+    {
+      "kind": "program",
+      "from": "prg_hist_kf_notice_left_12",
+      "to": "prg_wb_000025"
+    },
+    {
+      "kind": "program",
+      "from": "prg_hist_kf_notice_left_14",
+      "to": "prg_wb_000026"
+    },
+    {
+      "kind": "program",
+      "from": "prg_hist_kf_notice_left_16",
+      "to": "prg_wb_000024"
+    },
+    {
+      "kind": "program",
+      "from": "prg_hist_kf_notice_right_01",
+      "to": "prg_hist_kf_notice_left_15"
+    },
+    {
+      "kind": "program",
+      "from": "prg_hist_kf_notice_right_02",
+      "to": "prg_wb_000022"
+    },
+    {
+      "kind": "program",
+      "from": "prg_hist_kf_notice_right_03",
+      "to": "prg_wb_000027"
+    },
+    {
+      "kind": "program",
+      "from": "prg_hist_kf_notice_right_04",
+      "to": "prg_wb_000028"
+    },
+    {
+      "kind": "program",
+      "from": "prg_hist_kf_notice_right_05",
+      "to": "prg_wb_000025"
+    },
+    {
+      "kind": "program",
+      "from": "prg_hist_kf_notice_right_06",
+      "to": "prg_hist_kf_notice_left_15"
+    },
+    {
+      "kind": "program",
+      "from": "prg_hist_kf_notice_right_07",
+      "to": "prg_hist_kf_notice_left_19"
+    },
+    {
+      "kind": "program",
+      "from": "prg_hist_kf_notice_right_08",
+      "to": "prg_wb_000030"
+    },
+    {
+      "kind": "program",
+      "from": "prg_hist_kf_notice_right_09",
+      "to": "prg_hist_kf_notice_left_13"
+    },
+    {
+      "kind": "program",
+      "from": "prg_hist_kf_notice_right_13",
+      "to": "prg_wb_000031"
+    },
+    {
+      "kind": "program",
+      "from": "prg_hist_kf_notice_right_17",
+      "to": "prg_hist_kf_notice_right_10"
+    },
+    {
+      "kind": "program",
+      "from": "prg_hist_wss_program_39",
+      "to": "prg_wb_000010"
+    },
+    {
+      "kind": "program",
+      "from": "prg_hist_wss_program_42",
+      "to": "prg_wb_000011"
+    },
+    {
+      "kind": "program",
+      "from": "prg_hist_wss_program_41",
+      "to": "prg_wb_000012"
+    },
+    {
+      "kind": "program",
+      "from": "prg_hist_wss_program_40",
+      "to": "prg_wb_000013"
+    },
+    {
+      "kind": "program",
+      "from": "prg_hist_wss_program_68",
+      "to": "prg_wb_000013"
+    },
+    {
+      "kind": "program",
+      "from": "prg_hist_wss_program_85",
+      "to": "prg_wb_000011"
+    },
+    {
+      "kind": "program",
+      "from": "prg_hist_wss_program_91",
+      "to": "prg_wb_000012"
+    },
+    {
+      "kind": "program",
+      "from": "prg_hist_wss_program_94",
+      "to": "prg_wb_000015"
+    },
+    {
+      "kind": "program",
+      "from": "prg_hist_wss_program_78",
+      "to": "prg_wb_000014"
+    },
+    {
+      "kind": "program",
+      "from": "prg_hist_wss_program_75",
+      "to": "prg_wb_000017"
+    },
+    {
+      "kind": "program",
+      "from": "prg_hist_wss_program_84",
+      "to": "prg_wb_000018"
+    },
+    {
+      "kind": "program",
+      "from": "prg_hist_wss_program_71",
+      "to": "prg_wb_000019"
+    },
+    {
+      "kind": "program",
+      "from": "prg_hist_wss_program_115",
+      "to": "prg_wb_000014"
+    },
+    {
+      "kind": "program",
+      "from": "prg_hist_wss_program_117",
+      "to": "prg_wb_000016"
+    },
+    {
+      "kind": "program",
+      "from": "prg_hist_wss_program_116",
+      "to": "prg_wb_000015"
+    }
+  ],
+  "canonical_place_aliases": [
+    {
+      "from": "diyilou_sihou",
+      "to": "pl_wb_vendor_000001"
+    },
+    {
+      "from": "place_diyilou_sihou",
+      "to": "pl_wb_vendor_000001"
+    },
+    {
+      "from": "place_xingjia_daliangmen",
+      "to": "pl_wb_vendor_000010"
+    },
+    {
+      "from": "xingjia_daliangmen",
+      "to": "pl_wb_vendor_000010"
+    },
+    {
+      "from": "place_heyuan_dingli",
+      "to": "pl_wb_vendor_000012"
+    },
+    {
+      "from": "heyuan_hanxing",
+      "to": "pl_wb_vendor_000024"
+    },
+    {
+      "from": "place_heyuan_hanxing",
+      "to": "pl_wb_vendor_000024"
+    }
+  ],
+  "materialized_workbook_open_rules": [
+    "open_wb_000001_2026-10-25",
+    "open_wb_000002_2026-10-25",
+    "open_wb_000003_2026-10-25",
+    "open_wb_000004_2026-10-25",
+    "open_wb_000005_2026-10-25",
+    "open_wb_000006_2026-10-25",
+    "open_wb_000008_2026-10-25",
+    "open_wb_000009_2026-10-25",
+    "open_wb_000010_2026-10-25",
+    "open_wb_000011_2026-10-25",
+    "open_wb_000012_2026-10-25",
+    "open_wb_000013_2026-10-25",
+    "open_wb_000014_2026-10-25",
+    "open_wb_000015_2026-10-25",
+    "open_wb_000016_2026-10-25",
+    "open_wb_000017_2026-10-25",
+    "open_wb_000019_2026-10-25"
+  ],
+  "materialized_vendor_open_rules": [
+    "open_vendor_000002_2026-10-25",
+    "open_vendor_000003_2026-10-25",
+    "open_vendor_000006_2026-10-25",
+    "open_vendor_000007_2026-10-25",
+    "open_vendor_000008_2026-10-25",
+    "open_vendor_000009_2026-10-25",
+    "open_vendor_000016_2026-10-25",
+    "open_vendor_000017_2026-10-25",
+    "open_vendor_000018_2026-10-25",
+    "open_vendor_000019_2026-10-25",
+    "open_vendor_000023_2026-10-25",
+    "open_vendor_000026_2026-10-25"
+  ],
+  "skipped_workbook_open_rules": [
+    {
+      "id": "or_000007",
+      "reason": "工作簿已标过期"
+    },
+    {
+      "id": "or_000018",
+      "reason": "跨日或原始时间区间矛盾；保留原表，不伪造目标日规则"
+    }
+  ],
+  "excluded_inputs": [
+    {
+      "path": "data/route-acceptance/kaifeng-real-route-v2-20261025-facts-candidate.json",
+      "reason": "复用清明上河园迎宾门/金水门 ID 记录开封府入口并改写归属、坐标；保留原包，禁止覆盖。可用队员回填与高德坐标已由路线导入器采用。"
+    }
+  ],
+  "excluded_records": [],
+  "duplicate_or_variant_records": [
+    {
+      "kind": "source",
+      "fact_id": "src_qmsyun_program_20261023",
+      "kept": "route_override_or_first_input",
+      "additional_source": "initial-collection",
+      "adopted_fields": []
+    },
+    {
+      "kind": "source",
+      "fact_id": "src_kfwt_wall_2022_20261023",
+      "kept": "route_override_or_first_input",
+      "additional_source": "initial-collection",
+      "adopted_fields": []
+    },
+    {
+      "kind": "source",
+      "fact_id": "src_kf_wall_entrances_20260813",
+      "kept": "route_override_or_first_input",
+      "additional_source": "initial-collection",
+      "adopted_fields": []
+    },
+    {
+      "kind": "source",
+      "fact_id": "src_kf_wall_hours_20260813",
+      "kept": "route_override_or_first_input",
+      "additional_source": "initial-collection",
+      "adopted_fields": []
+    },
+    {
+      "kind": "source",
+      "fact_id": "src_kf_wall_closure_20260104",
+      "kept": "route_override_or_first_input",
+      "additional_source": "initial-collection",
+      "adopted_fields": []
+    },
+    {
+      "kind": "source",
+      "fact_id": "src_qmsyun_q_secret_20261023",
+      "kept": "route_override_or_first_input",
+      "additional_source": "initial-collection",
+      "adopted_fields": []
+    },
+    {
+      "kind": "source",
+      "fact_id": "src_kfcqjq_weimeng_20261023",
+      "kept": "route_override_or_first_input",
+      "additional_source": "initial-collection",
+      "adopted_fields": []
+    },
+    {
+      "kind": "place",
+      "fact_id": "kf_station",
+      "kept": "route_override_or_first_input",
+      "additional_source": "initial-collection",
+      "adopted_fields": [
+        "address"
+      ]
+    },
+    {
+      "kind": "place",
+      "fact_id": "kf_north_station",
+      "kept": "route_override_or_first_input",
+      "additional_source": "initial-collection",
+      "adopted_fields": [
+        "address"
+      ]
+    },
+    {
+      "kind": "place",
+      "fact_id": "qingming",
+      "kept": "route_override_or_first_input",
+      "additional_source": "initial-collection",
+      "adopted_fields": [
+        "address"
+      ]
+    },
+    {
+      "kind": "place",
+      "fact_id": "diyilou_sihou",
+      "kept": "route_override_or_first_input",
+      "additional_source": "initial-collection",
+      "adopted_fields": []
+    },
+    {
+      "kind": "place",
+      "fact_id": "wall_daliang",
+      "kept": "route_override_or_first_input",
+      "additional_source": "initial-collection",
+      "adopted_fields": []
+    },
+    {
+      "kind": "food",
+      "fact_id": "food_tongziji",
+      "kept": "route_override_or_first_input",
+      "additional_source": "initial-collection",
+      "adopted_fields": []
+    },
+    {
+      "kind": "food",
+      "fact_id": "food_guantangbao",
+      "kept": "route_override_or_first_input",
+      "additional_source": "first-collector-run",
+      "adopted_fields": []
+    },
+    {
+      "kind": "food",
+      "fact_id": "food_liyu_beimian",
+      "kept": "route_override_or_first_input",
+      "additional_source": "first-collector-run",
+      "adopted_fields": []
+    },
+    {
+      "kind": "food",
+      "fact_id": "food_tongziji",
+      "kept": "route_override_or_first_input",
+      "additional_source": "first-collector-run",
+      "adopted_fields": []
+    },
+    {
+      "kind": "food",
+      "fact_id": "food_yangrou_kangmo",
+      "kept": "route_override_or_first_input",
+      "additional_source": "first-collector-run",
+      "adopted_fields": []
+    },
+    {
+      "kind": "source",
+      "fact_id": "src_search_baogongci_20261023",
+      "kept": "route_override_or_first_input",
+      "additional_source": "first-collector-run",
+      "adopted_fields": []
+    },
+    {
+      "kind": "source",
+      "fact_id": "src_search_food_kaifeng_snacks_20261023",
+      "kept": "route_override_or_first_input",
+      "additional_source": "first-collector-run",
+      "adopted_fields": []
+    },
+    {
+      "kind": "source",
+      "fact_id": "src_search_food_siwei_20261023",
+      "kept": "route_override_or_first_input",
+      "additional_source": "first-collector-run",
+      "adopted_fields": []
+    },
+    {
+      "kind": "source",
+      "fact_id": "src_search_heyuan_20261023",
+      "kept": "route_override_or_first_input",
+      "additional_source": "first-collector-run",
+      "adopted_fields": []
+    },
+    {
+      "kind": "source",
+      "fact_id": "src_search_huangjia_20261023",
+      "kept": "route_override_or_first_input",
+      "additional_source": "first-collector-run",
+      "adopted_fields": []
+    },
+    {
+      "kind": "source",
+      "fact_id": "src_search_louzhonglou_20261023",
+      "kept": "route_override_or_first_input",
+      "additional_source": "first-collector-run",
+      "adopted_fields": []
+    },
+    {
+      "kind": "source",
+      "fact_id": "src_search_night_market_20261023",
+      "kept": "route_override_or_first_input",
+      "additional_source": "first-collector-run",
+      "adopted_fields": []
+    },
+    {
+      "kind": "source",
+      "fact_id": "src_search_shanshangan_20261023",
+      "kept": "route_override_or_first_input",
+      "additional_source": "first-collector-run",
+      "adopted_fields": []
+    },
+    {
+      "kind": "source",
+      "fact_id": "src_search_xiaosong_20261023",
+      "kept": "route_override_or_first_input",
+      "additional_source": "first-collector-run",
+      "adopted_fields": []
+    },
+    {
+      "kind": "source",
+      "fact_id": "src_search_xingjia_20261023",
+      "kept": "route_override_or_first_input",
+      "additional_source": "first-collector-run",
+      "adopted_fields": []
+    },
+    {
+      "kind": "place",
+      "fact_id": "place_kfsbwg",
+      "kept": "route_override_or_first_input",
+      "additional_source": "second-collector-run",
+      "adopted_fields": []
+    },
+    {
+      "kind": "place",
+      "fact_id": "place_kfsbwg_newgate",
+      "kept": "route_override_or_first_input",
+      "additional_source": "second-collector-run",
+      "adopted_fields": [
+        "parent_place_id"
+      ]
+    },
+    {
+      "kind": "place",
+      "fact_id": "place_shudianjie",
+      "kept": "route_override_or_first_input",
+      "additional_source": "second-collector-run",
+      "adopted_fields": [
+        "address"
+      ]
+    },
+    {
+      "kind": "place",
+      "fact_id": "place_gulou_night_market",
+      "kept": "route_override_or_first_input",
+      "additional_source": "second-collector-run",
+      "adopted_fields": []
+    },
+    {
+      "kind": "source",
+      "fact_id": "src_bendibao_kfsbwg_address",
+      "kept": "route_override_or_first_input",
+      "additional_source": "second-collector-run",
+      "adopted_fields": []
+    },
+    {
+      "kind": "source",
+      "fact_id": "src_gulou_night_market",
+      "kept": "route_override_or_first_input",
+      "additional_source": "second-collector-run",
+      "adopted_fields": []
+    },
+    {
+      "kind": "source",
+      "fact_id": "src_gulou_shudianjie",
+      "kept": "route_override_or_first_input",
+      "additional_source": "second-collector-run",
+      "adopted_fields": []
+    },
+    {
+      "kind": "source",
+      "fact_id": "src_kfsbwg_tips_openinfo",
+      "kept": "route_override_or_first_input",
+      "additional_source": "second-collector-run",
+      "adopted_fields": []
+    },
+    {
+      "kind": "source",
+      "fact_id": "src_kfsfq_museum_directory",
+      "kept": "route_override_or_first_input",
+      "additional_source": "second-collector-run",
+      "adopted_fields": []
+    },
+    {
+      "kind": "place",
+      "fact_id": "place_kfsbwg",
+      "kept": "route_override_or_first_input",
+      "additional_source": "coordinate-backfill",
+      "adopted_fields": []
+    },
+    {
+      "kind": "place",
+      "fact_id": "place_shudianjie",
+      "kept": "route_override_or_first_input",
+      "additional_source": "coordinate-backfill",
+      "adopted_fields": []
+    },
+    {
+      "kind": "place",
+      "fact_id": "place_gulou_night_market",
+      "kept": "route_override_or_first_input",
+      "additional_source": "coordinate-backfill",
+      "adopted_fields": []
+    },
+    {
+      "kind": "place",
+      "fact_id": "place_xingjia_daliangmen",
+      "kept": "route_override_or_first_input",
+      "additional_source": "coordinate-backfill",
+      "adopted_fields": [
+        "longitude",
+        "latitude",
+        "coordinate_system"
+      ]
+    },
+    {
+      "kind": "place",
+      "fact_id": "place_heyuan_dingli",
+      "kept": "route_override_or_first_input",
+      "additional_source": "coordinate-backfill",
+      "adopted_fields": [
+        "longitude",
+        "latitude",
+        "coordinate_system"
+      ]
+    },
+    {
+      "kind": "place",
+      "fact_id": "place_diyilou_sihou",
+      "kept": "route_override_or_first_input",
+      "additional_source": "coordinate-backfill",
+      "adopted_fields": [
+        "longitude",
+        "latitude",
+        "coordinate_system"
+      ]
+    },
+    {
+      "kind": "food",
+      "fact_id": "food_guantangbao",
+      "kept": "route_override_or_first_input",
+      "additional_source": "coordinate-backfill",
+      "adopted_fields": []
+    },
+    {
+      "kind": "food",
+      "fact_id": "food_liyu_beimian",
+      "kept": "route_override_or_first_input",
+      "additional_source": "coordinate-backfill",
+      "adopted_fields": []
+    },
+    {
+      "kind": "food",
+      "fact_id": "food_tongziji",
+      "kept": "route_override_or_first_input",
+      "additional_source": "coordinate-backfill",
+      "adopted_fields": []
+    },
+    {
+      "kind": "food",
+      "fact_id": "food_yangrou_kangmo",
+      "kept": "route_override_or_first_input",
+      "additional_source": "coordinate-backfill",
+      "adopted_fields": []
+    },
+    {
+      "kind": "source",
+      "fact_id": "src_bendibao_kfsbwg_address",
+      "kept": "route_override_or_first_input",
+      "additional_source": "coordinate-backfill",
+      "adopted_fields": []
+    },
+    {
+      "kind": "source",
+      "fact_id": "src_bendibao_library_hours",
+      "kept": "route_override_or_first_input",
+      "additional_source": "coordinate-backfill",
+      "adopted_fields": []
+    },
+    {
+      "kind": "source",
+      "fact_id": "src_bendibao_xisi_night",
+      "kept": "route_override_or_first_input",
+      "additional_source": "coordinate-backfill",
+      "adopted_fields": []
+    },
+    {
+      "kind": "source",
+      "fact_id": "src_gulou_food_guide",
+      "kept": "route_override_or_first_input",
+      "additional_source": "coordinate-backfill",
+      "adopted_fields": []
+    },
+    {
+      "kind": "source",
+      "fact_id": "src_gulou_night_market",
+      "kept": "route_override_or_first_input",
+      "additional_source": "coordinate-backfill",
+      "adopted_fields": []
+    },
+    {
+      "kind": "source",
+      "fact_id": "src_gulou_shudianjie",
+      "kept": "route_override_or_first_input",
+      "additional_source": "coordinate-backfill",
+      "adopted_fields": []
+    },
+    {
+      "kind": "source",
+      "fact_id": "src_kfgov_night_market_kiosk",
+      "kept": "route_override_or_first_input",
+      "additional_source": "coordinate-backfill",
+      "adopted_fields": []
+    },
+    {
+      "kind": "source",
+      "fact_id": "src_kfsbwg_tips_openinfo",
+      "kept": "route_override_or_first_input",
+      "additional_source": "coordinate-backfill",
+      "adopted_fields": []
+    },
+    {
+      "kind": "source",
+      "fact_id": "src_kfsbwg_tips_openinfo_live",
+      "kept": "route_override_or_first_input",
+      "additional_source": "coordinate-backfill",
+      "adopted_fields": []
+    },
+    {
+      "kind": "source",
+      "fact_id": "src_kfsfq_culture_directory",
+      "kept": "route_override_or_first_input",
+      "additional_source": "coordinate-backfill",
+      "adopted_fields": []
+    },
+    {
+      "kind": "source",
+      "fact_id": "src_kfsfq_museum_directory",
+      "kept": "route_override_or_first_input",
+      "additional_source": "coordinate-backfill",
+      "adopted_fields": []
+    },
+    {
+      "kind": "source",
+      "fact_id": "src_search_baogongci_20261023",
+      "kept": "route_override_or_first_input",
+      "additional_source": "coordinate-backfill",
+      "adopted_fields": []
+    },
+    {
+      "kind": "source",
+      "fact_id": "src_search_food_kaifeng_snacks_20261023",
+      "kept": "route_override_or_first_input",
+      "additional_source": "coordinate-backfill",
+      "adopted_fields": []
+    },
+    {
+      "kind": "source",
+      "fact_id": "src_search_food_siwei_20261023",
+      "kept": "route_override_or_first_input",
+      "additional_source": "coordinate-backfill",
+      "adopted_fields": []
+    },
+    {
+      "kind": "source",
+      "fact_id": "src_search_heyuan_20261023",
+      "kept": "route_override_or_first_input",
+      "additional_source": "coordinate-backfill",
+      "adopted_fields": []
+    },
+    {
+      "kind": "source",
+      "fact_id": "src_search_huangjia_20261023",
+      "kept": "route_override_or_first_input",
+      "additional_source": "coordinate-backfill",
+      "adopted_fields": []
+    },
+    {
+      "kind": "source",
+      "fact_id": "src_search_louzhonglou_20261023",
+      "kept": "route_override_or_first_input",
+      "additional_source": "coordinate-backfill",
+      "adopted_fields": []
+    },
+    {
+      "kind": "source",
+      "fact_id": "src_search_night_market_20261023",
+      "kept": "route_override_or_first_input",
+      "additional_source": "coordinate-backfill",
+      "adopted_fields": []
+    },
+    {
+      "kind": "source",
+      "fact_id": "src_search_shanshangan_20261023",
+      "kept": "route_override_or_first_input",
+      "additional_source": "coordinate-backfill",
+      "adopted_fields": []
+    },
+    {
+      "kind": "source",
+      "fact_id": "src_search_xiaosong_20261023",
+      "kept": "route_override_or_first_input",
+      "additional_source": "coordinate-backfill",
+      "adopted_fields": []
+    },
+    {
+      "kind": "source",
+      "fact_id": "src_search_xingjia_20261023",
+      "kept": "route_override_or_first_input",
+      "additional_source": "coordinate-backfill",
+      "adopted_fields": []
+    }
+  ],
+  "unique_adopted": 1698,
+  "by_kind": {
+    "source": 623,
+    "place": 372,
+    "vendor": 32,
+    "food": 40,
+    "supply": 48,
+    "entrance": 25,
+    "program": 424,
+    "highlight": 48,
+    "open_rule": 60,
+    "facility": 26
+  },
+  "planning_status": {
+    "reference": 1691,
+    "candidate": 7
+  },
+  "verification_status": {
+    "unverified": 1698
+  },
+  "dated_open_rules": {
+    "2026-10-25": 45,
+    "2026-10-24": 15
+  },
+  "show_sessions": 0,
+  "interpretation": "reference 表示允许参考规划，不表示 verified；营业、供应、入口与节目场次仍按各记录证据边界解释。",
+  "import": {
+    "status": "imported",
+    "received": 1698,
+    "changed": 372,
+    "unchanged": 1326
+  },
+  "bundle": "data/mvp/inventory-2026-10-25.json",
+  "database": "data/tourism.sqlite3"
+}

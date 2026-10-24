@@ -1,0 +1,15 @@
+{
+  "schema_version": "route-field-handoff/1",
+  "recorded_at": "2026-10-24T17:17:49.187275+08:00",
+  "route_id": "kaifeng-real-route-v1-simulated-demand-20261025",
+  "status": "awaiting_human_evidence_return",
+  "user_confirmed_team_arrangement": true,
+  "confirmation": "可以，安排队员按清单核验",
+  "assigned_reviewer": null,
+  "business_date": "2026-10-25",
+  "date_basis": "agent_simulated_user_authorized",
+  "evidence_returned": false,
+  "fact_verification_completed": false,
+  "runtime_database_written": false,
+  "next_action": "队员按清单采证并回交；再核对事实、生成新版本包并进行隔离规划。"
+}

@@ -45,6 +45,10 @@ const points=computed(()=>{
 })
 function legBetween(from:Point,to:Point){const leg=to.incoming;return leg&&leg.journey.travel.origin_place_id===from.place&&leg.journey.travel.destination_place_id===to.place?leg:null}
 function travelText(leg:ScheduledLeg){const seconds=(Date.parse(leg.arrives_at)-Date.parse(leg.departs_at))/1000
+ if(leg.journey.time_basis==='provider_estimate'&&leg.journey.estimated_seconds!=null){
+  const estimate=Math.ceil(leg.journey.estimated_seconds/60),buffer=Math.ceil((leg.journey.planning_buffer_seconds||0)/60)
+  return estimate===0?'原地衔接 · 另计进出园预留':`高德预计${estimate}分钟${buffer?' + 预留'+buffer+'分钟':''}`
+ }
  if(!Number.isFinite(seconds)||seconds<0)return '转场时间待核验'
  return seconds===0?'原地衔接 · 无需转场':`${travelLabels[leg.journey.travel.mode]||'交通'}约 ${Math.ceil(seconds/60)} 分钟`
 }

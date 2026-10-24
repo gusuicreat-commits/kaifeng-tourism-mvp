@@ -7,13 +7,57 @@ test('景区与未提供资料的美食保留媒体占位，不伪造名称地�
   for(const url of ['/scenic/qingming','/food/taosibao','/vendor/pending']){
    await page.goto(url);await expect(page.locator('.detail-media')).toBeVisible()
    await expect(page.locator('.photo-strip .media-slot')).toHaveCount(3)
-   await expect(page.locator('.video-slot')).toContainText('待添加');await expect(page.locator('video')).toHaveCount(0)
+   if(url==='/food/taosibao')await expect(page.locator('.video-slot')).toContainText('待添加');await expect(page.locator('video')).toHaveCount(0)
    if(url.startsWith('/food/'))await expect(page.getByText('适合何时品尝',{exact:true})).toHaveCount(0)
    expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true)
    if(width===390){await page.locator('.detail-media').scrollIntoViewIfNeeded();await page.screenshot({path:'../docs/screenshots/detail-skeleton-'+url.split('/').pop()+'-mobile.png'})}
   }
  }
  expect(errors).toEqual([])
+})
+
+test('景区只展示精选有时刻的主要演出',async({page})=>{
+ const expected=[{id:'wansui',count:4,photos:14,needle:'王婆说媒'},{id:'qingming',count:6,photos:0,needle:'大宋·东京保卫战'}]
+ for(const item of expected){
+  await page.goto('/scenic/'+item.id)
+  await expect(page.locator('#scenic-shows .detail-show')).toHaveCount(item.count)
+  await expect(page.locator('#scenic-shows')).toContainText(item.needle)
+  await expect(page.locator('#scenic-shows .show-photos img')).toHaveCount(item.photos)
+  await expect(page.locator('#scenic-highlights a[href^="/place/"]')).toHaveCount(0)
+  await expect(page.locator('.qmsy-table')).toHaveCount(0)
+ }
+})
+
+test('万岁山图集按对象隔离，节目大图可滑动放大且手机不溢出',async({page})=>{
+ for(const width of [320,465,1440]){
+  await page.setViewportSize({width,height:900});await page.goto('/scenic/wansui')
+  await expect(page.locator('.photo-strip .detail-photo')).toHaveCount(22)
+  const photos=page.locator('#scenic-shows .show-photos').first()
+  const first=photos.locator('button').first()
+  await first.scrollIntoViewIfNeeded()
+  await expect.poll(()=>first.locator('img').evaluate(image=>(image as HTMLImageElement).naturalWidth)).toBeGreaterThan(0)
+  const bounds=await first.boundingBox();expect(bounds!.width).toBeGreaterThan(width<760?200:300)
+  expect(await photos.evaluate(el=>el.scrollWidth>el.clientWidth)).toBe(true)
+  await first.click()
+  const dialog=page.getByRole('dialog',{name:'王婆说媒现场大图'})
+  await expect(dialog).toBeVisible();await expect(dialog.locator('img')).toHaveAttribute('src',/wansui-program-r02-1/)
+  await page.keyboard.press('Escape');await expect(dialog).not.toBeVisible()
+  expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true)
+  await page.locator('.detail-media .detail-photo').nth(8).click()
+  await expect(page.locator('.detail-media dialog')).toBeVisible()
+  await page.keyboard.press('Escape')
+  await page.goto('/scenic/qingming')
+  await expect(page.locator('.photo-strip img[src*="wansui"],.show-photos img[src*="wansui"]')).toHaveCount(0)
+ }
+})
+
+test('工作簿视频链接按景区匹配到影像记',async({page})=>{
+ const expected:{id:string;count:number}[]=[{id:'qingming',count:3},{id:'wansui',count:3},{id:'kaifengfu',count:1},{id:'tieta',count:1},{id:'longting',count:1}]
+ for(const item of expected){
+  await page.goto('/scenic/'+item.id);await expect(page.locator('.video-link')).toHaveCount(item.count)
+  await expect(page.locator('.video-link').first()).toHaveAttribute('href',/https?:\/\//)
+  await expect(page.locator('.video-slot')).toHaveCount(0)
+ }
 })
 
 test('团队表格中的美食与商家图片资料按行展示',async({page})=>{
