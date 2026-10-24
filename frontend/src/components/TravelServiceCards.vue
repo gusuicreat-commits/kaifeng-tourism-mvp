@@ -2,7 +2,7 @@
 import {ref,watch,onMounted} from 'vue'
 import {request,mutate} from '../api'
 import {memoryEpoch} from '../voiceDraft'
-interface Item {id:string;name:string;address?:string;image?:string;detail_url?:string;price_display?:string;checked_at:string;expires_at:string;unverified_conditions?:string[];attributes?:Record<string,{label:string;status:string}>}
+interface Item {id:string;name:string;address?:string;image?:string;detail_url?:string;price_display?:string;checked_at:string;expires_at:string;unverified_conditions?:string[];condition_evidence?:{field:string;label:string;strength:string;status:string}[];attributes?:Record<string,{label:string;status:string}>}
 interface Workspace {version:number;requirements:Record<string,unknown>;result:{status:string;items:Item[];system_message?:string;questions?:string[];provider_id?:string;capability?:string;provider_trace?:{provider_id:string;provider_status:string;attempted:boolean;fallback_reason?:string|null}[]}|null;selection:Record<string,Item>|null;previous:unknown}
 interface Preview {preview_id:string;before:unknown;after:Item;expected_version:number;blockers:string[];affected:string[]}
 const props=defineProps<{tripId:string;revision?:unknown}>()
@@ -40,7 +40,8 @@ const time=(s:string)=>new Date(s).toLocaleString('zh-CN',{timeZone:'Asia/Shangh
    <h4>{{item.name}}</h4><p>{{item.address||'地址尚未核实'}}</p>
    <strong>{{item.price_display?item.price_display+' 起／晚':'费用未知'}}</strong>
    <p>查询：{{time(item.checked_at)}}</p>
-   <p v-if="item.unverified_conditions?.length">所提条件尚未核实：{{item.unverified_conditions.join('、')}}</p>
+   <p v-if="item.condition_evidence?.length">{{item.condition_evidence.map(c=>`${c.label}（${c.strength==='hard'?'必须':c.strength==='soft'?'偏好':'可选'}，待核实）`).join('、')}}</p>
+   <p v-else-if="item.unverified_conditions?.length">所提条件尚未核实：{{item.unverified_conditions.join('、')}}</p>
    <p v-if="w.requirements.category==='hotels'">房型设施、入住人数、评价与取消政策尚未核实。</p>
    <p v-else>费用、营业状态、空位及菜品供应尚未核实。附近停车不代表酒店免费停车。</p>
    <button type="button" :disabled="busy||Date.now()>=Date.parse(item.expires_at)" @click="choose(item)">选择候选并预览影响</button>

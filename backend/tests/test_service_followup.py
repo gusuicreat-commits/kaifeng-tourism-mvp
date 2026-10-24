@@ -116,3 +116,40 @@ def test_date_patch_order_and_conflicts_preserve_explicit_stay():
                     [field('nights',2,'住两晚'),field('check_out','后天','后天退房'),field('check_in','明天','明天入住')]):
         with pytest.raises(ValueError):apply(entries)
     assert saved.get('check_in') is None  # patches never mutate the original
+
+@pytest.mark.parametrize('entry',[
+    field('breakfast',False,'必须有早餐'),
+    field('window',True,'不要窗户'),
+    field('room_type','标间','标间大床房都行',strength='hard'),
+    field('location_text','清明上河园','必须靠近清明上河园',strength='soft'),
+])
+def test_condition_polarity_and_strength_cannot_be_reversed(entry):
+    with pytest.raises(ValueError):
+        services.semantic_requirements(ServiceIntent(quote=entry['quote'],fields=[entry]),entry['quote'],{},datetime.now(TZ).date())
+
+
+def test_preference_keeps_saved_must_until_explicit_waiver():
+    today=datetime.now(TZ).date()
+    def apply(entry,prev):
+        return services.semantic_requirements(ServiceIntent(quote=entry['quote'],fields=[entry]),entry['quote'],prev,today)
+    first=apply(field('window',True,'必须有窗户'),{})
+    second=apply(field('window',True,'最好有窗户',strength='soft'),first)
+    assert second['attributes']['window']['strength']=='hard'
+    third=apply(field('window',True,'窗户没有也行',strength='optional'),second)
+    assert third['attributes']['window']['strength']=='optional'
+
+
+def test_optional_room_and_area_remain_unknown_without_becoming_must(env,monkeypatch):
+    client,path=env
+    quote='查明天入住两晚酒店，标间没有也行，清明上河园附近最好'
+    fields=[field('check_in','明天','明天入住'),field('nights',2,'两晚'),
+            field('room_type','标间','标间没有也行',strength='optional'),
+            field('location_text','清明上河园','清明上河园附近最好',strength='soft')]
+    monkeypatch.setattr(language,'available',lambda:True)
+    monkeypatch.setattr(provider,'generate',lambda *a,**k:({'actions':[{'kind':'search_services','quote':quote}],
+        'service_query':{'quote':quote,'fields':fields}},{'source':'mock_model'}))
+    task=run({'client':client,'trip':client.get(path).json()},quote)
+    item=task['result']['services']['result']['items'][0]
+    assert item['condition_status']=='unknown' and not item['budget_verified']
+    assert {v['field']:v['strength'] for v in item['condition_evidence']}=={'room_type':'optional','location_text':'soft'}
+    assert all(v['status']=='unknown' for v in item['condition_evidence'])

@@ -198,3 +198,18 @@ flowchart LR
 ```
 
 新增7项回归，相关63项通过；真实模型与供应商新增调用均为0。
+
+## R7条件强度与事实证据（已实施）
+
+文章第15/26章的枚举契约与执行反馈分层：所有服务字段保留`field_strengths`，设施继续保存原有属性强度；“都行/没有也行”不能升级为必须，旧必须不能被普通偏好静默覆盖，明确放弃才降级。修复真假属性反转（如原文必须有早餐却输出false）。每个候选返回`condition_evidence`，分别表示要求强度与`unknown`核实状态；前端据此显示必须/偏好/可选和待核实。房型/区域偏好不再一律算硬条件。`hard_conditions_verified`为空硬要求时只是无硬条件，不能代表所有偏好已核实，另有`condition_status`与完整预算状态。
+
+```mermaid
+flowchart LR
+    U[用户条件] --> S[hard soft optional]
+    P[Provider原始资料] --> E[已知或unknown]
+    S --> C[逐条件证据回执]
+    E --> C
+    C --> V[展示强度及待核实 不虚报全部满足]
+```
+
+相关76项通过，补充可选房型/区域端到端测试后住宿专项20项通过，前端类型检查/构建通过。与官方[工具结果契约](https://modelcontextprotocol.io/specification/2025-06-18/server/tools)对应；新增真实调用0。

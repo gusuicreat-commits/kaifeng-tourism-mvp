@@ -35,7 +35,7 @@ def read(snapshot):
             missing_user.append(key if places else role+'_text')
             if not places:missing_data.append(key)
     saved=snapshot.services.get('requirements') or {}
-    service_fields=('category','check_in','check_out','nights','guests','rooms','max_price','stay_budget_fen','room_type','location_text','total_budget_fen','mode','objective')
+    service_fields=('category','check_in','check_out','nights','guests','rooms','max_price','stay_budget_fen','room_type','location_text','total_budget_fen','mode','objective','field_strengths')
     services={k:saved[k] for k in service_fields if k in saved}
     services['attributes']={k:{f:v.get(f) for f in ('value','strength')}
         for k,v in saved.get('attributes',{}).items() if k in hotels.ATTRS}

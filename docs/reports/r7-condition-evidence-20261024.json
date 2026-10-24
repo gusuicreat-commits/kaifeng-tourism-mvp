@@ -1,0 +1,9 @@
+{
+  "issue": "R7",
+  "verification": {
+    "related_passed_before_final_case": 76,
+    "service_final_passed": 20,
+    "frontend_build": "passed"
+  },
+  "new_live_calls": 0
+}

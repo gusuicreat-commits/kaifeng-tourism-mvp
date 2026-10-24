@@ -80,12 +80,21 @@ def semantic_requirements(intent,text,previous,today):
     from .agent.planning_intent import resolve_date
     from .agent.evidence import query_evidence, service_condition_evidence
     req=json.loads(json.dumps(previous or {}));req['category']=intent.category
-    attrs=req.setdefault('attributes',{});seen={}
+    attrs=req.setdefault('attributes',{});seen={};strengths=req.setdefault('field_strengths',{})
     query_evidence(text,intent.quote)
     for f in intent.fields:
         service_condition_evidence(text,f.quote,intent.quote,literal_name=f.field in ('location_text','room_type'))
         if f.field in seen and seen[f.field]!=f.value:raise ValueError('conflicting service fields')
         seen[f.field]=f.value
+        optional=bool(re.search(r'都行|无所谓|没有也行|不强求|可选|不要求|不需要',f.quote))
+        hard=bool(re.search(r'必须|一定|不能缺|不可少',f.quote))
+        if optional and f.strength!='optional':raise ValueError('optional condition promoted')
+        if hard and not optional and f.strength!='hard':raise ValueError('hard condition weakened')
+        strength=f.strength
+        prior=attrs.get(f.field,{}).get('strength',strengths.get(f.field))
+        # A new preference is not permission to silently waive an earlier must.
+        if prior=='hard' and strength!='hard' and not optional:strength='hard'
+        strengths[f.field]=strength
         if f.field in ('check_in','check_out'):
             if not isinstance(f.value,str) or f.value not in f.quote:raise ValueError('service date absent')
             req[f.field]=resolve_date(f.value,today).isoformat()
@@ -116,7 +125,9 @@ def semantic_requirements(intent,text,previous,today):
             if not re.search(aliases,f.quote):raise ValueError('service attribute absent')
             if re.search(r'都行|无所谓|没有也行|不强求',f.quote) and f.strength!='optional':raise ValueError('optional attribute promoted')
             if re.search(r'必须|一定',f.quote) and f.strength!='hard':raise ValueError('hard attribute weakened')
-            attrs[f.field]={'value':f.value,'strength':f.strength,'quote':f.quote}
+            negative=bool(re.search(r'(?:不要|不含|没有|不带|无).{0,3}(?:'+aliases+r')',f.quote))
+            if not optional and f.value==negative:raise ValueError('attribute polarity differs from evidence')
+            attrs[f.field]={'value':f.value,'strength':strength,'quote':f.quote}
     # Field order cannot change the meaning of an explicit check-out override.
     if 'check_out' in seen and 'nights' not in seen:req.pop('nights',None)
     stay_dates(req)
@@ -224,7 +235,12 @@ def query(session,trip_id,text,expected_version=None,cancelled=None,*,intent=Non
     for item in result.get('items',[]):
         item['unverified_conditions']=[hotels.ATTRS[k] for k in req['attributes']]
         item['unverified_conditions'].extend(label+'（'+req[key]+'）' for key,label in [('room_type','房型'),('location_text','位置')] if req.get(key))
-        item['hard_conditions_verified']=not (req.get('room_type') or req.get('location_text') or any(a['strength']=='hard' for a in req['attributes'].values()))
+        evidence=[{'field':k,'label':hotels.ATTRS[k],'strength':a['strength'],'status':'unknown'} for k,a in req['attributes'].items()]
+        evidence.extend({'field':k,'label':label+'（'+req[k]+'）','strength':req.get('field_strengths',{}).get(k,'hard'),'status':'unknown'}
+            for k,label in [('room_type','房型'),('location_text','位置')] if req.get(k))
+        item['condition_evidence']=evidence
+        item['hard_conditions_verified']=not any(e['strength']=='hard' for e in evidence)
+        item['condition_status']='unknown' if evidence else 'not_requested'
         item['budget_verified']=False
     result['requirements']=req;result['budget']={'known_total_fen':None,'feasibility':'unknown',
         'missing':['selected_room_rate','occupancy','parking','dining','tickets','transport']}
