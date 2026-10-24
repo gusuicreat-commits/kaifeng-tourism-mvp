@@ -8,6 +8,7 @@ test('景区与未提供资料的美食保留媒体占位，不伪造名称地�
    await page.goto(url);await expect(page.locator('.detail-media')).toBeVisible()
    await expect(page.locator('.photo-strip .media-slot')).toHaveCount(3)
    await expect(page.locator('.video-slot')).toContainText('待添加');await expect(page.locator('video')).toHaveCount(0)
+   if(url.startsWith('/food/'))await expect(page.getByText('适合何时品尝',{exact:true})).toHaveCount(0)
    expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true)
    if(width===390){await page.locator('.detail-media').scrollIntoViewIfNeeded();await page.screenshot({path:'../docs/screenshots/detail-skeleton-'+url.split('/').pop()+'-mobile.png'})}
   }
