@@ -101,3 +101,39 @@ test('复合请求保留解释、住宿候选和规划接力，正式路线未�
  expect(planning.constraints.business_date).toBeTruthy()
  expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true)
 })
+
+test('礼貌查询问句可查询候选并保留正式路线',async({page})=>{
+ await page.goto('/assistant?context=city')
+ const input=page.getByLabel('告诉小汴梁你的问题或想调整的安排',{exact:true})
+ await expect(input).toBeEnabled()
+ const before=(await(await page.request.get('/api/city/v1/trips/current')).json()).trip
+ const path='/api/city/v1/trips/'+before.id
+ await input.fill('能帮我查明天入住两晚的酒店吗？')
+ await page.getByRole('button',{name:'发送',exact:true}).click()
+ await expect(page.getByLabel('住宿与周边候选')).toContainText('[合成测试]候选甲')
+ await expect(input).toBeEnabled()
+ const saved=await(await page.request.get(path+'/services')).json()
+ expect(saved.requirements.nights).toBe(2)
+ expect(saved.requirements.check_in).toBeTruthy()
+ expect(await(await page.request.get(path)).json()).toEqual(before)
+ await expect(page.getByRole('button',{name:'确认修改',exact:true})).toHaveCount(0)
+})
+
+test('模型误把否定当查询时也不得保存条件或调用候选搜索',async({page})=>{
+ await page.goto('/assistant?context=city')
+ const input=page.getByLabel('告诉小汴梁你的问题或想调整的安排',{exact:true})
+ await expect(input).toBeEnabled()
+ const before=(await(await page.request.get('/api/city/v1/trips/current')).json()).trip
+ const path='/api/city/v1/trips/'+before.id
+ const savedBefore=await(await page.request.get(path+'/services')).json()
+ await input.fill('不要查询明天入住两晚的酒店。')
+ const response=page.waitForResponse(r=>r.url().endsWith('/step')&&r.request().method()==='POST')
+ await page.getByRole('button',{name:'发送',exact:true}).click()
+ const task=await(await response).json()
+ expect(task.status).toBe('needs_clarification')
+ expect(task.metrics.tools).toBe(0)
+ await expect(input).toBeEnabled()
+ expect(await(await page.request.get(path+'/services')).json()).toEqual(savedBefore)
+ expect(await(await page.request.get(path)).json()).toEqual(before)
+ await expect(page.getByLabel('住宿与周边候选')).toHaveCount(0)
+})

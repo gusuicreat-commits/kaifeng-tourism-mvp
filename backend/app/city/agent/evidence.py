@@ -36,6 +36,50 @@ def request_evidence(text, quote):
     raise ValueError('negated, hypothetical or quoted request evidence')
 
 
+# Read requests do not need mutation wording. Their evidence must still be a
+# current, unquoted request rather than a denial, example or hypothetical.
+_READ_DENY = re.compile(r'(?:不要|不用|不必|别|禁止|不想|不是要|并非要|暂不|无需)[^，,。；;！？!?\n]{0,10}(?:查|搜|找|推荐|检索|调用)')
+_READ_META = re.compile(r'如果|假如|假设|请解释|什么意思|怎么(?:查询|搜索|检索|调用)|如何(?:查询|搜索|检索|调用)')
+_READ_REQUEST = re.compile(r'(?:请|帮我|现在|实际)[^，,。；;！？!?\n]{0,12}(?:查|搜|找|推荐|检索)')
+_STAY_DENY = re.compile(r'(?:不要|不用|不必|别|不想|不是要|并非要)[^，,。；;！？!?\n]{0,12}(?:入住|住|退房)|不(?:入住|住|退房)')
+
+
+def query_evidence(text, quote):
+    if not quote or quote not in text:raise ValueError('current query evidence missing')
+    ranges=[m.span() for m in _QUOTED.finditer(text)]
+    accepted=[]
+    for match in re.finditer(re.escape(quote),text):
+        begin,end=match.span()
+        clause=next((m.group() for m in _CLAUSE.finditer(text) if m.start()<=begin and end<=m.end()),quote)
+        sentence=next((m.group() for m in re.finditer(r'[^。；;！!？?\n]+',text) if m.start()<=begin and end<=m.end()),quote)
+        if any(a<=begin and end<=b for a,b in ranges):continue
+        if _DATA.search(clause) or _READ_META.search(clause) or _READ_DENY.search(clause):continue
+        if _READ_META.search(sentence):continue
+        earlier=[m for m in _READ_DENY.finditer(text) if m.end()<=begin]
+        if earlier and not _READ_REQUEST.search(text[earlier[-1].end():end]):continue
+        if re.search(r'(?:算了|取消查询)[^。；;！？!?\n]*'+_READ_DENY.pattern,text[end:]):continue
+        if _DATA.search(text) and not _READ_REQUEST.search(clause):continue
+        accepted.append((begin,end))
+    if not accepted:raise ValueError('negated, hypothetical or quoted query evidence')
+    return accepted
+
+
+def service_condition_evidence(text, quote, request_quote, *, literal_name=False):
+    parents=query_evidence(text,request_quote)
+    if not quote or quote not in request_quote:raise ValueError('service field outside current query')
+    ranges=[m.span() for m in _QUOTED.finditer(text)]
+    for match in re.finditer(re.escape(quote),text):
+        begin,end=match.span()
+        if not any(a<=begin and end<=b for a,b in parents):continue
+        clause=next((m.group() for m in _CLAUSE.finditer(text) if m.start()<=begin and end<=m.end()),quote)
+        if _DENY.search(clause) or _STAY_DENY.search(clause):continue
+        # A quoted hotel/room name may be a literal search parameter. A quoted
+        # instruction or a date copied from external text is not a new condition.
+        if any(a<=begin and end<=b for a,b in ranges) and not literal_name:continue
+        return
+    raise ValueError('quoted or unrelated service field evidence')
+
+
 def effective_clock(text, quote, clock):
     """Only inherit a day period immediately before this quote in its own clause."""
     if re.search(r'早上|上午|下午|晚上|中午|凌晨',quote):return clock(quote)

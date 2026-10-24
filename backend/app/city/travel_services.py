@@ -78,12 +78,12 @@ def service_questions(req,today):
 def semantic_requirements(intent,text,previous,today):
     """Apply only typed, current-turn service fields to the scoped workspace."""
     from .agent.planning_intent import resolve_date
-    from .agent.evidence import request_evidence
+    from .agent.evidence import query_evidence, service_condition_evidence
     req=json.loads(json.dumps(previous or {}));req['category']=intent.category
     attrs=req.setdefault('attributes',{});seen={}
-    if intent.quote not in text:raise ValueError('service quote absent')
+    query_evidence(text,intent.quote)
     for f in intent.fields:
-        request_evidence(text,f.quote)
+        service_condition_evidence(text,f.quote,intent.quote,literal_name=f.field in ('location_text','room_type'))
         if f.field in seen and seen[f.field]!=f.value:raise ValueError('conflicting service fields')
         seen[f.field]=f.value
         if f.field in ('check_in','check_out'):

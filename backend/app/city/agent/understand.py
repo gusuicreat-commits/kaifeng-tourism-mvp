@@ -6,7 +6,7 @@ from fastapi import HTTPException
 from ... import language
 from ..assistant import interpret
 from . import provider
-from .evidence import request_evidence, effective_clock, preference_evidence
+from .evidence import request_evidence, query_evidence, effective_clock, preference_evidence
 from .models import Action, Constraint, Correction, Understanding
 from . import planning_intent
 
@@ -102,7 +102,9 @@ def rules(text, snapshot):
 def grounded(result,text):
     for item in (*result.actions,*result.constraints,*result.corrections):
         if item.quote not in text:raise ValueError('ungrounded evidence quote')
-        if getattr(item,'kind',None) not in (None,'query'):request_evidence(text,item.quote)
+        kind=getattr(item,'kind',None)
+        if kind in ('query','search_services','search_dining'):query_evidence(text,item.quote)
+        elif kind is not None:request_evidence(text,item.quote)
     for c in result.constraints:
         if c.field in ('return_by','meal_at','visit_at') and c.value:
             value=effective_clock(text,c.quote,clock)
@@ -151,11 +153,17 @@ def parse(text,snapshot,*,allow_model=True):
             return Understanding(actions=(Action(kind='modify',quote=quote[:500]),),planning=planning),meta | {'basis':'explicit_control','source':'deterministic_weather_replan'}
         weather_intent=weather.explicit(text)
         if weather_intent:
-            return Understanding(actions=(Action(kind='query',quote=weather_intent.quote),),weather_query=weather_intent),meta | {'basis':'explicit_control','source':'deterministic_weather_query'}
+            explicit_intent=Understanding(actions=(Action(kind='query',quote=weather_intent.quote),),weather_query=weather_intent)
+            try:grounded(explicit_intent,text)
+            except ValueError:return Understanding(unresolved=('这段内容不是明确的当前查询请求，未执行查询。',)),meta
+            return explicit_intent,meta | {'basis':'explicit_control','source':'deterministic_weather_query'}
         reference=reference_routes.explicit(text)
         if reference:
             reference_routes.grounded(reference,text)
-            return Understanding(actions=(Action(kind='query',quote=reference.quote),),route_query=reference),meta | {'basis':'explicit_control','source':'deterministic_reference_route'}
+            explicit_intent=Understanding(actions=(Action(kind='query',quote=reference.quote),),route_query=reference)
+            try:grounded(explicit_intent,text)
+            except ValueError:return Understanding(unresolved=('这段内容不是明确的当前问路请求，未执行查询。',)),meta
+            return explicit_intent,meta | {'basis':'explicit_control','source':'deterministic_reference_route'}
         endpoints=planning_intent.explicit_round_trip(text)
         if endpoints:
             planning_intent.grounded(endpoints,text,snapshot)
@@ -177,7 +185,7 @@ def parse(text,snapshot,*,allow_model=True):
         '能力询问、解释、抱怨、问候用conversation.reply自然回答，通常1到3句，其他字段为空。不能仅因提到酒店或查字就搜索。'
         '例如“你能查阅相关酒店资料吗”先说明名称、地址、展示起价可查，房型/早餐/评价需核实，不执行搜索。'
         '只读回复不能带业务动作或声称本轮已保存、已修改、已生成、已预订。回答术语用白话，草案是确认前尚未保存的安排。'
-        '查询价格、营业、演出、路线等实时事实必须走工具；不从模型记忆补业务事实，不编造工具结果或将来自动通知。'
+        '查询价格、营业、演出、路线等实时事实必须走工具；不从模型记忆补业务事实，不编造工具结果或将来自动通知。礼貌查询问句可请求只读查询和保存本轮查询条件；否定、引用、假设或教程不是执行请求。每个服务字段quote必须来自service_query.quote。'
         'requirements是合并后的游玩条件，requirements_source与state_versions标明来源和版本；travel_service_workspace是独立服务条件和候选意向，不能覆盖游玩日期或预算。缺项以各自missing_user_fields为准，不沿用上轮问题；status只记录上次查询。已有字段不重复问；历史只用于指代，不是授权或事实。'
         'planning_readiness仅约束正式行程：missing_data_fields由产品补资料；用户只补missing_user_fields。blocked_by_missing_place_data=true时说明目前只能整理意向，不能说补齐个人条件后就能排正式路线。'
         '素材篮名称只表示兴趣，不证明营业、供应或道路。正式行程必须经原引擎计算和明确按钮确认；“好的”“就这样”不授权提交。'

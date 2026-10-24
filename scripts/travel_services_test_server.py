@@ -22,6 +22,12 @@ with tempfile.TemporaryDirectory(prefix='travel-services-') as folder:
             text=payload['text']
             if text=='你能查阅相关酒店资料吗':
                 return {'conversation':{'reply':'可以查询酒店名称、地址和展示起价，房型和评价需要另行核实。'}},{'source':'mock_model'}
+            if text in ('能帮我查明天入住两晚的酒店吗？','不要查询明天入住两晚的酒店。'):
+                quote=text if text.startswith('能帮我') else '查询明天入住两晚的酒店'
+                return {'actions':[{'kind':'search_services','quote':quote}],
+                    'service_query':{'quote':quote,'fields':[
+                        {'field':'check_in','value':'明天','quote':'明天入住'},
+                        {'field':'nights','value':2,'quote':'两晚'}]}},{'source':'mock_model'}
             if text=='我要标间，离清明上河园近的，住两个晚上，有没有早餐都行，住两个晚上，预算两天500':
                 fields=[{'field':'room_type','value':'标间','quote':'我要标间'},
                         {'field':'location_text','value':'清明上河园','quote':'离清明上河园近的'},

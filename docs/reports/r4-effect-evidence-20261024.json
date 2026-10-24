@@ -1,0 +1,61 @@
+{
+  "date": "2026-10-24",
+  "scope": "R4 effect-aware evidence for Agent queries and service condition updates",
+  "base_commit": "3a669629177099edecf518196d01e8b13633e012",
+  "sources": {
+    "article_chapters": [
+      9,
+      15,
+      16,
+      33,
+      55
+    ],
+    "official": [
+      "https://docs.langchain.com/oss/python/langchain/human-in-the-loop",
+      "https://modelcontextprotocol.io/specification/2025-06-18/server/tools"
+    ]
+  },
+  "implementation": {
+    "query_gate": "query_evidence",
+    "condition_gate": "service_condition_evidence",
+    "mutation_gate": "request_evidence unchanged",
+    "formal_submit": "existing explicit confirmation only",
+    "offline_queries_use_same_gate": true
+  },
+  "verification": {
+    "targeted_final": {
+      "passed": 177,
+      "command": ".venv/bin/pytest -q backend/tests/test_agent_effect_evidence.py backend/tests/test_ai_redteam.py backend/tests/test_city_agent.py backend/tests/test_service_followup.py backend/tests/test_agent_conversation.py backend/tests/test_agent_reference_routes.py"
+    },
+    "worktree_full_before_final_scope_hardening": {
+      "passed": 806,
+      "skipped": 8,
+      "command": ".venv/bin/pytest -q"
+    },
+    "r4_cases": 27,
+    "browser_services": 6,
+    "browser_agent": 7,
+    "browser_weather": 1,
+    "contract": "passed",
+    "diff_check": "passed",
+    "scoped_index_snapshot": {
+      "backend_passed": 802,
+      "frontend_build": "passed",
+      "contract": "passed",
+      "source": "HEAD plus explicit R4 manifest; unrelated worktree changes excluded"
+    }
+  },
+  "reproduction": {
+    "old_code": "9 failed, 3 passed, 3 teardown errors; synthetic-provider tripwires exposed unauthorized execution paths",
+    "failures_were_isolated_to_test_data": true
+  },
+  "boundaries": {
+    "new_live_model_calls": 0,
+    "new_business_provider_calls": 0,
+    "runtime_user_history_replayed": false,
+    "runtime_user_requirements_rewritten": false,
+    "legacy_service_parser": "R5",
+    "arbitrary_language_accuracy": "not established",
+    "mutation_questions": "existing strict gate retained"
+  }
+}
