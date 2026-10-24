@@ -1,0 +1,12 @@
+{
+  "issue": "R6",
+  "verification": {
+    "related_passed": 63,
+    "new_cases": 7
+  },
+  "repairs": [
+    "numeric unit and budget scope",
+    "checkout/nights order invariant conflict rejection"
+  ],
+  "new_live_calls": 0
+}

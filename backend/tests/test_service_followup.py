@@ -87,3 +87,32 @@ def test_semantic_fields_cannot_invent_or_change_scope(entry):
     intent=ServiceIntent(quote=text,fields=[entry])
     with pytest.raises(ValueError):
         services.semantic_requirements(intent,text,{},datetime.now(TZ).date())
+
+@pytest.mark.parametrize('entry',[
+    field('nights',2,'两个人，住三晚'),
+    field('rooms',2,'两个人，一间房'),
+    field('max_price',500,'预算两天500元'),
+    field('stay_budget_fen',50000,'整趟旅行预算500元'),
+    field('stay_budget_fen',50000,'每晚预算500元'),
+    field('stay_budget_fen',50123,'住宿预算501元'),
+])
+def test_numeric_field_binds_its_unit_and_budget_scope(entry):
+    with pytest.raises(ValueError):
+        services.semantic_requirements(ServiceIntent(quote=entry['quote'],fields=[entry]),entry['quote'],{},datetime.now(TZ).date())
+
+
+def test_date_patch_order_and_conflicts_preserve_explicit_stay():
+    today=datetime.now(TZ).date()
+    def apply(entries,previous=None):
+        message='，'.join(e['quote'] for e in entries)
+        return services.semantic_requirements(ServiceIntent(quote=message,fields=entries),message,previous or {},today)
+    saved=apply([field('nights',2,'住两个晚上'),field('room_type','标间','我要标间'),
+                 field('location_text','清明上河园','离清明上河园近'),field('stay_budget_fen',50000,'预算两天500')])
+    changed=apply([field('check_in','明天','明天入住')],saved)
+    assert changed['nights']==2 and changed['check_out']==(today+timedelta(days=3)).isoformat()
+    assert 'guests' not in changed and 'rooms' not in changed and 'total_budget_fen' not in changed
+    assert changed['stay_budget_fen']==50000
+    for entries in ([field('check_in','明天','明天入住'),field('check_out','后天','后天退房'),field('nights',2,'住两晚')],
+                    [field('nights',2,'住两晚'),field('check_out','后天','后天退房'),field('check_in','明天','明天入住')]):
+        with pytest.raises(ValueError):apply(entries)
+    assert saved.get('check_in') is None  # patches never mutate the original

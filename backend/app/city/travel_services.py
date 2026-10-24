@@ -39,7 +39,7 @@ def matches(text,requirements=None):
     followup=requirements and re.search(r'换一家|换一个|便宜一点|改成.*(?:元|自驾|公交)|早餐|干湿分离|窗户|隔音',text)
     return bool(hotel_query or poi_query or followup) and not re.search(r'不要(?:搜索|查询)|别(?:搜索|查询)|取消查询',text)
 
-NUMBER = r'(\d+|[一二两三四五六七八九十]+)'
+NUMBER = r'(\d+|[零一二两三四五六七八九十]+)'
 
 def number(value):
     if value.isdigit():return int(value)
@@ -89,16 +89,23 @@ def semantic_requirements(intent,text,previous,today):
         if f.field in ('check_in','check_out'):
             if not isinstance(f.value,str) or f.value not in f.quote:raise ValueError('service date absent')
             req[f.field]=resolve_date(f.value,today).isoformat()
-            if f.field=='check_out':req.pop('nights',None)
         elif f.field in ('nights','guests','rooms','max_price','stay_budget_fen'):
             limits={'nights':30,'guests':100,'rooms':20,'max_price':100000,'stay_budget_fen':100000000}
             if type(f.value) is not int or not 1<=f.value<=limits[f.field]:raise ValueError('invalid service number')
-            evidence=[number(m[0]) for m in re.finditer(NUMBER,f.quote)]
-            expected=f.value/100 if f.field=='stay_budget_fen' else f.value
-            if expected not in evidence:raise ValueError('service number absent')
-            cues={'nights':r'晚|夜','guests':r'人|位','rooms':r'间|房','max_price':r'每晚|一晚|房价|酒店预算|以内|以下','stay_budget_fen':r'预算|费用|合计'}
-            if not re.search(cues[f.field],f.quote):raise ValueError('service field scope absent')
-            if f.field in ('max_price','stay_budget_fen') and not re.search(r'元|预算|房价|费用',f.quote):raise ValueError('money scope absent')
+            # Bind a value to its unit/scope; finding the same number elsewhere
+            # in a broad quote is insufficient evidence for that field.
+            units={'nights':r'\s*(?:个)?\s*(?:晚上|晚|夜)', 'guests':r'\s*(?:个)?\s*(?:人|位)',
+                   'rooms':r'\s*间(?:房)?', 'max_price':r'\s*元', 'stay_budget_fen':r'\s*(?:元)?'}
+            expected=f.value//100 if f.field=='stay_budget_fen' else f.value
+            if f.field=='stay_budget_fen' and f.value%100:raise ValueError('fractional budget evidence unsupported')
+            numeric=[m for m in re.finditer(NUMBER+units[f.field],f.quote) if number(m[1])==expected]
+            if not numeric:raise ValueError('service number or unit absent')
+            if f.field=='max_price':
+                if not re.search(r'每晚|一晚|房价|酒店预算|\d+\s*元(?:以内|以下)',f.quote):raise ValueError('nightly money scope absent')
+                if re.search(r'(?:两|二|\d+)\s*(?:天|晚).{0,8}预算|预算.{0,8}(?:两|二|\d+)\s*(?:天|晚)|总(?:预算|价)|合计|一共|整趟|全程',f.quote):raise ValueError('stay budget is not nightly price')
+            if f.field=='stay_budget_fen':
+                if not re.search(r'预算|费用|合计',f.quote):raise ValueError('stay money scope absent')
+                if re.search(r'整趟|全程|旅行总预算|每晚|一晚|房价',f.quote):raise ValueError('money scope differs from stay')
             req[f.field]=f.value
         elif f.field in ('location_text','room_type'):
             if not isinstance(f.value,str) or not f.value.strip() or f.value not in f.quote or len(f.value)>120:raise ValueError('service text absent')
