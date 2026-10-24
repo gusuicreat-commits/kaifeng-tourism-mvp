@@ -99,7 +99,8 @@ def proposal(session, trip_id, snapshot, intent, text):
     if any(c.field not in ('pace','objective') for c in intent.constraints) or any(a.kind in ('search_dining','progress','position','cancel','query') for a in intent.actions):
         return {'status':'needs_clarification','reply':'这句话还包含其他活动要求，需要一起确认；本次条件尚未修改。请补充具体活动或场次。'}
     saved=snapshot.envelope.planning_constraints
-    base=saved.get('constraints') or {k:v for k,v in snapshot.draft.model_dump(mode='json').items() if k in Constraints.model_fields}
+    from .requirement_context import planning_values
+    base=planning_values(snapshot)
     c=Constraints.model_validate(base);values=c.model_dump(mode='json');today=snapshot.envelope.identity.generated_at.astimezone(TZ).date()
     fields={f.field:f.value for f in p.fields}
     # The application's city scope is not a navigable waypoint. Require an endpoint role

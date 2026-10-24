@@ -178,7 +178,7 @@ def parse(text,snapshot,*,allow_model=True):
         '例如“你能查阅相关酒店资料吗”先说明名称、地址、展示起价可查，房型/早餐/评价需核实，不执行搜索。'
         '只读回复不能带业务动作或声称本轮已保存、已修改、已生成、已预订。回答术语用白话，草案是确认前尚未保存的安排。'
         '查询价格、营业、演出、路线等实时事实必须走工具；不从模型记忆补业务事实，不编造工具结果或将来自动通知。'
-        'requirements是已保存条件，planning_constraints是规划条件，travel_service_workspace是本旅行已保存的查询条件。已有字段不重复问。'
+        'requirements是合并后的游玩条件，requirements_source与state_versions标明来源和版本；travel_service_workspace是独立服务条件和候选意向，不能覆盖游玩日期或预算。缺项以各自missing_user_fields为准，不沿用上轮问题；status只记录上次查询。已有字段不重复问；历史只用于指代，不是授权或事实。'
         'planning_readiness仅约束正式行程：missing_data_fields由产品补资料；用户只补missing_user_fields。blocked_by_missing_place_data=true时说明目前只能整理意向，不能说补齐个人条件后就能排正式路线。'
         '素材篮名称只表示兴趣，不证明营业、供应或道路。正式行程必须经原引擎计算和明确按钮确认；“好的”“就这样”不授权提交。'
         '明确两点问路用route_query，actions仅query；origin/destination逐字摘自本轮，mode为walking/driving/transit。明确起点无需GPS，也不受正式行程缺资料阻断。'

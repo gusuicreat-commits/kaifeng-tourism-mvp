@@ -58,15 +58,22 @@ def stay_dates(req):
         span=(date.fromisoformat(req['check_out'])-date.fromisoformat(req['check_in'])).days
         if 1<=span<=30:req['nights']=span
 
-def service_questions(req,today):
-    questions=[]
+def service_readiness(req,today):
+    questions=[];missing=[]
     if req['category']=='hotels':
-        if not req.get('check_in'):questions.append('请提供入住日期。')
-        if not req.get('check_out') and not req.get('nights'):questions.append('请提供退房日期或住几晚。')
+        if not req.get('check_in'):
+            questions.append('请提供入住日期。');missing.append('check_in')
+        if not req.get('check_out') and not req.get('nights'):
+            questions.append('请提供退房日期或住几晚。');missing.append('check_out_or_nights')
         if req.get('check_in') and req.get('check_out'):
             start,end=date.fromisoformat(req['check_in']),date.fromisoformat(req['check_out'])
-            if start<today or not 1<=(end-start).days<=30:questions.append('请选择未来入住日期及 1–30 晚的住宿区间。')
-    return questions
+            if start<today or not 1<=(end-start).days<=30:
+                questions.append('请选择未来入住日期及 1–30 晚的住宿区间。');missing.append('stay_dates')
+    return {'questions':questions,'missing_user_fields':missing}
+
+
+def service_questions(req,today):
+    return service_readiness(req,today)['questions']
 
 def semantic_requirements(intent,text,previous,today):
     """Apply only typed, current-turn service fields to the scoped workspace."""

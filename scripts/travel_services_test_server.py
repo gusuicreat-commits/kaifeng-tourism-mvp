@@ -30,6 +30,11 @@ with tempfile.TemporaryDirectory(prefix='travel-services-') as folder:
                         {'field':'stay_budget_fen','value':50000,'quote':'预算两天500'}]
                 return {'actions':[{'kind':'search_services','quote':text}],'service_query':{'quote':text,'fields':fields}},{'source':'mock_model'}
             if text=='明天入住':
+                saved=payload['context']['travel_service_workspace']
+                assert saved['requirements']['nights']==2
+                assert saved['requirements']['stay_budget_fen']==50000
+                assert saved['missing_user_fields']==['check_in']
+                assert payload['context']['state_versions']['services']==saved['version']
                 return {'actions':[{'kind':'search_services','quote':text}],'service_query':{'quote':text,'fields':[{'field':'check_in','value':'明天','quote':text}]}},{'source':'mock_model'}
             if text=='先解释早餐，再查明天入住两晚标间，并把游玩日期改后天':
                 return {'conversation':{'reply':'早餐是否包含需要以候选房型的核验结果为准。'},

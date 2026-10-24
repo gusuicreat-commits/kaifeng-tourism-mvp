@@ -1,0 +1,137 @@
+{
+  "date": "2026-10-24",
+  "scope": "R3 trip-scoped authoritative requirement read projection; no new write path",
+  "base_commit": "7b0caf5512ad60d942aa19db8668cb5ed6a61e4f",
+  "sources": {
+    "user_article": {
+      "path": "/Users/mac/Downloads/Agent架构师试炼-60道题通关AI Agent.html",
+      "sha256": "ce9ce726a49867a107c1db4e8c70095a4ee655586b2a0b9d28ca448922eadcb3",
+      "chapters": [
+        17,
+        18,
+        23,
+        45
+      ]
+    },
+    "official_documents": [
+      "https://docs.langchain.com/oss/python/langchain/context-engineering",
+      "https://docs.langchain.com/oss/python/langchain/short-term-memory"
+    ],
+    "applied_principles": [
+      "separate persistent state from per-call model context",
+      "read state at each step with conversation isolation",
+      "bound history without treating it as business facts"
+    ],
+    "framework_adopted": false
+  },
+  "root_causes": [
+    "readiness and model requirements used different planning projections",
+    "planning proposal independently chose a different base of known fields",
+    "UI recovered legacy planning receipts while Agent snapshot did not",
+    "service context repeated prior result questions instead of recomputing from current conditions"
+  ],
+  "implementation": {
+    "projection": "backend/app/city/agent/requirement_context.py",
+    "shared_planning_values": true,
+    "explicit_null_preserved": true,
+    "legacy_receipt_read_only": true,
+    "fresh_service_missing_fields": true,
+    "selection_scope": "id/name only; user intention, not verified hotel or confirmed route",
+    "state_versions": [
+      "trip_id",
+      "trip",
+      "route",
+      "planning",
+      "services"
+    ],
+    "extra_fields_allowed": false,
+    "formal_route_submission": "existing engine confirmation only"
+  },
+  "verification": {
+    "targeted_existing_and_r3": {
+      "command": ".venv/bin/pytest -q backend/tests/test_agent_requirement_context.py backend/tests/test_agent_conversation.py backend/tests/test_service_followup.py backend/tests/test_city_agent.py backend/tests/test_travel_services.py backend/tests/test_ai_redteam.py",
+      "passed": 166,
+      "phase": "before two extra history isolation/budget tests"
+    },
+    "r3_final": {
+      "command": ".venv/bin/pytest -q backend/tests/test_agent_requirement_context.py",
+      "passed": 8
+    },
+    "full_worktree": {
+      "command": ".venv/bin/pytest -q",
+      "passed": 785,
+      "skipped": 8,
+      "warnings": 1
+    },
+    "browser_services": {
+      "command": "npx playwright test --config playwright.services.config.ts",
+      "passed": 4,
+      "extra_assertion": "semantic fixture checks saved nights, stay budget, missing check-in and service version on refreshed follow-up"
+    },
+    "browser_agent": {
+      "command": "npx playwright test --config playwright.agent.config.ts",
+      "passed": 7
+    },
+    "browser_weather": {
+      "command": "WEATHER_E2E_PORT=8022 WEATHER_TEST_PORT=8022 npx playwright test --config playwright.weather.config.ts",
+      "passed": 1
+    },
+    "contract": {
+      "command": ".venv/bin/python scripts/export_agent_contracts.py --check",
+      "status": "passed"
+    },
+    "diff_check": {
+      "command": "git diff --check",
+      "status": "passed"
+    },
+    "scoped_staged_snapshot": {
+      "source": "git checkout-index --all into a temporary directory; HEAD plus the explicit R3 manifest only",
+      "backend": {
+        "command": ".venv/bin/python -m pytest -q",
+        "passed": 775,
+        "warnings": 1
+      },
+      "frontend_build": {
+        "command": "npm run build",
+        "status": "passed"
+      },
+      "contract": "passed",
+      "excluded": "all unrelated unstaged collection, scenic sync and display changes"
+    }
+  },
+  "failures_and_resolution": [
+    {
+      "stage": "initial R3 reproductions",
+      "result": "six missing-contract/projection tests failed on old code",
+      "note": "known-date fixture setup was subsequently made explicit to avoid relying on blank trip defaults"
+    },
+    {
+      "stage": "first full regression",
+      "result": "784 passed, 8 skipped, 1 failed",
+      "reason": "new long-history test tried assigning a frozen Pydantic field",
+      "resolution": "construct copied test context with model_copy; eight R3 tests and final full regression passed"
+    }
+  ],
+  "boundaries": {
+    "new_live_model_calls": 0,
+    "new_business_provider_calls": 0,
+    "acceptance": "temporary databases, synthetic facts, mock semantic and provider adapters",
+    "history_off": "no dialogue context; existing contract permits trip-scoped structured requirements",
+    "runtime_user_history_replayed": false,
+    "runtime_user_requirements_rewritten": false,
+    "remaining_review_items": [
+      "R4 query vs modification evidence",
+      "R5 remaining legacy parsing paths",
+      "R6-R7 field ambiguity and requirement strength",
+      "R9 context budget observability",
+      "R10 actual provider evidence",
+      "R11 freshness and concurrency",
+      "R12 frontend planning handoff"
+    ]
+  },
+  "runtime_delivery_check": {
+    "command": ".venv/bin/python scripts/runtime_status.py",
+    "required": "current after restarting final commit",
+    "assistant_path": "/assistant?context=city"
+  }
+}

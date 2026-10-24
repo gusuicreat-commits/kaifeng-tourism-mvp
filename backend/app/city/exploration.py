@@ -64,11 +64,7 @@ def unknown(message, ids=(), code='DATA_PENDING'):
 def saved_constraints(trip_id:UUID,s:Session=Depends(current)):
     with connect() as db:
         state.owned(db,s,trip_id)
-        workspace=exploration_state.read(db,trip_id)
-        if workspace['version']:return workspace
-        row=db.execute('SELECT result_json FROM city_receipts WHERE trip_id=? AND scope=? ORDER BY created_at DESC LIMIT 1',
-                       (str(trip_id),'exploration:'+str(trip_id))).fetchone()
-        return workspace | {'constraints':json.loads(row[0]).get('constraints') if row else None}
+        return exploration_state.read(db,trip_id)
 
 
 @router.post('/preview')
