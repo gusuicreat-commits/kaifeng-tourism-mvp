@@ -32,6 +32,7 @@ from .city.engine.api import router as city_engine_router
 from .city.assistant.api import router as city_assistant_router
 from .city.agent.api import router as city_agent_router
 from .city.weather import router as city_weather_router
+from .scenic_sync.api import router as scenic_router, admin_router as scenic_admin_router
 from .city.exploration import router as exploration_router
 from .maps import router as maps_router
 import asyncio
@@ -63,6 +64,8 @@ app.include_router(city_engine_router)
 app.include_router(city_assistant_router)
 app.include_router(city_agent_router)
 app.include_router(city_weather_router)
+app.include_router(scenic_router)
+app.include_router(scenic_admin_router)
 from .city.travel_services import router as travel_services_router
 app.include_router(travel_services_router)
 app.include_router(exploration_router)

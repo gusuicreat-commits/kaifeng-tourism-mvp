@@ -1,0 +1,2 @@
+service_date,area,program_name,venue_name,start_time,source_updated_on,evidence_sha256,duration_minutes,end_time,entry_deadline,requires_booking,weather_sensitive,effective_from,effective_to,schedule_note,operating_status
+2026-10-24,东区,示例节目（请删除此行）,示例场地,15:00,2026-10-24,<官方截图或PDF的SHA-256>,,,,unknown,unknown,,, ,

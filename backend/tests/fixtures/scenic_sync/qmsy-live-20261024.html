@@ -1,0 +1,806 @@
+<!doctype html>
+
+<html>
+
+<head>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+<meta name="author" content="布鲁斯网络（iplus@bulusi.com）">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black">
+<meta name="format-detection" content="telephone=no">
+<meta name="viewport" content="width=device-width,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no">
+<link rel="apple-touch-icon" href="images/apple_icon.png">
+<link rel="apple-touch-startup-image" href="images/apple_startup.png">
+<link rel="stylesheet" href="inc/jquery_mobile.css" type="text/css">
+<link rel="stylesheet" href="inc/style.css" type="text/css">
+<title>清明上河园</title>
+<script type="text/javascript" src="inc/jquery.js"></script>
+<script type="text/javascript" src="inc/jquery_mobile.js"></script>
+<script type="text/javascript" src="inc/jquery_sys.js"></script>
+<!--<script language="javascript" type="text/javascript">
+window.location.href="http://www.qmsyun.com/Mobile_page/o_program.php";
+</script>-->
+</head>
+
+<body>
+
+<div data-role="page">
+
+<div data-role="content">
+<table cellpadding="0" cellspacing="1" class="shop_carts ui-shadow">
+<tr>
+<th width="30%">展示名称</th>
+<th width="26%">地点</th>
+<th width="44%">时间</th>
+</tr>
+<tr>
+<td><strong>中华巨马展演（每周一检修）</strong></td>
+<td class="a">迎宾门外广场</td>
+<td>08:40,09:40,11:30,15:10,17:10,18:00,19:40,20:40</td>
+</tr>
+<tr>
+<td><strong>大宋百戏•迎宾互动演出</strong></td>
+<td class="a">迎宾门外广场</td>
+<td>08:40,10:10,15:20,16:50,18:10</td>
+</tr>
+<tr>
+<td><strong>御剑飞行飞天秀</strong></td>
+<td class="a">东京码头上方</td>
+<td>08:50,10:10,12:00,12:30,13:20,14:40,15:00,15:30,17:30</td>
+</tr>
+<tr>
+<td><strong>包公迎宾</strong></td>
+<td class="a">迎宾门外广场</td>
+<td>09:00</td>
+</tr>
+<tr>
+<td><strong>大宋百戏•快乐小丑</strong></td>
+<td class="a">端门内广场</td>
+<td>09:00,10:30,14:00,15:15,16:30,18:00</td>
+</tr>
+<tr>
+<td><strong>球幕影院《飞越清明上河图》</strong></td>
+<td class="a">球幕影院《飞越清明上河图》</td>
+<td>09:00</td>
+</tr>
+<tr>
+<td><strong>大宋百戏·水上漂</strong></td>
+<td class="a">九龙桥西南水面</td>
+<td>09:00,10:30,11:20,14:00,15:30,16:20</td>
+</tr>
+<tr>
+<td><strong>《清明上河图》沉浸式NPC互动</strong></td>
+<td class="a">东京码头至虹桥</td>
+<td>09:00,11:00,15:00,17:00</td>
+</tr>
+<tr>
+<td><strong>盘鼓（迎宾门内广场）</strong></td>
+<td class="a">迎宾门内广场</td>
+<td>09:05</td>
+</tr>
+<tr>
+<td><strong>气功喷火</strong></td>
+<td class="a">东京食坊南口</td>
+<td>09:10,10:05,11:10,12:50,14:40,15:30,16:50,17:40</td>
+</tr>
+<tr>
+<td><strong>大宋百戏·群宠献艺</strong></td>
+<td class="a">傀儡文化广场</td>
+<td>09:10,11:40,15:00,18:20</td>
+</tr>
+<tr>
+<td><strong>天女散花飞天秀</strong></td>
+<td class="a">东京码头上方</td>
+<td>09:10,10:40,11:20,13:00,13:50,14:20,15:55,16:30,17:10</td>
+</tr>
+<tr>
+<td><strong>机甲武士展演</strong></td>
+<td class="a">大宋沉浸式体验馆</td>
+<td>09:10,11:00,12:40,14:20,15:40,16:50</td>
+</tr>
+<tr>
+<td><strong>大宋百戏·高空叠凳</strong></td>
+<td class="a">主题演艺广场</td>
+<td>09:15,11:25,14:00,16:15</td>
+</tr>
+<tr>
+<td><strong>包公巡视汴河漕运</strong></td>
+<td class="a">虹桥两侧水面</td>
+<td>09:20</td>
+</tr>
+<tr>
+<td><strong>真人秀提线木偶</strong></td>
+<td class="a">大宋沉浸式体验馆</td>
+<td>09:20,11:10,12:50,14:30,15:50,17:00</td>
+</tr>
+<tr>
+<td><strong>大宋招兵买马（互动）</strong></td>
+<td class="a">四方院</td>
+<td>09:20,12:40,14:00,17:25</td>
+</tr>
+<tr>
+<td><strong>小丑嘉年华</strong></td>
+<td class="a">骕骦千里前</td>
+<td>09:20,11:50,13:10,15:45,17:10,18:30</td>
+</tr>
+<tr>
+<td><strong>大宋百戏·高杆杂技</strong></td>
+<td class="a">九龙桥西侧水面</td>
+<td>09:20,10:50,11:40,14:20,15:50,16:40</td>
+</tr>
+<tr>
+<td><strong>撂地摊</strong></td>
+<td class="a">上善门</td>
+<td>09:20,11:20,13:30,17:20</td>
+</tr>
+<tr>
+<td><strong>傀儡木偶</strong></td>
+<td class="a">大宋沉浸式体验馆</td>
+<td>09:25,11:15,12:55,14:35,15:55,17:05</td>
+</tr>
+<tr>
+<td><strong>凤舞九天（三期火凤凰）</strong></td>
+<td class="a">大宋·皇家乐园</td>
+<td>09:30</td>
+</tr>
+<tr>
+<td><strong>骕骦千里（三期旋转木马）</strong></td>
+<td class="a">大宋·皇家乐园</td>
+<td>09:30</td>
+</tr>
+<tr>
+<td><strong>花灯初上（三期逍遥花灯）</strong></td>
+<td class="a">大宋·皇家乐园</td>
+<td>09:30</td>
+</tr>
+<tr>
+<td><strong>神舟出海（三期海盗船）</strong></td>
+<td class="a">大宋·皇家乐园</td>
+<td>09:30</td>
+</tr>
+<tr>
+<td><strong>龙腾鼓舞（三期过山车）</strong></td>
+<td class="a">大宋·皇家乐园</td>
+<td>09:30</td>
+</tr>
+<tr>
+<td><strong>高跷</strong></td>
+<td class="a">主题演艺广场</td>
+<td>09:30,11:00,12:00,15:00,16:00</td>
+</tr>
+<tr>
+<td><strong>大宋百戏·力王争霸</strong></td>
+<td class="a">东京码头</td>
+<td>09:35,14:00,15:40</td>
+</tr>
+<tr>
+<td><strong>斗鸡</strong></td>
+<td class="a">大师坊</td>
+<td>09:40,10:40,13:40,14:40,16:20,17:40</td>
+</tr>
+<tr>
+<td><strong>小丑</strong></td>
+<td class="a">虹桥南至上善门</td>
+<td>09:40,17:20</td>
+</tr>
+<tr>
+<td><strong>跳绳</strong></td>
+<td class="a">丹台宫西侧</td>
+<td>09:40,11:00,14:15,16:00,17:15</td>
+</tr>
+<tr>
+<td><strong>大宋百戏·走钢丝</strong></td>
+<td class="a">音乐广场</td>
+<td>09:40,14:20</td>
+</tr>
+<tr>
+<td><strong>民俗绝活</strong></td>
+<td class="a">勾栏瓦肆</td>
+<td>09:45,10:50,14:15,16:05,18:00</td>
+</tr>
+<tr>
+<td><strong>剑上侠客行</strong></td>
+<td class="a">东京码头</td>
+<td>09:50,16:10</td>
+</tr>
+<tr>
+<td><strong>动感呼啦圈</strong></td>
+<td class="a">丹台宫内欧洲馆西侧舞台</td>
+<td>09:50,11:10,14:25,15:00,15:45,17:25</td>
+</tr>
+<tr>
+<td><strong>大宋百戏·软丝凌云技</strong></td>
+<td class="a">禧墙</td>
+<td>09:50,10:50,13:50,16:10</td>
+</tr>
+<tr>
+<td><strong>大宋百戏·豫剧清唱</strong></td>
+<td class="a">东京食坊街口</td>
+<td>09:55,10:55,16:10</td>
+</tr>
+<tr>
+<td><strong>大宋·东京保卫战</strong></td>
+<td class="a">九龙桥西南水面</td>
+<td>10:00,13:30,17:20</td>
+</tr>
+<tr>
+<td><strong>大宋百戏•飞刀秀</strong></td>
+<td class="a">勾栏瓦肆</td>
+<td>10:00,11:15,12:05,14:30,17:00</td>
+</tr>
+<tr>
+<td><strong>大宋百戏·灵猴献艺</strong></td>
+<td class="a">大师坊</td>
+<td>10:10,11:40,14:10,15:50,16:45</td>
+</tr>
+<tr>
+<td><strong>大宋百戏·变脸</strong></td>
+<td class="a">勾栏瓦肆</td>
+<td>10:10,14:40,18:50</td>
+</tr>
+<tr>
+<td><strong>大宋百戏·快板</strong></td>
+<td class="a">东京食坊街口</td>
+<td>10:10,11:30,17:15,18:15</td>
+</tr>
+<tr>
+<td><strong>布袋木偶</strong></td>
+<td class="a">赵太丞家对面</td>
+<td>10:15,11:10,14:50,16:55</td>
+</tr>
+<tr>
+<td><strong>天空之城</strong></td>
+<td class="a">主题演艺广场（清明文化广场）</td>
+<td>10:15,11:15,14:20,15:15</td>
+</tr>
+<tr>
+<td><strong>宋廷梦乐</strong></td>
+<td class="a">宣德殿二层</td>
+<td>10:20,11:40,14:50,16:35</td>
+</tr>
+<tr>
+<td><strong>大宋百戏·水上飞人</strong></td>
+<td class="a">虹桥西侧水面</td>
+<td>10:20,11:40,12:40,15:20,17:50</td>
+</tr>
+<tr>
+<td><strong>大宋百戏·舞中幡</strong></td>
+<td class="a">《飞越清明上河图》球幕影院北侧</td>
+<td>10:20,14:50,16:20</td>
+</tr>
+<tr>
+<td><strong>水流星</strong></td>
+<td class="a">丹凤门内广场</td>
+<td>10:20,11:20,13:50,16:00,16:50</td>
+</tr>
+<tr>
+<td><strong>绛州鼓乐·牛斗虎</strong></td>
+<td class="a">四方院</td>
+<td>10:20,11:20,12:15,13:20,16:10,17:15,18:30,20:30</td>
+</tr>
+<tr>
+<td><strong>大宋百戏·相声</strong></td>
+<td class="a">勾栏瓦肆</td>
+<td>10:25,15:25,16:40,19:00,20:00</td>
+</tr>
+<tr>
+<td><strong>大宋百戏·扛竿</strong></td>
+<td class="a">《飞越清明上河图》球幕影院北侧</td>
+<td>10:25,14:55,16:25</td>
+</tr>
+<tr>
+<td><strong>大宋百戏·豫剧反串</strong></td>
+<td class="a">东京食坊街口</td>
+<td>10:25,11:45,15:55,16:40</td>
+</tr>
+<tr>
+<td><strong>大宋百戏·上刀山</strong></td>
+<td class="a">《飞越清明上河图》球幕影院北侧</td>
+<td>10:30,15:00,16:30</td>
+</tr>
+<tr>
+<td><strong>大宋百戏·高空花式扁带</strong></td>
+<td class="a">仰圣山瀑布</td>
+<td>10:30,11:30,13:30,14:30,15:45,16:20</td>
+</tr>
+<tr>
+<td><strong>舞龙</strong></td>
+<td class="a">主题演艺广场</td>
+<td>10:30,11:35,15:25,18:35</td>
+</tr>
+<tr>
+<td><strong>大宋百戏·豫剧清唱（梁山面馆）</strong></td>
+<td class="a">梁山面馆</td>
+<td>10:30,12:00,13:30,17:00,18:45</td>
+</tr>
+<tr>
+<td><strong>雄狮争霸</strong></td>
+<td class="a">水上商业街</td>
+<td>10:40,11:40,15:30,16:30</td>
+</tr>
+<tr>
+<td><strong>大宋百戏·河南坠子</strong></td>
+<td class="a">东京食坊街口</td>
+<td>10:40,13:00,16:25,17:35,18:45,20:30</td>
+</tr>
+<tr>
+<td><strong>大宋百戏·奇幻魔术</strong></td>
+<td class="a">上善门前</td>
+<td>10:45,13:30,15:30,16:20</td>
+</tr>
+<tr>
+<td><strong>魔幻大轮</strong></td>
+<td class="a">九龙桥东侧</td>
+<td>10:45,11:20,13:30,15:30,17:10</td>
+</tr>
+<tr>
+<td><strong>岳飞枪挑小梁王</strong></td>
+<td class="a">大宋·校场</td>
+<td>10:50,16:10</td>
+</tr>
+<tr>
+<td><strong>草帽飞舞</strong></td>
+<td class="a">丹台宫欧洲馆西侧</td>
+<td>10:50,12:20,13:55,15:35,16:35</td>
+</tr>
+<tr>
+<td><strong>《决战汴梁城·五鼠闹东京》实景高空威亚秀</strong></td>
+<td class="a">上善门</td>
+<td>10:55,15:40</td>
+</tr>
+<tr>
+<td><strong>大宋百戏·耍把戏</strong></td>
+<td class="a">傀儡文化广场</td>
+<td>11:00,13:45,17:30,19:10</td>
+</tr>
+<tr>
+<td><strong>双头人</strong></td>
+<td class="a">虹桥北广场</td>
+<td>11:00,12:00,15:00,16:00,17:00</td>
+</tr>
+<tr>
+<td><strong>舞中幡互动秀</strong></td>
+<td class="a">球幕广场</td>
+<td>11:00,16:15</td>
+</tr>
+<tr>
+<td><strong>游戏子弟</strong></td>
+<td class="a">虹桥南广场</td>
+<td>11:00</td>
+</tr>
+<tr>
+<td><strong>吊球技巧</strong></td>
+<td class="a">丹凤门内广场</td>
+<td>11:00,12:05,13:20,14:05,15:45,16:20</td>
+</tr>
+<tr>
+<td><strong>宋廷队舞</strong></td>
+<td class="a">宣德殿二楼</td>
+<td>11:00,15:50</td>
+</tr>
+<tr>
+<td><strong>大宋百戏·快板（梁山面馆）</strong></td>
+<td class="a">梁山面馆</td>
+<td>11:00,13:00,13:45,19:00</td>
+</tr>
+<tr>
+<td><strong>水傀儡</strong></td>
+<td class="a">水傀儡馆</td>
+<td>11:10,12:10,14:30,16:00</td>
+</tr>
+<tr>
+<td><strong>大宋百戏·顶龙凳</strong></td>
+<td class="a">音乐广场</td>
+<td>11:10,12:40,15:10,18:05</td>
+</tr>
+<tr>
+<td><strong>大宋百戏·杂技抖杠</strong></td>
+<td class="a">王员外家</td>
+<td>11:10,16:30</td>
+</tr>
+<tr>
+<td><strong>大宋百戏·变脸互动秀</strong></td>
+<td class="a">勾栏瓦肆</td>
+<td>11:10,15:50,19:45</td>
+</tr>
+<tr>
+<td><strong>手彩魔术</strong></td>
+<td class="a">丹台宫内欧洲馆西则舞台</td>
+<td>11:10,14:10,15:20,16:10,17:30,18:30</td>
+</tr>
+<tr>
+<td><strong>大宋百戏·跳跳龙</strong></td>
+<td class="a">东京梦华主舞台</td>
+<td>11:10,16:40</td>
+</tr>
+<tr>
+<td><strong>大宋百戏·宋韵大鼓</strong></td>
+<td class="a">东京食坊街口</td>
+<td>11:15,13:20,15:10,16:55,19:30,20:50</td>
+</tr>
+<tr>
+<td><strong>大宋百戏·杂技空山竹语</strong></td>
+<td class="a">音乐广场</td>
+<td>11:20,14:05,16:00,17:15</td>
+</tr>
+<tr>
+<td><strong>大宋百戏•相声（梁山书场）</strong></td>
+<td class="a">梁山书场</td>
+<td>11:25</td>
+</tr>
+<tr>
+<td><strong>皇家宫廷·武戏法</strong></td>
+<td class="a">宣和殿一层</td>
+<td>11:30,12:10,13:10,13:50,14:25,15:20,17:00</td>
+</tr>
+<tr>
+<td><strong>大宋百戏•乐舞秀</strong></td>
+<td class="a">音乐广场</td>
+<td>11:30,17:30</td>
+</tr>
+<tr>
+<td><strong>草帽吊球</strong></td>
+<td class="a">丹台宫欧洲馆西侧舞台</td>
+<td>11:30,14:30,16:30,17:00</td>
+</tr>
+<tr>
+<td><strong>大宋科举</strong></td>
+<td class="a">四方院</td>
+<td>11:40</td>
+</tr>
+<tr>
+<td><strong>非遗绝活互动秀</strong></td>
+<td class="a">勾栏瓦肆</td>
+<td>11:40,17:50,21:05</td>
+</tr>
+<tr>
+<td><strong>大宋斗舞</strong></td>
+<td class="a">十千脚店</td>
+<td>11:40,15:20</td>
+</tr>
+<tr>
+<td><strong>王员外招婿</strong></td>
+<td class="a">王员外家</td>
+<td>11:45,15:40,16:50</td>
+</tr>
+<tr>
+<td><strong>大宋百戏·力撼山河</strong></td>
+<td class="a">禧墙</td>
+<td>11:45,15:50</td>
+</tr>
+<tr>
+<td><strong>古代幻术</strong></td>
+<td class="a">勾栏瓦肆</td>
+<td>11:50,15:05,17:10</td>
+</tr>
+<tr>
+<td><strong>大宋百戏·太空漫步</strong></td>
+<td class="a">主题演艺广场</td>
+<td>11:50</td>
+</tr>
+<tr>
+<td><strong>大宋·杨门女将</strong></td>
+<td class="a">《大宋·东京梦华》主舞台</td>
+<td>11:50,14:50</td>
+</tr>
+<tr>
+<td><strong>大宋舞王</strong></td>
+<td class="a">王员外家</td>
+<td>12:00,14:10</td>
+</tr>
+<tr>
+<td><strong>梁山好汉劫囚车</strong></td>
+<td class="a">东京食坊街口</td>
+<td>12:10</td>
+</tr>
+<tr>
+<td><strong>比武招亲</strong></td>
+<td class="a">主题演艺广场</td>
+<td>12:15</td>
+</tr>
+<tr>
+<td><strong>大宋百戏·豫剧反串（梁山面馆）</strong></td>
+<td class="a">梁山面馆</td>
+<td>12:15,13:15,14:00,19:20</td>
+</tr>
+<tr>
+<td><strong>大宋百戏·书场坠子</strong></td>
+<td class="a">梁山书场</td>
+<td>12:30,18:00</td>
+</tr>
+<tr>
+<td><strong>大宋百戏·书场大鼓</strong></td>
+<td class="a">梁山书场</td>
+<td>12:45,18:25</td>
+</tr>
+<tr>
+<td><strong>大宋歌王</strong></td>
+<td class="a">王员外家</td>
+<td>13:00,15:10</td>
+</tr>
+<tr>
+<td><strong>清明上河园大巡游</strong></td>
+<td class="a">虹桥南广场至双宣殿</td>
+<td>14:00</td>
+</tr>
+<tr>
+<td><strong>爱雅宋</strong></td>
+<td class="a">禧墙</td>
+<td>14:10,17:05</td>
+</tr>
+<tr>
+<td><strong>大宋百戏·古彩戏法</strong></td>
+<td class="a">上善门北侧</td>
+<td>14:20,15:20,16:20,17:45,19:40,20:30</td>
+</tr>
+<tr>
+<td><strong>燕青打擂</strong></td>
+<td class="a">四方院</td>
+<td>14:30,18:10</td>
+</tr>
+<tr>
+<td><strong>盘鼓</strong></td>
+<td class="a">主题演艺广场</td>
+<td>14:35,15:40,18:10</td>
+</tr>
+<tr>
+<td><strong>大宋百戏·快闪秀</strong></td>
+<td class="a">东京食坊街口</td>
+<td>14:55,15:55,20:25</td>
+</tr>
+<tr>
+<td><strong>龙马花车巡游</strong></td>
+<td class="a">丹凤门—音乐广场</td>
+<td>15:00,16:50</td>
+</tr>
+<tr>
+<td><strong>大宋百戏·大环舞</strong></td>
+<td class="a">东京食坊街口</td>
+<td>15:05,16:05,17:10,18:10,19:10</td>
+</tr>
+<tr>
+<td><strong>大宋百戏·水晶球</strong></td>
+<td class="a">东京食坊街口</td>
+<td>15:05,16:05,17:10,18:10,19:10</td>
+</tr>
+<tr>
+<td><strong>非遗滚灯舞</strong></td>
+<td class="a">禧墙</td>
+<td>15:20</td>
+</tr>
+<tr>
+<td><strong>群丑闹东京（东京食坊南口）</strong></td>
+<td class="a">东京食坊南口</td>
+<td>15:25</td>
+</tr>
+<tr>
+<td><strong>龙马花车巡游（音乐广场）</strong></td>
+<td class="a">音乐广场—丹凤门</td>
+<td>15:50,17:50</td>
+</tr>
+<tr>
+<td><strong>大宋不倒翁（虞美人桥南侧）</strong></td>
+<td class="a">大宋·皇家乐园西侧（虞美人桥南侧）</td>
+<td>16:00,17:00,18:00,19:00</td>
+</tr>
+<tr>
+<td><strong>丝路行歌花车巡游</strong></td>
+<td class="a">双宣殿至音乐广场</td>
+<td>16:20</td>
+</tr>
+<tr>
+<td><strong>《决战汴梁城·跟着岳飞打金贼》攻城抗金实景互动</strong></td>
+<td class="a">上善门</td>
+<td>16:30</td>
+</tr>
+<tr>
+<td><strong>玉面佳人执扇舞</strong></td>
+<td class="a">主题演艺广场</td>
+<td>16:30,19:50</td>
+</tr>
+<tr>
+<td><strong>玉面书生大巡游</strong></td>
+<td class="a">主题演艺广场</td>
+<td>16:35,19:55</td>
+</tr>
+<tr>
+<td><strong>大宋也疯狂</strong></td>
+<td class="a">主题演艺广场</td>
+<td>16:40,21:10</td>
+</tr>
+<tr>
+<td><strong>大型魔术秀</strong></td>
+<td class="a">音乐广场</td>
+<td>17:00</td>
+</tr>
+<tr>
+<td><strong>大宋百戏•变脸（梁山书场）</strong></td>
+<td class="a">梁山书场</td>
+<td>17:20</td>
+</tr>
+<tr>
+<td><strong>高杆不倒翁</strong></td>
+<td class="a">平桥</td>
+<td>17:30,17:50,18:10,18:30,18:50,19:10,19:30,19:50,20:10,20:30,21:20,22:05</td>
+</tr>
+<tr>
+<td><strong>大宋歌友会</strong></td>
+<td class="a">禧墙</td>
+<td>17:30</td>
+</tr>
+<tr>
+<td><strong>大宋不夜城·开市迎宾</strong></td>
+<td class="a">迎宾门外广场</td>
+<td>18:00</td>
+</tr>
+<tr>
+<td><strong>千人打跳</strong></td>
+<td class="a">东京食坊街口</td>
+<td>18:00</td>
+</tr>
+<tr>
+<td><strong>金莲茶馆那些事儿</strong></td>
+<td class="a">虹桥广场</td>
+<td>18:10</td>
+</tr>
+<tr>
+<td><strong>鱼灯巡游</strong></td>
+<td class="a">主题演艺广场至上善门</td>
+<td>18:20</td>
+</tr>
+<tr>
+<td><strong>大宋拍卖会</strong></td>
+<td class="a">勾栏瓦肆</td>
+<td>18:25</td>
+</tr>
+<tr>
+<td><strong>国风大巡游</strong></td>
+<td class="a">虹桥南至孙羊正店前</td>
+<td>18:30</td>
+</tr>
+<tr>
+<td><strong>汴梁凤舞</strong></td>
+<td class="a">上善门</td>
+<td>18:30,19:30</td>
+</tr>
+<tr>
+<td><strong>口吐火龙</strong></td>
+<td class="a">东京食坊街口</td>
+<td>18:45,20:50</td>
+</tr>
+<tr>
+<td><strong>欢乐宋</strong></td>
+<td class="a">东京食坊街口</td>
+<td>19:00</td>
+</tr>
+<tr>
+<td><strong>月影霓裳</strong></td>
+<td class="a">东京码头上方</td>
+<td>19:00,21:10</td>
+</tr>
+<tr>
+<td><strong>我在宋朝点霓裳</strong></td>
+<td class="a">禧墙</td>
+<td>19:00</td>
+</tr>
+<tr>
+<td><strong>菊美人</strong></td>
+<td class="a">主题演艺广场</td>
+<td>19:10</td>
+</tr>
+<tr>
+<td><strong>大宋·国潮民乐秀</strong></td>
+<td class="a">王员外家</td>
+<td>19:20,20:20</td>
+</tr>
+<tr>
+<td><strong>大宋九品官途快闪秀</strong></td>
+<td class="a">大宋皇家乐园——骕骦千里前</td>
+<td>19:20,21:30</td>
+</tr>
+<tr>
+<td><strong>火裙舞</strong></td>
+<td class="a">四方院</td>
+<td>19:20</td>
+</tr>
+<tr>
+<td><strong>药发傀儡•盛世焰歌</strong></td>
+<td class="a">四方院</td>
+<td>19:20</td>
+</tr>
+<tr>
+<td><strong>丝路行歌花车巡游（音乐广场）</strong></td>
+<td class="a">音乐广场至双宣殿</td>
+<td>19:20</td>
+</tr>
+<tr>
+<td><strong>大宋绝技</strong></td>
+<td class="a">勾栏瓦肆</td>
+<td>19:30,20:50</td>
+</tr>
+<tr>
+<td><strong>大宋舞王（音乐广场）</strong></td>
+<td class="a">音乐广场</td>
+<td>19:30</td>
+</tr>
+<tr>
+<td><strong>杨志卖刀</strong></td>
+<td class="a">虹桥广场</td>
+<td>19:40</td>
+</tr>
+<tr>
+<td><strong>大宋歌王（音乐广场）</strong></td>
+<td class="a">音乐广场</td>
+<td>19:45</td>
+</tr>
+<tr>
+<td><strong>铁花庆归航</strong></td>
+<td class="a">虹桥西水面</td>
+<td>20:00</td>
+</tr>
+<tr>
+<td><strong>宋潮朋友圈音乐派对</strong></td>
+<td class="a">音乐广场</td>
+<td>20:00</td>
+</tr>
+<tr>
+<td><strong>凤舞九天飞天秀</strong></td>
+<td class="a">东京码头上方</td>
+<td>20:00</td>
+</tr>
+<tr>
+<td><strong>王小姐抛绣球</strong></td>
+<td class="a">王员外家</td>
+<td>20:05</td>
+</tr>
+<tr>
+<td><strong>飞马送福</strong></td>
+<td class="a">东京码头上方</td>
+<td>20:30,21:35</td>
+</tr>
+<tr>
+<td><strong>打铁花之盛世大宋</strong></td>
+<td class="a">九龙桥西南水面</td>
+<td>20:40</td>
+</tr>
+<tr>
+<td><strong>菊舞千年实景威亚秀</strong></td>
+<td class="a">上善门</td>
+<td>20:40</td>
+</tr>
+<tr>
+<td><strong>大宋市井狂欢秀</strong></td>
+<td class="a">十千脚店</td>
+<td>20:55</td>
+</tr>
+<tr>
+<td><strong>岳飞·郾城大捷</strong></td>
+<td class="a">大宋·校场</td>
+<td>21:00</td>
+</tr>
+<tr>
+<td><strong>凤舞九天实景威亚秀</strong></td>
+<td class="a">上善门</td>
+<td>21:50</td>
+</tr>
+<tr>
+<td><strong>《千里共婵娟》答谢仪式</strong></td>
+<td class="a">虹桥南广场</td>
+<td>22:30</td>
+</tr>
+<tr>
+<td><strong>大宋·东京梦华</strong></td>
+<td class="a">景龙湖水面</td>
+<td>以景区公示为准</td>
+</tr>
+<tr>
+<td class="a" colspan="3"><p>演艺部 2026年10月24日更新<br><strong>开园时间：09:00　夜游时间：17:30　闭园时间：22:00</strong><br>温馨提示：如因雨雪天气或其他原因，节目临时更改或停演，以景区当天广播预报为准，敬请游客朋友谅解</p></td>
+</tr>
+</table>
+</div>
+
+</div>
+<script src="https://hm.baidu.com/hm.js?02615b782b3d15b08c2c31e8e2475409"></script>
+</body>
+
+</html>
