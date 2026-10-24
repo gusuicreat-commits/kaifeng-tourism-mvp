@@ -648,52 +648,11 @@
     },
     "Understanding": {
       "additionalProperties": false,
-      "allOf": [
-        {
-          "if": {
-            "properties": {
-              "conversation": {
-                "type": "object"
-              }
-            },
-            "required": [
-              "conversation"
-            ]
-          },
-          "then": {
-            "properties": {
-              "route_query": {
-                "type": "null"
-              },
-              "planning": {
-                "type": "null"
-              },
-              "constraints": {
-                "maxItems": 0
-              },
-              "corrections": {
-                "maxItems": 0
-              },
-              "unresolved": {
-                "maxItems": 0
-              },
-              "actions": {
-                "maxItems": 0
-              },
-              "weather_query": {
-                "type": "null"
-              },
-              "service_query": {
-                "type": "null"
-              }
-            }
-          }
-        }
-      ],
+      "description": "A turn can contain conversation plus read-only queries and/or one planning patch. Each branch is independent; formal itinerary submission is never part of this object.",
       "properties": {
         "schema_version": {
-          "const": "travel-intent/3.1",
-          "default": "travel-intent/3.1",
+          "const": "travel-intent/3.2",
+          "default": "travel-intent/3.2",
           "title": "Schema Version",
           "type": "string"
         },

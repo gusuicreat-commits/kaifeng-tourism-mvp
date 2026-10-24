@@ -251,7 +251,11 @@ def _merge(intent,snapshot):
     if intent.planning or intent.conversation or intent.route_query or intent.weather_query or intent.service_query:return intent
     active=[p for p in snapshot.pending if p['status']=='valid' and p.get('action',{}).get('operation')=='assistant_v3_intent']
     if len(active)!=1 or all(a.kind in ('query','search_services','cancel','progress','position') for a in intent.actions):return intent
-    previous=Understanding.model_validate(active[0]['action']['understanding'])
+    saved=dict(active[0]['action']['understanding'])
+    # 3.1 persisted intents used the same action/constraint fields. Upgrade only
+    # this server-owned record; fresh model output must follow the new contract.
+    if saved.get('schema_version')=='travel-intent/3.1':saved['schema_version']='travel-intent/3.2'
+    previous=Understanding.model_validate(saved)
     replaces={c.field for c in intent.constraints}
     new_hard={c.field for c in intent.constraints if c.strength=='hard'}
     # A soft follow-up is an additional preference, not permission to remove a
@@ -301,6 +305,109 @@ def _preview_result(result,snapshot):
             'activity_names':names,
             'planning':result,'changes':result['changes'],
             'confirmation':{'target_kind':'route','candidate_id':result['candidate_id'],'expected_version':result['base_version']}}
+
+
+def _compound_step(session,t):
+    """Execute a bounded set of independent subrequests from one user turn.
+
+    Each branch keeps its existing validator and provider boundary.  The
+    compound response is only an aggregation envelope; it never becomes a new
+    write path and formal itinerary submission still requires the existing
+    confirmation endpoint.
+    """
+    intent,snapshot=t.intent,t.snapshot
+    parts=[];replies=[];statuses=[]
+    from .evidence import checked_reply
+    if intent.conversation:
+        reply=checked_reply(intent.conversation.reply)
+        parts.append({'kind':'conversation','status':'answered','reply':reply});replies.append(reply);statuses.append('answered')
+    questions=understand.questions(intent,snapshot)
+    if questions:
+        parts.append({'kind':'clarify','status':'needs_clarification','questions':questions})
+        replies.extend(questions)
+        statuses.append('needs_clarification')
+    if intent.weather_query:
+        t.tools+=1;t.events.append({'tool':'query_weather','status':'running','parameters':{},'source':'qweather'})
+        result=weather.answer(snapshot)
+        if not _fresh(session,t):return public(t)
+        t.events[-1].update(status=result['status'],provider_status=result.get('provider_status'),provider_events=result.pop('provider_events',[]))
+        parts.append({'kind':'weather','status':result['status'],'result':result});statuses.append(result['status'])
+        if result.get('reply'):replies.append(result['reply'])
+    if intent.service_query or any(a.kind=='search_services' for a in intent.actions):
+        from .. import travel_services
+        t.tools+=1;t.events.append({'tool':'search_travel_services','status':'running','parameters':{},'source':'provider_registry'})
+        result=travel_services.query(session,t.trip_id,t.text,snapshot.services.get('version',0),cancelled=lambda:t.cancelled,
+            intent=intent.service_query,today=snapshot.envelope.identity.generated_at.astimezone(__import__('zoneinfo').ZoneInfo('Asia/Shanghai')).date())
+        if not _fresh(session,t):return public(t)
+        t.events[-1]['status']=result['services']['result']['status']
+        service_status=result['services']['result']['status']
+        part_status='answered' if service_status=='ok' else 'needs_clarification' if service_status=='needs_clarification' else 'needs_data' if service_status=='empty' else 'unavailable'
+        parts.append({'kind':'travel_services','status':part_status,'result':result});statuses.append(part_status)
+        if result.get('reply'):replies.append(result['reply'])
+        snapshot=t.snapshot
+    typed_quotes={branch.quote for branch in (intent.weather_query,intent.route_query) if branch}
+    queries=[a for a in intent.actions if a.kind=='query' and a.quote not in typed_quotes]
+    if queries:
+        answers=[]
+        for action in queries[:4]:
+            answer=v2service._query(action.quote,snapshot,interpret.rules(action.quote,snapshot));answers.append(answer)
+        query_status='answered' if all(a.get('status')=='answered' for a in answers) else 'needs_data'
+        parts.append({'kind':'direct_query','status':query_status,'answers':answers});statuses.append(query_status)
+        replies.extend(a.get('reply','') for a in answers if a.get('reply'))
+    if intent.route_query:
+        parts.append({'kind':'reference_route','status':'needs_clarification','reply':'问路需要单独确认起点与终点候选；本轮其他请求已分别处理。'})
+        statuses.append('needs_clarification');replies.append(parts[-1]['reply'])
+    snapshot=t.snapshot
+    has_planning=bool(intent.planning or intent.constraints or intent.corrections or any(a.kind in ('modify','preference','cancel','progress','position','search_dining') for a in intent.actions))
+    if has_planning:
+        if questions:
+            planning_result={'status':'needs_clarification','reply':'；'.join(questions)}
+        elif any(a.kind in ('progress','position','cancel') for a in intent.actions):
+            planning_result={'status':'needs_clarification','reply':'进度、当前位置与取消操作请单独确认；本轮未执行这些状态修改。'}
+        elif intent.planning:
+            from .planning_intent import proposal
+            t.events.append({'tool':'planning_workflow','status':'running','parameters':{}})
+            planning_intent=intent.model_copy(update={
+                'actions':tuple(a for a in intent.actions if a.kind in ('modify','preference','cancel','progress','position')),
+                'conversation':None,'route_query':None,'weather_query':None,'service_query':None})
+            planning_result=proposal(session,t.trip_id,snapshot,planning_intent,t.text)
+            if not _fresh(session,t):return public(t)
+            t.events[-1]['status']=planning_result['status']
+        else:
+            t.tools+=1;t.events.append({'tool':'preview_plan','status':'running','parameters':{}})
+            planning_result,calls=_workflow(session,t)
+            if t.cancelled:
+                _discard_result(session,t,planning_result);return public(t)
+            if not _fresh(session,t):
+                _discard_result(session,t,planning_result);return public(t)
+            t.events[-1].update(status=planning_result['status'],calls=calls)
+        if planning_result.get('status')=='needs_confirmation':
+            item={'kind':'planning','status':'needs_confirmation','result':planning_result}
+            parts.append(item);statuses.append('needs_confirmation')
+        else:
+            parts.append({'kind':'planning','status':planning_result.get('status','needs_clarification'),'result':planning_result})
+            statuses.append(planning_result.get('status','needs_clarification'))
+        if planning_result.get('reply'):replies.append(planning_result['reply'])
+    if not parts:
+        parts.append({'kind':'clarify','status':'needs_clarification','questions':['这句话还包含未支持的组合，请分别说明要查询或修改的内容。']})
+        statuses.append('needs_clarification')
+    if any(s=='needs_confirmation' for s in statuses):status='needs_confirmation'
+    elif any(s in ('needs_clarification','needs_data','unavailable') for s in statuses):status='needs_clarification'
+    else:status='answered'
+    partial=any(s in ('needs_clarification','needs_data','unavailable') for s in statuses)
+    result={'reply':'；'.join(dict.fromkeys(r for r in replies if r)) or '已分别处理这轮请求，请查看各项结果。',
+            'compound':{'items':parts,'partial':partial},'formal_state_changed':False}
+    for item in parts:
+        if item['kind']=='travel_services':result['services']=item['result']['services']
+        elif item['kind']=='weather':result['weather']=item['result'].get('weather')
+        elif item['kind']=='direct_query':result['answers']=item['answers']
+        elif item['kind']=='planning':
+            result['planning']=item['result']
+            if 'planning_action' in item['result']:result['planning_action']=item['result']['planning_action']
+            if item['status']=='needs_confirmation':
+                result.update({key:value for key,value in item['result'].items() if key not in ('reply','status','formal_state_changed')})
+    _finish(session,t,status,result)
+    return public(t)
 
 
 def _fallback(t):
@@ -477,7 +584,7 @@ def _advance(session,trip_id,identity,body):
                 _finish(session,t,result['status'],result)
             elif t.snapshot.row['status'] in state.TERMINAL:
                 _finish(session,t,'needs_data',{'reply':'这趟旅行已结束，不能继续调整；请新建旅行。'})
-            elif t.mode in ('workflow','planning','reference_route'):
+            elif t.mode in ('workflow','planning','reference_route','compound'):
                 # This branch executes on the next request to allow cancellation after understanding.
                 pass
             else:
@@ -487,6 +594,8 @@ def _advance(session,trip_id,identity,body):
         if t.mode=='reference_route':
             _reference_step(session,t)
             return public(t)
+        if t.mode=='compound':
+            return _compound_step(session,t)
         if t.mode=='weather':
             t.tools+=1
             t.events.append({'tool':'query_weather','status':'running','parameters':{},'source':'qweather'})

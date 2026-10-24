@@ -28,9 +28,17 @@ with tempfile.TemporaryDirectory(prefix='travel-services-') as folder:
                         {'field':'nights','value':2,'quote':'住两个晚上'},
                         {'field':'breakfast','value':True,'strength':'optional','quote':'有没有早餐都行'},
                         {'field':'stay_budget_fen','value':50000,'quote':'预算两天500'}]
-                return {'service_query':{'quote':text,'fields':fields}},{'source':'mock_model'}
+                return {'actions':[{'kind':'search_services','quote':text}],'service_query':{'quote':text,'fields':fields}},{'source':'mock_model'}
             if text=='明天入住':
-                return {'service_query':{'quote':text,'fields':[{'field':'check_in','value':'明天','quote':text}]}},{'source':'mock_model'}
+                return {'actions':[{'kind':'search_services','quote':text}],'service_query':{'quote':text,'fields':[{'field':'check_in','value':'明天','quote':text}]}},{'source':'mock_model'}
+            if text=='先解释早餐，再查明天入住两晚标间，并把游玩日期改后天':
+                return {'conversation':{'reply':'早餐是否包含需要以候选房型的核验结果为准。'},
+                    'actions':[{'kind':'search_services','quote':'明天入住两晚标间'},{'kind':'modify','quote':'把游玩日期改后天'}],
+                    'service_query':{'quote':'明天入住两晚标间','fields':[
+                        {'field':'check_in','value':'明天','quote':'明天入住'},
+                        {'field':'nights','value':2,'quote':'两晚'},
+                        {'field':'room_type','value':'标间','quote':'标间'}]},
+                    'planning':{'quote':'把游玩日期改后天','fields':[{'field':'date','value':'后天','quote':'后天'}]}},{'source':'mock_model'}
             return {'actions':[{'kind':'search_services','quote':text}]},{'source':'mock_model'}
         provider.generate=semantic
         def search(q):

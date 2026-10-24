@@ -82,3 +82,22 @@ test('中文住宿条件跨刷新续接入住日期，不进入游玩规划',asy
  expect(await(await page.request.get(path)).json()).toEqual(before)
  expect(await(await page.request.get(path+'/exploration/constraints')).json()).toEqual(planningBefore)
 })
+
+test('复合请求保留解释、住宿候选和规划接力，正式路线未提交',async({page})=>{
+ await page.goto('/assistant?context=city')
+ const input=page.getByLabel('告诉小汴梁你的问题或想调整的安排',{exact:true})
+ await expect(input).toBeEnabled()
+ const before=(await(await page.request.get('/api/city/v1/trips/current')).json()).trip
+ await input.fill('先解释早餐，再查明天入住两晚标间，并把游玩日期改后天')
+ await page.getByRole('button',{name:'发送',exact:true}).click()
+ await expect(page.locator('.agent-messages')).toContainText('早餐是否包含需要以候选房型的核验结果为准')
+ await expect(page.getByLabel('住宿与周边候选')).toContainText('[合成测试]候选甲')
+ await expect(input).toBeEnabled()
+ const after=await(await page.request.get('/api/city/v1/trips/'+before.id)).json()
+ expect(after.route_version).toBe(before.route_version)
+ const workspace=await(await page.request.get('/api/city/v1/trips/'+before.id+'/services')).json()
+ expect(workspace.requirements.nights).toBe(2)
+ const planning=await(await page.request.get('/api/city/v1/trips/'+before.id+'/exploration/constraints')).json()
+ expect(planning.constraints.business_date).toBeTruthy()
+ expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true)
+})

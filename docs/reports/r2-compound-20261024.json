@@ -1,0 +1,95 @@
+{
+  "date": "2026-10-24",
+  "scope": "R2 bounded compound request: conversation + read-only query/service query + one planning proposal",
+  "implementation": {
+    "schema": "travel-intent/3.2",
+    "route": "compound",
+    "formal_route_submission": "unchanged_confirmation_required",
+    "partial_semantics": "true when any subrequest needs clarification, data, or provider recovery",
+    "provider_failure_isolated": true,
+    "invalid_subrequest_blocks_other_branches": true,
+    "legacy_pending_intents": "read 3.1 server-owned records as 3.2; fresh model output still follows 3.2"
+  },
+  "verification": {
+    "backend": {
+      "command": ".venv/bin/pytest -q",
+      "passed": 775,
+      "skipped": 8,
+      "warnings": 1,
+      "phase": "before legacy stored-intent compatibility patch; final targeted regression recorded separately"
+    },
+    "frontend_build": {
+      "command": "npm run build --prefix frontend",
+      "status": "passed"
+    },
+    "agent_browser": {
+      "command": "npx playwright test --config playwright.agent.config.ts",
+      "passed": 7
+    },
+    "travel_services_browser": {
+      "command": "npx playwright test --config playwright.services.config.ts",
+      "passed": 4
+    },
+    "weather_browser": {
+      "command": "WEATHER_E2E_PORT=8022 WEATHER_TEST_PORT=8022 npx playwright test --config playwright.weather.config.ts",
+      "passed": 1
+    },
+    "contract": {
+      "command": ".venv/bin/python scripts/export_agent_contracts.py --check",
+      "status": "passed"
+    },
+    "diff_check": {
+      "command": "git diff --check",
+      "status": "passed"
+    },
+    "backend_r2_final": {
+      "command": ".venv/bin/pytest -q backend/tests/test_city_agent.py backend/tests/test_travel_services.py backend/tests/test_ai_redteam.py",
+      "passed": 119,
+      "phase": "after legacy compatibility and full-quote hard-constraint preservation patches"
+    },
+    "scoped_index_snapshot": {
+      "source": "git checkout-index --all into a temporary directory; only staged R2 changes over HEAD",
+      "backend": {
+        "command": ".venv/bin/python -m pytest -q",
+        "passed": 767,
+        "warnings": 1
+      },
+      "frontend_build": "passed",
+      "contract": "passed",
+      "excluded": "other unstaged collection, scenic sync and detail presentation changes"
+    }
+  },
+  "boundaries": [
+    "synthetic/mock browser fixtures do not prove live Kimi quality or live provider availability",
+    "service candidates do not reserve or book accommodation",
+    "planning remains a preview and cannot mutate the formal route until confirmation",
+    "no user travel history was replayed or modified during acceptance"
+  ],
+  "runtime": {
+    "status": "current",
+    "assistant_http_status": 200,
+    "phase": "verified before task commit; restart again after committing because git_head participates in fingerprint"
+  },
+  "failures_and_resolution": [
+    {
+      "stage": "browser service fixture",
+      "reason": "service_query fixture lacked required search action",
+      "resolution": "fixture now returns matching actions and 4 browser tests passed"
+    },
+    {
+      "stage": "agent browser regression",
+      "reason": "dining constraints were treated as a separate workflow, bypassing existing ReAct execution",
+      "resolution": "keep dining constraints in the original ReAct component; 7 tests passed"
+    },
+    {
+      "stage": "invalid-subrequest regression",
+      "reason": "failed semantic parsing retained rule actions which became executable in compound mode",
+      "resolution": "return clarification-only intent after semantic validation failure; no tools execute"
+    },
+    {
+      "stage": "weather browser startup",
+      "reason": "WEATHER_E2E_PORT and WEATHER_TEST_PORT were different",
+      "resolution": "set both to 8022; 1 test passed"
+    }
+  ]
+}

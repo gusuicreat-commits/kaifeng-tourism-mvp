@@ -195,7 +195,7 @@ def parse(text,snapshot,*,allow_model=True):
         '“就这样/开始安排”可用planning.operation=continue且fields/choices为空；修改素材用planning.choices完整名称、priority和status，不能擅自放宽必选。'
         'quote必须逐字摘自本轮。否定、引用、假设、教程问题不是修改授权。无法处理的明确要求放unresolved，不得只提日期丢掉其他目标。'
         'constraints区分hard/soft/optional/unknown；模糊时间value=null和unknown；时刻HH:MM，步行上限整数秒；口语纠正取最后有效值。'
-        '一轮只返回当前协议支持的形态：conversation、route_query、weather_query、service_query、planning不能混用；不支持的组合明确保留未处理项，不能假称整轮完成。'
+        '一轮可以包含多个有界子请求：conversation可与只读查询或一个planning并存；route_query、weather_query、service_query各自只能是只读分支，planning最多一个。每个分支必须有匹配action，逐项校验并分别汇报；正式路线提交永远不在本轮输出。不能因为一个子请求缺资料就假称整轮完成，也不能丢掉其他子请求。'
         +json.dumps(prompt_schema(Understanding.model_json_schema()),ensure_ascii=False,separators=(',',':')))
     from .conversation import model_payload
     payload=model_payload(text,snapshot,system)
@@ -206,22 +206,16 @@ def parse(text,snapshot,*,allow_model=True):
         if result.service_query:
             from ..travel_services import validate_intent
             validate_intent(result.service_query,text,snapshot)
-            meta.update(basis='kimi_validated',source=usage.get('source','mock_model'))
-            return result,meta
         if result.weather_query:
             # Semantic routing is the model's job; read-only weather requests
             # need grounded text, not a second keyword-based intent parser.
             if result.weather_query.quote not in text:
                 raise ValueError('weather evidence absent')
-            meta.update(basis='kimi_validated',source=usage.get('source','mock_model'))
-            return result,meta
         if result.route_query:
             reference_routes.grounded(result.route_query,text)
-            meta.update(basis='kimi_validated',source=usage.get('source','mock_model'))
-            return result,meta
         if result.conversation:
-            meta['basis']='kimi_validated';meta['source']=usage.get('source','mock_model')
-            return result,meta
+            # Conversation is an answer part and may coexist with typed requests.
+            if not result.conversation.reply.strip():raise ValueError('empty conversation reply')
         if result.planning:
             planning_intent.grounded(result.planning,text,snapshot)
             if result.planning.operation=='weather_replan':
@@ -235,8 +229,21 @@ def parse(text,snapshot,*,allow_model=True):
         if local.corrections:
             corrected={c.field for c in local.constraints if c.field in ('meal_at','return_by','visit_at')}
             keyed={k:c for k,c in keyed.items() if c.field not in corrected or c in local.constraints}
-        result=Understanding(actions=result.actions or local.actions,constraints=tuple(keyed.values()),
-                             corrections=local.corrections or result.corrections,unresolved=tuple(dict.fromkeys((*local.unresolved,*result.unresolved))),planning=result.planning)
+        service_branch=bool(result.service_query or any(a.kind=='search_services' for a in result.actions))
+        semantic_branch=bool(result.conversation or result.route_query or result.weather_query or result.service_query or result.planning or service_branch)
+        merged_actions=result.actions if semantic_branch else result.actions or local.actions
+        merged_unresolved=result.unresolved if semantic_branch else tuple(dict.fromkeys((*local.unresolved,*result.unresolved)))
+        service_quotes=[a.quote for a in result.actions if a.kind=='search_services']
+        if result.service_query:service_quotes.append(result.service_query.quote)
+        explicit_planning=bool(result.planning or any(a.kind in ('modify','preference','progress','position','cancel') for a in result.actions))
+        planning_constraints=[c for c in local.constraints if not service_branch or explicit_planning or not any(c.quote in q for q in service_quotes)]
+        if service_branch:keyed={(c.field,c.quote):c for c in (*result.constraints,*planning_constraints)}
+        merged_constraints=tuple(keyed.values())
+        merged_corrections=result.corrections if service_branch else local.corrections or result.corrections
+        result=Understanding(actions=merged_actions,constraints=merged_constraints,
+                             corrections=merged_corrections,unresolved=merged_unresolved,
+                             planning=result.planning,conversation=result.conversation,route_query=result.route_query,
+                             weather_query=result.weather_query,service_query=result.service_query)
         meta['basis']='kimi_validated';meta['source']=usage.get('source','mock_model');return result,meta
     except (HTTPException,ValidationError,ValueError) as exc:
         # Keep bounded error categories, never raw model output, input or validation messages.
@@ -249,7 +256,7 @@ def parse(text,snapshot,*,allow_model=True):
             meta['provider_failure']=exc.detail
             meta['usage'].append(exc.detail)
         # A failed whole-message interpretation cannot be replaced by a partial local modification.
-        local=local.model_copy(update={'unresolved':('暂时没能完整理解这段要求，请重试或使用下方选项；条件尚未修改。',)})
+        local=Understanding(unresolved=('暂时没能完整理解这段要求，请重试或使用下方选项；条件尚未修改。',))
         meta['basis']='rule_fallback';meta['source']='deterministic_fallback';return local,meta
 
 
@@ -269,14 +276,28 @@ def questions(intent,snapshot):
 
 
 def route(intent,snapshot):
-    if intent.service_query:return 'travel_services',[]
-    if intent.weather_query:return 'weather',[]
-    if intent.route_query:return 'reference_route',[]
-    if intent.conversation:return 'conversation',[]
     clarification=questions(intent,snapshot)
-    if clarification:return 'clarify',clarification
-    if intent.planning:return 'planning',[]
-    if all(a.kind=='query' for a in intent.actions):return 'direct',[]
-    if any(a.kind=='search_services' for a in intent.actions):return 'travel_services',[]
-    if any(a.kind=='search_dining' for a in intent.actions):return 'react',[]
-    return 'workflow',[]
+    components=[]
+    if intent.conversation:components.append('conversation')
+    if intent.service_query:components.append('travel_services')
+    if intent.weather_query:components.append('weather')
+    if intent.route_query:components.append('reference_route')
+    has_dining=any(a.kind=='search_dining' for a in intent.actions)
+    if intent.planning or (not has_dining and (intent.constraints or intent.corrections or any(a.kind in ('modify','preference','cancel','progress','position') for a in intent.actions))):
+        components.append('planning' if intent.planning else 'workflow')
+    if any(a.kind=='search_services' for a in intent.actions) or intent.service_query:
+        components.append('travel_services')
+    if any(a.kind=='search_dining' for a in intent.actions) and not intent.planning:
+        components.append('react')
+    typed_quotes={branch.quote for branch in (intent.weather_query,intent.route_query) if branch}
+    if any(a.kind=='query' and a.quote not in typed_quotes for a in intent.actions):
+        components.append('direct')
+    if clarification:
+        if len(components)>1 or any(c in ('conversation','travel_services','weather','reference_route') for c in components):components.append('clarify')
+        else:return 'clarify',clarification
+    components=list(dict.fromkeys(components))
+    if len(components)>1:return 'compound',clarification
+    if components:return components[0],clarification
+    if any(a.kind=='search_services' for a in intent.actions):return 'travel_services',clarification
+    if any(a.kind=='search_dining' for a in intent.actions):return 'react',clarification
+    return 'workflow',clarification

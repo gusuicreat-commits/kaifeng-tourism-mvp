@@ -116,14 +116,12 @@ class ReferenceSelection(Strict):
 
 
 class Understanding(Strict):
-    # Also publish mutual exclusion in JSON Schema; a Python-only validator is invisible to the model.
-    model_config = {'json_schema_extra':{'allOf':[{
-        'if':{'properties':{'conversation':{'type':'object'}},'required':['conversation']},
-        'then':{'properties':{'route_query':{'type':'null'},'planning':{'type':'null'},'constraints':{'maxItems':0},
-                              'corrections':{'maxItems':0},'unresolved':{'maxItems':0},
-                              'actions':{'maxItems':0},'weather_query':{'type':'null'},'service_query':{'type':'null'}}},
-    }]}}
-    schema_version: Literal['travel-intent/3.1'] = 'travel-intent/3.1'
+    # A turn may contain several bounded subrequests.  The server still
+    # validates each typed branch and executes it through its own whitelist.
+    model_config = {'json_schema_extra':{'description':
+        'A turn can contain conversation plus read-only queries and/or one planning patch. '
+        'Each branch is independent; formal itinerary submission is never part of this object.'}}
+    schema_version: Literal['travel-intent/3.2'] = 'travel-intent/3.2'
     actions: tuple[Action, ...] = Field(default=(), max_length=8)
     constraints: tuple[Constraint, ...] = Field(default=(), max_length=16)
     corrections: tuple[Correction, ...] = Field(default=(), max_length=4)
@@ -135,15 +133,17 @@ class Understanding(Strict):
     service_query: ServiceIntent | None = None
 
     @model_validator(mode='after')
-    def read_only_conversation(self):
-        if self.conversation and (self.route_query or self.weather_query or self.service_query or self.planning or self.constraints or self.corrections or self.unresolved or self.actions):
-            raise ValueError('conversation cannot carry business actions')
-        if self.route_query and (self.planning or self.weather_query or self.service_query or self.conversation or self.constraints or self.corrections or self.unresolved or any(a.kind!='query' for a in self.actions)):
-            raise ValueError('reference route query is read only')
-        if self.weather_query and (self.planning or self.service_query or self.conversation or self.route_query or self.constraints or self.corrections or self.unresolved or any(a.kind!='query' for a in self.actions)):
-            raise ValueError('weather query is read only')
-        if self.service_query and (self.planning or self.conversation or self.route_query or self.weather_query or self.constraints or self.corrections or self.unresolved or any(a.kind!='search_services' for a in self.actions)):
-            raise ValueError('service request cannot carry itinerary changes')
+    def validate_subrequests(self):
+        if self.route_query and self.route_query.use_current_position and self.route_query.origin:
+            raise ValueError('route query cannot carry both origin and current position')
+        if self.weather_query and not any(a.kind=='query' and a.quote==self.weather_query.quote for a in self.actions):
+            raise ValueError('weather query needs a matching read action')
+        if self.service_query and not any(a.kind=='search_services' and a.quote==self.service_query.quote for a in self.actions):
+            raise ValueError('service query needs a matching search action')
+        if self.route_query and not any(a.kind=='query' and a.quote==self.route_query.quote for a in self.actions):
+            raise ValueError('route query needs a matching read action')
+        if self.planning and not any(a.kind=='modify' for a in self.actions):
+            raise ValueError('planning needs a modify action')
         return self
 
 

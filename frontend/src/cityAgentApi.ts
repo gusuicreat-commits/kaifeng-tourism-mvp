@@ -41,7 +41,7 @@ export interface AgentTask {
  waiting?:{retry_after_seconds:number}|null
  events:{tool:string;status:string}[]
  understanding:{constraints:{field:string;strength:string;value:string|number|null;quote:string}[]}|null
- result:{reply:string;state?:'locations_explicit'|'ambiguous_locations'|'current_position_required'|'model_unavailable';code?:string;reference_route?:ReferenceRoute;weather?:WeatherReport;location_choices?:RouteLocationChoice[];planning_action?:PlanningAction;questions?:string[];answers?:{status:string;reply:string}[];activity_names?:Record<string,string>;changes?:CandidateChange;confirmation?:{target_kind:'route'|'state';candidate_id:string;expected_version:number};
+ result:{reply:string;state?:'locations_explicit'|'ambiguous_locations'|'current_position_required'|'model_unavailable';code?:string;reference_route?:ReferenceRoute;weather?:WeatherReport;location_choices?:RouteLocationChoice[];planning_action?:PlanningAction;questions?:string[];answers?:{status:string;reply:string}[];compound?:{partial:boolean;items:{kind:string;status:string;reply?:string;questions?:string[];result?:unknown;answers?:{status:string;reply:string}[]}[]};activity_names?:Record<string,string>;changes?:CandidateChange;confirmation?:{target_kind:'route'|'state';candidate_id:string;expected_version:number};
   planning?:{result:{itineraries:{activities:{goal_id:string;place_id:string;session_id:string|null;starts_at:string;departs_at:string}[];walking_distance_m:number;travel_seconds:number}[]}}}|null
 }
 const prefix=(id:string)=>`/city/v1/trips/${encodeURIComponent(id)}`

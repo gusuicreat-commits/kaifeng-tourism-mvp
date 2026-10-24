@@ -69,6 +69,7 @@ async function send(inputOverride?:string){
   if(current!==epoch||disposed)return
   weather.value=t.result?.weather||null
   if(t.result?.planning_action){
+   if(t.result.compound&&t.result.reply)messages.value.push({role:'小汴梁',text:t.result.reply})
    showPlanning.value=true;await nextTick()
    if(current!==epoch||disposed)return
    const response=await planner.value?.applyAction(t.result.planning_action)

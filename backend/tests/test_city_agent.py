@@ -364,8 +364,23 @@ def test_understanding_endpoint_is_independent_and_read_only(city):
 def test_query_and_modification_are_both_handled_in_one_turn(city):
     walking(city)
     t=run(city,'演出几点开始？午饭改到下午一点。')
-    assert t['mode']=='workflow' and t['status']=='needs_confirmation',t
+    assert t['mode']=='compound' and t['status']=='needs_confirmation',t
     assert '15:00' in t['result']['answers'][0]['reply']
+    assert '15:00' in t['result']['reply']
+
+
+def test_legacy_pending_intent_survives_compound_schema_upgrade(city):
+    walking(city);snap,_=snapshot(city)
+    previous=Understanding(actions=(Action(kind='modify',quote='步行不能超过十分钟'),),
+        constraints=(Constraint(field='walking_seconds',strength='hard',value=600,quote='步行不能超过十分钟'),))
+    saved=previous.model_dump(mode='json');saved['schema_version']='travel-intent/3.1'
+    snap.pending.append({'status':'valid','target_kind':'intent',
+        'action':{'operation':'assistant_v3_intent','understanding':saved}})
+    followup=Understanding(actions=(Action(kind='preference',quote='最好少走一点'),),
+        constraints=(Constraint(field='objective',strength='soft',value='less_walking',quote='最好少走一点'),))
+    merged=service._merge(followup,snap)
+    assert merged.schema_version=='travel-intent/3.2'
+    assert any(c.field=='walking_seconds' and c.strength=='hard' and c.value==600 for c in merged.constraints)
 
 
 def test_optional_relaxation_never_applies_to_hard_food(city):

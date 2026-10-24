@@ -113,6 +113,52 @@ def test_chat_reuses_workspace_after_semantic_understanding(env,monkeypatch):
     assert c.get(p+'/services').json()['version']==1
 
 
+def test_compound_turn_answers_queries_searches_services_and_previews_planning(env,monkeypatch):
+    from app import language
+    from app.city.agent import provider
+    c,p=env
+    text='早餐是否包含？顺便查明天入住两晚标间，并把游玩日期改后天。'
+    service_quote='明天入住两晚标间'
+    planning_quote='把游玩日期改后天'
+    def f(name,value,quote,**extra):return {'field':name,'value':value,'quote':quote,**extra}
+    def semantic(system,payload,**kwargs):
+        return {'actions':[
+                    {'kind':'search_services','quote':service_quote},
+                    {'kind':'modify','quote':planning_quote}],
+                'conversation':{'reply':'早餐是否包含需要以候选房型的核验结果为准。'},
+                    'service_query':{'quote':service_quote,'fields':[
+                    f('check_in','明天','明天入住'),f('nights',2,'两晚'),f('room_type','标间','标间')]},
+                'planning':{'quote':planning_quote,'fields':[f('date','后天','后天')] }},{'source':'mock_model'}
+    monkeypatch.setattr(language,'available',lambda:True)
+    monkeypatch.setattr(provider,'generate',semantic)
+    t=c.post(p+'/agent/tasks',json={'request_id':rid(),'text':text,'expected_version':1,'expected_route_version':0}).json()
+    t=c.post(p+'/agent/tasks/'+t['task_id']+'/step',json={'request_id':rid(),'expected_step':t['step']}).json()
+    assert t['mode']=='compound' and t['status']=='running'
+    t=c.post(p+'/agent/tasks/'+t['task_id']+'/step',json={'request_id':rid(),'expected_step':t['step']}).json()
+    assert t['mode']=='compound' and t['status']=='answered',t
+    assert t['result']['compound']['partial'] is False
+    kinds=[item['kind'] for item in t['result']['compound']['items']]
+    assert kinds==['conversation','travel_services','planning']
+    assert t['result']['services']['requirements']['nights']==2
+    assert t['result']['planning_action']['constraints']['business_date']==(datetime.now(TZ).date()+timedelta(days=2)).isoformat()
+    assert t['result']['formal_state_changed'] is False
+    assert c.get(p).json()['route_version']==0
+
+
+def test_compound_invalid_subrequest_does_not_execute_other_branch(env,monkeypatch):
+    from app import language
+    from app.city.agent import provider
+    c,p=env;text='请回答早餐是否包含，并查询明天住宿。'
+    monkeypatch.setattr(language,'available',lambda:True)
+    monkeypatch.setattr(provider,'generate',lambda *args,**kwargs:({'conversation':{'reply':'可以'},'service_query':{'quote':'不存在的原文','fields':[]},'actions':[{'kind':'query','quote':'请回答早餐是否包含'} ,{'kind':'search_services','quote':'不存在的原文'}]},{'source':'mock_model'}))
+    t=c.post(p+'/agent/tasks',json={'request_id':rid(),'text':text,'expected_version':1,'expected_route_version':0}).json()
+    t=c.post(p+'/agent/tasks/'+t['task_id']+'/step',json={'request_id':rid(),'expected_step':t['step']}).json()
+    assert t['status']=='needs_clarification'
+    t=c.post(p+'/agent/tasks/'+t['task_id']+'/step',json={'request_id':rid(),'expected_step':t['step']}).json()
+    assert t['status']=='needs_clarification' and t['metrics']['tools']==0
+    assert c.get(p+'/services').json()['version']==0
+
+
 def test_b_amap_parking_is_not_hotel_free_parking(env,monkeypatch):
     from app.city.engine.amap import Poi,PoiSearch
     class Provider:
@@ -149,3 +195,68 @@ def test_privacy_delete_cascades_service_workspace(env):
     response=c.post('/api/v1/privacy/delete-request',json={'request_id':rid(),'confirmed':True})
     assert response.status_code==200,response.text
     with connect() as db:assert db.execute('SELECT count(*) FROM city_service_workspaces').fetchone()[0]==0
+
+@pytest.mark.parametrize('provider_status,part_status',[('timeout','unavailable'),('empty','needs_data')])
+def test_compound_provider_failure_preserves_explanation_and_planning(env,monkeypatch,provider_status,part_status):
+    from app import language
+    from app.city.agent import provider
+    c,p=env
+    message='解释早餐，查明天入住两晚标间，把游玩日期改后天'
+    monkeypatch.setattr(language,'available',lambda:True)
+    monkeypatch.setattr(hotels,'search',lambda q:{'status':provider_status,'items':[]})
+    monkeypatch.setattr(provider,'generate',lambda *args,**kwargs:({
+        'actions':[{'kind':'search_services','quote':'明天入住两晚标间'},{'kind':'modify','quote':'把游玩日期改后天'}],
+        'conversation':{'reply':'早餐信息尚待核实。'},
+        'service_query':{'quote':'明天入住两晚标间','fields':[
+            {'field':'check_in','value':'明天','quote':'明天入住'},{'field':'nights','value':2,'quote':'两晚'}]},
+        'planning':{'quote':'把游玩日期改后天','fields':[{'field':'date','value':'后天','quote':'后天'}]}},{'source':'mock_model'}))
+    before=c.get(p).json()
+    task=c.post(p+'/agent/tasks',json={'request_id':rid(),'text':message,'expected_version':1,'expected_route_version':0}).json()
+    for _ in range(2):
+        task=c.post(p+'/agent/tasks/'+task['task_id']+'/step',json={'request_id':rid(),'expected_step':task['step']}).json()
+    assert task['result']['compound']['partial'] is True
+    items={item['kind']:item for item in task['result']['compound']['items']}
+    assert items['conversation']['status']=='answered'
+    assert items['travel_services']['status']==part_status
+    assert items['planning']['result']['planning_action']['date_changed'] is True
+    assert '早餐信息尚待核实' in task['result']['reply']
+    assert c.get(p).json()==before
+
+
+@pytest.mark.parametrize('whole_quote',[False,True])
+def test_compound_keeps_hard_planning_limit_outside_hotel_clause(env,monkeypatch,whole_quote):
+    from app import language
+    from app.city.agent import provider
+    c,p=env
+    message='查明天入住两晚标间，步行不能超过十分钟，把游玩日期改后天'
+    service_quote=message if whole_quote else '明天入住两晚标间'
+    monkeypatch.setattr(language,'available',lambda:True)
+    monkeypatch.setattr(provider,'generate',lambda *args,**kwargs:({
+        'actions':[{'kind':'search_services','quote':service_quote},{'kind':'modify','quote':'把游玩日期改后天'}],
+        'service_query':{'quote':service_quote,'fields':[
+            {'field':'check_in','value':'明天','quote':'明天入住'},{'field':'nights','value':2,'quote':'两晚'}]},
+        'planning':{'quote':'把游玩日期改后天','fields':[{'field':'date','value':'后天','quote':'后天'}]}},{'source':'mock_model'}))
+    task=c.post(p+'/agent/tasks',json={'request_id':rid(),'text':message,'expected_version':1,'expected_route_version':0}).json()
+    for _ in range(2):
+        task=c.post(p+'/agent/tasks/'+task['task_id']+'/step',json={'request_id':rid(),'expected_step':task['step']}).json()
+    assert any(c['field']=='walking_seconds' and c['strength']=='hard' and c['value']==600 for c in task['understanding']['constraints'])
+    assert task['result']['compound']['partial'] is True
+    assert task['result']['services']['result']['items']
+    assert 'planning_action' not in task['result']
+    assert c.get(p).json()['route_version']==0
+
+
+def test_compound_action_only_service_query_is_not_dropped(env,monkeypatch):
+    from app import language
+    from app.city.agent import provider
+    c,p=env;message=text()
+    monkeypatch.setattr(language,'available',lambda:True)
+    monkeypatch.setattr(provider,'generate',lambda *args,**kwargs:({
+        'conversation':{'reply':'酒店设施需要进一步核实。'},
+        'actions':[{'kind':'search_services','quote':message[:500]}]},{'source':'mock_model'}))
+    task=c.post(p+'/agent/tasks',json={'request_id':rid(),'text':message,'expected_version':1,'expected_route_version':0}).json()
+    for _ in range(2):
+        task=c.post(p+'/agent/tasks/'+task['task_id']+'/step',json={'request_id':rid(),'expected_step':task['step']}).json()
+    assert task['mode']=='compound'
+    assert task['result']['services']['result']['items']
+    assert task['result']['compound']['partial'] is False
