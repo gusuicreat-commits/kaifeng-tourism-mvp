@@ -81,6 +81,9 @@ class Journey(Strict):
     source_ids: tuple[EntityId, ...] = Field(default=(), max_length=20)
     # A conservative static envelope: it must cover the entire planning horizon.
     time_basis: Literal['survey_envelope','provider_estimate','synthetic']
+    estimated_seconds: int | None = Field(default=None, ge=0, le=172800)
+    planning_buffer_seconds: int = Field(default=0, ge=0, le=7200)
+    quote_expires_at: AwareDatetime | None = None
 
     @model_validator(mode='after')
     def costs(self):
@@ -129,7 +132,7 @@ class ScheduledActivity(Strict):
     required: bool
     adjustable: bool
     state: Literal['planned'] = 'planned'
-    data_status: Literal['verified','synthetic']
+    data_status: Literal['verified','reference','synthetic']
     evidence_refs: tuple[str, ...]
 
 
@@ -154,7 +157,7 @@ class Itinerary(Strict):
     history_cost_basis: Literal['none','user_reported'] = 'none'
     cost_unknown: bool
     score: dict[str, float]
-    evidence_mode: Literal['verified_with_estimates','synthetic']
+    evidence_mode: Literal['verified_with_estimates','reference_with_estimates','synthetic']
     navigation_certified: Literal[False] = False
 
 

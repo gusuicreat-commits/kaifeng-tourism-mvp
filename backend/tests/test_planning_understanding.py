@@ -125,6 +125,22 @@ def test_invented_invalid_or_conflicting_fields_never_reach_workflow(city,monkey
     assert city['client'].get(path(city,'/exploration/constraints')).json()['version']==0
 
 
+def test_time_range_quote_accepts_both_endpoints(city,monkeypatch):
+    text='2026-10-25，17:30到22:00，从开封府出发并返回，全程步行'
+    model(monkeypatch,text,[
+        field('date','2026-10-25','2026-10-25'),
+        field('start_time','17:30','17:30到22:00'),
+        field('end_time','22:00','17:30到22:00'),
+        field('origin','开封府','从开封府出发并返回'),
+        field('destination','开封府','从开封府出发并返回'),
+        field('mode','walking','全程步行'),
+    ])
+    t=run(city,text)
+    # Time-range quote was accepted (no "invented time" rejection); the only
+    # downstream stop is the synthetic fixture missing a real 开封府 place.
+    assert t['mode']=='planning' and t['status']=='needs_data',t
+
+
 def test_unresolved_extra_requirements_block_partial_date_write(city,monkeypatch):
     text='我明天想去开封玩，下午那场演出必须保留'
     model(monkeypatch,text,[field('date','明天','明天')],unresolved=['需要明确是哪场演出'])

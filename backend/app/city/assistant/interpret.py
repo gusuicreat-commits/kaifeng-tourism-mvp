@@ -7,6 +7,7 @@ from fastapi import HTTPException
 from pydantic import ValidationError
 
 from ... import language
+from .. import facts
 from ..schema import TZ
 from .models import Intent, Reference
 
@@ -29,9 +30,8 @@ def purpose(text):
 def explicit_references(text, snapshot):
     selected = []
     for (kind, identity), item in snapshot.planning.facts.items():
-        if kind not in ('place','food','program') or item.rights_status != 'permitted': continue
-        name = getattr(item,'name','')
-        if name and name in text:
+        if kind not in ('place','food','program') or not facts.planning_visible(item): continue
+        if facts.name_matches(item, text):
             if kind == 'program':
                 selected.extend(Reference(kind='show_session',id=s.session_id) for s in snapshot.draft.stops
                     if s.session_id and snapshot.planning.facts['show_session',s.session_id].program_id == identity)

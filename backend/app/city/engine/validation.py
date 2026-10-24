@@ -1,6 +1,7 @@
 """Independent deterministic verification, also used again on confirmation and historical restore."""
 from datetime import timedelta
 from .models import Issue
+from .. import facts
 from .travel import TravelTimeService, travel_seconds, walking_metres, entry_deadline, entry_opening, journey_cost_upper
 
 
@@ -31,11 +32,11 @@ def validate_itinerary(problem,itinerary):
             fail('ARRIVAL_CONFLICT','到达晚于活动或最晚入场时间',s.goal_id)
         if s.wait_seconds!=(s.starts_at-s.arrives_at).total_seconds():fail('WAIT_MISMATCH','等待时间不一致',s.goal_id)
         for pid in set((s.place_id,)+ctx.parks(s.place_id)):
-            for r in ctx.rules(pid,req.business_date):
+            for r in ctx.planning_rules(pid,req.business_date,req.starts_at,req.ends_at):
                 if not ctx.ready(r,s.starts_at,s.departs_at):fail('STALE_OPEN_RULE','营业依据已失效',pid)
-                if r.opens_at and (s.starts_at<r.opens_at or s.departs_at>r.closes_at):fail('CLOSED','完整停留必须在营业区间',pid)
+                if (r.opens_at and s.starts_at<r.opens_at) or (r.closes_at and s.departs_at>r.closes_at):fail('CLOSED','完整停留必须在营业区间',pid)
                 if r.last_entry_at and s.arrives_at>r.last_entry_at:fail('LAST_ENTRY','晚于停止入场时刻',pid)
-                if r.reservation=='unknown' or (r.reservation=='required' or r.ticket_scope) and pid not in req.access_confirmations:
+                if facts.access_unknown(r) or facts.access_required(r) and pid not in req.access_confirmations:
                     fail('ACCESS_NOT_CONFIRMED','必要预约或票种条件未确认',pid)
     service=TravelTimeService(ctx);entries={};cost=problem.history_cost_fen;cost_unknown=problem.history_cost_unknown
     before=req.starts_at;origin=req.origin_place_id
@@ -62,7 +63,8 @@ def validate_itinerary(problem,itinerary):
             before=s.departs_at;origin=dest
     for park,count in entries.items():
         if count+(1 if park in ctx.parks(req.origin_place_id) else 0)>1:
-            if not any(r.reentry=='allowed' and ctx.ready(r,req.starts_at,req.ends_at) for r in ctx.rules(park,req.business_date)):
+            if not any(r.reentry=='allowed' and ctx.ready(r,req.starts_at,req.ends_at)
+                       for r in ctx.planning_rules(park,req.business_date,req.starts_at,req.ends_at)):
                 fail('REENTRY_NOT_ALLOWED','再入园条件未知或禁止',park)
     if legs[-1].arrives_at>req.ends_at or itinerary.returns_at!=legs[-1].arrives_at:fail('RETURN_DEADLINE','返程未按时到达指定终点')
     if itinerary.total_seconds!=(itinerary.returns_at-req.starts_at).total_seconds():fail('TOTAL_TIME','总时间不一致')

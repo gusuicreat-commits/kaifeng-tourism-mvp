@@ -1,5 +1,5 @@
 """One read projection of trip-scoped requirements; never a new store or write path."""
-from .. import hotels, travel_services
+from .. import facts, hotels, travel_services
 from ...memory.context import redact
 
 
@@ -22,7 +22,7 @@ def read(snapshot):
     source=('planning_workspace' if snapshot.workspace.get('version',0) else 'legacy_planning_receipt') if raw is not None else 'trip_state'
     requirements={k:v for k,v in env.requirements.items() if k in ('interests','dish_interest_ids','locked_stop_ids','targets')}
     requirements.update(values)
-    places={p.fact_id:p for (kind,_),p in snapshot.planning.facts.items() if kind=='place' and p.rights_status=='permitted'}
+    places={p.fact_id:p for (kind,_),p in snapshot.planning.facts.items() if kind=='place' and facts.planning_visible(p)}
     missing_user=[k for k in ('business_date','starts_at','ends_at') if values.get(k) is None]
     missing_data=[]
     for role in ('origin','destination'):

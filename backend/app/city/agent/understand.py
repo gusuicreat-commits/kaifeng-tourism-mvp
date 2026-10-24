@@ -4,6 +4,7 @@ import re
 from pydantic import ValidationError
 from fastapi import HTTPException
 from ... import language
+from .. import facts
 from ..assistant import interpret
 from . import provider
 from .evidence import request_evidence, query_evidence, effective_clock, preference_evidence
@@ -11,6 +12,12 @@ from .models import Action, Constraint, Correction, Understanding
 from . import planning_intent
 
 NUMBERS={'零':0,'一':1,'二':2,'两':2,'三':3,'四':4,'五':5,'六':6,'七':7,'八':8,'九':9,'十':10}
+_GREETING_ONLY=re.compile(r"^\s*(?:你好|您好|嗨|哈喽|hello|hi|早上好|上午好|中午好|下午好|晚上好|谢谢|感谢|在吗)[\s,，。.!！？?、'‘’\"“”]*$",re.I)
+
+
+def greeting_only(text):
+    """Recognize a pure salutation so a noisy model action cannot create a query."""
+    return bool(_GREETING_ONLY.fullmatch(text or ''))
 
 
 def prompt_schema(value):
@@ -41,6 +48,19 @@ def clock(text, afternoon=False):
     if ('下午' in text or '晚上' in text or afternoon) and h<12:h+=12
     if h>23 or minute>59:return None
     return f'{h:02d}:{minute:02d}'
+
+
+def clock_values(text, afternoon=False):
+    """Return every clock in order, so ``17:30到22:00`` yields both endpoints."""
+    matches=list(re.finditer(r'(\d{1,2}|[一二两三四五六七八九十]{1,3})[点:：](\d{1,2}|半|[一二三四五六七八九十]{1,3})?',text))
+    values=[]
+    for m in matches:
+        h=number(m[1]);minute=30 if m[2]=='半' else number(m[2]) if m[2] else 0
+        if h is None or minute is None:continue
+        if ('下午' in text or '晚上' in text or afternoon) and h<12:h+=12
+        if h>23 or minute>59:continue
+        values.append(f'{h:02d}:{minute:02d}')
+    return values
 
 
 def rules(text, snapshot):
@@ -76,11 +96,11 @@ def rules(text, snapshot):
         if any(w in clause for w in ('找','搜','吃','餐厅','餐饮','饭店')):
             if not any(w in clause for w in ('吃完了','不吃','不用找')):
                 actions.append(Action(kind='search_dining' if any(w in clause for w in ('找','搜','附近','吃点','想吃')) else 'modify',quote=clause))
-        food_named='灌汤包' in clause or any(item.kind=='food' and item.rights_status=='permitted' and item.name in clause for item in snapshot.planning.facts.values())
+        food_named='灌汤包' in clause or any(item.kind=='food' and facts.planning_visible(item) and facts.name_matches(item, clause) for item in snapshot.planning.facts.values())
         excluded_food=bool(re.search(r'不吃|不想吃|不能吃|不要吃|忌口|过敏',clause) or food_named and re.search(r'不要',clause))
         if excluded_food:unresolved.append('请明确需要避开的食物；当前不能把忌口当作想吃的菜品来安排。')
         for (_,identity),item in snapshot.planning.facts.items():
-            if not excluded_food and item.kind=='food' and item.rights_status=='permitted' and item.name in clause:
+            if not excluded_food and item.kind=='food' and facts.planning_visible(item) and facts.name_matches(item, clause):
                 add('food',item.name,strength,clause)
         if not excluded_food and '灌汤包' in clause and not any(c.field=='food' and c.value=='灌汤包' for c in constraints):add('food','灌汤包',strength,clause)
         if any(w in clause for w in ('演出','节目','那场')) and any(w in clause for w in ('必须','一定','别动','保留','别取消','不能错过')):
@@ -113,8 +133,7 @@ def grounded(result,text):
         elif kind is not None:request_evidence(text,item.quote)
     for c in result.constraints:
         if c.field in ('return_by','meal_at','visit_at') and c.value:
-            value=effective_clock(text,c.quote,clock)
-            if value!=c.value:raise ValueError('invented clock')
+            if c.value not in clock_values(c.quote):raise ValueError('invented clock')
         if c.field=='walking_seconds' and c.value:
             m=re.search(r'(\d+|[一二两三四五六七八九十]{1,3})\s*分钟',c.quote)
             if not m or number(m[1])*60!=c.value:raise ValueError('invented walking limit')
@@ -126,6 +145,63 @@ def grounded(result,text):
         if c.field=='preserve_shows' and (c.value not in ('referenced','all_pending') or not re.search(r'演出|节目|那场',c.quote) or not re.search(r'保留|别动|别取消|必须|一定|不能错过',c.quote)):
             raise ValueError('invented show preservation')
     return result
+
+
+def _normalize_model_output(raw):
+    """Drop only constraints that cannot be valid for their field.
+
+    A model may redundantly copy planning targets into constraints with
+    impossible values (e.g. meal_at="第一楼", visit_at="开封府",
+    objective="全程步行"). Those copies duplicate facts already in
+    planning.fields or planning.choices, and their malformed value would reject
+    an otherwise-valid turn. Well-formed constraints are always preserved, but
+    defaults invented without a grounding cue (e.g. objective="balanced" quoting
+    "全程步行") are dropped too.
+    """
+    if not isinstance(raw,dict):
+        return raw
+    raw_constraints=raw.get('constraints')
+    if not isinstance(raw_constraints,(list,tuple)):
+        return raw
+    planning=raw.get('planning')
+    planning_fields={}
+    if isinstance(planning,dict):
+        for f in planning.get('fields') or []:
+            if isinstance(f,dict) and 'field' in f and 'value' in f:
+                planning_fields[f['field']]=f['value']
+    kept=[]
+    for c in raw_constraints:
+        if not isinstance(c,dict):
+            kept.append(c);continue
+        field=c.get('field');val=c.get('value')
+        if field not in ('food','preserve_shows','walking_seconds','return_by','meal_at','visit_at','objective','pace'):
+            continue
+        if field in ('meal_at','return_by','visit_at') and val is not None:
+            if not isinstance(val,str) or not re.fullmatch(r'(?:[01]\d|2[0-3]):[0-5]\d',val):
+                continue
+            # A clock copied from the planning window (e.g. return_by=end_time,
+            # visit_at=start_time) duplicates a field already present and is not
+            # a distinct, actionable per-activity time.
+            if field=='return_by' and planning_fields.get('end_time')==val:
+                continue
+            if field in ('meal_at','visit_at') and planning_fields.get('start_time')==val:
+                continue
+        if field=='walking_seconds' and val is not None:
+            if type(val) is not int or not 1 <= val <= 43200:
+                continue
+        if field=='objective' and val not in ('balanced','less_walking','less_waiting','lower_cost'):
+            continue
+        if field=='pace' and val not in ('relaxed','standard','compact'):
+            continue
+        if field in ('objective','pace'):
+            try:
+                preference_evidence(field,val,c.get('quote',''))
+            except ValueError:
+                continue
+        kept.append(c)
+    if len(kept)!=len(raw_constraints):
+        raw=dict(raw,constraints=kept)
+    return raw
 
 
 def parse(text,snapshot,*,allow_model=True):
@@ -190,10 +266,10 @@ def parse(text,snapshot,*,allow_model=True):
         '能力询问/解释/抱怨/问候用conversation.reply自然回答；“你能查酒店吗”先说明名称/地址/展示起价可查，房型/设施/评价待核实，不搜索。回复不能声称已保存/修改/生成/预订，不能编实时事实或承诺自动通知。草案是确认前安排。'
         '礼貌问句可查询，否定/引用/假设/教程不是操作授权。quote逐字摘自本轮；服务字段quote必须在service_query.quote内。实际事实查询走工具，不从模型记忆补价格/营业/路线/天气。'
         '普通query给purpose=trip/next/shows/dining/travel/history/reference。状态操作用匹配action及state_request：complete/skip/position/cancel/restore；目标用原文完整名称，缺对象不猜。实际开始时间给HH:MM及start_quote；恢复给明确restore_version。'
-        '问路给route_query及匹配query；地点抄原文，不发明ID或坐标，origin与use_current_position二选一。只有明确这里/当前位置才用当前位置，不因缺GPS阻止明确地点问路。天气给weather_query；查询不修改游玩日期，明确天气重排用planning.operation=weather_replan。'
+        '只有单纯问两个地点之间怎么走/多久/多远/路线怎么走才给route_query及匹配query；含多个停靠点、去A去B去C、出发并返回、全程步行等整趟游玩是planning，不是问路。地点抄原文，不发明ID或坐标，origin与use_current_position二选一。只有明确这里/当前位置才用当前位置，不因缺GPS阻止明确地点问路。天气给weather_query；查询不修改游玩日期，明确天气重排用planning.operation=weather_replan。'
         '酒店/停车/商家查询和追问用service_query及search_services；结合已保存条件辨别“明天入住”是住宿补充，不能写入planning。入住/退房date value抄原文；nights按晚数独立保存；room_type、location_text抄原词，标间不能推人数/间数。max_price为每晚元；stay_budget_fen为住宿合计分，不能混成整趟预算或报价。设施都行/没有也行用optional，不升为hard；真假与原文一致。'
-        '规划/游玩修改用planning及modify，最多一个patch。city为城市，不是具体起终点；origin是出发地，destination为结束地，同地往返可同名。日期抄原文，明确时间用HH:MM；只有下午/晚上不猜时刻，预算为分。choices给完整素材名称、priority及status，不放宽必选。“就这样/开始安排”可continue且空fields/choices。'
-        'constraints区分hard/soft/optional/unknown；模糊时间null/unknown，步行上限整数秒，口语纠正取最后有效值。不能丢明确要求，暂不能处理放unresolved。'
+        '规划/游玩修改用planning及modify，最多一个patch。city为城市，不是具体起终点；origin是出发地，destination为结束地，同地往返可同名。每个field的quote必须是从原文逐字摘取、且完整包含该field的value的子串：例如destination=开封府时quote必须包含“开封府”三字(如“从开封府出发并返回”)，不能只写“并返回”。日期抄原文，明确时间用HH:MM；只有下午/晚上不猜时刻，预算为分。choices给完整素材名称、priority及status，不放宽必选。“就这样/开始安排”可continue且空fields/choices。'
+        'constraints只放用户明确提出的要求，区分hard/soft/optional/unknown；模糊时间null/unknown。用户没提过的偏好(如节奏、目标、步行上限)不要输出，不要填balanced/standard等默认值。“全程步行/走路/步行”只是交通方式mode，不是步行时间上限；walking_seconds只在用户明确说“步行不超过X分钟”时输出整数秒。口语纠正取最后有效值。不能丢明确要求，暂不能处理放unresolved。'
         'conversation可与只读查询及一个planning并存，各分支匹配action，逐项处理，不丢分支或虚报完成；正式提交永远不在本输出。状态操作暂单独一轮。'
         +json.dumps(prompt_schema(Understanding.model_json_schema()),ensure_ascii=False,separators=(',',':')))
     from .conversation import model_payload
@@ -202,7 +278,16 @@ def parse(text,snapshot,*,allow_model=True):
     meta['model_calls']=1
     try:
         raw,usage=provider.generate(system,payload);meta['usage'].append(usage)
+        raw=_normalize_model_output(raw)
         result=grounded(Understanding.model_validate(raw),text)
+        # Some model responses include a harmless ``query`` action beside a
+        # normal greeting. Treating that action as a business query creates a
+        # spurious “请提供场次或商家名称” tail. A real question still keeps
+        # its query action; only salutation-only quotes are discarded.
+        if result.conversation and any(a.kind=='query' for a in result.actions):
+            retained=tuple(a for a in result.actions if not (a.kind=='query' and greeting_only(a.quote)))
+            if len(retained)!=len(result.actions):
+                result=result.model_copy(update={'actions':retained})
         if result.state_request:
             from .semantic_execution import grounded_state
             grounded_state(result.state_request,text)

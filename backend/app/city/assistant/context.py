@@ -34,7 +34,7 @@ class Snapshot:
 
 def label(items, place_id):
     item = items.get(('place', place_id))
-    return redact(item.name)[:120] if item and item.rights_status == 'permitted' else '资料待核对的地点'
+    return redact(item.name)[:120] if item and facts.planning_visible(item) else '资料待核对的地点'
 
 
 def recent(db, session, trip_id, enabled):
@@ -184,15 +184,15 @@ def load(session, trip_id=None, purpose='trip', text='', page_focus=None):
     for r in refs: relevant.add((r['kind'],r['id']))
     # Explicit names may select facts; unrelated city data is never sent to the model.
     for item in items.values():
-        if text and getattr(item,'name',None) and len(item.name) > 1 and item.name in text:
+        if text and facts.name_matches(item, text):
             relevant.add((item.kind,item.fact_id))
     selected = []
     for key in sorted(relevant):
         item = items.get(key)
-        if item and item.rights_status == 'permitted':
+        if item and facts.planning_visible(item):
             selected.append(fact_view(item,items,moment))
             if isinstance(item,facts.Place) and item.place_type == 'restaurant':
-                selected.extend(fact_view(r,items,moment) for r in items.values() if isinstance(r,facts.OpenRule) and r.place_id == item.fact_id and r.business_date == draft.business_date and r.rights_status == 'permitted')
+                selected.extend(fact_view(r,items,moment) for r in items.values() if isinstance(r,facts.OpenRule) and r.place_id == item.fact_id and r.business_date == draft.business_date and facts.planning_visible(r))
     public_pending = []
     for p in pending:
         value = {k:v for k,v in p.items() if k != 'action'}

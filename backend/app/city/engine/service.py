@@ -1,5 +1,6 @@
 """Authorized tools. Solve outside write locks, then recheck all inputs at commit."""
 import json
+import os
 from datetime import datetime, timedelta
 from uuid import uuid4
 from fastapi import HTTPException
@@ -15,10 +16,13 @@ from .storage import load_operations
 from .tools import plan_trip, replan_trip
 from .prepare import prepare
 from .validation import validate_itinerary, compare_itineraries
+from . import live_travel
 
 
 def context(db):
-    return PlanningContext(facts.records(db),load_operations(db),now(),synthetic=False)
+    enabled=os.getenv('KAIFENG_DEMO_MODE','').strip().lower() in {'1','true','yes','on'}
+    return PlanningContext(facts.records(db),load_operations(db),now(),synthetic=False,
+                           demo_reference=enabled)
 
 
 def route_row(db,trip_id,version=None):
@@ -180,6 +184,7 @@ def preview(session,trip_id,body,replanning=False,planning_version=None):
         planning_baseline=exploration_state.read(db,trip_id)['version']
         if planning_version is not None:exploration_state.guard(db,trip_id,planning_version)
         baseline=progress(row);fingerprint=ctx.fingerprint();base_version=row['version']
+    ctx=live_travel.enrich(ctx,req)
     result=(replan_trip(req,ctx,completed_prefix=tuple(s for s in prefix if s.progress=='completed'),
                         prior_itinerary=previous,ongoing=ongoing,fixed_order=fixed,resolved_count=len(prefix),**spending) if replanning else plan_trip(req,ctx))
     comparison=compare_itineraries(previous,result.itineraries[0]) if result.itineraries else None
@@ -233,6 +238,11 @@ def confirm_itinerary(session,trip_id,body):
         req=Requirements.model_validate_json(c['requirements_json']);result=SolveResult.model_validate_json(c['result_json'])
         if body.alternative_index>=len(result.itineraries):raise HTTPException(422,detail='备选方案编号不存在。')
         itinerary=result.itineraries[body.alternative_index]
+        if any(l.journey.time_basis=='provider_estimate' and
+               (not l.journey.quote_expires_at or l.journey.quote_expires_at<=ctx.assessed_at)
+               for l in itinerary.legs):
+            raise HTTPException(409,detail='高德估时已过期，请重新计算。')
+        ctx=live_travel.restore_snapshot(ctx,itinerary)
         if itinerary.legs[0].departs_at<now():raise HTTPException(409,detail='候选出发时刻已过去，请重新预览。')
         if extra['replanning']:
             anchor=PositionAnchor.model_validate_json(row['anchor_json'])
@@ -282,12 +292,15 @@ def read_snapshot(db,session,trip_id,version=None):
     if version is not None and not saved:raise HTTPException(404,detail='历史路线版本不存在。')
     if not saved:return {'trip_id':str(trip_id),'itinerary':None,'route_version':0,'version':row['version']}
     itinerary=Itinerary.model_validate_json(saved['itinerary_json']);req=Requirements.model_validate_json(saved['requirements_json']);ctx=context(db)
+    fingerprint=ctx.fingerprint()
+    ctx=live_travel.restore_snapshot(ctx,itinerary)
     problem=prepare(req,ctx)
     problem.history_cost_fen=itinerary.history_cost_fen;problem.history_cost_unknown=itinerary.history_cost_unknown
     problem.history_cost_basis=itinerary.history_cost_basis
     errors=validate_itinerary(problem,itinerary)
-    stale=saved['state_version']!=row['version'] or saved['fingerprint']!=ctx.fingerprint() or bool(errors)
+    stale=saved['state_version']!=row['version'] or saved['fingerprint']!=fingerprint or bool(errors)
     return {'trip_id':str(trip_id),'version':row['version'],'route_version':saved['route_version'],
             'itinerary':itinerary.model_dump(mode='json'),'stale':stale,
             'issues':[e.model_dump(mode='json') for e in errors],
+            'traffic_refresh_recommended':any(l.journey.quote_expires_at and l.journey.quote_expires_at<=ctx.assessed_at for l in itinerary.legs),
             'notice':'历史结果；需要按当前事实重新核验/规划。' if stale else '依据当前资料满足模型约束；实际交通仍有不确定性。'}

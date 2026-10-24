@@ -20,8 +20,11 @@ def _solve(problem):
     meta={'algorithm':'OR-Tools CP-SAT circuit/time-windows','candidate_count':len(acts),
           'blocked_candidates':problem.blocked,'defaults':problem.defaults,'global_optimum_claimed':False}
     def response(status,issues=(),plans=(),solver_status=None):
+        reference = any(r.planning_status == 'reference' for r in ctx.facts.values())
         return SolveResult(status=status,itineraries=tuple(plans),issues=tuple(issues),computed_at=ctx.assessed_at,
-                           warnings=('交通为保守估计；缓冲和默认停留是规划参数，不是排队实测。',),
+                           warnings=(ctx.demo_warnings() if ctx.demo_reference else
+                                     (('采用有来源的参考资料；营业及供应以现场为准。',) if reference else ()))+
+                           ('交通为预计耗时；额外缓冲和默认停留是规划参数。',),
                            metrics=meta|{'elapsed_ms':round((time.monotonic()-started)*1000,3),'solver_status':solver_status})
     if problem.issues:return response('needs_data',problem.issues)
     if req.budget_fen is not None and problem.history_cost_unknown:
@@ -89,7 +92,7 @@ def _solve(problem):
         model.Add(sum(travel_seconds(journey)*var for var,journey in arcs.values()
                       if journey.travel.mode=='walking')<=req.max_walking_seconds)
     for park,entries in reentries.items():
-        rules=ctx.rules(park,req.business_date)
+        rules=ctx.planning_rules(park,req.business_date,req.starts_at,req.ends_at)
         if not any(r.reentry=='allowed' and ctx.ready(r,req.starts_at,req.ends_at) for r in rules):
             model.Add(sum(entries)+(1 if park in ctx.parks(req.origin_place_id) else 0)<=1)
     # Optional fixed future activities keep relative order; exact time windows are supplied by the service.
@@ -129,7 +132,7 @@ def _solve(problem):
                 stops.append(ScheduledActivity(activity_id=a.id,goal_id=a.goal_id,place_id=a.place_id,kind=a.kind,
                     session_id=a.session_id,arrives_at=arrives,starts_at=start,departs_at=end,duration_seconds=a.duration,
                     wait_seconds=int((start-arrives).total_seconds()),required=a.required,adjustable=not a.required,
-                    data_status='synthetic' if ctx.synthetic else 'verified',evidence_refs=a.evidence_refs))
+                    data_status='synthetic' if ctx.synthetic else ('reference' if ctx.facts['place',a.place_id].planning_status=='reference' else 'verified'),evidence_refs=a.evidence_refs))
                 t=end;known_cost+=a.cost or 0;unknown_cost|=a.cost is None
         returned=legs[-1].arrives_at
         plan=Itinerary(activities=tuple(stops),legs=tuple(legs),returns_at=returned,total_seconds=int((returned-req.starts_at).total_seconds()),
@@ -139,7 +142,7 @@ def _solve(problem):
                        score={'goal_reward':sum(acts[i-1].reward for i in indices[1:-1]),
                               'waiting_seconds':sum(s.wait_seconds for s in stops),
                               'change_penalty_seconds_per_broken_adjacency':120 if problem.prior_order else 0},
-                       evidence_mode='synthetic' if ctx.synthetic else 'verified_with_estimates')
+                       evidence_mode='synthetic' if ctx.synthetic else ('reference_with_estimates' if any(s.data_status=='reference' for s in stops) else 'verified_with_estimates'))
         # A second implementation rechecks all hard constraints before ANY feasible result is exposed.
         from .validation import validate_itinerary
         checked=validate_itinerary(problem,plan)

@@ -3,6 +3,7 @@ import re
 from datetime import date, datetime, timedelta
 from decimal import Decimal
 from fastapi import HTTPException
+from .. import facts
 from ..schema import TZ
 from .models import PlanningIntent, PlanningField
 from .evidence import request_evidence, effective_clock, preference_evidence
@@ -47,14 +48,21 @@ def grounded(planning, text, snapshot):
                 if not expressions or resolve_date(expressions[-1],today).isoformat()!=str(f.value):raise ValueError('date expression absent')
             resolve_date(f.value,today) if f.value in f.quote else date.fromisoformat(str(f.value))
         elif f.field in ('start_time','end_time'):
-            if effective_clock(text,f.quote,clock)!=f.value:raise ValueError('invented time')
+            from .understand import clock_values
+            if f.value not in clock_values(f.quote):raise ValueError('invented time')
         elif f.field in ('city','origin','destination') and f.value not in f.quote:raise ValueError('invented place name')
         elif f.field in ('pace','objective','mode'):preference_evidence(f.field,f.value,f.quote)
         elif f.field=='budget_fen':
             amounts=re.findall(r'(\d+(?:\.\d{1,2})?)\s*(?:元|块)',f.quote)
             if len(amounts)!=1 or int(Decimal(amounts[0])*100)!=f.value:raise ValueError('invented budget')
     for choice in planning.choices:
-        if choice.quote not in text or choice.name not in choice.quote:raise ValueError('material evidence absent')
+        if choice.quote not in text:raise ValueError('material evidence absent')
+        if choice.name not in choice.quote and not any(
+                getattr(item,'name',None)==choice.name
+                and any(alias and len(alias)>1 and alias in choice.quote
+                        for alias in getattr(item,'aliases',()))
+                for item in snapshot.planning.facts.values()):
+            raise ValueError('material evidence absent')
         request_evidence(text,choice.quote)
     return planning
 
@@ -132,9 +140,9 @@ def proposal(session, trip_id, snapshot, intent, text, *, today=None):
         return {'status':'needs_clarification','reply':'结束时间需要晚于开始时间'}
     for field,key in (('origin','origin_place_id'),('destination','destination_place_id')):
         if field not in fields:continue
-        matches=[r for r in snapshot.planning.facts.values() if r.kind=='place' and r.rights_status=='permitted' and r.name==fields[field]]
-        values[key]=matches[0].fact_id if len(matches)==1 else None
-        values[field+'_text']=None if len(matches)==1 else fields[field]
+        resolved=facts.place_by_name(snapshot.planning.facts, fields[field])
+        values[key]=resolved.fact_id if resolved else None
+        values[field+'_text']=None if resolved else fields[field]
     for field in ('pace','objective','budget_fen'):
         if field in fields:values[field]=fields[field]
     if 'mode' in fields:values['modes']=[fields['mode']]

@@ -137,7 +137,7 @@ class TravelEstimate(Strict):
     lower_seconds: int | None = Field(default=None, ge=0, le=172800)
     upper_seconds: int | None = Field(default=None, ge=0, le=172800)
     evidence: Evidence
-    path_status: Literal['verified', 'demo', 'unknown'] = 'unknown'
+    path_status: Literal['verified', 'estimated', 'demo', 'unknown'] = 'unknown'
     path_ref: EntityId | None = None
     coordinate_system: Literal['WGS84', 'GCJ02', 'local_demo', 'unknown'] = 'unknown'
     unavailable_reason: str | None = Field(default=None, max_length=500)

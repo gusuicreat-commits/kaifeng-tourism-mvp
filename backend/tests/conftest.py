@@ -12,6 +12,7 @@ def isolated_memory_runtime(monkeypatch):
     ticks=itertools.count(0,100)
     monkeypatch.setattr(model_schedule,'_scheduler',model_schedule.ModelScheduler(clock=lambda:next(ticks)))
     monkeypatch.setenv('TOURISM_LLM_API_KEY','')
+    monkeypatch.setenv('AMAP_PLANNING_ENABLED','')
 
 
 @pytest.fixture

@@ -14,6 +14,23 @@ class PlanningContext:
     operations: OperationalBundle
     assessed_at: datetime
     synthetic: bool = False  # Only standalone tests/maintenance, never an HTTP option.
+    # Presentation-only admission for curated reference material. This is
+    # separate from synthetic fixtures and never changes fact provenance.
+    demo_reference: bool = False
+
+    def canonical(self, kind, identity):
+        seen = set()
+        while (kind, identity) not in seen:
+            seen.add((kind, identity))
+            record = self.facts.get((kind, identity))
+            target = getattr(record, 'superseded_by', None)
+            if not target:
+                return identity
+            identity = target
+        raise ValueError('事实替代关系存在循环')
+
+    def resolve(self, kind, identity):
+        return self.facts.get((kind, self.canonical(kind, identity)))
 
     def ready(self, record, *moments):
         if record is None:return False
@@ -26,8 +43,7 @@ class PlanningContext:
                 seen.add(ref);dep=self.facts.get(ref)
                 if dep is None or not check(dep,moment,date_check,seen):return False
             return True
-        if not check(record,self.assessed_at,False,set()):return False
-        return all(check(record,t,True,set()) for t in moments)
+        return all(check(record,t,True,set()) for t in (moments or (self.assessed_at,)))
 
     def evidence_ready(self, evidence:Evidence, *moments):
         for t in (self.assessed_at,)+moments:
@@ -40,7 +56,8 @@ class PlanningContext:
 
     def fingerprint(self):
         content={'facts':[r.model_dump(mode='json') for _,r in sorted(self.facts.items())],
-                 'operations':self.operations.model_dump(mode='json'),'synthetic':self.synthetic}
+                 'operations':self.operations.model_dump(mode='json'),'synthetic':self.synthetic,
+                 'demo_reference':self.demo_reference}
         return hashlib.sha256(json.dumps(content,sort_keys=True,separators=(',',':')).encode()).hexdigest()
 
     def parks(self, place_id):
@@ -56,6 +73,28 @@ class PlanningContext:
     def rules(self,place_id,day):
         return [r for r in self.facts.values() if isinstance(r,facts.OpenRule)
                 and r.place_id==place_id and r.business_date==day]
+
+    def planning_rules(self, place_id, day, *moments):
+        """Opening rules used by this snapshot, with a demo-only choice."""
+        rules=sorted(self.rules(place_id,day), key=lambda r:r.fact_id)
+        if not self.demo_reference or len(rules)<=1:
+            return tuple(rules)
+        usable=[r for r in rules if self.ready(r,*(moments or (self.assessed_at,)))]
+        curated=[r for r in usable if r.fact_id.startswith('open_mvp_')]
+        if curated:
+            return (curated[0],)
+        if len(usable)==1:
+            return (usable[0],)
+        return tuple(usable)
+
+    def demo_warnings(self):
+        if not self.demo_reference:
+            return ()
+        return (
+            '演示模式：参考资料按演示准入参与规划；原始来源仍标记为 reference/unverified，未转为正式核验事实。',
+            '演示模式：同日营业规则冲突时优先采用 open_mvp_* 规则，这是本次演示假设。',
+            '演示模式：营业结束时间缺失时按本次行程结束时间计算，不代表实际关门时间。',
+        )
 
 
 @dataclass(frozen=True)

@@ -1,6 +1,7 @@
 """Translate validated semantic fields to existing executors without parsing text again."""
 import re
 from datetime import datetime
+from .. import facts
 from ..assistant.models import Intent
 from ..schema import TZ
 from .evidence import request_evidence, effective_clock
@@ -30,8 +31,8 @@ def state_action(value,snapshot):
     if value.operation=='cancel':fields['purpose']='modify'
     if value.operation=='restore':fields['restore_route_version']=value.restore_version
     if value.operation=='position':
-        matches=[p.fact_id for (kind,_),p in snapshot.planning.facts.items() if kind=='place' and p.rights_status=='permitted' and p.name==value.target_name]
-        fields['place_id']=matches[0] if len(matches)==1 else None
+        resolved=facts.place_by_name(snapshot.planning.facts, value.target_name)
+        fields['place_id']=resolved.fact_id if resolved else None
     if value.operation in ('complete','skip'):
         from ..assistant.context import label
         pending=[s for s in snapshot.draft.stops if s.progress=='pending']

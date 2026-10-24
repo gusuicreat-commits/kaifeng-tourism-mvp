@@ -20,10 +20,15 @@ class TravelTimeService:
 
     def usable(self,j,req):
         t=j.travel;c=self.ctx
-        if (t.lower_seconds is None or not c.evidence_ready(t.evidence,req.starts_at,req.ends_at)
-                or t.path_status not in (('verified','demo') if c.synthetic else ('verified',))
+        provider = j.time_basis == 'provider_estimate'
+        if provider:
+            if (j.estimated_seconds is None or not j.quote_expires_at
+                    or t.path_status != 'estimated' or t.evidence.kind != 'estimate'):
+                return False
+        if ((not provider and t.lower_seconds is None) or not c.evidence_ready(t.evidence,req.starts_at,req.ends_at)
+                or t.path_status not in (('verified','estimated','demo') if c.synthetic else ('verified','estimated'))
                 or t.coordinate_system not in (('WGS84','GCJ02','local_demo') if c.synthetic else ('WGS84','GCJ02'))
-                or not t.path_ref or not c.synthetic and j.time_basis!='survey_envelope'):
+                or not t.path_ref or not c.synthetic and j.time_basis not in ('survey_envelope','provider_estimate')):
             return False
         if not c.synthetic and (not j.source_ids or any(
                 not isinstance(c.facts.get(('source',sid)), facts.Source)
@@ -34,20 +39,27 @@ class TravelTimeService:
         origin=set(c.parks(t.origin_place_id));dest=set(c.parks(t.destination_place_id))
         expected={(p,'exit') for p in origin-dest}|{(p,'entry') for p in dest-origin}
         actual={(b.park_id,b.direction) for b in j.boundaries}
-        if actual!=expected or len(actual)!=len(j.boundaries):return False
+        # MVP provider estimates may route between provider POI centers when a
+        # real gate relation is not available. Keep the result as reference data;
+        # surveyed park boundaries remain required for certified navigation.
+        if j.time_basis != 'provider_estimate' and (actual!=expected or len(actual)!=len(j.boundaries)):
+            return False
+        if j.time_basis == 'provider_estimate' and actual and actual!=expected:
+            return False
         for b in j.boundaries:
             if not c.evidence_ready(b.evidence,req.starts_at,req.ends_at):return False
             gates=[r for r in c.facts.values() if isinstance(r,facts.Entrance) and r.place_id==b.park_id
                    and r.entrance_place_id==b.gate_place_id and r.direction in (b.direction,'both')]
             if not any(c.ready(g,req.starts_at,req.ends_at) for g in gates):return False
             if not c.synthetic and b.direction=='entry':
-                rules=c.rules(b.park_id,req.business_date)
+                rules=c.planning_rules(b.park_id,req.business_date,req.starts_at,req.ends_at)
                 if len(rules)!=1:return False
                 rule=rules[0]
-                if (not c.ready(rule,req.starts_at,req.ends_at) or not rule.opens_at or not rule.closes_at
-                    or not rule.last_entry_at or rule.reentry=='unknown'
-                    or rule.reservation=='unknown'
-                    or (rule.reservation=='required' or rule.ticket_scope) and b.park_id not in req.access_confirmations):
+                if (not c.ready(rule,req.starts_at,req.ends_at)
+                    or rule.planning_status != 'reference' and (not rule.opens_at or not rule.closes_at)
+                    or (rule.planning_status != 'reference' and (not rule.last_entry_at or rule.reentry=='unknown'))
+                    or facts.access_unknown(rule)
+                    or facts.access_required(rule) and b.park_id not in req.access_confirmations):
                     return False
         return True
 
@@ -66,7 +78,9 @@ class TravelTimeService:
 
 
 def travel_seconds(j):
-    return j.travel.upper_seconds+sum(b.seconds for b in j.boundaries)
+    seconds = (j.estimated_seconds + j.planning_buffer_seconds
+               if j.time_basis == 'provider_estimate' and j.estimated_seconds is not None else j.travel.upper_seconds)
+    return seconds+sum(b.seconds for b in j.boundaries)
 
 
 def walking_metres(j):
@@ -79,7 +93,7 @@ def entry_deadline(j,req,ctx):
     for b in j.boundaries:
         if b.direction!='entry':continue
         for pid in (b.park_id,b.gate_place_id):
-            for r in ctx.rules(pid,req.business_date):
+            for r in ctx.planning_rules(pid,req.business_date,req.starts_at,req.ends_at):
                 if not ctx.ready(r,req.starts_at,req.ends_at):continue
                 value=r.last_entry_at or r.closes_at
                 if value:latest=value if latest is None else min(latest,value)
@@ -94,6 +108,6 @@ def journey_cost_upper(j):
 def entry_opening(j,req,ctx):
     """A boundary cannot be crossed before the known opening, including transfer-only plans."""
     values=[r.opens_at for b in j.boundaries if b.direction=='entry'
-            for pid in (b.park_id,b.gate_place_id) for r in ctx.rules(pid,req.business_date)
+            for pid in (b.park_id,b.gate_place_id) for r in ctx.planning_rules(pid,req.business_date,req.starts_at,req.ends_at)
             if ctx.ready(r,req.starts_at,req.ends_at) and r.opens_at]
     return max(values) if values else None

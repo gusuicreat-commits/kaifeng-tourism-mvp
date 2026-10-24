@@ -77,7 +77,7 @@ def capabilities():
 
 
 @router.get('/facts')
-def catalog(kind: str | None = Query(default=None,pattern='^(source|place|entrance|open_rule|program|show_session|food|vendor|supply)$')):
+def catalog(kind: str | None = Query(default=None,pattern='^(source|place|entrance|open_rule|program|highlight|facility|show_session|food|vendor|supply)$')):
     return facts.public_records(kind)
 
 

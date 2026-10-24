@@ -83,6 +83,19 @@ def test_general_dialogue_not_local_query_template_or_modification(city,monkeypa
     assert business(city)==before
 
 
+def test_greeting_with_noisy_query_action_stays_normal_conversation(city,monkeypatch):
+    before=business(city)
+    conversational_model(monkeypatch,lambda p:'你好！我是小汴梁，很高兴为你服务。')
+    def noisy(system,payload,**kwargs):
+        return ({'conversation':{'reply':'你好！我是小汴梁，很高兴为你服务。'},
+                 'actions':[{'kind':'query','quote':'你好‘'}]}, {'source':'mock_model','http_attempts':0})
+    monkeypatch.setattr(provider,'generate',noisy)
+    task=run(city,'你好‘')
+    assert task['mode']=='conversation' and task['status']=='answered',task
+    assert '当前没有明确对应对象' not in task['result']['reply']
+    assert business(city)==before
+
+
 def test_saved_conditions_and_material_names_ground_followup(city,monkeypatch):
     c=city['client'];name='[合成测试]museum'
     assert c.patch(path(city,'/basket'),json={'request_id':rid(),'expected_version':0,'item':{'kind':'place','object_id':'museum'}}).status_code==200

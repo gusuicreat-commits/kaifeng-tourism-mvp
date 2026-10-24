@@ -81,7 +81,7 @@ def _query(text, snapshot, intent):
             values = []
             for ref in references:
                 item = snapshot.planning.facts.get(('show_session',ref.id))
-                if not item or item.rights_status != 'permitted': continue
+                if not item or not facts.planning_visible(item): continue
                 if '下午' in text and item.starts_at.astimezone(TZ).hour < 12: continue
                 values.append(context.fact_view(item,snapshot.planning.facts,now()))
             return {'status':'answered','reply':'以下是当前行程目标对应的场次资料；有缺项或取消的场次不能当作仍可参加。',
@@ -90,13 +90,13 @@ def _query(text, snapshot, intent):
             return {'status':'needs_clarification','reply':'请明确是哪一场演出或哪家店；当前存在多个对象，不能替你猜。' if references else '当前没有明确对应对象，请提供场次或商家名称。',
                     'choices':[r.model_dump() for r in references]}
         ref = references[0]; item = snapshot.planning.facts.get((ref.kind,ref.id))
-        if not item or item.rights_status != 'permitted':
+        if not item or not facts.planning_visible(item):
             return {'status':'needs_data','reply':'没有可公开使用的对应资料，不能用旧聊天代替当前事实。'}
         view = context.fact_view(item,snapshot.planning.facts,now())
         answer_ready = view['ready']; used_facts = [view]
         if kind == 'show_session':
             program = snapshot.planning.facts.get(('program',item.program_id))
-            name = redact(program.name) if program and program.rights_status == 'permitted' else '该场演出'
+            name = redact(program.name) if program and facts.planning_visible(program) else '该场演出'
             if not view['ready']:
                 reply = name + ('：资料库记录为取消，' if item.business_status == 'cancelled' else '：') + '当前资料未通过时效或完整性核验，请重新核对；旧路线不会被自动覆盖。'
             else:

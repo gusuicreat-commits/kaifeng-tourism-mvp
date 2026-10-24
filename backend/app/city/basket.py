@@ -70,6 +70,12 @@ def resolve(db, ref, items=None):
     fk={'scenic':'place','food':'food','place':'place','poi':'place','show':'show_session','vendor':'vendor','program':'program'}[ref.kind]
     identity=binding['fact_id'] if binding and binding['fact_kind']==fk else ref.object_id
     fact=items.get((fk,identity))
+    # Old collector IDs remain resolvable after a canonical workbook merge.
+    seen=set()
+    while fact and getattr(fact,'superseded_by',None) and fact.fact_id not in seen:
+        seen.add(fact.fact_id)
+        identity=fact.superseded_by
+        fact=items.get((fk,identity))
     # Local IDs can exist before the corresponding verified business record.
     if ref.kind=='scenic':
         row=db.execute('SELECT content FROM scenic WHERE id=?',(ref.object_id,)).fetchone()
@@ -80,7 +86,9 @@ def resolve(db, ref, items=None):
     if not label and ref.kind=='show' and fact:
         label=getattr(items.get(('program',fact.program_id)),'name',None)
     if not label:raise HTTPException(404,detail='对象资料待添加，不能加入未知对象。')
-    if fact and fact.rights_status!='permitted':raise HTTPException(404,detail='对象资料尚未开放。')
+    if fact and fact.rights_status!='permitted' and not (
+        fact.rights_status=='internal_only' and fact.planning_status=='reference'
+    ):raise HTTPException(404,detail='对象资料尚未开放。')
     return {'key':ref.kind+':'+ref.object_id,'kind':ref.kind,'id':ref.object_id,'name':redact(label),
             'fact_kind':fk if fact else None,'fact_id':fact.fact_id if fact else None,
             'parent_place_id':getattr(fact,'parent_place_id',None),

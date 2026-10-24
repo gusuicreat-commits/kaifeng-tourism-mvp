@@ -15,6 +15,10 @@ def issue(code,message,*ids):
 
 def prepare(req,ctx,prior_order=(),fixed_order=()):
     activities=[];issues=[];blocked=[];defaults={}
+    req=req.model_copy(update={'origin_place_id':ctx.canonical('place',req.origin_place_id),
+        'destination_place_id':ctx.canonical('place',req.destination_place_id),
+        'goals':tuple(g.model_copy(update={'target_id':ctx.canonical('place',g.target_id) if g.target_kind=='place' else g.target_id,
+            'fixed_place_id':ctx.canonical('place',g.fixed_place_id) if g.fixed_place_id else None}) for g in req.goals)})
     seconds=lambda t:int((t-req.starts_at).total_seconds())
     horizon=int((req.ends_at-req.starts_at).total_seconds())
     for pid in (req.origin_place_id,req.destination_place_id):
@@ -50,22 +54,23 @@ def prepare(req,ctx,prior_order=(),fixed_order=()):
             refs=[f'place:{pid}'];parks=ctx.parks(pid)
             # Parent park rules restrict the whole visit. Venue-specific rules narrow them further.
             for rule_pid in (pid,)+parks:
-                rules=ctx.rules(rule_pid,req.business_date)
+                rules=ctx.planning_rules(rule_pid,req.business_date,req.starts_at,req.ends_at)
                 if not rules:
                     if rule_pid!=pid or not parks:bad.append('OPENING_UNKNOWN')
                     continue
                 usable=[r for r in rules if ctx.ready(r,req.starts_at,req.ends_at)
-                        and r.opens_at and r.closes_at]
+                        and (r.planning_status=='reference' or r.opens_at and r.closes_at)]
                 # Multiple disjoint windows must be resolved explicitly, never merged into an invented opening.
                 if len(usable)!=1:bad.append('OPENING_AMBIGUOUS_OR_STALE');continue
                 rule=usable[0];refs.append(f'open_rule:{rule.fact_id}')
-                earliest=max(earliest,seconds(rule.opens_at));latest=min(latest,seconds(rule.closes_at))
-                if rule.reservation=='unknown' or (rule.reservation=='required' and rule_pid not in req.access_confirmations):
+                if rule.opens_at:earliest=max(earliest,seconds(rule.opens_at))
+                if rule.closes_at:latest=min(latest,seconds(rule.closes_at))
+                if facts.access_unknown(rule) or (rule.reservation=='required' and rule_pid not in req.access_confirmations):
                     bad.append('RESERVATION_NOT_CONFIRMED')
-                if rule.ticket_scope and rule_pid not in req.access_confirmations:bad.append('TICKET_NOT_CONFIRMED')
+                if facts.access_required(rule) and rule_pid not in req.access_confirmations:bad.append('TICKET_NOT_CONFIRMED')
             deadline=None
             for rule_pid in set((pid,)+parks):
-                for rule in ctx.rules(rule_pid,req.business_date):
+                for rule in ctx.planning_rules(rule_pid,req.business_date,req.starts_at,req.ends_at):
                     if rule.last_entry_at:
                         value=seconds(rule.last_entry_at)
                         deadline=value if deadline is None else min(deadline,value)
@@ -80,8 +85,8 @@ def prepare(req,ctx,prior_order=(),fixed_order=()):
                 earliest=latest=showstart
                 refs.extend((f'show_session:{session.fact_id}',f'program:{session.program_id}'))
             else:
-                duration=goal.duration_seconds or DEFAULT_DURATIONS[goal.kind]
-                if goal.duration_seconds is None:defaults[goal.goal_id]={'duration_seconds':duration,'basis':'planning_parameter'}
+                duration=goal.duration_seconds or (place.suggested_stay_min*60 if place.suggested_stay_min else DEFAULT_DURATIONS[goal.kind])
+                if goal.duration_seconds is None:defaults[goal.goal_id]={'duration_seconds':duration,'basis':'sourced_reference' if place.suggested_stay_min else 'planning_parameter'}
                 latest-=duration
             costs=[c for c in ctx.operations.costs if c.place_id==pid and ctx.evidence_ready(c.evidence,req.starts_at,req.ends_at)]
             cost=costs[0].upper_fen if len(costs)==1 else None
@@ -96,7 +101,16 @@ def prepare(req,ctx,prior_order=(),fixed_order=()):
                                        1+goal.importance,cost,tuple(refs),parks))
         if not valid:
             blocked.append({'goal_id':goal.goal_id,'reasons':['NO_USABLE_VARIANT']})
-            if goal.required:issues.append(issue('REQUIRED_GOAL_UNAVAILABLE','必选目标没有完整、有效且满足时间范围的数据',goal.goal_id))
+            if goal.required:
+                reasons={reason for item in blocked if item.get('goal_id')==goal.goal_id for reason in item.get('reasons',())}
+                detail='必选目标没有完整、有效且满足时间范围的数据'
+                if 'OPENING_AMBIGUOUS_OR_STALE' in reasons:
+                    detail += '；对应日期存在多条冲突或过期的营业规则，无法判断开放时段'
+                elif 'OPENING_UNKNOWN' in reasons:
+                    detail += '；缺少对应日期的营业规则'
+                elif 'PLACE_NOT_READY' in reasons:
+                    detail += '；地点事实尚未完成有效性或权限核验'
+                issues.append(issue('REQUIRED_GOAL_UNAVAILABLE',detail,goal.goal_id))
     if len(activities)>60:
         issues.append(issue('CANDIDATE_LIMIT','展开后的候选活动超过60项，请缩小目标或场次范围'))
         activities=[]

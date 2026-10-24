@@ -25,9 +25,13 @@ class Fact(Strict):
     effective_from: AwareDatetime | None = None
     effective_to: AwareDatetime | None = None
     rights_status: Literal['permitted', 'internal_only', 'unknown', 'prohibited'] = 'unknown'
+    planning_status: Literal['candidate', 'reference'] = 'candidate'
+    planning_note: str | None = Field(default=None, min_length=1, max_length=500)
 
     @model_validator(mode='after')
     def verify_metadata(self):
+        if self.planning_status == 'reference' and (not self.planning_note or self.is_demo):
+            raise ValueError('参考准入须说明采用依据，演示资料不得采用')
         if self.effective_from and self.effective_to and self.effective_to <= self.effective_from:
             raise ValueError('事实有效区间无效')
         if self.verified_at and self.verified_at > now():
@@ -61,6 +65,14 @@ class Place(Fact):
     longitude: float | None = Field(default=None, ge=-180, le=180)
     latitude: float | None = Field(default=None, ge=-90, le=90)
     coordinate_system: Literal['WGS84', 'GCJ02', 'local_demo', 'unknown'] = 'unknown'
+    aliases: tuple[str, ...] = Field(default=(), max_length=20)
+    external_poi_id: str | None = Field(default=None, max_length=120)
+    description: str | None = Field(default=None, max_length=2000)
+    suggested_stay_min: int | None = Field(default=None, ge=1, le=720)
+    business_hours: str | None = Field(default=None, max_length=300)
+    price_band: str | None = Field(default=None, max_length=100)
+    notes: str | None = Field(default=None, max_length=2000)
+    superseded_by: EntityId | None = None
 
     @model_validator(mode='after')
     def coordinates(self):
@@ -90,12 +102,13 @@ class OpenRule(Fact):
     reentry: Literal['allowed', 'forbidden', 'unknown'] = 'unknown'
     reservation: Literal['required', 'not_required', 'unknown'] = 'unknown'
     ticket_scope: str | None = Field(default=None, max_length=200)
+    ticket_required: bool | None = None
 
     @model_validator(mode='after')
     def times(self):
-        if (self.opens_at is None) != (self.closes_at is None):
+        if self.planning_status != 'reference' and (self.opens_at is None) != (self.closes_at is None):
             raise ValueError('营业起止必须完整或同时未知')
-        if self.opens_at and self.closes_at <= self.opens_at:
+        if self.opens_at and self.closes_at and self.closes_at <= self.opens_at:
             raise ValueError('营业区间无效')
         for value in (self.opens_at, self.closes_at, self.last_entry_at):
             if value and value.astimezone(TZ).date() != self.business_date:
@@ -108,6 +121,28 @@ class OpenRule(Fact):
 class Program(Fact):
     kind: Literal['program']
     name: str = Field(min_length=1, max_length=120)
+    place_id: EntityId | None = None
+    stage_name: str | None = Field(default=None, max_length=200)
+    description: str | None = Field(default=None, max_length=2000)
+    schedule_text: str | None = Field(default=None, max_length=1000)
+    notes: str | None = Field(default=None, max_length=2000)
+
+
+class Highlight(Fact):
+    kind: Literal['highlight']
+    place_id: EntityId
+    name: str = Field(min_length=1, max_length=120)
+    category: str | None = Field(default=None, max_length=100)
+    description: str | None = Field(default=None, max_length=2000)
+    sort_order: int = Field(default=0, ge=0)
+
+
+class Facility(Fact):
+    kind: Literal['facility']
+    place_id: EntityId
+    name: str = Field(min_length=1, max_length=120)
+    category: str | None = Field(default=None, max_length=100)
+    description: str | None = Field(default=None, max_length=2000)
 
 
 class ShowSession(Fact):
@@ -133,11 +168,16 @@ class ShowSession(Fact):
 class Food(Fact):
     kind: Literal['food']
     name: str = Field(min_length=1, max_length=120)
+    description: str | None = Field(default=None, max_length=2000)
+    aliases: tuple[str, ...] = Field(default=(), max_length=20)
 
 
 class Vendor(Fact):
     kind: Literal['vendor']
     place_id: EntityId
+    external_poi_id: str | None = Field(default=None, max_length=120)
+    business_hours: str | None = Field(default=None, max_length=300)
+    price_band: str | None = Field(default=None, max_length=100)
 
 
 class Supply(Fact):
@@ -147,7 +187,7 @@ class Supply(Fact):
     evidence_note: str = Field(min_length=1, max_length=500)
 
 
-Record = Annotated[Source | Place | Entrance | OpenRule | Program | ShowSession | Food | Vendor | Supply,
+Record = Annotated[Source | Place | Entrance | OpenRule | Program | Highlight | Facility | ShowSession | Food | Vendor | Supply,
                    Field(discriminator='kind')]
 RECORD = TypeAdapter(Record)
 
@@ -178,8 +218,11 @@ def references(item):
     refs = [('source', sid) for sid in item.source_ids]
     if isinstance(item, Place) and item.parent_place_id:
         refs.append(('place', item.parent_place_id))
+    if isinstance(item, Place) and item.superseded_by:
+        refs.append(('place', item.superseded_by))
     if isinstance(item, Entrance): refs += [('place', item.place_id), ('place', item.entrance_place_id)]
-    if isinstance(item, (OpenRule, Vendor)): refs.append(('place', item.place_id))
+    if isinstance(item, (OpenRule, Vendor, Highlight, Facility, Program)) and item.place_id:
+        refs.append(('place', item.place_id))
     if isinstance(item, ShowSession): refs += [('program', item.program_id), ('place', item.stage_place_id)]
     if isinstance(item, Supply): refs += [('vendor', item.vendor_id), ('food', item.food_id)]
     return refs
@@ -214,16 +257,20 @@ def check_links(items):
 def gaps(item, items, moment=None):
     moment = moment or now()
     result = []
-    if item.validation_status != 'verified': result.append('UNVERIFIED')
+    reference = item.planning_status == 'reference'
+    if item.validation_status != 'verified' and not reference: result.append('UNVERIFIED')
     if item.business_status != 'active': result.append('CANCELLED')
     if item.is_demo: result.append('DEMO_ONLY')
-    if item.rights_status != 'permitted': result.append('RIGHTS_NOT_CONFIRMED')
-    if not item.effective_from or not item.effective_to or not item.effective_from <= moment < item.effective_to:
+    if item.rights_status != 'permitted' and not (reference and item.rights_status == 'internal_only'):
+        result.append('RIGHTS_NOT_CONFIRMED')
+    if ((not reference and (not item.effective_from or not item.effective_to))
+        or item.effective_from and moment < item.effective_from
+        or item.effective_to and moment >= item.effective_to):
         result.append('OUTSIDE_VALIDITY_OR_UNKNOWN')
     if isinstance(item, Place) and (item.longitude is None or item.coordinate_system in ('unknown', 'local_demo')):
         result.append('LOCATION_UNKNOWN')
     if isinstance(item, ShowSession) and item.ends_at is None: result.append('SHOW_END_UNKNOWN')
-    if isinstance(item, OpenRule) and item.opens_at is None: result.append('OPENING_UNKNOWN')
+    if isinstance(item, OpenRule) and item.opens_at is None and not reference: result.append('OPENING_UNKNOWN')
     if isinstance(item, Source) and not item.url and not item.locator: result.append('SOURCE_LOCATOR_UNKNOWN')
     if isinstance(item,(ShowSession,OpenRule)) and item.business_date != moment.astimezone(TZ).date():
         result.append('BUSINESS_DATE_NOT_APPLICABLE')
@@ -283,6 +330,59 @@ def public_records(kind=None):
     output = []
     for item in items.values():
         if kind and item.kind != kind: continue
-        if item.rights_status != 'permitted': continue
+        if item.rights_status != 'permitted' and not (
+            item.rights_status == 'internal_only' and item.planning_status == 'reference'
+        ):
+            # Superseded place aliases stay resolvable so old links still open the
+            # canonical record; they are never shown as selectable/plannable places.
+            if not (isinstance(item, Place) and item.superseded_by):
+                continue
         output.append({'record': item.model_dump(mode='json'), **status(item,items)})
     return {'items': output, 'notice': '候选与可用事实分别标识；ready不代表整条行程已通过路线校验。'}
+
+
+def access_required(rule):
+    ticket = rule.ticket_required if rule.ticket_required is not None else bool(rule.ticket_scope)
+    # Reference visits can be planned before purchase; purchase is a trip reminder.
+    return rule.reservation == 'required' or (ticket and rule.planning_status != 'reference')
+
+
+def access_unknown(rule):
+    return rule.reservation == 'unknown' and rule.planning_status != 'reference'
+
+
+def planning_visible(item):
+    """Readable for MVP reference planning: formally permitted, or reference-scoped internal data."""
+    if getattr(item, 'superseded_by', None):
+        return False
+    if item.rights_status == 'permitted':
+        return True
+    return item.rights_status == 'internal_only' and item.planning_status == 'reference'
+
+
+def name_matches(item, text):
+    """True when untrusted text mentions the canonical name or a known alias."""
+    name = getattr(item, 'name', None)
+    if name and len(name) > 1 and name in text:
+        return True
+    for alias in getattr(item, 'aliases', ()):
+        if alias and len(alias) > 1 and alias in text:
+            return True
+    return False
+
+
+def place_by_name(items, name):
+    """Resolve a visible place by exact canonical name or alias.
+
+    Multiple records may share a display name (legacy collector IDs vs the
+    canonical workbook record). Prefer the uniquely located record: it is the
+    one the engine can actually route to. Fall back to the single record only
+    when the name is unambiguous; otherwise return None and force clarification.
+    """
+    matches = [p for p in items.values() if isinstance(p, Place) and planning_visible(p)
+               and (p.name == name or name in p.aliases)]
+    if len(matches) == 1:
+        return matches[0]
+    located = [p for p in matches if p.coordinate_system not in ('unknown', 'local_demo')
+               and p.longitude is not None and p.latitude is not None]
+    return located[0] if len(located) == 1 else None
