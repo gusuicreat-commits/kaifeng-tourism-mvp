@@ -88,7 +88,9 @@ def public(t):
             'busy':t.busy,'progress':LABELS.get(t.events[-1]['tool'],'正在处理。') if t.events and t.status=='running' else None,
             'understanding':t.intent.model_dump(mode='json') if t.intent else None,
             'interpretation':t.interpretation,'result':t.result,'events':list(t.events),'decisions':list(t.decisions),'stop_reason':None if t.status=='running' else t.status,
-            'limits':t.budget.model_dump(),'metrics':{'tools':t.tools,'model_calls':t.model_calls,
+            'limits':t.budget.model_dump(),'metrics':{'tools':t.tools,'tool_steps':t.tools,'model_calls':t.model_calls,
+                'model_http_attempts':sum(u.get('http_attempts',0) for u in t.usage),
+                'service_queries':[e['query_diagnostics'] for e in t.events if e.get('query_diagnostics')],
                 'waiting_ms':round((t.waited_seconds+(time.monotonic()-t.wait_started if t.wait_started is not None else 0))*1000,2),
                 'elapsed_ms':round(((t.terminal_at or time.monotonic())-t.started)*1000,2),
                 'usage':t.usage,'cost_cny':None,'cost_basis':'not_calculated_no_price_snapshot'},
@@ -353,7 +355,7 @@ def _compound_step(session,t):
         result=travel_services.query(session,t.trip_id,t.text,snapshot.services.get('version',0),cancelled=lambda:t.cancelled,
             intent=intent.service_query,today=snapshot.envelope.identity.generated_at.astimezone(__import__('zoneinfo').ZoneInfo('Asia/Shanghai')).date())
         if not _fresh(session,t):return public(t)
-        t.events[-1]['status']=result['services']['result']['status']
+        t.events[-1].update(status=result['services']['result']['status'],query_diagnostics=result['services']['result'].get('query_diagnostics'))
         service_status=result['services']['result']['status']
         part_status='answered' if service_status=='ok' else 'needs_clarification' if service_status=='needs_clarification' else 'needs_data' if service_status=='empty' else 'unavailable'
         parts.append({'kind':'travel_services','status':part_status,'result':result});statuses.append(part_status)
@@ -588,8 +590,9 @@ def _advance(session,trip_id,identity,body):
                 result=travel_services.query(session,t.trip_id,t.text,services_workspace.get('version',0),cancelled=lambda:t.cancelled,
                     intent=t.intent.service_query,today=t.snapshot.envelope.identity.generated_at.astimezone(__import__('zoneinfo').ZoneInfo('Asia/Shanghai')).date())
                 if not _fresh(session,t):return public(t)
-                t.events[-1]['status']=result['services']['result']['status']
-                _finish(session,t,'answered',result)
+                t.events[-1].update(status=result['services']['result']['status'],query_diagnostics=result['services']['result'].get('query_diagnostics'))
+                code=result['services']['result']['status']
+                _finish(session,t,'answered' if code=='ok' else 'needs_clarification' if code=='needs_clarification' else 'needs_data' if code=='empty' else 'unavailable',result)
             elif t.mode=='direct':
                 action=next(a for a in t.intent.actions if a.kind=='query')
                 result=_read_query(t,action,t.snapshot)

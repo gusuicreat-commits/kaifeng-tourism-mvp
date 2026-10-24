@@ -47,6 +47,9 @@ class ProviderResult:
     limitations: list[str] = field(default_factory=list)
     error_code: str | None = None
     elapsed_ms: float | None = None
+    http_attempts: int | None = None
+    cache_hit: bool = False
+    transport_basis: str = 'not_reported'
 
     @property
     def usable(self) -> bool:

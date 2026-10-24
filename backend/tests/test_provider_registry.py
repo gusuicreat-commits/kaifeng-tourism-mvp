@@ -58,5 +58,6 @@ def test_registry_skips_unauthorized_provider_without_calling_it():
     assert execution.provider_trace == [{
         'capability': 'search_hotels', 'provider_id': 'unauthorized',
         'provider_status': 'unauthorized', 'attempted': False,
+        'http_attempts':0,'cache_hit':False,'transport_basis':'blocked_before_adapter',
         'fallback_reason': 'provider_not_eligible',
     }]

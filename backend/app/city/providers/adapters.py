@@ -42,6 +42,9 @@ class FlyAIHotelAdapter:
         status = str(raw.get('status', 'provider_error'))
         return ProviderResult(
             status=status,
+            http_attempts=raw.get('transport',{}).get('http_attempts'),
+            cache_hit=bool(raw.get('cache_hit',False)),
+            transport_basis=raw.get('transport',{}).get('basis','not_reported'),
             data=raw,
             provider_id=self.provider_id,
             capability=request.capability,
@@ -88,6 +91,7 @@ class AmapPoiAdapter:
             status = 'ok' if answer.status == 'found' else answer.status
             return ProviderResult(
                 status=status, data={'status': status, 'items': items}, provider_id=self.provider_id,
+                http_attempts=getattr(provider,'request_count',None),transport_basis='provider_request_counter' if hasattr(provider,'request_count') else 'not_reported',
                 capability=request.capability, source='AMap POI', checked_at=moment.isoformat(),
                 valid_until=(moment + timedelta(minutes=3)).isoformat(), scope='provider_poi_candidate',
                 evidence_status='provider_candidate' if status == 'ok' else 'unknown',

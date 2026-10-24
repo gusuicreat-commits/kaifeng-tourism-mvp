@@ -87,21 +87,28 @@ def normalize(raw, checked_at=None):
             'system_message':str(raw['systemMessage'])[:500] if raw.get('systemMessage') else None,
             'reviews_status':'not_available','provider':'FlyAI','queried_at':moment.isoformat()}
 
+def receipt(result, invocations, *, cache_hit=False):
+    # The pinned CLI does not expose its internal HTTP count. Never substitute
+    # a subprocess/tool invocation count for actual upstream HTTP attempts.
+    return result|{'cache_hit':cache_hit,'transport':{'cli_invocations':invocations,
+        'http_attempts':None if invocations else 0,
+        'basis':'unobserved_inside_cli' if invocations else 'cache' if cache_hit else 'blocked_before_cli'}}
+
 def search(query: Search):
-    if os.getenv('FLYAI_ENABLED','').lower() not in ('1','true','yes') or not os.getenv('FLYAI_API_KEY','').strip():return {'status':'not_configured','items':[]}
+    if os.getenv('FLYAI_ENABLED','').lower() not in ('1','true','yes') or not os.getenv('FLYAI_API_KEY','').strip():return receipt({'status':'not_configured','items':[]},0)
     path=Path(os.getenv('FLYAI_CLI_PATH','.runtime/flyai/flyai.cjs'))
     if not path.is_absolute():path=ROOT/path
     node=shutil.which('node')
-    if not path.is_file() or not node:return {'status':'cli_missing','items':[]}
+    if not path.is_file() or not node:return receipt({'status':'cli_missing','items':[]},0)
     key=(os.getenv('FLYAI_API_KEY'),query.model_dump_json())
     with LOCK:
         cached=CACHE.get(key)
-        if cached and time.monotonic()-cached[0]<180:return json.loads(json.dumps(cached[1]))|{'cache_hit':True}
-    if not GATE.acquire(blocking=False):return {'status':'busy','items':[]}
+        if cached and time.monotonic()-cached[0]<180:return receipt(json.loads(json.dumps(cached[1])),0,cache_hit=True)
+    if not GATE.acquire(blocking=False):return receipt({'status':'busy','items':[]},0)
     try:
         global LAST
         with LOCK:
-            if time.monotonic()-LAST<1:return {'status':'rate_limited','items':[]}
+            if time.monotonic()-LAST<1:return receipt({'status':'rate_limited','items':[]},0)
             LAST=time.monotonic()
         args=[node,str(path),'search-hotel','--dest-name','开封','--check-in-date',query.check_in,'--check-out-date',query.check_out]
         if query.max_price:args+=['--max-price',str(query.max_price)]
@@ -110,15 +117,15 @@ def search(query: Search):
         env['FLYAI_API_KEY']=os.environ['FLYAI_API_KEY']
         try:
             p=subprocess.run(args,env=env,capture_output=True,text=True,timeout=12,check=False)
-            if p.returncode:return {'status':'provider_unavailable','items':[]}
-            if len(p.stdout)>2000000:return {'status':'invalid_response','items':[]}
+            if p.returncode:return receipt({'status':'provider_unavailable','items':[]},1)
+            if len(p.stdout)>2000000:return receipt({'status':'invalid_response','items':[]},1)
             result=normalize(json.loads(p.stdout))
-        except subprocess.TimeoutExpired:return {'status':'timeout','items':[]}
-        except (OSError,ValueError,TypeError):return {'status':'invalid_response','items':[]}
+        except subprocess.TimeoutExpired:return receipt({'status':'timeout','items':[]},1)
+        except (OSError,ValueError,TypeError):return receipt({'status':'invalid_response','items':[]},1)
         result['query']=query.model_dump();result['occupancy_verified']=False
         if result['status'] in ('ok','empty'):
             with LOCK:
                 if len(CACHE)>=64:CACHE.clear()
                 CACHE[key]=(time.monotonic(),result)
-        return result
+        return receipt(result,1)
     finally:GATE.release()

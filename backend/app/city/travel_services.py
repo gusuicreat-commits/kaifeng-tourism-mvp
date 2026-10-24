@@ -209,7 +209,7 @@ def query(session,trip_id,text,expected_version=None,cancelled=None,*,intent=Non
         questions=service_questions(req,today or datetime.now(TZ).date())
         req['query_text']=text[:500]
     else:req,questions=parse(text,w['requirements'])
-    if questions:result={'status':'needs_clarification','items':[],'questions':questions}
+    if questions:result={'status':'needs_clarification','items':[],'questions':questions,'provider_trace':[]}
     else:
         capability='search_hotels' if req['category']=='hotels' else 'search_parking' if req['category']=='parking' else 'search_merchants'
         params={k:req[k] for k in ('check_in','check_out','max_price','rooms','guests') if k in req}
@@ -230,6 +230,13 @@ def query(session,trip_id,text,expected_version=None,cancelled=None,*,intent=Non
     if req['category']=='hotels' and req.get('max_price'):
         result['items']=[i for i in result.get('items',[]) if i['nightly_from_fen'] is None or i['nightly_from_fen']<=req['max_price']*100]
         if result.get('status')=='ok' and not result['items']:result['status']='empty'
+    trace=result.get('provider_trace',[])
+    attempts=[t.get('http_attempts') for t in trace]
+    result['query_diagnostics']={'workflow_steps':1,'adapter_executions':sum(bool(t.get('attempted')) for t in trace),
+        'http_attempts':sum(attempts) if all(type(v) is int for v in attempts) else None,
+        'cache_hits':sum(bool(t.get('cache_hit')) for t in trace),'provider_status':result['status'],
+        'normalized_candidate_count':len(result.get('items',[])),
+        'execution_basis':'missing_user_fields' if questions else 'provider_registry'}
     req.pop('query_text',None)
     # Every unmet hard condition stays visible; search candidates are not matching offers.
     for item in result.get('items',[]):

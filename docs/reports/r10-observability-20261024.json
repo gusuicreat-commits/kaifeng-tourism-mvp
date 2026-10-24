@@ -1,0 +1,7 @@
+{
+  "issue": "R10",
+  "related_passed": 111,
+  "new_cases": 5,
+  "new_live_calls": 0,
+  "flyai_http_count": "unknown inside official CLI; explicit null"
+}

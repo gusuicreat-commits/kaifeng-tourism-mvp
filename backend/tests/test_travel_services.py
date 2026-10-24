@@ -198,7 +198,8 @@ def test_provider_timeout_and_argument_boundary(tmp_path,monkeypatch):
         raise subprocess.TimeoutExpired(args,12)
     monkeypatch.setattr(hotels.subprocess,'run',timeout)
     result=hotels.search(hotels.Search(check_in='2030-05-01',check_out='2030-05-02'))
-    assert result=={'status':'timeout','items':[]}
+    assert result['status']=='timeout' and result['items']==[]
+    assert result['transport']=={'cli_invocations':1,'http_attempts':None,'basis':'unobserved_inside_cli'}
 
 
 def test_privacy_delete_cascades_service_workspace(env):

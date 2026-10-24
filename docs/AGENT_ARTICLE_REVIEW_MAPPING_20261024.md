@@ -242,3 +242,21 @@ flowchart LR
 ```
 
 四项新增场景覆盖长历史、不可缩减条件、任务可观测失败，以及当前完整Schema与1712字符输入同计预算。相关100项通过；错误只含长度/分类，不含原文或凭据。最大允许文本不保证在任意最大状态下都能入模，关键状态本身超限时明确停止，不静默裁掉硬条件。新增真实调用0。
+
+## R10步骤、调用与结果度量（已实施）
+
+文章第13/52/58章及[MCP工具结果/错误契约](https://modelcontextprotocol.io/specification/2025-06-18/server/tools)：回执分开`workflow_steps/adapter_executions/http_attempts/cache_hits/provider_status/normalized_candidate_count`；Agent事件与metrics引用同一回执，模型HTTP单独统计。缺日期是一步处理、零Provider；缓存命中是零HTTP；空结果不算有候选；超时/限流不再以Agent的answered状态掩盖。`attempted`仅表示适配器执行，不等于HTTP。
+
+飞猪官方CLI没有暴露内部HTTP计数，因此一次CLI执行只记录`cli_invocations=1/http_attempts=null/unobserved_inside_cli`，绝不编成一次HTTP或成功请求。已知本地阻断和缓存可报告0。高德使用现有request_count；未报告的适配器保留unknown。有效候选数仅指归一化/过滤通过，不代表事实已核实。没有新增网络调用或记录凭据。
+
+```mermaid
+flowchart LR
+    S[处理步骤] --> F{缺字段?}
+    F -->|是| Z[零适配器 零HTTP]
+    F -->|否| A[注册表执行与状态]
+    A --> C[缓存或传输计数/unknown]
+    C --> R[归一化候选数 + 原供应商状态]
+    R --> E[同一回执进入事件与metrics]
+```
+
+新增5项观测回归，相关111项通过，覆盖缺字段、空结果、超时、限流和缓存；不把Mock成绩写成真实Provider可用性。

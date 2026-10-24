@@ -70,7 +70,7 @@ class ProviderRegistry:
                     'capability': request.capability,
                     'provider_id': adapter.provider_id,
                     'provider_status': available.value,
-                    'attempted': False,
+                    'attempted': False,'http_attempts':0,'cache_hit':False,'transport_basis':'blocked_before_adapter',
                     'fallback_reason': 'provider_not_eligible',
                 })
                 continue
@@ -84,7 +84,8 @@ class ProviderRegistry:
                 'capability': request.capability,
                 'provider_id': adapter.provider_id,
                 'provider_status': result.status,
-                'attempted': True,
+                'attempted': True,'http_attempts':result.http_attempts,'cache_hit':result.cache_hit,
+                'transport_basis':result.transport_basis,'candidate_count':len(result.data.get('items',[])),
                 'elapsed_ms': result.elapsed_ms,
                 'error_code': result.error_code,
                 'fallback_reason': None if result.usable else ('try_next_provider' if index + 1 < len(candidates) else 'no_eligible_fallback'),
