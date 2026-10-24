@@ -9,6 +9,16 @@ class Action(Strict):
     kind: Literal['query','search_dining','search_services','modify','preference','cancel','progress','position']
     quote: str = Field(min_length=1, max_length=500)
     target_name: str | None = Field(default=None, max_length=120)
+    purpose: Literal['trip','next','shows','dining','travel','history','reference'] | None = None
+
+
+class StateIntent(Strict):
+    operation: Literal['complete','skip','position','cancel','restore']
+    quote: str = Field(min_length=1,max_length=500)
+    target_name: str | None = Field(default=None,max_length=120)
+    start_time: str | None = Field(default=None,pattern=r'^(?:[01]\d|2[0-3]):[0-5]\d$')
+    start_quote: str | None = Field(default=None,max_length=200)
+    restore_version: int | None = Field(default=None,ge=1)
 
 
 class Constraint(Strict):
@@ -121,7 +131,7 @@ class Understanding(Strict):
     model_config = {'json_schema_extra':{'description':
         'A turn can contain conversation plus read-only queries and/or one planning patch. '
         'Each branch is independent; formal itinerary submission is never part of this object.'}}
-    schema_version: Literal['travel-intent/3.2'] = 'travel-intent/3.2'
+    schema_version: Literal['travel-intent/3.3'] = 'travel-intent/3.3'
     actions: tuple[Action, ...] = Field(default=(), max_length=8)
     constraints: tuple[Constraint, ...] = Field(default=(), max_length=16)
     corrections: tuple[Correction, ...] = Field(default=(), max_length=4)
@@ -131,9 +141,16 @@ class Understanding(Strict):
     route_query: ReferenceRouteIntent | None = None
     weather_query: WeatherIntent | None = None
     service_query: ServiceIntent | None = None
+    state_request: StateIntent | None = None
 
     @model_validator(mode='after')
     def validate_subrequests(self):
+        if self.state_request:
+            expected={'complete':'progress','skip':'progress','position':'position','cancel':'cancel','restore':'modify'}[self.state_request.operation]
+            if not any(a.kind==expected and a.quote==self.state_request.quote for a in self.actions):
+                raise ValueError('state request needs matching action')
+            if self.planning or self.service_query or self.weather_query or self.route_query or self.conversation or self.constraints:
+                raise ValueError('state operation needs its own turn')
         if self.route_query and self.route_query.use_current_position and self.route_query.origin:
             raise ValueError('route query cannot carry both origin and current position')
         if self.weather_query and not any(a.kind=='query' and a.quote==self.weather_query.quote for a in self.actions):

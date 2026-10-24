@@ -102,7 +102,18 @@ def test_chat_reuses_workspace_after_semantic_understanding(env,monkeypatch):
     monkeypatch.setattr(language,'available',lambda:True)
     def semantic(system,payload,**kwargs):
         calls.append(payload['text'])
-        return {'actions':[{'kind':'search_services','quote':payload['text']}]},{'source':'mock_model'}
+        quote=payload['text']
+        return {'actions':[{'kind':'search_services','quote':quote}],
+                'service_query':{'quote':quote,'fields':[
+                    {'field':'check_in','value':str(datetime.now(TZ).date()+timedelta(days=1)),'quote':quote},
+                    {'field':'nights','value':2,'quote':'住2晚'},
+                    {'field':'guests','value':2,'quote':'两个人'},
+                    {'field':'rooms','value':1,'quote':'1间房'},
+                    {'field':'max_price','value':200,'quote':'200元以内'},
+                    {'field':'window','value':True,'quote':'必须有窗户'},
+                    {'field':'dry_wet','value':True,'quote':'干湿分离'},
+                    {'field':'breakfast','value':True,'quote':'早餐也要有'},
+                    {'field':'free_parking','value':True,'strength':'soft','quote':'最好免费停车'}] }},{'source':'mock_model'}
     monkeypatch.setattr(provider,'generate',semantic)
     c,p=env
     t=c.post(p+'/agent/tasks',json={'request_id':rid(),'text':text(),'expected_version':1,'expected_route_version':0}).json()
@@ -253,7 +264,14 @@ def test_compound_action_only_service_query_is_not_dropped(env,monkeypatch):
     monkeypatch.setattr(language,'available',lambda:True)
     monkeypatch.setattr(provider,'generate',lambda *args,**kwargs:({
         'conversation':{'reply':'酒店设施需要进一步核实。'},
-        'actions':[{'kind':'search_services','quote':message[:500]}]},{'source':'mock_model'}))
+            'actions':[{'kind':'search_services','quote':message[:500]}],
+            'service_query':{'quote':message[:500],'fields':[
+                {'field':'check_in','value':str(datetime.now(TZ).date()+timedelta(days=1)),'quote':message[:500]},
+                {'field':'nights','value':2,'quote':'住2晚'}, {'field':'guests','value':2,'quote':'两个人'},
+                {'field':'rooms','value':1,'quote':'1间房'}, {'field':'max_price','value':200,'quote':'200元以内'},
+                {'field':'window','value':True,'quote':'必须有窗户'},
+                {'field':'dry_wet','value':True,'quote':'干湿分离'}, {'field':'breakfast','value':True,'quote':'早餐也要有'},
+                {'field':'free_parking','value':True,'strength':'soft','quote':'最好免费停车'}]}},{'source':'mock_model'}))
     task=c.post(p+'/agent/tasks',json={'request_id':rid(),'text':message,'expected_version':1,'expected_route_version':0}).json()
     for _ in range(2):
         task=c.post(p+'/agent/tasks/'+task['task_id']+'/step',json={'request_id':rid(),'expected_step':task['step']}).json()

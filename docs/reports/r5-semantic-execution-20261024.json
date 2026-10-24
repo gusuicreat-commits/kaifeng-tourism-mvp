@@ -1,0 +1,16 @@
+{
+  "issue": "R5",
+  "schema": "travel-intent/3.3",
+  "verification": {
+    "new_regressions_passed": 7,
+    "related_passed": 160,
+    "contract": "regenerated",
+    "diff_check": "passed"
+  },
+  "boundaries": {
+    "live_model_calls": 0,
+    "live_provider_calls": 0,
+    "runtime_restart": "deferred until R12"
+  },
+  "compatibility": "offline and explicit /services/query retain legacy parser"
+}

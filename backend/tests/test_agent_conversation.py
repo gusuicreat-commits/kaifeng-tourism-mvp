@@ -152,7 +152,7 @@ def test_other_trip_dialogue_does_not_leak_into_context(city,monkeypatch):
 def test_query_model_uses_existing_fact_service_instead_of_free_text_facts(city,monkeypatch):
     planned(city);before=business(city);text='那场演出几点开始？'
     monkeypatch.setattr(language,'available',lambda:True)
-    monkeypatch.setattr(provider,'generate',lambda *a,**k:({'actions':[{'kind':'query','quote':text}]},{'source':'mock_model'}))
+    monkeypatch.setattr(provider,'generate',lambda *a,**k:({'actions':[{'kind':'query','quote':text,'purpose':'shows'}]},{'source':'mock_model'}))
     task=run(city,text)
     assert task['mode']=='direct' and task['result']['facts']
     assert business(city)==before
@@ -166,7 +166,7 @@ def test_saved_plan_reads_use_semantics_online_and_work_offline(city,monkeypatch
     calls=[]
     def semantic(*a,**k):
         calls.append(1)
-        return {'actions':[{'kind':'query','quote':text}]},{'source':'mock_model'}
+        return {'actions':[{'kind':'query','quote':text,'purpose':'trip'}]},{'source':'mock_model'}
     monkeypatch.setattr(provider,'generate',semantic)
     task=run(city,text)
     assert len(calls)==int(online) and task['metrics']['model_calls']==int(online)

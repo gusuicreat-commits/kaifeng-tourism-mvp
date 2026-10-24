@@ -219,7 +219,7 @@ def _finish(session,t,status,result):
     if not t.cancelled and t.snapshot is not None and t.intent and t.mode in ('workflow','react'):
         queries=[a for a in t.intent.actions if a.kind=='query']
         if queries:
-            result['answers']=[v2service._query(a.quote,t.snapshot,interpret.rules(a.quote,t.snapshot)) for a in queries[:4]]
+            result['answers']=[_read_query(t,a,t.snapshot) for a in queries[:4]]
     t.status=status;t.result=result;t.terminal_at=time.monotonic()
     if t.snapshot is not None:
         try:_persist(session,t)
@@ -248,13 +248,13 @@ def cancel(session,trip_id,identity):
 
 
 def _merge(intent,snapshot):
-    if intent.planning or intent.conversation or intent.route_query or intent.weather_query or intent.service_query:return intent
+    if intent.planning or intent.conversation or intent.route_query or intent.weather_query or intent.service_query or intent.state_request:return intent
     active=[p for p in snapshot.pending if p['status']=='valid' and p.get('action',{}).get('operation')=='assistant_v3_intent']
     if len(active)!=1 or all(a.kind in ('query','search_services','cancel','progress','position') for a in intent.actions):return intent
     saved=dict(active[0]['action']['understanding'])
     # 3.1 persisted intents used the same action/constraint fields. Upgrade only
     # this server-owned record; fresh model output must follow the new contract.
-    if saved.get('schema_version')=='travel-intent/3.1':saved['schema_version']='travel-intent/3.2'
+    if saved.get('schema_version') in ('travel-intent/3.1','travel-intent/3.2'):saved['schema_version']='travel-intent/3.3'
     previous=Understanding.model_validate(saved)
     replaces={c.field for c in intent.constraints}
     new_hard={c.field for c in intent.constraints if c.strength=='hard'}
@@ -280,13 +280,27 @@ def _defer(session,t):
              state.catalog_revision(t.snapshot.planning.facts),stamp(t.snapshot.planning.assessed_at+timedelta(minutes=15))))
 
 
+def _read_query(t,action,snapshot):
+    if t.interpretation.get('basis')=='kimi_validated':
+        from .semantic_execution import read_action
+        intent=read_action(action,snapshot)
+        if intent is None:return {'status':'needs_clarification','reply':'请明确查询对象；本轮语义结果缺少查询类型，未改写为其他意图。'}
+    else:intent=interpret.rules(action.quote,snapshot)
+    return v2service._query(action.quote,snapshot,intent)
+
+
 def _workflow(session,t):
     snapshot=t.snapshot
     if any(a.kind=='search_dining' for a in t.intent.actions):
         return {'status':'needs_clarification','reply':'固定流程需要明确商家；请提供店名，或使用受控搜索查找候选。'},[]
-    # Progress, position, history and cancellation reuse the V2 strict workflow.
+    # Typed semantic state operations reuse the existing guarded V2 executor.
     if not t.intent.constraints:
-        local=interpret.rules(t.text,t.snapshot)
+        if t.interpretation.get('basis')=='kimi_validated':
+            if not t.intent.state_request:
+                return {'status':'needs_clarification','reply':'请明确状态操作及目标；也可以使用相应按钮。'},[]
+            from .semantic_execution import state_action
+            local=state_action(t.intent.state_request,t.snapshot)
+        else:local=interpret.rules(t.text,t.snapshot)
         if all(a.kind=='cancel' for a in t.intent.actions):local=local.model_copy(update={'operation':'cancel','purpose':'modify'})
         if local.operation=='unknown':
             return {'status':'needs_clarification','reply':'请明确要调整的活动或条件。'},[]
@@ -350,7 +364,7 @@ def _compound_step(session,t):
     if queries:
         answers=[]
         for action in queries[:4]:
-            answer=v2service._query(action.quote,snapshot,interpret.rules(action.quote,snapshot));answers.append(answer)
+            answer=_read_query(t,action,snapshot);answers.append(answer)
         query_status='answered' if all(a.get('status')=='answered' for a in answers) else 'needs_data'
         parts.append({'kind':'direct_query','status':query_status,'answers':answers});statuses.append(query_status)
         replies.extend(a.get('reply','') for a in answers if a.get('reply'))
@@ -576,11 +590,8 @@ def _advance(session,trip_id,identity,body):
                 t.events[-1]['status']=result['services']['result']['status']
                 _finish(session,t,'answered',result)
             elif t.mode=='direct':
-                local=interpret.rules(t.text,t.snapshot)
-                if local.purpose=='travel' and re.search(r'怎么走|怎么去|如何走|路线|坐什么车',t.text) and not any(w in t.text for w in ('从这里','当前位置','我这里','下一站')):
-                    result={'status':'needs_clarification','state':'ambiguous_locations','code':'ROUTE_ENDPOINTS_REQUIRED',
-                            'reply':'请告诉我从哪个地点出发、到哪个地点；明确地名问路无需提供GPS。'}
-                else:result=v2service._query(t.text,t.snapshot,local)
+                action=next(a for a in t.intent.actions if a.kind=='query')
+                result=_read_query(t,action,t.snapshot)
                 _finish(session,t,result['status'],result)
             elif t.snapshot.row['status'] in state.TERMINAL:
                 _finish(session,t,'needs_data',{'reply':'这趟旅行已结束，不能继续调整；请新建旅行。'})

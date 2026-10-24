@@ -82,7 +82,7 @@ def test_next_semantic_online_and_deterministic_offline(city,monkeypatch,online)
     monkeypatch.setattr(language,'available',lambda:online)
     def semantic(*a,**k):
         calls.append(1)
-        return {'actions':[{'kind':'query','quote':'下一站去哪？'}]},{'source':'mock_model'}
+        return {'actions':[{'kind':'query','quote':'下一站去哪？','purpose':'next'}]},{'source':'mock_model'}
     monkeypatch.setattr(provider,'generate',semantic)
     t=run(city,'下一站去哪？')
     assert len(calls)==int(online) and t['metrics']['model_calls']==int(online)
@@ -379,7 +379,7 @@ def test_legacy_pending_intent_survives_compound_schema_upgrade(city):
     followup=Understanding(actions=(Action(kind='preference',quote='最好少走一点'),),
         constraints=(Constraint(field='objective',strength='soft',value='less_walking',quote='最好少走一点'),))
     merged=service._merge(followup,snap)
-    assert merged.schema_version=='travel-intent/3.2'
+    assert merged.schema_version=='travel-intent/3.3'
     assert any(c.field=='walking_seconds' and c.strength=='hard' and c.value==600 for c in merged.constraints)
 
 

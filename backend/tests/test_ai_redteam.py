@@ -257,7 +257,7 @@ def test_rt20_external_fact_name_cannot_grant_tool_commit_permission(city,monkey
         return {'tool':'confirm_itinerary'},{'source':'mock_model'}
     monkeypatch.setattr(provider,'generate',attack)
     t=run(city,'找个餐厅')
-    assert t['status']=='invalid_action' and t['metrics']['tools']==1
+    assert t['status']=='invalid_action' and t['metrics']['tools']==1,json.dumps(t,ensure_ascii=False)
     assert not t['result'].get('confirmation') and get(city)==before
 
 
