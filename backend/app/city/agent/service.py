@@ -290,7 +290,11 @@ def _read_query(t,action,snapshot):
         from .semantic_execution import read_action
         intent=read_action(action,snapshot)
         if intent is None:return {'status':'needs_clarification','reply':'请明确查询对象；本轮语义结果缺少查询类型，未改写为其他意图。'}
-    else:intent=interpret.rules(action.quote,snapshot)
+    else:
+        intent=interpret.rules(action.quote,snapshot)
+        if intent.purpose=='travel' and re.search(r'怎么走|怎么去|如何走|路线|坐什么车',action.quote) and not any(w in action.quote for w in ('从这里','当前位置','我这里','下一站')):
+            return {'status':'needs_clarification','state':'ambiguous_locations','code':'ROUTE_ENDPOINTS_REQUIRED',
+                'reply':'请告诉我从哪个地点出发、到哪个地点；明确地名问路无需提供GPS。'}
     return v2service._query(action.quote,snapshot,intent)
 
 
@@ -385,13 +389,14 @@ def _compound_step(session,t):
         elif any(a.kind in ('progress','position','cancel') for a in intent.actions):
             planning_result={'status':'needs_clarification','reply':'进度、当前位置与取消操作请单独确认；本轮未执行这些状态修改。'}
         elif intent.planning:
-            from .planning_intent import proposal
-            t.events.append({'tool':'planning_workflow','status':'running','parameters':{}})
+            from .orchestration import execute
+            t.tools+=1;t.events.append({'tool':'planning_workflow','status':'running','parameters':{},'source':'backend_orchestrator'})
             planning_intent=intent.model_copy(update={
                 'actions':tuple(a for a in intent.actions if a.kind in ('modify','preference','cancel','progress','position')),
                 'conversation':None,'route_query':None,'weather_query':None,'service_query':None})
-            planning_result=proposal(session,t.trip_id,snapshot,planning_intent,t.text,today=t.interpretation_date)
-            if not _fresh(session,t):return public(t)
+            planning_result=execute(session,t,planning_intent)
+            if not _fresh(session,t):
+                _discard_result(session,t,planning_result);return public(t)
             t.events[-1]['status']=planning_result['status']
         else:
             t.tools+=1;t.events.append({'tool':'preview_plan','status':'running','parameters':{}})
@@ -423,7 +428,7 @@ def _compound_step(session,t):
         elif item['kind']=='direct_query':result['answers']=item['answers']
         elif item['kind']=='planning':
             result['planning']=item['result']
-            if 'planning_action' in item['result']:result['planning_action']=item['result']['planning_action']
+            if 'planning_workflow' in item['result']:result['planning_workflow']=item['result']['planning_workflow']
             if item['status']=='needs_confirmation':
                 result.update({key:value for key,value in item['result'].items() if key not in ('reply','status','formal_state_changed')})
     _finish(session,t,status,result)
@@ -630,10 +635,11 @@ def _advance(session,trip_id,identity,body):
             _finish(session,t,result['status'],result)
             return public(t)
         if t.mode=='planning':
-            from .planning_intent import proposal
-            t.events.append({'tool':'planning_workflow','status':'running','parameters':{}})
-            result=proposal(session,t.trip_id,t.snapshot,t.intent,t.text,today=t.interpretation_date)
-            if not _fresh(session,t):return public(t)
+            from .orchestration import execute
+            t.tools+=1;t.events.append({'tool':'planning_workflow','status':'running','parameters':{},'source':'backend_orchestrator'})
+            result=execute(session,t,t.intent)
+            if not _fresh(session,t):
+                _discard_result(session,t,result);return public(t)
             t.events[-1]['status']=result['status']
             _finish(session,t,result['status'],result);return public(t)
         if t.mode=='workflow':
@@ -723,6 +729,11 @@ def _advance(session,trip_id,identity,body):
 
 
 def _discard_result(session,t,result):
+    candidate=((result.get('planning_workflow') or {}).get('result',{}).get('planning') or {}).get('candidate_id')
+    if candidate:
+        with connect() as db:
+            state.owned(db,session,t.trip_id)
+            db.execute('UPDATE city_engine_candidates SET consumed=1 WHERE id=? AND trip_id=?',(candidate,t.trip_id))
     confirmation=result.get('confirmation')
     if confirmation:
         from ..assistant.models import DiscardAssistant

@@ -136,7 +136,7 @@ def test_rt11_explicit_correction_remains_supported(city,monkeypatch):
     model(monkeypatch,{'actions':[{'kind':'modify','quote':text}],
         'planning':{'quote':text,'fields':[{'field':'date','value':'后天','quote':'后天'}]}})
     t=run(city,text)
-    assert t['status']=='planning_input' and t['result']['planning_action']['constraints']['business_date']=='2030-05-03',t
+    assert t['status']=='needs_clarification' and t['result']['planning_workflow']['result']['constraints']['business_date']=='2030-05-03',t
     assert get(city)['draft']['business_date'] is None
 
 

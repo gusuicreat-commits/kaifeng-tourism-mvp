@@ -190,7 +190,7 @@ test('缺地点资料时可填写起终点，刷新保留且不生成正式路�
  await expect(page.getByLabel('已提供的安排')).toContainText('回到开封站')
  await expect(page.getByText('从哪里出发，最后返回哪里？',{exact:true})).toHaveCount(0)
  const formal=await(await page.request.get(path)).json();expect(formal.version).toBe(trip.version);expect(formal.route_version).toBe(0);expect(formal.draft.stops).toEqual([])
- expect(tasks).toBe(6);expect(confirms).toBe(0);expect(understood.filter(x=>x==='planning_input').length).toBe(4)
+ expect(tasks).toBe(6);expect(confirms).toBe(0);expect(understood.filter(x=>x==='needs_clarification').length).toBe(4)
 })
 
 test('结构化规划输入必须属于当前旅程，相同版本也不能串写',async({page})=>{
@@ -199,13 +199,14 @@ test('结构化规划输入必须属于当前旅程，相同版本也不能串�
  const first=await create(),other=await create()
  await page.route('**/agent/tasks/*/step',async route=>{
   const response=await route.fetch(),data=await response.json()
-  if(data.result?.planning_action)data.result.planning_action.trip_id=other.id
+  if(data.result?.planning_workflow)data.result.planning_workflow.trip_id=other.id
   await route.fulfill({response,json:data})
  })
  await page.goto('/assistant?context=city&city_trip='+first.id)
  const input=page.getByLabel('告诉小汴梁你的问题或想调整的安排',{exact:true})
  await expect(input).toBeEnabled();await input.fill('我明天想去开封玩')
  await page.getByRole('button',{name:'发送',exact:true}).click()
- await expect(page.locator('.agent-messages')).toContainText('安排已变化，请重新提出要求。')
- for(const trip of [first,other])expect((await(await page.request.get('/api/city/v1/trips/'+trip.id+'/exploration/constraints')).json()).version).toBe(0)
+ await expect(page.locator('.agent-messages')).toContainText('安排已变化，请重新读取当前旅程。')
+ expect((await(await page.request.get('/api/city/v1/trips/'+first.id+'/exploration/constraints')).json()).version).toBe(1)
+ expect((await(await page.request.get('/api/city/v1/trips/'+other.id+'/exploration/constraints')).json()).version).toBe(0)
 })

@@ -143,6 +143,20 @@ class Understanding(Strict):
     service_query: ServiceIntent | None = None
     state_request: StateIntent | None = None
 
+    @model_validator(mode='before')
+    @classmethod
+    def canonical_planning_action(cls,value):
+        # Typed planning is the semantic branch; actions are an execution index.
+        # Canonicalize redundant model indexing only, without interpreting text
+        # or granting permissions: planning evidence still passes mutation gates.
+        if isinstance(value,dict) and isinstance(value.get('planning'),dict):
+            quote=value['planning'].get('quote')
+            actions=value.get('actions',[])
+            if quote and isinstance(actions,(list,tuple)) and not any(a.get('kind')=='modify' for a in actions if isinstance(a,dict)):
+                retained=[a for a in actions if not (isinstance(a,dict) and a.get('kind')=='query' and a.get('quote')==quote)]
+                value=dict(value,actions=[*retained,{'kind':'modify','quote':quote}])
+        return value
+
     @model_validator(mode='after')
     def validate_subrequests(self):
         if self.state_request:

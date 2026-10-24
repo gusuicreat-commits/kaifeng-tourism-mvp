@@ -146,12 +146,12 @@ def test_compound_turn_answers_queries_searches_services_and_previews_planning(e
     t=c.post(p+'/agent/tasks/'+t['task_id']+'/step',json={'request_id':rid(),'expected_step':t['step']}).json()
     assert t['mode']=='compound' and t['status']=='running'
     t=c.post(p+'/agent/tasks/'+t['task_id']+'/step',json={'request_id':rid(),'expected_step':t['step']}).json()
-    assert t['mode']=='compound' and t['status']=='answered',t
-    assert t['result']['compound']['partial'] is False
+    assert t['mode']=='compound' and t['status']=='needs_clarification',t
+    assert t['result']['compound']['partial'] is True
     kinds=[item['kind'] for item in t['result']['compound']['items']]
     assert kinds==['conversation','travel_services','planning']
     assert t['result']['services']['requirements']['nights']==2
-    assert t['result']['planning_action']['constraints']['business_date']==(datetime.now(TZ).date()+timedelta(days=2)).isoformat()
+    assert t['result']['planning_workflow']['result']['constraints']['business_date']==(datetime.now(TZ).date()+timedelta(days=2)).isoformat()
     assert t['result']['formal_state_changed'] is False
     assert c.get(p).json()['route_version']==0
 
@@ -230,7 +230,7 @@ def test_compound_provider_failure_preserves_explanation_and_planning(env,monkey
     items={item['kind']:item for item in task['result']['compound']['items']}
     assert items['conversation']['status']=='answered'
     assert items['travel_services']['status']==part_status
-    assert items['planning']['result']['planning_action']['date_changed'] is True
+    assert items['planning']['result']['planning_workflow']['date_changed'] is True
     assert '早餐信息尚待核实' in task['result']['reply']
     assert c.get(p).json()==before
 

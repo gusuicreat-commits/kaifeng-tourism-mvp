@@ -4,15 +4,11 @@ import {ArrowRight,Check,Clock3,Footprints,RefreshCw} from 'lucide-vue-next'
 import {journey,clock,nameOf,loadBasket,loadJourney,loadConfirmedRoute,localDate} from '../journey'
 import {explorationApi,type PlanningConstraints,type PlanningResult} from '../explorationApi'
 import {ApiError} from '../api'
-import type {PlanningAction} from '../cityAgentApi'
 import {memoryEpoch} from '../voiceDraft'
 import LocationPicker from './LocationPicker.vue'
-export type PlanningReply={handled:boolean;reply?:string}
-const props=defineProps<{tripId:string}>(),emit=defineEmits<{busy:[value:boolean]}>()
+const props=defineProps<{tripId:string;revision?:number}>(),emit=defineEmits<{busy:[value:boolean]}>()
 const initializing=ref(true),confirming=ref(false),conversation=ref<HTMLElement>()
 let disposed=false,requestSequence=0
-let finishInitializing!:()=>void
-const initialized=new Promise<void>(resolve=>finishInitializing=resolve)
 const busy=ref(false),error=ref(''),result=ref<PlanningResult|null>(null),selected=ref(0),day=ref(''),start=ref(''),end=ref(''),budget=ref(''),rounds=ref(0),cancelled=ref(false)
 const submittedHash=ref(''),planningVersion=ref(0)
 const form=ref<PlanningConstraints>({business_date:null,starts_at:null,ends_at:null,origin_place_id:null,destination_place_id:null,pace:'standard',objective:'balanced',modes:['walking'],budget_fen:null})
@@ -38,29 +34,6 @@ async function advance(){
 }
 function editStep(value:string){editingStep.value=value;error.value=''}
 function applyLocation(role:'origin'|'destination',name:string,factId:string|null){form.value[role+'_place_id' as 'origin_place_id'|'destination_place_id']=factId;form.value[role+'_text' as 'origin_text'|'destination_text']=name}
-// Natural language is understood on the server. This component only applies validated workflow inputs.
-async function applyAction(action:PlanningAction):Promise<PlanningReply>{
- if(initializing.value){await initialized;if(disposed||initializing.value)return {handled:true,reply:'暂时无法接上这次安排，请重试读取条件。'}}
- if(busy.value)return {handled:true,reply:'正在整理刚才的安排，请稍等。'}
- if(action.trip_id!==props.tripId||action.trip_version!==journey.trip?.version||action.basket_version!==journey.basketVersion||action.planning_version!==planningVersion.value)return {handled:true,reply:'安排已变化，请重新提出要求。'}
- if(action.operation==='continue'){
-  if(success.value)return {handled:true,reply:'这份行程已保存，可以返回行程查看。'}
-  if(visibleResult.value)return {handled:true,reply:alternatives.value.length?'方案已准备好，请点“确认方案”保存。':visibleResult.value.reply}
-  if(!canContinue.value)return {handled:true,reply:question.value}
-  await advance();return {handled:true,reply:error.value|| (missingStep.value==='ready'?'请查看下方的安排结果。':question.value)}
- }
- if(action.choice_text){await answer({text:action.choice_text});return {handled:true,reply:error.value||'已按你的取舍重新检查安排。'}}
- {
-  applyConstraints(action.constraints)
-  await run()
-  if(error.value)return {handled:true,reply:error.value}
-  activeStep.value=missingStep.value;editingStep.value=''
-  const recorded=action.date_changed?'日期已记为 '+day.value+'。':'已记下你的安排。'
-  return {handled:true,reply:recorded+(missingStep.value!=='ready'?question.value:'')}
- }
-}
-defineExpose({applyAction})
-
 const stale=computed(()=>!!result.value&&(result.value.basket_version!==journey.basketVersion||result.value.trip_version!==journey.trip?.version||submittedHash.value!==JSON.stringify(params())))
 const chosenChanges=computed(()=>result.value?.planning?.alternative_changes?.[selected.value]||result.value?.planning?.changes)
 const alternatives=computed(()=>result.value?.planning?.result.itineraries||[])
@@ -82,9 +55,10 @@ const success=ref(false)
 function resetLocal(){requestSequence++;busy.value=false;cancelled.value=true;result.value=null;success.value=false;error.value=''}
 async function cancel(){if(confirming.value)return;const version=planningVersion.value;resetLocal();if(!journey.trip)return;busy.value=true;const guard=memoryEpoch.value
  try{const saved=await explorationApi.cancel(props.tripId,journey.trip.version,journey.basketVersion,version);if(!disposed&&guard===memoryEpoch.value){planningVersion.value=saved.version;rounds.value=0}}catch(e){if(!disposed&&guard===memoryEpoch.value){error.value=(e as Error).message;initializing.value=true}}finally{if(!disposed&&guard===memoryEpoch.value)busy.value=false}}
-async function initialize(){error.value='';const epoch=memoryEpoch.value,id=props.tripId
- try{await loadJourney();if(journey.trip?.id!==id)throw new Error('当前旅程已变化，请重新打开规划');const draft=journey.trip.draft;const saved=await explorationApi.constraints(id);if(disposed||epoch!==memoryEpoch.value||journey.trip?.id!==id)return;const c=saved.constraints;applyConstraints(c||{business_date:draft.business_date,starts_at:draft.starts_at,ends_at:draft.ends_at,origin_place_id:draft.origin_place_id,destination_place_id:draft.destination_place_id,pace:draft.pace||'standard',objective:draft.objective||'balanced',modes:[...draft.modes],budget_fen:null});planningVersion.value=saved.version;rounds.value=saved.rounds;result.value=saved.result;submittedHash.value=JSON.stringify(params());activeStep.value=missingStep.value;initializing.value=false}
- catch(e){if(!disposed&&epoch===memoryEpoch.value)error.value='规划条件未加载完成：'+(e as Error).message}finally{finishInitializing()}}
+async function initialize(){error.value='';initializing.value=true;const epoch=memoryEpoch.value,id=props.tripId,sequence=++requestSequence
+ try{await loadJourney();if(journey.trip?.id!==id)throw new Error('当前旅程已变化，请重新打开规划');const draft=journey.trip.draft;const saved=await explorationApi.constraints(id);if(disposed||sequence!==requestSequence||epoch!==memoryEpoch.value||journey.trip?.id!==id)return;const c=saved.constraints;applyConstraints(c||{business_date:draft.business_date,starts_at:draft.starts_at,ends_at:draft.ends_at,origin_place_id:draft.origin_place_id,destination_place_id:draft.destination_place_id,pace:draft.pace||'standard',objective:draft.objective||'balanced',modes:[...draft.modes],budget_fen:null});planningVersion.value=saved.version;rounds.value=saved.rounds;result.value=saved.result;submittedHash.value=JSON.stringify(params());activeStep.value=missingStep.value;initializing.value=false}
+ catch(e){if(!disposed&&epoch===memoryEpoch.value)error.value='规划条件未加载完成：'+(e as Error).message}}
+watch(()=>props.revision,()=>void initialize())
 onMounted(initialize)
 onBeforeUnmount(()=>{disposed=true;requestSequence++})
 watch(memoryEpoch,()=>{resetLocal();error.value='记录已清除';busy.value=false})

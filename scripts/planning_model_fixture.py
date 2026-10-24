@@ -14,6 +14,7 @@ def install():
     morning=field('start_time','09:00','上午9点')
     evening=field('end_time','18:00','下午6点')
     cases={
+        '就这样':{'operation':'continue'},
         '2030-05-01，上午9点到下午6点':{'fields':[day,morning,evening]},
         '2030-05-01，上午9点到下午6点，轻松一点':{'fields':[day,morning,evening,field('pace','relaxed','轻松一点')]},
         '2030-05-01，下午6点到上午9点':{'fields':[day,field('start_time','18:00','下午6点'),field('end_time','09:00','上午9点')]},

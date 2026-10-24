@@ -69,9 +69,14 @@ def saved_constraints(trip_id:UUID,s:Session=Depends(current)):
 
 @router.post('/preview')
 def preview(trip_id:UUID,body:Plan,s:Session=Depends(current)):
+    return preview_plan(trip_id,body,s)
+
+
+def preview_plan(trip_id,body,s,*,execution_guard=None):
     limit('exploration:'+s.id,20)
     data=body.model_dump(mode='json');scope='exploration:'+str(trip_id)
     with connect() as db:
+        if execution_guard:execution_guard(db)
         row=state.owned(db,s,trip_id);state.check_version(row,body.expected_version);basket.guard(db,trip_id,body.basket_version)
         cached=state.receipt(db,s,body.request_id,scope,data)
         if cached is not None:return cached
@@ -141,18 +146,27 @@ def preview(trip_id:UUID,body:Plan,s:Session=Depends(current)):
         for a in json.loads(old['itinerary_json'])['activities']:
             result['activity_names'].setdefault(a['goal_id'],getattr(ctx.facts.get(('place',a['place_id'])),'name','资料待添加'))
     result.update(constraints=body.constraints.model_dump(mode='json'),basket_version=body.basket_version,trip_version=body.expected_version)
-    with connect() as db:
-        db.execute('BEGIN IMMEDIATE');state.check_version(state.owned(db,s,trip_id),body.expected_version);basket.guard(db,trip_id,body.basket_version)
-        cached=state.receipt(db,s,body.request_id,scope,data)
-        if cached is not None:return cached
-        exploration_state.guard(db,trip_id,planning_version)
-        saved=exploration_state.save(db,trip_id,result['constraints'],result,workspace['rounds'])
+    try:
+        with connect() as db:
+            db.execute('BEGIN IMMEDIATE')
+            if execution_guard:execution_guard(db)
+            state.check_version(state.owned(db,s,trip_id),body.expected_version);basket.guard(db,trip_id,body.basket_version)
+            cached=state.receipt(db,s,body.request_id,scope,data)
+            if cached is not None:return cached
+            exploration_state.guard(db,trip_id,planning_version)
+            saved=exploration_state.save(db,trip_id,result['constraints'],result,workspace['rounds'])
+            candidate=(result.get('planning') or {}).get('candidate_id')
+            if candidate:
+                row=db.execute('SELECT progress_json FROM city_engine_candidates WHERE id=?',(candidate,)).fetchone()
+                extra=json.loads(row[0]);extra['planning_version']=saved['version']
+                db.execute('UPDATE city_engine_candidates SET progress_json=? WHERE id=?',(json.dumps(extra),candidate))
+            state.remember(db,s,body.request_id,trip_id,scope,data,result)
+    except HTTPException:
         candidate=(result.get('planning') or {}).get('candidate_id')
         if candidate:
-            row=db.execute('SELECT progress_json FROM city_engine_candidates WHERE id=?',(candidate,)).fetchone()
-            extra=json.loads(row[0]);extra['planning_version']=saved['version']
-            db.execute('UPDATE city_engine_candidates SET progress_json=? WHERE id=?',(json.dumps(extra),candidate))
-        state.remember(db,s,body.request_id,trip_id,scope,data,result)
+            with connect() as db:
+                db.execute('UPDATE city_engine_candidates SET consumed=1 WHERE id=? AND trip_id=?',(candidate,str(trip_id)))
+        raise
     return result
 
 
@@ -202,10 +216,16 @@ def reply_patch(text, items, constraints):
 
 @router.post('/answer')
 def answer(trip_id:UUID,body:Answer,s:Session=Depends(current)):
+    return answer_choice(trip_id,body,s)
+
+
+def answer_choice(trip_id,body,s,*,execution_guard=None):
     if bool(body.option_id)==bool(body.text):raise HTTPException(422,detail='请选择一个选项或提交一句具体取舍。')
     data=body.model_dump(mode='json');scope='exploration_answer:'+str(trip_id)
     with connect() as db:
-        db.execute('BEGIN IMMEDIATE');state.check_version(state.owned(db,s,trip_id),body.expected_version)
+        db.execute('BEGIN IMMEDIATE')
+        if execution_guard:execution_guard(db)
+        state.check_version(state.owned(db,s,trip_id),body.expected_version)
         cached=state.receipt(db,s,body.request_id,scope,data)
         if cached is not None:return cached
         basket.guard(db,trip_id,body.basket_version);exploration_state.guard(db,trip_id,body.planning_version)

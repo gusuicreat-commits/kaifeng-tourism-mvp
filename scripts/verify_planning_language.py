@@ -69,17 +69,16 @@ def main():
                 response=client.post(base+'/agent/tasks/'+task['task_id']+'/step',json={'request_id':uid(),'expected_step':task['step']})
                 if response.status_code!=200:break
                 task=response.json()
-            action=(task.get('result') or {}).get('planning_action')
+            workflow=(task.get('result') or {}).get('planning_workflow')
             report.update(task_status=task['status'],mode=task.get('mode'),interpretation=task.get('interpretation'),
                           reply=(task.get('result') or {}).get('reply'),expected_date=expected,
                           model_requests=budget.http_attempt_count,provider_calls=budget.records())
-            passed=bool(action and action['constraints']['business_date']==expected and task['interpretation'].get('source')==('mock_model' if args.check_only else 'live_model'))
-            if passed:
-                r=client.post(base+'/exploration/preview',json={'request_id':uid(),'expected_version':action['trip_version'],
-                    'basket_version':action['basket_version'],'planning_version':action['planning_version'],'constraints':action['constraints']})
-                workspace=client.get(base+'/exploration/constraints').json()
-                passed=r.status_code==200 and workspace['constraints']['business_date']==expected
-                report['saved_constraints']=workspace['constraints']
+            source_ok=task['interpretation'].get('source')==('mock_model' if args.check_only else 'live_model')
+            workspace=client.get(base+'/exploration/constraints').json()
+            passed=bool(source_ok and workflow and workflow['result']['constraints']['business_date']==expected
+                        and workspace['version']==workflow['result']['planning_version']
+                        and workspace['constraints']['business_date']==expected)
+            report['saved_constraints']=workspace.get('constraints')
             report['formal_state_unchanged']=client.get(base).json()==before
             report['status']='passed' if passed and report['formal_state_unchanged'] else 'failed'
         service.TASKS.clear()

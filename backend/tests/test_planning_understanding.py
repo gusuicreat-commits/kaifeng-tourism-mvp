@@ -36,15 +36,12 @@ def test_round_trip_semantic_online_and_deterministic_offline_never_commits(city
     monkeypatch.setattr(provider,'generate',semantic)
     before=get(city)
     task=run(city,'从开封站出发和返回')
-    assert task['status']=='planning_input' and task['interpretation']['model_calls']==int(online)
+    assert task['status']=='needs_clarification' and task['interpretation']['model_calls']==int(online)
     assert len(calls)==int(online)
-    action=task['result']['planning_action'];c=action['constraints']
+    action=task['result']['planning_workflow']['result'];c=action['constraints']
     assert c['origin_text']==c['destination_text']=='开封站'
     assert c['origin_place_id'] is None and c['destination_place_id'] is None
-    response=city['client'].post(path(city,'/exploration/preview'),json={
-        'request_id':rid(),'expected_version':action['trip_version'],'basket_version':action['basket_version'],
-        'planning_version':action['planning_version'],'constraints':c})
-    assert response.status_code==200
+    assert 'planning_action' not in task['result']
     saved=city['client'].get(path(city,'/exploration/constraints')).json()['constraints']
     assert saved['origin_text']==saved['destination_text']=='开封站'
     assert get(city)==before
@@ -78,16 +75,13 @@ def test_free_text_reaches_llm_before_planning_workflow(city,monkeypatch,text):
     t=run(city,text)
     assert len(calls)==1 and calls[0]['text']==text
     assert t['interpretation']['source']=='mock_model' and t['mode']=='planning'
-    assert t['status']=='planning_input',t
-    action=t['result']['planning_action']
-    assert action['trip_id']==city['trip']['id']
+    assert t['status']=='needs_clarification',t
+    action=t['result']['planning_workflow']['result']
+    assert t['result']['planning_workflow']['trip_id']==city['trip']['id']
     assert action['constraints']['business_date']=='2030-05-02'
     assert action['constraints']['starts_at'] is None
-    assert city['client'].get(path(city,'/exploration/constraints')).json()['version']==0
-    assert get(city)==before  # understanding never writes the formal trip or workspace
-    r=city['client'].post(path(city,'/exploration/preview'),json={'request_id':rid(),'expected_version':action['trip_version'],
-        'basket_version':action['basket_version'],'planning_version':action['planning_version'],'constraints':action['constraints']})
-    assert r.status_code==200,r.text
+    assert city['client'].get(path(city,'/exploration/constraints')).json()['version']==1
+    assert 'planning_action' not in t['result']  # no frontend relay is needed
     assert city['client'].get(path(city,'/exploration/constraints')).json()['constraints']['business_date']=='2030-05-02'
     assert get(city)==before
 
@@ -97,10 +91,11 @@ def test_date_correction_preserves_saved_hours_and_only_current_versions_can_app
     def preview(c,version):return city['client'].post(path(city,'/exploration/preview'),json={'request_id':rid(),'expected_version':1,'basket_version':0,'planning_version':version,'constraints':c})
     assert preview(saved,0).status_code==200
     model(monkeypatch,'我明天想去开封玩',[field('date','明天','明天')])
-    t=run(city,'我明天想去开封玩');action=t['result']['planning_action']
+    t=run(city,'我明天想去开封玩');action=t['result']['planning_workflow']['result']
     assert action['constraints']['starts_at']=='2030-05-02T09:00:00+08:00'
     assert action['constraints']['ends_at']=='2030-05-02T18:00:00+08:00'
-    assert preview(saved|{'pace':'relaxed'},1).status_code==200
+    assert preview(saved|{'pace':'relaxed'},1).status_code==409
+    assert preview(saved|{'pace':'relaxed'},2).status_code==200
     assert preview(action['constraints'],action['planning_version']).status_code==409
     assert city['client'].get(path(city,'/exploration/constraints')).json()['constraints']['business_date']=='2030-05-01'
 
@@ -159,7 +154,7 @@ def test_continue_is_not_route_confirmation(city,monkeypatch):
     before=get(city);text='就这样'
     model(monkeypatch,text,planning={'operation':'continue','quote':text})
     t=run(city,text)
-    assert t['result']['planning_action']['operation']=='continue'
+    assert t['result']['planning_workflow']['operation']=='continue'
     assert 'confirmation' not in t['result'] and get(city)==before
 
 
@@ -189,7 +184,7 @@ def test_travel_city_is_not_a_specific_origin_or_return_point(city,monkeypatch,l
     text='我明天想去开封玩'
     model(monkeypatch,text,[field('date','明天','明天'),field(location_field,'开封','开封')])
     task=run(city,text)
-    action=task['result']['planning_action']
+    action=task['result']['planning_workflow']['result']
     assert action['constraints']['business_date']=='2030-05-02'
     assert action['constraints']['origin_place_id'] is None
     assert action['constraints']['destination_place_id'] is None
@@ -199,8 +194,8 @@ def test_explicit_return_to_city_is_intent_not_a_navigable_place(city,monkeypatc
     text='我明天回开封'
     model(monkeypatch,text,[field('date','明天','明天'),field('destination','开封','开封')])
     task=run(city,text)
-    assert task['status']=='planning_input'
-    c=task['result']['planning_action']['constraints']
+    assert task['status']=='needs_clarification'
+    c=task['result']['planning_workflow']['result']['constraints']
     assert c['destination_text']=='开封' and c['destination_place_id'] is None
 
 
@@ -216,7 +211,7 @@ def test_reported_endpoints_replace_old_ids_without_becoming_facts(city,monkeypa
     model(monkeypatch,text,[field('origin','我住的酒店','我住的酒店'),field('destination','开封站','开封站')])
     before=get(city)
     task=run(city,text)
-    c=task['result']['planning_action']['constraints']
+    c=task['result']['planning_workflow']['result']['constraints']
     assert c['origin_text']=='我住的酒店' and c['destination_text']=='开封站'
     assert c['origin_place_id'] is None and c['destination_place_id'] is None
     assert get(city)==before

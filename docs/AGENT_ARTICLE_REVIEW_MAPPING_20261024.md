@@ -282,3 +282,26 @@ sequenceDiagram
 ```
 
 四项并发场景与相关123项通过，增加跨日回归后相关61项通过。全部使用隔离临时库/同步注入，不重放用户旅行；新增真实调用0。
+
+## R12后端统一规划编排（已实施）
+
+文章第26/52/58/60章对应本项目的确定性规划边界：自然语言理解结果进入新增的后端协调器，由它调用现有`exploration.preview_plan`和`exploration.answer_choice`，不创建第二个求解器。服务端保存规划条件/候选版本，前端的`BasketPlanning`只重新读取、展示和触发现有确认接口；不再接收`planning_action`后在浏览器重新发起规划写请求。取消、条件变化、素材版本变化会在协调器的执行守卫和候选返回前复核，晚到候选被消费，正式路线仍只由明确确认递增版本。
+
+```mermaid
+sequenceDiagram
+    participant C as 城市聊天
+    participant O as 后端协调器
+    participant P as 现有规划引擎
+    participant B as 前端展示
+    participant U as 用户确认
+    C->>O: 类型化planning/state及版本
+    O->>P: preview/answer同一确定性引擎
+    P-->>O: 规划条件与候选
+    O-->>C: backend planning_workflow
+    C->>B: 重新读取工作区并展示
+    B->>U: 展示候选/影响
+    U->>P: 明确confirm
+    P-->>B: route_version递增
+```
+
+验证：后端专项7项、完整隔离快照845项、前端构建和V3契约检查通过；已有7项Agent浏览器回归通过。一次真实Kimi抽样在隔离空旅行中完成1次模型请求，输出被类型化校验并因缺少规划必填条件澄清，正式路线与旅行状态未变；证据见[R12回执](reports/r12-live-planning-20261024.json)。真实模型调用不等于真实开封路线或用户体验验收。

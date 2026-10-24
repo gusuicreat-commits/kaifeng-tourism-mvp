@@ -85,12 +85,9 @@ def main():
                 turn.update(status=task['status'],mode=task.get('mode'),reply=reply,interpretation=task.get('interpretation'))
                 synthetic_history.extend([{'role':'user','text':text[:500]},{'role':'assistant','text':reply[:500]}])
                 if index==0:
-                    action=(task.get('result') or {}).get('planning_action')
-                    passed=bool(action)
-                    if passed:
-                        r=client.post(base+'/exploration/preview',json={'request_id':uid(),'expected_version':1,
-                            'basket_version':0,'planning_version':0,'constraints':action['constraints']})
-                        passed=r.status_code==200
+                    workflow=(task.get('result') or {}).get('planning_workflow')
+                    workspace=client.get(base+'/exploration/constraints').json()
+                    passed=bool(workflow and workspace['version']==workflow['result']['planning_version'])
                 else:
                     unchanged=client.get(base+'/exploration/constraints').json()==workspace_before
                     turn['planning_state_unchanged']=unchanged

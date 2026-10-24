@@ -1,0 +1,277 @@
+{
+  "input": "我明天想去开封玩",
+  "database": "temporary isolated DB",
+  "max_model_requests": 1,
+  "formal_route_committed": false,
+  "real_place_or_route_validation": false,
+  "synthetic_payload_checked": true,
+  "outgoing_payload": {
+    "text": "我明天想去开封玩",
+    "context": {
+      "current_date": "2026-10-24",
+      "requirements": {
+        "interests": [],
+        "dish_interest_ids": [],
+        "locked_stop_ids": [],
+        "targets": [],
+        "business_date": null,
+        "starts_at": null,
+        "ends_at": null,
+        "origin_place_id": null,
+        "destination_place_id": null,
+        "modes": [
+          "walking"
+        ],
+        "pace": "standard",
+        "objective": "balanced",
+        "budget_fen": null
+      },
+      "requirements_source": "trip_state",
+      "state_versions": {
+        "trip_id": "11121774-aa0f-479d-8401-1bb035d6d93e",
+        "trip": 1,
+        "route": 0,
+        "planning": 0,
+        "services": 0
+      },
+      "planning_constraints": {
+        "version": 0,
+        "constraints": null,
+        "rounds": 0
+      },
+      "travel_service_workspace": {
+        "version": 0,
+        "requirements": {
+          "attributes": {}
+        },
+        "status": null,
+        "missing_fields": [],
+        "missing_user_fields": [],
+        "selection": {},
+        "scope": "service_conditions_and_candidate_intentions_not_formal_route"
+      },
+      "planning_readiness": {
+        "scope": "formal_itinerary_only_not_reference_route",
+        "missing_user_fields": [
+          "business_date",
+          "starts_at",
+          "ends_at",
+          "origin_text",
+          "destination_text"
+        ],
+        "missing_data_fields": [
+          "origin_place_id",
+          "destination_place_id"
+        ],
+        "place_catalog_available": false,
+        "blocked_by_missing_place_data": true,
+        "next_step": "可以先询问missing_user_fields中尚未提供的出发和返回地点名称，保存为未核验意向；已有名称不重复问。正式行程的位置资料仍需核验，暂不能生成正式行程；独立高德参考问路可按明确起终点查询，不受本项阻断。",
+        "assessment": {},
+        "issues": []
+      },
+      "progress": {
+        "completed": [],
+        "skipped": [],
+        "ongoing": null,
+        "remaining": [],
+        "next": null,
+        "ended": false
+      },
+      "references": [],
+      "page_focus": null,
+      "basket": {
+        "version": 0,
+        "items": []
+      },
+      "recent_messages": [],
+      "official_plan": {
+        "status": "not_created",
+        "route_version": 0,
+        "stale_reasons": []
+      },
+      "reference_route_capability": {
+        "scope": "named_origin_to_named_destination_reference_only",
+        "explicit_origin_requires_visitor_position": false,
+        "requires_formal_itinerary_data": false,
+        "entry_points_verified": false
+      },
+      "travel_service_capability": {
+        "provider_statuses": {
+          "get_weather": [
+            {
+              "provider_id": "qweather",
+              "status": "unavailable"
+            }
+          ],
+          "search_hotels": [
+            {
+              "provider_id": "flyai",
+              "status": "enabled"
+            }
+          ],
+          "search_merchants": [
+            {
+              "provider_id": "amap",
+              "status": "enabled"
+            }
+          ],
+          "search_parking": [
+            {
+              "provider_id": "amap",
+              "status": "enabled"
+            }
+          ]
+        },
+        "hotel_search_fields": [
+          "name",
+          "address",
+          "provider_display_starting_price"
+        ],
+        "hotel_unknown_fields": [
+          "room_type",
+          "window",
+          "breakfast",
+          "reviews",
+          "selected_rate_plan",
+          "occupancy_total_price"
+        ],
+        "scope": "query_candidates_only_not_booking_or_formal_route",
+        "capability_question": "answer_available_fields_first_without_running_search",
+        "search_request": "search_services_after_semantic_interpretation"
+      },
+      "material_labels": [],
+      "input_budget": {
+        "limit_characters": 12000,
+        "system_characters": 6497,
+        "characters": 9180,
+        "trimmed": []
+      }
+    }
+  },
+  "model_output": {
+    "schema_version": "travel-intent/3.3",
+    "actions": [
+      {
+        "kind": "modify",
+        "quote": "我明天想去开封玩",
+        "purpose": "trip"
+      }
+    ],
+    "planning": {
+      "operation": "update",
+      "quote": "我明天想去开封玩",
+      "fields": [
+        {
+          "field": "city",
+          "value": "开封",
+          "quote": "开封"
+        },
+        {
+          "field": "date",
+          "value": "2026-10-25",
+          "quote": "明天"
+        }
+      ]
+    },
+    "conversation": {
+      "reply": "好的，想明天来开封玩！帮您记下了：城市是开封，日期是明天（10月25日）。\n\n为了给您安排行程，还需要确认几个信息：\n1. 您从哪里出发？（出发地）\n2. 当天返回还是过夜？返回的话回哪里？（目的地）\n3. 大概几点出发、几点结束？\n\n这些先作为意向记录，正式行程需要核验位置资料后才能生成。另外，如果您想先了解景点、美食或交通参考路线，也可以随时问我。"
+    }
+  },
+  "task_status": "needs_clarification",
+  "mode": "compound",
+  "interpretation": {
+    "basis": "kimi_validated",
+    "source": "live_model",
+    "model_calls": 1,
+    "usage": [
+      {
+        "source": "live_model",
+        "model": "kimi-k2.6",
+        "endpoint_host": "api.moonshot.cn",
+        "http_attempts": 1,
+        "automatic_retries": 0,
+        "usage": {
+          "prompt_tokens": 2630,
+          "completion_tokens": 204,
+          "total_tokens": 2834
+        },
+        "cost_cny": null,
+        "cost_basis": "not_calculated_no_price_snapshot",
+        "schedule": {
+          "request_sequence": 1,
+          "started_at": "2026-10-24T15:05:54.777919+00:00",
+          "scope": "single_python_process"
+        },
+        "upstream_status": 200,
+        "request_id": null,
+        "elapsed_ms": 3265.55,
+        "evaluation_request_sequence": 1
+      }
+    ],
+    "context_budget": {
+      "limit_characters": 12000,
+      "system_characters": 6497,
+      "characters": 9180,
+      "trimmed": []
+    },
+    "state_versions": {
+      "trip_id": "11121774-aa0f-479d-8401-1bb035d6d93e",
+      "trip": 1,
+      "route": 0,
+      "planning": 0,
+      "services": 0
+    }
+  },
+  "reply": "好的，想明天来开封玩！帮您记下了：城市是开封，日期是明天（10月25日）。\n\n为了给您安排行程，还需要确认几个信息：\n1. 您从哪里出发？（出发地）\n2. 当天返回还是过夜？返回的话回哪里？（目的地）\n3. 大概几点出发、几点结束？\n\n这些先作为意向记录，正式行程需要核验位置资料后才能生成。另外，如果您想先了解景点、美食或交通参考路线，也可以随时问我。；日期已记为 2026-10-25。当天几点开始，最晚几点结束？",
+  "expected_date": "2026-10-25",
+  "model_requests": 1,
+  "provider_calls": [
+    {
+      "sequence": 1,
+      "case": "initial_planning_date",
+      "source": "live_model",
+      "phase": "understand",
+      "started_at": "2026-10-24T15:05:54.752057+00:00",
+      "interval_since_previous_start_ms": null,
+      "status": "passed",
+      "eligible_actions": [],
+      "model": "kimi-k2.6",
+      "endpoint_host": "api.moonshot.cn",
+      "http_attempts": 1,
+      "automatic_retries": 0,
+      "usage": {
+        "prompt_tokens": 2630,
+        "completion_tokens": 204,
+        "total_tokens": 2834
+      },
+      "cost_cny": null,
+      "cost_basis": "not_calculated_no_price_snapshot",
+      "schedule": {
+        "request_sequence": 1,
+        "started_at": "2026-10-24T15:05:54.777919+00:00",
+        "scope": "single_python_process"
+      },
+      "upstream_status": 200,
+      "request_id": null,
+      "elapsed_ms": 3265.55,
+      "evaluation_request_sequence": 1
+    }
+  ],
+  "saved_constraints": {
+    "budget_fen": null,
+    "business_date": "2026-10-25",
+    "destination_place_id": null,
+    "destination_text": null,
+    "ends_at": null,
+    "modes": [
+      "walking"
+    ],
+    "objective": "balanced",
+    "origin_place_id": null,
+    "origin_text": null,
+    "pace": "standard",
+    "starts_at": null
+  },
+  "formal_state_unchanged": true,
+  "status": "passed"
+}

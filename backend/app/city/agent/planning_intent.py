@@ -39,8 +39,13 @@ def grounded(planning, text, snapshot):
         if f.field in seen and seen[f.field]!=f.value:raise ValueError('conflicting planning values')
         seen[f.field]=f.value
         if f.field=='date':
-            if f.value not in f.quote:raise ValueError('date expression absent')
-            resolve_date(f.value,today)
+            if f.value not in f.quote:
+                # The model may normalize a relative date to ISO. Accept it
+                # only when an explicit date expression in the quoted text
+                # resolves to exactly the same business date.
+                expressions=re.findall(r'(?:今天|明天|后天|\d{4}[-年]\d{1,2}[-月]\d{1,2}日?|\d{1,2}月\d{1,2}日?)',f.quote)
+                if not expressions or resolve_date(expressions[-1],today).isoformat()!=str(f.value):raise ValueError('date expression absent')
+            resolve_date(f.value,today) if f.value in f.quote else date.fromisoformat(str(f.value))
         elif f.field in ('start_time','end_time'):
             if effective_clock(text,f.quote,clock)!=f.value:raise ValueError('invented time')
         elif f.field in ('city','origin','destination') and f.value not in f.quote:raise ValueError('invented place name')

@@ -13,7 +13,7 @@ import TravelServiceCards from './TravelServiceCards.vue'
 import WeatherCard from './WeatherCard.vue'
 
 const props=defineProps<{tripId:string;focus?:ObjectRef|null;initialQuestion?:string;planning?:boolean}>()
-const showPlanning=ref(!!props.planning),planner=ref<InstanceType<typeof BasketPlanning>>(),planningBusy=ref(false)
+const showPlanning=ref(!!props.planning),planningRevision=ref(0),planningBusy=ref(false)
 const inputBusy=computed(()=>busy.value||planningBusy.value)
 const ctx=ref<CityContext|null>(null),text=ref(''),task=ref<AgentTask|null>(null),busy=ref(false),error=ref('')
 const weather=ref<WeatherReport|null>(null)
@@ -68,14 +68,13 @@ async function send(inputOverride?:string){
   t=await drive(t,current)
   if(current!==epoch||disposed)return
   weather.value=t.result?.weather||null
-  if(t.result?.planning_action){
-   if(t.result.compound&&t.result.reply)messages.value.push({role:'小汴梁',text:t.result.reply})
-   showPlanning.value=true;await nextTick()
+  if(t.result?.planning_workflow){
+   if(t.result.planning_workflow.trip_id!==props.tripId)throw new Error('安排已变化，请重新读取当前旅程。')
+   await loadBasket()
    if(current!==epoch||disposed)return
-   const response=await planner.value?.applyAction(t.result.planning_action)
-   if(current!==epoch||disposed)return
-   messages.value.push({role:'小汴梁',text:response?.reply||'规划条件尚未接上，请重试。'})
-  }else messages.value.push({role:'小汴梁',text:t.result?.reply||'本次处理已停止，请重试。'})
+   planningRevision.value++;showPlanning.value=true
+  }
+  messages.value.push({role:'小汴梁',text:t.result?.reply||'本次处理已停止，请重试。'})
  }catch(e){if(current===epoch)error.value=e instanceof Error?e.message:'处理失败，请重试'}
  finally{if(current===epoch)busy.value=false}
 }
@@ -165,7 +164,7 @@ onBeforeUnmount(()=>{disposed=true;epoch++;resizeObserver?.disconnect();if(task.
    <p v-for="change in candidate.changes?.start_changes||[]" :key="change.goal_id">{{candidate.activity_names?.[change.goal_id]||'活动'}}：{{clock(change.before)}} → {{clock(change.after)}}</p>
    <div class="interview-actions"><button class="button" :disabled="busy" @click="confirm">确认修改</button><button class="button secondary" :disabled="busy" @click="cancel">放弃修改</button></div>
   </section>
-  <BasketPlanning v-if="showPlanning&&!candidate" ref="planner" :key="tripId" :trip-id="tripId" @busy="planningBusy=$event"/>
+  <BasketPlanning v-if="showPlanning&&!candidate" :key="tripId" :trip-id="tripId" :revision="planningRevision" @busy="planningBusy=$event"/>
   <div v-else-if="!messages.length&&!focus" class="chat-welcome"><p>想怎么逛开封？</p><button type="button" @click="showPlanning=true">一起安排行程</button></div>
   </div>
   <form class="chat-composer" @submit.prevent="send()">
