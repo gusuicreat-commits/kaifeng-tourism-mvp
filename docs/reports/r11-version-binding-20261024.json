@@ -1,0 +1,8 @@
+{
+  "issue": "R11",
+  "new_cases": 5,
+  "related_passed_before_midnight_case": 123,
+  "final_related_passed": 61,
+  "new_live_calls": 0,
+  "runtime_user_mutations": 0
+}

@@ -70,6 +70,7 @@ class Task:
     selection_wait_started: float | None = None
     selection_requests: dict = field(default_factory=dict)
     retain_history: bool = True
+    interpretation_date: object | None = None
 
 
 def purge(session_id):
@@ -168,6 +169,8 @@ def _fresh(session,t):
         _finish(session,t,'stale',{'reply':'行程或事实资料已变化，请基于最新版本重新计算。'});return False
     if snap.history_enabled!=t.snapshot.history_enabled:
         t.cancelled=True;_finish(session,t,'history_cleared',{'reply':'对话留存设置已变化，请重新提出要求。'});return False
+    if snap.services.get('version',0)!=t.snapshot.services.get('version',0):
+        _finish(session,t,'stale',{'code':'SERVICE_CONDITIONS_CHANGED','reply':'住宿或服务条件已变化，请基于最新条件重新理解；旧意图未继续执行。'});return False
     if snap.envelope.planning_constraints.get('version')!=t.snapshot.envelope.planning_constraints.get('version'):
         _finish(session,t,'stale',{'reply':'规划条件或协商决定已变化，请读取最新条件重新处理。'});return False
     needs_position=t.mode=='react' or t.mode=='reference_route' and t.intent.route_query.use_current_position
@@ -353,7 +356,8 @@ def _compound_step(session,t):
         from .. import travel_services
         t.tools+=1;t.events.append({'tool':'search_travel_services','status':'running','parameters':{},'source':'provider_registry'})
         result=travel_services.query(session,t.trip_id,t.text,snapshot.services.get('version',0),cancelled=lambda:t.cancelled,
-            intent=intent.service_query,today=snapshot.envelope.identity.generated_at.astimezone(__import__('zoneinfo').ZoneInfo('Asia/Shanghai')).date())
+            intent=intent.service_query,today=t.interpretation_date)
+        t.snapshot.services=result['services']
         if not _fresh(session,t):return public(t)
         t.events[-1].update(status=result['services']['result']['status'],query_diagnostics=result['services']['result'].get('query_diagnostics'))
         service_status=result['services']['result']['status']
@@ -386,7 +390,7 @@ def _compound_step(session,t):
             planning_intent=intent.model_copy(update={
                 'actions':tuple(a for a in intent.actions if a.kind in ('modify','preference','cancel','progress','position')),
                 'conversation':None,'route_query':None,'weather_query':None,'service_query':None})
-            planning_result=proposal(session,t.trip_id,snapshot,planning_intent,t.text)
+            planning_result=proposal(session,t.trip_id,snapshot,planning_intent,t.text,today=t.interpretation_date)
             if not _fresh(session,t):return public(t)
             t.events[-1]['status']=planning_result['status']
         else:
@@ -553,7 +557,11 @@ def _advance(session,trip_id,identity,body):
         if not _fresh(session,t):return public(t)
         if t.intent is None:
             t.events.append({'tool':'understand','status':'running','parameters':{}})
+            from .requirement_context import read as requirement_view
+            understood_versions=requirement_view(t.snapshot)['state_versions']
+            t.interpretation_date=t.snapshot.envelope.identity.generated_at.astimezone(__import__('zoneinfo').ZoneInfo('Asia/Shanghai')).date()
             intent,meta=understand.parse(t.text,t.snapshot)
+            meta['state_versions']=understood_versions
             if t.cancelled:return public(t)
             t.model_calls+=meta['model_calls'];t.usage.extend(meta['usage']);t.interpretation=meta
             t.intent=_merge(intent,t.snapshot)
@@ -588,7 +596,8 @@ def _advance(session,trip_id,identity,body):
                 t.tools+=1
                 t.events.append({'tool':'search_travel_services','status':'running','parameters':{},'source':'provider_registry'})
                 result=travel_services.query(session,t.trip_id,t.text,services_workspace.get('version',0),cancelled=lambda:t.cancelled,
-                    intent=t.intent.service_query,today=t.snapshot.envelope.identity.generated_at.astimezone(__import__('zoneinfo').ZoneInfo('Asia/Shanghai')).date())
+                    intent=t.intent.service_query,today=t.interpretation_date)
+                t.snapshot.services=result['services']
                 if not _fresh(session,t):return public(t)
                 t.events[-1].update(status=result['services']['result']['status'],query_diagnostics=result['services']['result'].get('query_diagnostics'))
                 code=result['services']['result']['status']
@@ -623,7 +632,7 @@ def _advance(session,trip_id,identity,body):
         if t.mode=='planning':
             from .planning_intent import proposal
             t.events.append({'tool':'planning_workflow','status':'running','parameters':{}})
-            result=proposal(session,t.trip_id,t.snapshot,t.intent,t.text)
+            result=proposal(session,t.trip_id,t.snapshot,t.intent,t.text,today=t.interpretation_date)
             if not _fresh(session,t):return public(t)
             t.events[-1]['status']=result['status']
             _finish(session,t,result['status'],result);return public(t)

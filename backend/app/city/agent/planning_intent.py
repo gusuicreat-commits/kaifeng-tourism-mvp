@@ -87,7 +87,7 @@ def offline(text, snapshot):
     except ValueError:return None
 
 
-def proposal(session, trip_id, snapshot, intent, text):
+def proposal(session, trip_id, snapshot, intent, text, *, today=None):
     from ...db import connect
     from .. import basket
     from ..exploration import Constraints
@@ -101,7 +101,7 @@ def proposal(session, trip_id, snapshot, intent, text):
     saved=snapshot.envelope.planning_constraints
     from .requirement_context import planning_values
     base=planning_values(snapshot)
-    c=Constraints.model_validate(base);values=c.model_dump(mode='json');today=snapshot.envelope.identity.generated_at.astimezone(TZ).date()
+    c=Constraints.model_validate(base);values=c.model_dump(mode='json');today=today or snapshot.envelope.identity.generated_at.astimezone(TZ).date()
     fields={f.field:f.value for f in p.fields}
     # The application's city scope is not a navigable waypoint. Require an endpoint role
     # before interpreting that city name as an origin or return location.
