@@ -1,0 +1,52 @@
+{
+  "scope": "isolated_task_api_live_model_exact_utterance",
+  "running_database_used": false,
+  "text": "你能查阅相关酒店资料吗",
+  "status": "answered",
+  "mode": "conversation",
+  "model_generate_calls": 1,
+  "metrics": {
+    "tools": 0,
+    "model_calls": 1,
+    "waiting_ms": 0,
+    "elapsed_ms": 2446.37,
+    "usage": [
+      {
+        "source": "live_model",
+        "model": "kimi-k2.6",
+        "endpoint_host": "api.moonshot.cn",
+        "http_attempts": 1,
+        "automatic_retries": 0,
+        "usage": {
+          "prompt_tokens": 3221,
+          "completion_tokens": 65,
+          "total_tokens": 3286
+        },
+        "cost_cny": null,
+        "cost_basis": "not_calculated_no_price_snapshot",
+        "schedule": {
+          "request_sequence": 1,
+          "started_at": "2026-10-24T06:54:40.585914+00:00",
+          "scope": "single_python_process"
+        },
+        "upstream_status": 200,
+        "request_id": null,
+        "elapsed_ms": 2432.96
+      }
+    ],
+    "cost_cny": null,
+    "cost_basis": "not_calculated_no_price_snapshot"
+  },
+  "validation_failure": null,
+  "events": [
+    {
+      "tool": "understand",
+      "status": "ok",
+      "source": "live_model"
+    }
+  ],
+  "reply": "可以帮您查询酒店。目前能查到酒店名称、地址和展示起价，但房型、早餐、评价等详细信息需要进一步核实。您想查哪天、哪个区域的酒店，预算大概多少？",
+  "services_workspace_version": 0,
+  "formal_version_unchanged": true,
+  "formal_route_version": 0
+}

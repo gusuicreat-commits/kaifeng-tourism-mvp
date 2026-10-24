@@ -1,7 +1,7 @@
 """Read projections of existing state, routes and M7 messages, in one authorized snapshot."""
 import json
 import time
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from datetime import datetime
 
 from fastapi import HTTPException
@@ -29,6 +29,7 @@ class Snapshot:
     history_enabled: bool
     workspace: dict
     materials: list
+    services: dict = field(default_factory=dict)
 
 
 def label(items, place_id):
@@ -89,8 +90,9 @@ def load(session, trip_id=None, purpose='trip', text='', page_focus=None):
         saved = engine.route_row(db, trip_id)
         req = Requirements.model_validate_json(saved['requirements_json']) if saved else None
         pending = []
-        from .. import basket, exploration_state
+        from .. import basket, exploration_state, travel_services
         workspace=exploration_state.read(db,trip_id)
+        services=travel_services.read(db,trip_id)
         basket_version=basket.version(db,trip_id)
         for r in db.execute('SELECT * FROM city_engine_candidates WHERE trip_id=? AND consumed=0 ORDER BY expires_at DESC LIMIT 8', (str(trip_id),)):
             result = json.loads(r['result_json'])
@@ -217,7 +219,7 @@ def load(session, trip_id=None, purpose='trip', text='', page_focus=None):
                             characters=0,fact_records=len(envelope.facts))
     for _ in range(3): envelope.metrics['characters'] = len(envelope.model_dump_json())
     if len(envelope.model_dump_json()) > 12000: raise HTTPException(422,detail='当前状态超出上下文预算，请缩小目标范围。')
-    return Snapshot(row,draft,planning,route,req,pending,envelope,bool(owner['history_enabled']),workspace,intentions['items'])
+    return Snapshot(row,draft,planning,route,req,pending,envelope,bool(owner['history_enabled']),workspace,intentions['items'],services)
 
 
 def trim(envelope):

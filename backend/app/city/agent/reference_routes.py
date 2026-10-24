@@ -40,7 +40,7 @@ def enabled():
 def capabilities():
     from ... import language,model_schedule
     from urllib.parse import urlsplit
-    return {'model':{'available':language.available(),'model':os.getenv('TOURISM_LLM_MODEL') or None,
+    result={'model':{'available':language.available(),'model':os.getenv('TOURISM_LLM_MODEL') or None,
                      'endpoint_host':urlsplit(os.getenv('TOURISM_LLM_BASE_URL','')).hostname,
                      'code':None if language.available() else 'MODEL_NOT_CONFIGURED',
                      'scheduler':model_schedule.scheduler().describe()},
@@ -49,7 +49,21 @@ def capabilities():
             'web_service_key_present':bool(os.getenv('AMAP_WEB_SERVICE_KEY','').strip()),
             'reference_routes_enabled':enabled(),'formal_amap_traffic_provider':'not_connected',
             'reference_tools':['search_locations','query_reference_route'],
+            'travel_services':{'flyai_configured':bool(os.getenv('FLYAI_API_KEY','').strip()),
+                               'flyai_enabled':os.getenv('FLYAI_ENABLED','').lower() in ('1','true','yes'),
+                               'hotel_details':'external_link_only','room_attributes':'unknown',
+                               'reviews':'not_available','selection_scope':'trip_candidate_intent',
+                               'formal_planning_admission':'needs_verified_facts'},
             'reference_requires_formal_facts':False,'explicit_origin_requires_visitor_position':False}
+    from .. import weather
+    result['weather']=weather.capabilities()
+    from ..providers import default_registry
+    registry=default_registry()
+    result['provider_registry']={'capabilities':registry.capabilities(),
+                                 'statuses':registry.statuses(),
+                                 'selection':'priority_then_fallback_within_shared_deadline',
+                                 'secrets':'server_environment_only'}
+    return result
 
 
 def locate(session_id,intent,snapshot):

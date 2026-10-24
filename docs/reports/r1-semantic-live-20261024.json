@@ -1,0 +1,41 @@
+{
+  "scope": "isolated_temp_database_live_semantic_understand_only",
+  "running_database_used": false,
+  "text": "小汴梁，今天出门要带伞吗？",
+  "http_status": 200,
+  "model_generate_calls": 1,
+  "mode": "weather",
+  "metrics": {
+    "basis": "kimi_validated",
+    "source": "live_model",
+    "model_calls": 1,
+    "usage": [
+      {
+        "source": "live_model",
+        "model": "kimi-k2.6",
+        "endpoint_host": "api.moonshot.cn",
+        "http_attempts": 1,
+        "automatic_retries": 0,
+        "usage": {
+          "prompt_tokens": 2778,
+          "completion_tokens": 70,
+          "total_tokens": 2848
+        },
+        "cost_cny": null,
+        "cost_basis": "not_calculated_no_price_snapshot",
+        "schedule": {
+          "request_sequence": 1,
+          "started_at": "2026-10-24T09:59:02.407119+00:00",
+          "scope": "single_python_process"
+        },
+        "upstream_status": 200,
+        "request_id": null,
+        "elapsed_ms": 2239.84
+      }
+    ]
+  },
+  "weather_intent_preserved": true,
+  "formal_state_unchanged": true,
+  "business_provider_http_attempts": 0,
+  "limit": "One real semantic sample; no hotel/weather/map API or real itinerary acceptance."
+}

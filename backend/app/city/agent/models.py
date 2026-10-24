@@ -6,7 +6,7 @@ from ..basket import ObjectRef
 
 
 class Action(Strict):
-    kind: Literal['query','search_dining','modify','preference','cancel','progress','position']
+    kind: Literal['query','search_dining','search_services','modify','preference','cancel','progress','position']
     quote: str = Field(min_length=1, max_length=500)
     target_name: str | None = Field(default=None, max_length=120)
 
@@ -65,7 +65,7 @@ class MaterialChoice(Strict):
 
 
 class PlanningIntent(Strict):
-    operation: Literal['update','continue']='update'
+    operation: Literal['update','continue','weather_replan']='update'
     quote: str = Field(min_length=1,max_length=500)
     fields: tuple[PlanningField,...] = Field(default=(),max_length=12)
     choices: tuple[MaterialChoice,...] = Field(default=(),max_length=12)
@@ -88,6 +88,25 @@ class ReferenceRouteIntent(Strict):
         return self
 
 
+class WeatherIntent(Strict):
+    quote: str = Field(min_length=1,max_length=500)
+
+
+class ServiceField(Strict):
+    field: Literal['check_in','check_out','nights','guests','rooms','max_price','stay_budget_fen',
+                   'location_text','room_type','window','external_window','dry_wet','breakfast',
+                   'free_parking','clean','quiet']
+    value: str | int | bool
+    quote: str = Field(min_length=1,max_length=500)
+    strength: Literal['hard','soft','optional'] = 'hard'
+
+
+class ServiceIntent(Strict):
+    quote: str = Field(min_length=1,max_length=500)
+    category: Literal['hotels','parking','merchants'] = 'hotels'
+    fields: tuple[ServiceField,...] = Field(default=(),max_length=16)
+
+
 class ReferenceSelection(Strict):
     request_id: UUID
     expected_step: int = Field(ge=0,le=12)
@@ -102,7 +121,7 @@ class Understanding(Strict):
         'if':{'properties':{'conversation':{'type':'object'}},'required':['conversation']},
         'then':{'properties':{'route_query':{'type':'null'},'planning':{'type':'null'},'constraints':{'maxItems':0},
                               'corrections':{'maxItems':0},'unresolved':{'maxItems':0},
-                              'actions':{'maxItems':0}}},
+                              'actions':{'maxItems':0},'weather_query':{'type':'null'},'service_query':{'type':'null'}}},
     }]}}
     schema_version: Literal['travel-intent/3.1'] = 'travel-intent/3.1'
     actions: tuple[Action, ...] = Field(default=(), max_length=8)
@@ -112,13 +131,19 @@ class Understanding(Strict):
     planning: PlanningIntent | None = None
     conversation: Conversation | None = None
     route_query: ReferenceRouteIntent | None = None
+    weather_query: WeatherIntent | None = None
+    service_query: ServiceIntent | None = None
 
     @model_validator(mode='after')
     def read_only_conversation(self):
-        if self.conversation and (self.route_query or self.planning or self.constraints or self.corrections or self.unresolved or self.actions):
+        if self.conversation and (self.route_query or self.weather_query or self.service_query or self.planning or self.constraints or self.corrections or self.unresolved or self.actions):
             raise ValueError('conversation cannot carry business actions')
-        if self.route_query and (self.planning or self.conversation or self.constraints or self.corrections or self.unresolved or any(a.kind!='query' for a in self.actions)):
+        if self.route_query and (self.planning or self.weather_query or self.service_query or self.conversation or self.constraints or self.corrections or self.unresolved or any(a.kind!='query' for a in self.actions)):
             raise ValueError('reference route query is read only')
+        if self.weather_query and (self.planning or self.service_query or self.conversation or self.route_query or self.constraints or self.corrections or self.unresolved or any(a.kind!='query' for a in self.actions)):
+            raise ValueError('weather query is read only')
+        if self.service_query and (self.planning or self.conversation or self.route_query or self.weather_query or self.constraints or self.corrections or self.unresolved or any(a.kind!='search_services' for a in self.actions)):
+            raise ValueError('service request cannot carry itinerary changes')
         return self
 
 

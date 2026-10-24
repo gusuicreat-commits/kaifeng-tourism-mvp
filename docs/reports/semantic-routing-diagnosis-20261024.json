@@ -1,0 +1,155 @@
+{
+  "mode": "isolated_real_task_api_mock_model_no_external_requests",
+  "cases": [
+    {
+      "text": "你能查阅相关酒店资料吗",
+      "mode": "clarify",
+      "status": "needs_clarification",
+      "model_mock_calls": 0,
+      "events": [
+        {
+          "tool": "understand",
+          "status": "ok",
+          "parameters": {},
+          "source": "deterministic_fallback",
+          "fallback": true,
+          "request_sequence": null,
+          "provider_failure": null,
+          "validation_failure": {
+            "kind": "evidence"
+          }
+        }
+      ],
+      "reply": "请先明确：这段话包含否定、提问、引用或不明确的修改证据，请明确本次希望实际调整的内容；条件尚未修改。",
+      "services_workspace_version": 0
+    },
+    {
+      "text": "你能查阅相关酒店资料",
+      "mode": "conversation",
+      "status": "answered",
+      "model_mock_calls": 1,
+      "events": [
+        {
+          "tool": "understand",
+          "status": "ok",
+          "parameters": {},
+          "source": "mock_model",
+          "fallback": false,
+          "request_sequence": 1,
+          "provider_failure": null
+        }
+      ],
+      "reply": "[诊断对照]这是合法的只读语义回复。",
+      "services_workspace_version": 0
+    },
+    {
+      "text": "你能帮我找酒店吗",
+      "mode": "travel_services",
+      "status": "answered",
+      "model_mock_calls": 0,
+      "events": [
+        {
+          "tool": "search_travel_services",
+          "status": "needs_clarification",
+          "parameters": {}
+        }
+      ],
+      "reply": "请提供入住日期。；请提供退房日期或住几晚。 房型设施、评价及完整预算尚未核实；候选选择不会改动正式路线。",
+      "services_workspace_version": 1
+    },
+    {
+      "text": "请帮我找酒店，明天入住，住一晚",
+      "mode": "travel_services",
+      "status": "answered",
+      "model_mock_calls": 0,
+      "events": [
+        {
+          "tool": "search_travel_services",
+          "status": "needs_clarification",
+          "parameters": {}
+        }
+      ],
+      "reply": "请提供退房日期或住几晚。 房型设施、评价及完整预算尚未核实；候选选择不会改动正式路线。",
+      "services_workspace_version": 1
+    },
+    {
+      "text": "你能安排行程吗",
+      "mode": "clarify",
+      "status": "needs_clarification",
+      "model_mock_calls": 0,
+      "events": [
+        {
+          "tool": "understand",
+          "status": "ok",
+          "parameters": {},
+          "source": "deterministic_fallback",
+          "fallback": true,
+          "request_sequence": null,
+          "provider_failure": null,
+          "validation_failure": {
+            "kind": "evidence"
+          }
+        }
+      ],
+      "reply": "请先明确：这段话包含否定、提问、引用或不明确的修改证据，请明确本次希望实际调整的内容；条件尚未修改。",
+      "services_workspace_version": 0
+    },
+    {
+      "text": "怎么修改日期？",
+      "mode": "conversation",
+      "status": "answered",
+      "model_mock_calls": 1,
+      "events": [
+        {
+          "tool": "understand",
+          "status": "ok",
+          "parameters": {},
+          "source": "mock_model",
+          "fallback": false,
+          "request_sequence": 1,
+          "provider_failure": null
+        }
+      ],
+      "reply": "[诊断对照]这是合法的只读语义回复。",
+      "services_workspace_version": 0
+    },
+    {
+      "text": "你好",
+      "mode": "conversation",
+      "status": "answered",
+      "model_mock_calls": 1,
+      "events": [
+        {
+          "tool": "understand",
+          "status": "ok",
+          "parameters": {},
+          "source": "mock_model",
+          "fallback": false,
+          "request_sequence": 1,
+          "provider_failure": null
+        }
+      ],
+      "reply": "[诊断对照]这是合法的只读语义回复。",
+      "services_workspace_version": 0
+    },
+    {
+      "text": "明天去开封玩，帮我安排行程",
+      "mode": "conversation",
+      "status": "answered",
+      "model_mock_calls": 1,
+      "events": [
+        {
+          "tool": "understand",
+          "status": "ok",
+          "parameters": {},
+          "source": "mock_model",
+          "fallback": false,
+          "request_sequence": 1,
+          "provider_failure": null
+        }
+      ],
+      "reply": "[诊断对照]这是合法的只读语义回复。",
+      "services_workspace_version": 0
+    }
+  ]
+}

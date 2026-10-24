@@ -5,6 +5,7 @@ from decimal import Decimal
 from fastapi import HTTPException
 from ..schema import TZ
 from .models import PlanningIntent, PlanningField
+from .evidence import request_evidence, effective_clock, preference_evidence
 
 
 def resolve_date(expression, today):
@@ -25,24 +26,38 @@ def grounded(planning, text, snapshot):
     from .understand import clock
     today=snapshot.envelope.identity.generated_at.astimezone(TZ).date()
     if planning.quote not in text:raise ValueError('planning quote absent')
-    if planning.operation=='continue' and (planning.fields or planning.choices):raise ValueError('continue cannot update')
+    request_evidence(text,planning.quote)
+    if planning.operation=='continue':
+        if planning.fields or planning.choices:raise ValueError('continue cannot update')
+        control=planning.quote.strip().rstrip('。！!')
+        if control not in ('好','好的','可以','就这样','就这样吧','就按这个安排','生成安排','开始安排','帮我安排','安排','规划') and not re.search(r'(?:开始|生成|继续|帮我|请).{0,20}(?:安排|规划)',control):
+            raise ValueError('continue needs an explicit planning request')
     seen={}
     for f in planning.fields:
         if f.quote not in text:raise ValueError('planning evidence absent')
+        request_evidence(text,f.quote)
         if f.field in seen and seen[f.field]!=f.value:raise ValueError('conflicting planning values')
         seen[f.field]=f.value
         if f.field=='date':
             if f.value not in f.quote:raise ValueError('date expression absent')
             resolve_date(f.value,today)
         elif f.field in ('start_time','end_time'):
-            if clock(f.quote)!=f.value:raise ValueError('invented time')
+            if effective_clock(text,f.quote,clock)!=f.value:raise ValueError('invented time')
         elif f.field in ('city','origin','destination') and f.value not in f.quote:raise ValueError('invented place name')
+        elif f.field in ('pace','objective','mode'):preference_evidence(f.field,f.value,f.quote)
         elif f.field=='budget_fen':
             amounts=re.findall(r'(\d+(?:\.\d{1,2})?)\s*(?:元|块)',f.quote)
             if len(amounts)!=1 or int(Decimal(amounts[0])*100)!=f.value:raise ValueError('invented budget')
     for choice in planning.choices:
         if choice.quote not in text or choice.name not in choice.quote:raise ValueError('material evidence absent')
+        request_evidence(text,choice.quote)
     return planning
+
+
+def weather_replan(quote):
+    if quote not in ('可以，按天气调整行程','按天气重新核算行程'):
+        raise ValueError('weather replan requires explicit consent')
+    return PlanningIntent(operation='weather_replan',quote=quote)
 
 
 def explicit_round_trip(text):
@@ -77,6 +92,10 @@ def proposal(session, trip_id, snapshot, intent, text):
     from .. import basket
     from ..exploration import Constraints
     p=intent.planning
+    if p.operation=='weather_replan':
+        weather_replan(p.quote)
+        from .. import weather
+        return weather.adjustment_preview(session,trip_id,snapshot)
     if any(c.field not in ('pace','objective') for c in intent.constraints) or any(a.kind in ('search_dining','progress','position','cancel','query') for a in intent.actions):
         return {'status':'needs_clarification','reply':'这句话还包含其他活动要求，需要一起确认；本次条件尚未修改。请补充具体活动或场次。'}
     saved=snapshot.envelope.planning_constraints

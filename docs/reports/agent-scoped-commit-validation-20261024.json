@@ -1,0 +1,141 @@
+{
+  "date": "2026-10-24",
+  "scope": "Explicit staged agent changes validated from a checkout-index copy with no local secrets or other untracked sources",
+  "base_commit": "e0e5b760df541d76b1e38f9ac91ae686eef5bacc",
+  "source_tree_before_this_receipt": "b41ae6137fb83c8d01f0288a7f3ec8689c35a7bc",
+  "files": [
+    ".env.example",
+    "README.md",
+    "backend/app/city/agent/conversation.py",
+    "backend/app/city/agent/models.py",
+    "backend/app/city/agent/planning_intent.py",
+    "backend/app/city/agent/reference_routes.py",
+    "backend/app/city/agent/service.py",
+    "backend/app/city/agent/understand.py",
+    "backend/app/city/agent/evidence.py",
+    "backend/app/city/assistant/context.py",
+    "backend/app/city/assistant/interpret.py",
+    "backend/app/city/state.py",
+    "backend/app/city/storage.py",
+    "backend/app/city/hotels.py",
+    "backend/app/city/travel_services.py",
+    "backend/app/city/weather.py",
+    "backend/app/runtime.py",
+    "backend/app/city/providers/__init__.py",
+    "backend/app/city/providers/adapters.py",
+    "backend/app/city/providers/contracts.py",
+    "backend/app/city/providers/registry.py",
+    "backend/tests/test_agent_conversation.py",
+    "backend/tests/test_city_agent.py",
+    "backend/tests/test_planning_understanding.py",
+    "backend/tests/test_ai_redteam.py",
+    "backend/tests/test_city_weather.py",
+    "backend/tests/test_provider_registry.py",
+    "backend/tests/test_runtime_identity.py",
+    "backend/tests/test_semantic_entry.py",
+    "backend/tests/test_service_followup.py",
+    "backend/tests/test_travel_services.py",
+    "docs/CITY_AGENT_V3.md",
+    "docs/CITY_ARCHITECTURE.md",
+    "docs/README.md",
+    "docs/contracts/city-agent-v3.schema.json",
+    "docs/AGENT_ARTICLE_REVIEW_MAPPING_20261024.md",
+    "docs/AGENT_MANUAL_REVIEW_20261024.md",
+    "docs/AI_REDTEAM_20261024.md",
+    "docs/FLYAI_TRAVEL_SERVICES.md",
+    "docs/UNIFIED_AGENT_WORKFLOW_PROPOSAL.md",
+    "docs/reports/ai-redteam-20261024.json",
+    "docs/reports/flyai-live-20261024.json",
+    "docs/reports/r1-semantic-first-20261024.json",
+    "docs/reports/r1-semantic-live-20261024.json",
+    "docs/reports/r1-semantic-live-initial-20261024.json",
+    "docs/reports/semantic-entry-delivery-20261024.json",
+    "docs/reports/semantic-entry-live-20261024.json",
+    "docs/reports/semantic-entry-root-cause-20261024.md",
+    "docs/reports/semantic-routing-diagnosis-20261024.json",
+    "docs/reports/service-followup-review-20261024.json",
+    "frontend/playwright.config.ts",
+    "frontend/playwright.services.config.ts",
+    "frontend/playwright.weather.config.ts",
+    "frontend/src/cityAgentApi.ts",
+    "frontend/src/components/CityAgentChat.vue",
+    "frontend/src/components/TravelServiceCards.vue",
+    "frontend/src/components/WeatherCard.vue",
+    "frontend/tests/travel-services.spec.ts",
+    "frontend/tests/weather-reminder.spec.ts",
+    "scripts/configure_qweather.py",
+    "scripts/probe_qweather.py",
+    "scripts/install_flyai.py",
+    "scripts/runtime_status.py",
+    "scripts/travel_services_test_server.py",
+    "scripts/verify_travel_services.py",
+    "scripts/weather_test_server.py",
+    "backend/app/main.py",
+    "docs/PROJECT_STATUS.md"
+  ],
+  "validation": [
+    {
+      "command": ".venv/bin/python -m pytest -q",
+      "passed": 759,
+      "warnings": 1,
+      "log": ".test-results/agent-commit-staged-pytest-20261024.log"
+    },
+    {
+      "command": "npm run build",
+      "cwd": "frontend",
+      "status": "passed",
+      "log": ".test-results/agent-commit-staged-build-20261024.log"
+    },
+    {
+      "command": ".venv/bin/python scripts/export_agent_contracts.py --check",
+      "status": "passed"
+    },
+    {
+      "command": "npx playwright test --config playwright.services.config.ts",
+      "cwd": "frontend",
+      "passed": 3,
+      "log": ".test-results/agent-commit-staged-services-20261024.log"
+    },
+    {
+      "command": "npx playwright test --config playwright.agent.config.ts",
+      "cwd": "frontend",
+      "passed": 7,
+      "log": ".test-results/agent-commit-staged-browser-20261024.log"
+    },
+    {
+      "command": "npx playwright test --config playwright.weather.config.ts",
+      "cwd": "frontend",
+      "passed": 1,
+      "log": ".test-results/agent-commit-staged-weather-20261024.log"
+    },
+    {
+      "command": "git diff --cached --check",
+      "status": "passed"
+    },
+    {
+      "check": "Staged files scanned for locally configured credential values and long sk tokens",
+      "status": "passed",
+      "credential_values_printed": false
+    }
+  ],
+  "count_boundary": "759 reflects the staged tree. Prior 769 passed / 8 skipped described the shared worktree including independently modified collector and scenic-sync files.",
+  "changes": [
+    "Semantic-first free-text entry and bounded failure/offline paths",
+    "Typed travel services and FlyAI/AMap registry",
+    "Scoped multi-turn lodging conditions and candidate cards",
+    "Weather provider and existing-engine adjustment preview",
+    "Task/evidence/history hardening and runtime identity",
+    "Method mapping, manual review and exact scoped validation evidence"
+  ],
+  "excluded": [
+    "Scenic schedule synchronization and its dependencies/routes",
+    "Collector and real route data work",
+    "Program/video/photo presentation changes",
+    "Local secrets, runtime databases, CLI runtime download, built frontend and temporary test output"
+  ],
+  "publications": {
+    "remote_push": false,
+    "deployment": false
+  },
+  "limits": "Isolated SQLite and synthetic browser fixtures; no new live provider calls during this commit verification. Existing live receipts retain their original narrow scope."
+}

@@ -75,11 +75,17 @@ def test_ambiguous_show_must_clarify(city):
     assert understand.route(u,snap)[0]=='clarify'
 
 
-def test_next_is_direct_without_model(city,monkeypatch):
+@pytest.mark.parametrize("online",[False,True])
+def test_next_semantic_online_and_deterministic_offline(city,monkeypatch,online):
     walking(city);before=get(city)
-    monkeypatch.setattr(language,'available',lambda:True)
-    monkeypatch.setattr(provider,'generate',lambda *a,**k:pytest.fail('no model for direct query'))
+    calls=[]
+    monkeypatch.setattr(language,'available',lambda:online)
+    def semantic(*a,**k):
+        calls.append(1)
+        return {'actions':[{'kind':'query','quote':'下一站去哪？'}]},{'source':'mock_model'}
+    monkeypatch.setattr(provider,'generate',semantic)
     t=run(city,'下一站去哪？')
+    assert len(calls)==int(online) and t['metrics']['model_calls']==int(online)
     assert t['mode']=='direct' and t['result']['next_stop']['stop_id']=='lunch'
     assert t['metrics']['tools']==0 and get(city)==before
 
@@ -316,7 +322,7 @@ def test_export_covers_task_audit_without_internal_reasoning(city):
     walking(city);t=run(city,'附近找个吃饭的地方，演出必须看。')
     export=city['client'].get('/api/v1/memory/export').json()
     receipts=export['city_trips'][0]['receipts']
-    record=next(r['result'] for r in receipts if r['request_id']==t['task_id'])
+    record=next(r['result'] for r in receipts if r['result'].get('task_id')==t['task_id'])
     assert record['trace'] and record['stop_reason']=='needs_confirmation'
     assert 'reasoning' not in json.dumps(record) and 'longitude' not in json.dumps(record)
 

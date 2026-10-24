@@ -23,6 +23,7 @@ from .. import state
 from ..assistant import context, interpret, service as v2service, tools as v2tools
 from ..assistant.models import CityChat
 from . import provider, understand, toolbelt, reference_routes
+from .. import weather
 from .models import Budget, Decision, Understanding
 
 LOCK=threading.RLock()
@@ -31,6 +32,7 @@ LABELS={'understand':'正在理解你的要求。','search_dining':'正在查找
         'query_shows':'正在核对演出时间。','verify_travel':'正在核对交通与用餐衔接。',
         'preview_plan':'正在验证完整行程安排。','search_locations':'正在查找起点和终点。',
         'query_reference_route':'正在查询高德参考路线。'}
+LABELS['query_weather']='正在查询和风天气预报。'
 
 
 @dataclass
@@ -67,13 +69,14 @@ class Task:
     waited_seconds: float = 0
     selection_wait_started: float | None = None
     selection_requests: dict = field(default_factory=dict)
+    retain_history: bool = True
 
 
 def purge(session_id):
     with LOCK:
         for identity,t in list(TASKS.items()):
             if t.session_id==session_id:
-                t.cancelled=True;t.text='';t.intent=None;t.result=None;t.observations.clear()
+                t.cancelled=True;t.text='';t.body=t.body.model_copy(update={'text':''});t.intent=None;t.result=None;t.observations.clear();t.decisions.clear()
                 t.status='history_cleared';t.snapshot=None
                 del TASKS[identity]
 
@@ -124,14 +127,23 @@ def start(session,trip_id,body):
         if len(TASKS)>=128 or sum(t.session_id==session.id and t.status=='running' for t in TASKS.values())>=3:
             raise HTTPException(429,detail='待处理任务过多，请先完成或取消当前任务。')
         seconds=model_schedule.acceptance_seconds()
-        t=Task(str(body.request_id),session.id,str(trip_id),body,redact(body.text),snapshot,
+        t=Task(str(uuid4()),session.id,str(trip_id),body,redact(body.text),snapshot,
+               retain_history=snapshot.history_enabled,
                budget=Budget(max_seconds=seconds),execution_mode='live_acceptance' if seconds>45 else 'product')
-    with connect() as db:
-        db.execute('BEGIN IMMEDIATE');row=state.owned(db,session,trip_id);state.check_version(row,body.expected_version)
-        cached=state.receipt(db,session,body.request_id,scope,data)
-        if cached is not None:return public(_get(session,trip_id,cached['task_id']))
-        state.remember(db,session,body.request_id,trip_id,scope,data,{'task_id':t.id,'status':'running','trip_version':row['version']})
-    with LOCK:TASKS[t.id]=t
+        # Reserve capacity before releasing the lock or publishing the receipt.
+        TASKS[t.id]=t
+    try:
+        with connect() as db:
+            db.execute('BEGIN IMMEDIATE');row=state.owned(db,session,trip_id);state.check_version(row,body.expected_version)
+            if t.cancelled or t.snapshot is None:raise HTTPException(409,detail='会话留存状态已变化，请重新发送。')
+            cached=state.receipt(db,session,body.request_id,scope,data)
+            if cached is not None:
+                with LOCK:TASKS.pop(t.id,None)
+                return cached if cached.get('status')=='history_cleared' else public(_get(session,trip_id,cached['task_id']))
+            state.remember(db,session,body.request_id,trip_id,scope,data,{'task_id':t.id,'status':'running','trip_version':row['version']})
+    except BaseException:
+        with LOCK:TASKS.pop(t.id,None)
+        raise
     return public(t)
 
 
@@ -139,7 +151,9 @@ def get(session,trip_id,identity):
     t=_get(session,trip_id,identity)
     if t.status=='running' and time.monotonic()-t.started>=t.budget.max_seconds:
         t.cancelled=True;_finish(session,t,'budget_exhausted',{'reply':'本次处理已达到时间预算，请缩小条件后重试。'})
-    return public(t)
+    response=public(t)
+    if not t.retain_history and t.status not in ('running','awaiting_locations'):_clear_terminal_dialogue(t)
+    return response
 
 
 def _fresh(session,t):
@@ -154,13 +168,24 @@ def _fresh(session,t):
         t.cancelled=True;_finish(session,t,'history_cleared',{'reply':'对话留存设置已变化，请重新提出要求。'});return False
     if snap.envelope.planning_constraints.get('version')!=t.snapshot.envelope.planning_constraints.get('version'):
         _finish(session,t,'stale',{'reply':'规划条件或协商决定已变化，请读取最新条件重新处理。'});return False
+    needs_position=t.mode=='react' or t.mode=='reference_route' and t.intent.route_query.use_current_position
+    if needs_position and snap.envelope.position['status']!='fresh':
+        if t.mode=='reference_route':
+            _finish(session,t,'needs_position',{'state':'current_position_required','code':'CURRENT_ORIGIN_REQUIRED',
+                'reply':'这次起点是当前位置，但位置缺失或已过期；请重新确认出发地点，终点已保留。'})
+        else:
+            _finish(session,t,'needs_data',{'reply':'当前位置已过期或不再有效，请重新手动确认后再查询。','code':'FRESH_POSITION_REQUIRED'})
+        return False
+    # Keep the same versions/fingerprint but evaluate time-dependent evidence now,
+    # rather than freezing opening/position validity at task creation.
+    t.snapshot=snap
     return True
 
 
 def _persist(session,t):
     with connect() as db:
         db.execute('BEGIN IMMEDIATE');row=state.owned(db,session,t.trip_id)
-        enabled=bool(recheck(db,session)['history_enabled'])
+        enabled=bool(recheck(db,session)['history_enabled']);t.retain_history=enabled
         if row['version']!=t.body.expected_version:
             t.status='stale';t.result={'reply':'正式状态已变化，请读取最新版本。'}
         saved={'task_id':t.id,'status':t.status,'stop_reason':t.status,'trip_version':row['version'],
@@ -182,7 +207,7 @@ def _persist(session,t):
                 if p['status']=='valid' and p.get('action',{}).get('operation')=='assistant_v3_intent':
                     db.execute('UPDATE city_proposals SET consumed=1 WHERE id=?',(p['candidate_id'],))
         db.execute('UPDATE city_receipts SET result_json=? WHERE session_id=? AND request_id=?',
-                   (encoded(saved),session.id,t.id))
+                   (encoded(saved),session.id,str(t.body.request_id)))
 
 
 def _finish(session,t,status,result):
@@ -217,18 +242,25 @@ def cancel(session,trip_id,identity):
         from ..assistant.models import DiscardAssistant
         v2tools.discard(session,trip_id,DiscardAssistant(request_id=uuid5(UUID(t.id),'cancel'),**confirmation))
     if t.status not in ('cancelled','history_cleared'):_finish(session,t,'cancelled',{'reply':'已停止本次探索，未提交任何正式行程修改。'})
-    return public(t)
+    response=public(t)
+    if not t.retain_history:_clear_terminal_dialogue(t)
+    return response
 
 
 def _merge(intent,snapshot):
-    if intent.planning or intent.conversation or intent.route_query:return intent
+    if intent.planning or intent.conversation or intent.route_query or intent.weather_query or intent.service_query:return intent
     active=[p for p in snapshot.pending if p['status']=='valid' and p.get('action',{}).get('operation')=='assistant_v3_intent']
-    if len(active)!=1 or all(a.kind in ('query','cancel','progress','position') for a in intent.actions):return intent
+    if len(active)!=1 or all(a.kind in ('query','search_services','cancel','progress','position') for a in intent.actions):return intent
     previous=Understanding.model_validate(active[0]['action']['understanding'])
     replaces={c.field for c in intent.constraints}
-    merged=[c for c in previous.constraints if c.field not in replaces]+list(intent.constraints)
-    return Understanding(actions=tuple({a.kind:a for a in (*previous.actions,*intent.actions)}.values())[:8],
-        constraints=tuple(merged)[:16],corrections=intent.corrections,unresolved=intent.unresolved)
+    new_hard={c.field for c in intent.constraints if c.strength=='hard'}
+    # A soft follow-up is an additional preference, not permission to remove a
+    # previously explicit hard bound from this unconfirmed multi-turn request.
+    merged=[c for c in previous.constraints if c.field not in replaces or c.strength=='hard' and c.field not in new_hard]+list(intent.constraints)
+    if len(merged)>16:
+        return Understanding(unresolved=('待补充要求太多，请分开确认；未丢弃或放宽原有约束。',))
+    return Understanding(actions=tuple({a.kind:a for a in (*previous.actions,*intent.actions)}.values()),
+        constraints=tuple(merged),corrections=intent.corrections,unresolved=intent.unresolved)
 
 
 def _defer(session,t):
@@ -364,7 +396,19 @@ def _action(session,t,d):
 
 def advance(session,trip_id,identity,body):
     _advance(session,trip_id,identity,body)
-    return public(_get(session,trip_id,identity))
+    t=_get(session,trip_id,identity)
+    response=public(t)
+    if not t.retain_history and t.status not in ('running','awaiting_locations'):
+        _clear_terminal_dialogue(t)
+    return response
+
+
+def _clear_terminal_dialogue(t):
+    # Deliver the current response once; retained task metadata cannot become a
+    # shadow chat store when history is off. Correlation/version fields remain.
+    t.text='';t.body=t.body.model_copy(update={'text':''});t.intent=None
+    t.observations.clear();t.decisions=[]
+    t.result={'state':'history_not_retained','reply':'当前不保留对话，请重新提出问题或读取正式行程。'}
 
 
 def _advance(session,trip_id,identity,body):
@@ -405,7 +449,25 @@ def _advance(session,trip_id,identity,body):
             elif t.mode=='clarify':
                 _defer(session,t);_finish(session,t,'needs_clarification',{'reply':'请先明确：'+'；'.join(questions),'questions':questions})
             elif t.mode=='conversation':
-                _finish(session,t,'answered',{'reply':t.intent.conversation.reply})
+                from .evidence import checked_reply
+                raw_reply=t.intent.conversation.reply;reply=checked_reply(raw_reply)
+                result={'reply':reply}
+                if reply!=raw_reply:
+                    result['response_guard']={'source':'deterministic','code':'UNSUPPORTED_COMPLETION_OR_LIVE_CLAIM'}
+                    t.intent=t.intent.model_copy(update={'conversation':t.intent.conversation.model_copy(update={'reply':reply})})
+                _finish(session,t,'answered',result)
+            elif t.mode=='weather':
+                pass
+            elif t.mode=='travel_services':
+                from .. import travel_services
+                services_workspace=t.snapshot.services
+                t.tools+=1
+                t.events.append({'tool':'search_travel_services','status':'running','parameters':{},'source':'provider_registry'})
+                result=travel_services.query(session,t.trip_id,t.text,services_workspace.get('version',0),cancelled=lambda:t.cancelled,
+                    intent=t.intent.service_query,today=t.snapshot.envelope.identity.generated_at.astimezone(__import__('zoneinfo').ZoneInfo('Asia/Shanghai')).date())
+                if not _fresh(session,t):return public(t)
+                t.events[-1]['status']=result['services']['result']['status']
+                _finish(session,t,'answered',result)
             elif t.mode=='direct':
                 local=interpret.rules(t.text,t.snapshot)
                 if local.purpose=='travel' and re.search(r'怎么走|怎么去|如何走|路线|坐什么车',t.text) and not any(w in t.text for w in ('从这里','当前位置','我这里','下一站')):
@@ -424,6 +486,15 @@ def _advance(session,trip_id,identity,body):
             return public(t)
         if t.mode=='reference_route':
             _reference_step(session,t)
+            return public(t)
+        if t.mode=='weather':
+            t.tools+=1
+            t.events.append({'tool':'query_weather','status':'running','parameters':{},'source':'qweather'})
+            result=weather.answer(t.snapshot)
+            if not _fresh(session,t):return public(t)
+            t.events[-1].update(status=result['status'],provider_status=result.get('provider_status'),
+                                provider_events=result.pop('provider_events',[]))
+            _finish(session,t,result['status'],result)
             return public(t)
         if t.mode=='planning':
             from .planning_intent import proposal

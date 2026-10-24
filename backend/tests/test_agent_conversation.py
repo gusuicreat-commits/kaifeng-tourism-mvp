@@ -159,11 +159,17 @@ def test_query_model_uses_existing_fact_service_instead_of_free_text_facts(city,
 
 
 @pytest.mark.parametrize('text',['今天还有几个景点？','今天还剩几个活动？','还剩多少活动？','今天都安排了什么？'])
-def test_explicit_saved_plan_reads_still_work_without_model(city,monkeypatch,text):
+@pytest.mark.parametrize('online',[False,True])
+def test_saved_plan_reads_use_semantics_online_and_work_offline(city,monkeypatch,text,online):
     planned(city);before=business(city)
-    monkeypatch.setattr(language,'available',lambda:True)
-    monkeypatch.setattr(provider,'generate',lambda *a,**k:pytest.fail('saved plan reads do not require a model'))
+    monkeypatch.setattr(language,'available',lambda:online)
+    calls=[]
+    def semantic(*a,**k):
+        calls.append(1)
+        return {'actions':[{'kind':'query','quote':text}]},{'source':'mock_model'}
+    monkeypatch.setattr(provider,'generate',semantic)
     task=run(city,text)
+    assert len(calls)==int(online) and task['metrics']['model_calls']==int(online)
     assert task['mode']=='direct' and task['result']['remaining']
     assert business(city)==before
 

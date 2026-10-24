@@ -1,0 +1,134 @@
+{
+  "schema_version": "agent-manual-review/1",
+  "checked_at": "2026-10-24T09:27:49.290719+00:00",
+  "stage": "candidate_for_human_review_not_loaded_by_running_backend",
+  "head": "e0e5b760df541d76b1e38f9ac91ae686eef5bacc",
+  "files": [
+    {
+      "path": "backend/app/city/agent/models.py",
+      "sha256": "1145c6f7da7906877eda238193c95e5eb042f1b19bca92ee521d4be0d8ca1273"
+    },
+    {
+      "path": "backend/app/city/agent/understand.py",
+      "sha256": "326fd3e160ace4b90a20a1252f8975716ba4a3d21982082cdadfdc606fa157e1"
+    },
+    {
+      "path": "backend/app/city/agent/conversation.py",
+      "sha256": "1e4a6c51c136252f36db3681a10ac5c7ba33d6e7141c0038abb94fb0517ab6da"
+    },
+    {
+      "path": "backend/app/city/agent/service.py",
+      "sha256": "0e0be10dc910f8259448d4cda804434e8581786e7e3829d962b46ec2f5ebacc0"
+    },
+    {
+      "path": "backend/app/city/assistant/context.py",
+      "sha256": "56860f4ed6ad268b422e7e642d0e2cb5a1300f056f14c39b3dfcaddca2aff54a"
+    },
+    {
+      "path": "backend/app/city/travel_services.py",
+      "sha256": "084a1bddc7a42a0beff2053fc6f19144f73a212927ce2b6022db8369eac72622"
+    },
+    {
+      "path": "backend/tests/test_service_followup.py",
+      "sha256": "8631d93ae8e8b6d7691f37630a2bb4c03dec8554e183325c04a2dd461586a53c"
+    },
+    {
+      "path": "frontend/src/components/TravelServiceCards.vue",
+      "sha256": "56efb12bdd3f61fc56366eaa18605c735980907c7f824a089a945fdd1632216a"
+    },
+    {
+      "path": "frontend/tests/travel-services.spec.ts",
+      "sha256": "e55e97f048c6453b6296776fec889e5928c745659bd74d1ba373f8fe9a4b4f02"
+    },
+    {
+      "path": "scripts/travel_services_test_server.py",
+      "sha256": "32df63fec122252babb4b19946a9022ce5263ad031506cc76bd188778ce2a88f"
+    },
+    {
+      "path": "docs/contracts/city-agent-v3.schema.json",
+      "sha256": "2f72b43c16ce90ac48909d5ffc77645f64ac6fb0d95f76b05ad633ce8f451e3e"
+    },
+    {
+      "path": "docs/AGENT_MANUAL_REVIEW_20261024.md",
+      "sha256": "0da201ed69542572e32537816449f29ebe75ef650a002f630b5d344d70393360"
+    }
+  ],
+  "validation": {
+    "backend": {
+      "command": ".venv/bin/pytest -q",
+      "passed": 722,
+      "failed": 0,
+      "warnings": 1,
+      "log": ".test-results/service-followup-review-backend-20261024.log"
+    },
+    "targeted": {
+      "command": ".venv/bin/pytest -q backend/tests/test_service_followup.py backend/tests/test_semantic_entry.py backend/tests/test_agent_conversation.py backend/tests/test_travel_services.py",
+      "passed": 56,
+      "note": "before final context projection change; final full backend is authoritative"
+    },
+    "services_browser": {
+      "command": "npx playwright test --config playwright.services.config.ts",
+      "cwd": "frontend",
+      "passed": 3,
+      "log": ".test-results/service-followup-review-services-browser-20261024.log"
+    },
+    "agent_browser": {
+      "command": "npx playwright test --config playwright.agent.config.ts",
+      "cwd": "frontend",
+      "passed": 7,
+      "log": ".test-results/service-followup-review-agent-browser-20261024.log"
+    },
+    "build": {
+      "command": "npm run build --prefix frontend",
+      "status": "passed",
+      "log": ".test-results/service-followup-review-build-20261024.log"
+    },
+    "contract": {
+      "command": ".venv/bin/python scripts/export_agent_contracts.py --check",
+      "status": "passed"
+    },
+    "whitespace": {
+      "command": "git diff --check",
+      "status": "passed"
+    },
+    "intermediate_regression": {
+      "failed": 97,
+      "passed": 618,
+      "cause": "static_prompt_plus_new_schema_exceeded_existing_12000_character_input_budget",
+      "resolution": "compact_schema_annotations_and_remove_redundant_prompt_instructions_keep_existing_limit"
+    }
+  },
+  "evidence_boundary": "temporary_databases_synthetic_providers_mock_semantic_model_not_live_semantic_acceptance",
+  "runtime_at_check": {
+    "status": "restart_required",
+    "mismatches": [
+      "backend_sha256"
+    ],
+    "running": {
+      "checkout_id": "8aa119167848ac47",
+      "backend_sha256": "a4d8b34cab2abc3880ff8620084be26f84e5b28fd61f6a38bf1676a7f0df25e3",
+      "git_head": "e0e5b760df541d76b1e38f9ac91ae686eef5bacc",
+      "pid": 18317,
+      "started_at": "2026-10-24T08:52:47.111975+00:00"
+    },
+    "disk": {
+      "checkout_id": "8aa119167848ac47",
+      "backend_sha256": "643da76e51f47884e7e991e1b54944d5c74059398269d9f85131889418815dbe",
+      "git_head": "e0e5b760df541d76b1e38f9ac91ae686eef5bacc"
+    }
+  },
+  "new_live_model_calls": 0,
+  "new_live_hotel_calls": 0,
+  "running_backend_restarted": false,
+  "user_trip_state_rewritten": false,
+  "history_replayed": false,
+  "formal_route_written": false,
+  "remaining_decisions": [
+    "free_text_pre_model_exceptions",
+    "single_shape_mutual_exclusion",
+    "query_reuses_mutation_evidence_gate",
+    "budget_scope_ambiguity",
+    "frontend_planning_handoff"
+  ],
+  "changes_not_committed": true
+}

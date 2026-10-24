@@ -13,6 +13,7 @@ load_dotenv(Path(__file__).resolve().parents[2]/'.env')
 from fastapi import FastAPI, HTTPException, UploadFile, File, Query, Request
 from fastapi.responses import Response, FileResponse
 from fastapi.staticfiles import StaticFiles
+from .runtime import STARTUP
 from .db import connect, scenic_list, scenic_get, network_get
 from .seed import seed
 from .crowds import crowd_summary
@@ -30,6 +31,7 @@ from .city.api import router as city_router
 from .city.engine.api import router as city_engine_router
 from .city.assistant.api import router as city_assistant_router
 from .city.agent.api import router as city_agent_router
+from .city.weather import router as city_weather_router
 from .city.exploration import router as exploration_router
 from .maps import router as maps_router
 import asyncio
@@ -60,6 +62,9 @@ app.include_router(city_router)
 app.include_router(city_engine_router)
 app.include_router(city_assistant_router)
 app.include_router(city_agent_router)
+app.include_router(city_weather_router)
+from .city.travel_services import router as travel_services_router
+app.include_router(travel_services_router)
 app.include_router(exploration_router)
 app.include_router(maps_router)
 
@@ -95,7 +100,8 @@ def require_scenic(sid):
 def health():
     with connect() as db:
         version=db.execute('SELECT version FROM schema_version').fetchone()[0]
-    return {'status':'ok','schema_version':version,'realtime_monitoring':False}
+    return {'status':'ok','schema_version':version,'realtime_monitoring':False,
+            'runtime':STARTUP}
 
 
 @app.get('/api/scenics')

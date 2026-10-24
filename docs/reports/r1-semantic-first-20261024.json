@@ -1,0 +1,223 @@
+{
+  "date": "2026-10-24",
+  "scope": "R1 free-text semantic-first entry; R1-R12 method mapping from user supplied article",
+  "source": {
+    "path": "/Users/mac/Downloads/Agent架构师试炼-60道题通关AI Agent.html",
+    "sha256": "ce9ce726a49867a107c1db4e8c70095a4ee655586b2a0b9d28ca448922eadcb3",
+    "indexed_chapters": 60,
+    "relevant_chapters": [
+      {
+        "number": 2,
+        "title": "Agent vs Workflow——何时该用Agent？",
+        "source_line": 2558
+      },
+      {
+        "number": 7,
+        "title": "Agent循环终止条件——什么时候该停？",
+        "source_line": 7186
+      },
+      {
+        "number": 8,
+        "title": "何时NOT该用Agent——反模式识别",
+        "source_line": 7985
+      },
+      {
+        "number": 9,
+        "title": "Function Calling详解——LLM学会调用函数",
+        "source_line": 9200
+      },
+      {
+        "number": 12,
+        "title": "工具选择策略——Agent如何决定用哪个工具",
+        "source_line": 11658
+      },
+      {
+        "number": 13,
+        "title": "工具调用错误处理与重试机制",
+        "source_line": 12185
+      },
+      {
+        "number": 15,
+        "title": "§15.1 Schema-Driven Development——Schema 驱动开发理念",
+        "source_line": 13888
+      },
+      {
+        "number": 16,
+        "title": "致命三角——为什么工具安全是必修课",
+        "source_line": 14820
+      },
+      {
+        "number": 17,
+        "title": "为什么 Agent 需要记忆——从金鱼到大象",
+        "source_line": 15686
+      },
+      {
+        "number": 18,
+        "title": "对话状态管理与Ctx Window溢出",
+        "source_line": 16460
+      },
+      {
+        "number": 21,
+        "title": "Lost in the Middle——长上下文信息丢失",
+        "source_line": 18712
+      },
+      {
+        "number": 23,
+        "title": "记忆持久化--跨会话长期记忆",
+        "source_line": 20154
+      },
+      {
+        "number": 26,
+        "title": "Plan-and-Execute——规划先行vs边走边看",
+        "source_line": 22991
+      },
+      {
+        "number": 33,
+        "title": "LangGraph进阶——HITL与检查点",
+        "source_line": 28819
+      },
+      {
+        "number": 45,
+        "title": "客服Agent--多轮对话与情绪感知",
+        "source_line": 37809
+      },
+      {
+        "number": 48,
+        "title": "工作流自动化Agent--审批与��知",
+        "source_line": 40573
+      },
+      {
+        "number": 52,
+        "title": "Agent可观测性——追踪·指标·日志",
+        "source_line": 43988
+      },
+      {
+        "number": 53,
+        "title": "Prompt注入攻击——原理与防御",
+        "source_line": 45013
+      },
+      {
+        "number": 55,
+        "title": "第55章 Agent身份认证与权限管理",
+        "source_line": 46701
+      },
+      {
+        "number": 57,
+        "title": "第57章 成本控制——Token管理与缓存策略",
+        "source_line": 48252
+      },
+      {
+        "number": 58,
+        "title": "Agent监控与告警——生产级运维",
+        "source_line": 48855
+      },
+      {
+        "number": 59,
+        "title": "红队测试——Agent安全评估实践",
+        "source_line": 49976
+      },
+      {
+        "number": 60,
+        "title": "Agent系统设计面试——端到端通关指南",
+        "source_line": 50817
+      }
+    ],
+    "use": "Methods adapted to existing project; statistics and toy implementations not treated as verified facts or instructions."
+  },
+  "design": "docs/AGENT_ARTICLE_REVIEW_MAPPING_20261024.md",
+  "implementation_files": [
+    "backend/app/city/agent/understand.py"
+  ],
+  "test_files": [
+    "backend/tests/test_semantic_entry.py",
+    "backend/tests/test_city_weather.py",
+    "backend/tests/test_city_agent.py",
+    "backend/tests/test_planning_understanding.py",
+    "backend/tests/test_agent_conversation.py"
+  ],
+  "validation": [
+    {
+      "command": ".venv/bin/pytest -q",
+      "passed": 769,
+      "skipped": 8,
+      "warnings": 1,
+      "scope": "backend and collector; isolated SQLite and mock providers; PostgreSQL-dependent tests skipped",
+      "log": ".test-results/r1-full-final-20261024.log"
+    },
+    {
+      "command": "npm run build --prefix frontend",
+      "status": "passed",
+      "log": ".test-results/r1-build-20261024.log"
+    },
+    {
+      "command": "npx playwright test --config playwright.services.config.ts",
+      "cwd": "frontend",
+      "passed": 3,
+      "scope": "isolated synthetic browser server",
+      "log": ".test-results/r1-browser-services-20261024.log"
+    },
+    {
+      "command": "npx playwright test --config playwright.agent.config.ts",
+      "cwd": "frontend",
+      "passed": 7,
+      "scope": "isolated synthetic browser server",
+      "log": ".test-results/r1-browser-agent-20261024.log"
+    },
+    {
+      "command": ".venv/bin/python scripts/export_agent_contracts.py --check",
+      "status": "passed"
+    },
+    {
+      "command": "git diff --check",
+      "status": "passed"
+    }
+  ],
+  "intermediate_findings": [
+    "Old online tests explicitly prohibited semantic calls for next-stop, saved-plan reads and literal round trips. Updated paired online/offline expectations while preserving business assertions.",
+    "Concurrent newly added scenic_sync_publish test initially imported nonexistent engine confirm. No scenic test or engine code changed by this task. Final full collection passed after the concurrent file changed.",
+    "Live model initially classified umbrella question as conversation. Clarified weather capability description; same isolated sample then produced weather intent. Initial receipt preserved."
+  ],
+  "live_model": {
+    "http_attempts": 2,
+    "business_provider_http_attempts": 0,
+    "running_database_used": false,
+    "initial_receipt": "docs/reports/r1-semantic-live-initial-20261024.json",
+    "final_receipt": "docs/reports/r1-semantic-live-20261024.json",
+    "scope": "isolated temporary database, understand endpoint only; not full real visitor flow or semantic accuracy evaluation"
+  },
+  "runtime": {
+    "status": "current",
+    "mismatches": [],
+    "running": {
+      "checkout_id": "8aa119167848ac47",
+      "backend_sha256": "e137e903f262ff8d01e848a6f3eb9b4e63882d6b129a6dee18bb98e19543a7d2",
+      "git_head": "e0e5b760df541d76b1e38f9ac91ae686eef5bacc",
+      "pid": 32937,
+      "started_at": "2026-10-24T10:01:33.779333+00:00"
+    },
+    "disk": {
+      "checkout_id": "8aa119167848ac47",
+      "backend_sha256": "e137e903f262ff8d01e848a6f3eb9b4e63882d6b129a6dee18bb98e19543a7d2",
+      "git_head": "e0e5b760df541d76b1e38f9ac91ae686eef5bacc"
+    }
+  },
+  "runtime_page_check": {
+    "url": "http://127.0.0.1:8017/assistant?context=city",
+    "http_status": 200
+  },
+  "user_history_replayed": false,
+  "user_trip_requirements_repaired": false,
+  "user_formal_route_written": false,
+  "remaining": [
+    "R2 compound request protocol",
+    "R4 query versus mutation evidence",
+    "R5 remaining legacy reinterpretation",
+    "R12 frontend planning relay",
+    "other R3-R11 review items remain partial as documented"
+  ],
+  "limits": [
+    "Configured-model free text now incurs semantic call latency even for explicit state commands; typed buttons remain deterministic.",
+    "No-model fallback is bounded; a failed configured-model interpretation never executes local partial candidates.",
+    "Full dirty checkout contains independent ongoing work; no bulk commit or unrelated cleanup performed."
+  ]
+}

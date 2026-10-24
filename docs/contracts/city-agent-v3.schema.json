@@ -7,6 +7,7 @@
           "enum": [
             "query",
             "search_dining",
+            "search_services",
             "modify",
             "preference",
             "cancel",
@@ -368,7 +369,8 @@
           "default": "update",
           "enum": [
             "update",
-            "continue"
+            "continue",
+            "weather_replan"
           ],
           "title": "Operation",
           "type": "string"
@@ -500,6 +502,105 @@
       "title": "ReferenceSelection",
       "type": "object"
     },
+    "ServiceField": {
+      "additionalProperties": false,
+      "properties": {
+        "field": {
+          "enum": [
+            "check_in",
+            "check_out",
+            "nights",
+            "guests",
+            "rooms",
+            "max_price",
+            "stay_budget_fen",
+            "location_text",
+            "room_type",
+            "window",
+            "external_window",
+            "dry_wet",
+            "breakfast",
+            "free_parking",
+            "clean",
+            "quiet"
+          ],
+          "title": "Field",
+          "type": "string"
+        },
+        "value": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "integer"
+            },
+            {
+              "type": "boolean"
+            }
+          ],
+          "title": "Value"
+        },
+        "quote": {
+          "maxLength": 500,
+          "minLength": 1,
+          "title": "Quote",
+          "type": "string"
+        },
+        "strength": {
+          "default": "hard",
+          "enum": [
+            "hard",
+            "soft",
+            "optional"
+          ],
+          "title": "Strength",
+          "type": "string"
+        }
+      },
+      "required": [
+        "field",
+        "value",
+        "quote"
+      ],
+      "title": "ServiceField",
+      "type": "object"
+    },
+    "ServiceIntent": {
+      "additionalProperties": false,
+      "properties": {
+        "quote": {
+          "maxLength": 500,
+          "minLength": 1,
+          "title": "Quote",
+          "type": "string"
+        },
+        "category": {
+          "default": "hotels",
+          "enum": [
+            "hotels",
+            "parking",
+            "merchants"
+          ],
+          "title": "Category",
+          "type": "string"
+        },
+        "fields": {
+          "default": [],
+          "items": {
+            "$ref": "#/$defs/ServiceField"
+          },
+          "maxItems": 16,
+          "title": "Fields",
+          "type": "array"
+        }
+      },
+      "required": [
+        "quote"
+      ],
+      "title": "ServiceIntent",
+      "type": "object"
+    },
     "StartTask": {
       "additionalProperties": false,
       "properties": {
@@ -578,6 +679,12 @@
               },
               "actions": {
                 "maxItems": 0
+              },
+              "weather_query": {
+                "type": "null"
+              },
+              "service_query": {
+                "type": "null"
               }
             }
           }
@@ -658,9 +765,47 @@
             }
           ],
           "default": null
+        },
+        "weather_query": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/WeatherIntent"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "service_query": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/ServiceIntent"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
         }
       },
       "title": "Understanding",
+      "type": "object"
+    },
+    "WeatherIntent": {
+      "additionalProperties": false,
+      "properties": {
+        "quote": {
+          "maxLength": 500,
+          "minLength": 1,
+          "title": "Quote",
+          "type": "string"
+        }
+      },
+      "required": [
+        "quote"
+      ],
+      "title": "WeatherIntent",
       "type": "object"
     }
   },

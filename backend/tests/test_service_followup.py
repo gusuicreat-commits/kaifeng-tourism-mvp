@@ -1,0 +1,89 @@
+"""The reported hotel exchange, isolated state and semantic/provider fakes."""
+from datetime import datetime, timedelta
+
+import pytest
+
+from app import language
+from app.city import hotels, travel_services as services
+from app.city.agent import provider
+from app.city.agent.models import ServiceIntent
+from app.city.schema import TZ
+from test_city_agent import run
+from test_travel_services import env, raw
+
+FIRST='我要标间，离清明上河园近的，住两个晚上，有没有早餐都行，住两个晚上，预算两天500'
+
+
+def field(name,value,quote,**extra):
+    return {'field':name,'value':value,'quote':quote,**extra}
+
+
+def test_exact_exchange_uses_saved_service_context_and_never_itinerary(env,monkeypatch):
+    client,path=env
+    before=client.get(path).json()
+    planning_before=client.get(path+'/exploration/constraints').json()
+    calls=[];searches=[]
+    monkeypatch.setattr(language,'available',lambda:True)
+    def semantic(system,payload,**kwargs):
+        calls.append(payload)
+        if payload['text']==FIRST:
+            fields=[field('room_type','标间','我要标间'),field('location_text','清明上河园','离清明上河园近的'),
+                    field('nights',2,'住两个晚上'),field('breakfast',True,'有没有早餐都行',strength='optional'),
+                    field('stay_budget_fen',50000,'预算两天500')]
+        else:
+            saved=payload['context']['travel_service_workspace']
+            assert saved['requirements']['nights']==2
+            assert saved['requirements']['stay_budget_fen']==50000
+            assert saved['missing_fields']==['请提供入住日期。']
+            fields=[field('check_in','明天','明天入住')]
+        return {'actions':[{'kind':'search_services','quote':payload['text']}],
+                'service_query':{'quote':payload['text'],'fields':fields}},{'source':'mock_model'}
+    monkeypatch.setattr(provider,'generate',semantic)
+    monkeypatch.setattr(services,'parse',lambda *_:pytest.fail('typed intent must not be reinterpreted by keyword parser'))
+    monkeypatch.setattr(hotels,'search',lambda q: searches.append(q) or hotels.normalize(raw()))
+    trip={'client':client,'trip':before}
+    first=run(trip,FIRST)
+    assert first['mode']=='travel_services'
+    assert first['result']['services']['result']['questions']==['请提供入住日期。']
+    assert not searches
+    second=run(trip,'明天入住')
+    assert second['mode']=='travel_services' and 'planning_action' not in second['result']
+    assert len(calls)==2 and len(searches)==1
+    tomorrow=(datetime.now(TZ).date()+timedelta(days=1))
+    saved=client.get(path+'/services').json()
+    assert saved['requirements']['check_in']==tomorrow.isoformat()
+    assert saved['requirements']['check_out']==(tomorrow+timedelta(days=2)).isoformat()
+    assert saved['requirements']['room_type']=='标间'
+    assert saved['requirements']['location_text']=='清明上河园'
+    assert saved['requirements']['attributes']['breakfast']['strength']=='optional'
+    assert saved['requirements']['stay_budget_fen']==50000
+    assert not saved['result'].get('questions')
+    assert not saved['result']['items'][0]['hard_conditions_verified']
+    assert client.get(path).json()==before
+    assert client.get(path+'/exploration/constraints').json()==planning_before
+
+
+def test_legacy_service_endpoint_retains_nights_before_checkin():
+    first,questions=services.parse(FIRST)
+    assert questions==['请提供入住日期。']
+    assert first['nights']==2 and first['stay_budget_fen']==50000
+    assert first['attributes']['breakfast']['strength']=='optional'
+    second,questions=services.parse('明天入住',first)
+    assert not questions
+    assert (datetime.fromisoformat(second['check_out'])-datetime.fromisoformat(second['check_in'])).days==2
+    third,questions=services.parse('后天入住',second)
+    assert not questions and third['nights']==2 and third['room_type']=='标间'
+
+
+@pytest.mark.parametrize('entry',[
+    field('nights',3,'住两个晚上'),
+    field('nights',2,'两个人'),
+    field('breakfast',True,'有没有早餐都行',strength='hard'),
+    field('room_type','大床房','我要标间'),
+    field('window',True,'我要标间'),
+])
+def test_semantic_fields_cannot_invent_or_change_scope(entry):
+    text=entry['quote']
+    intent=ServiceIntent(quote=text,fields=[entry])
+    with pytest.raises(ValueError):
+        services.semantic_requirements(intent,text,{},datetime.now(TZ).date())

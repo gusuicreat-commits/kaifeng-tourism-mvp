@@ -57,7 +57,7 @@ def rules(text, snapshot):
     if re.search(r'还是不要改|还是不改|不改了|放弃(?:这次|刚才的)?(?:修改|方案|调整)|取消(?:这次|刚才的)?(?:修改|方案|调整)',text) and not question:
         return Intent(operation='cancel',purpose='modify')
     restored = re.search(r'恢复(?:到)?第?(\d+)版',text)
-    if restored: return Intent(operation='restore',purpose='history',execute=True,restore_route_version=int(restored[1]))
+    if restored and not question and not re.search(r'不要|别|不想|只是|示例|引用|假设|如果',text): return Intent(operation='restore',purpose='history',execute=True,restore_route_version=int(restored[1]))
     if any(w in text for w in ('原来的方案','前面那个方案','之前的方案')):
         return Intent(operation='unknown',purpose='history')
     if any(w in text for w in ('看完了','已经看完','完成了','逛完了','吃完了')) and not question:

@@ -36,6 +36,8 @@ def init_city(db):
 
     from .engine.storage import init_engine
     init_engine(db)
+    from .travel_services import init as init_services
+    init_services(db)
     from .basket import init_basket
     init_basket(db)
 

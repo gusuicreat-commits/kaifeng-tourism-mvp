@@ -26,12 +26,18 @@ def field(name,value,quote):return {'field':name,'value':value,'quote':quote}
 
 
 @pytest.mark.parametrize('online',[False,True])
-def test_explicit_round_trip_keeps_both_names_without_model_or_route_commit(city,monkeypatch,online):
+def test_round_trip_semantic_online_and_deterministic_offline_never_commits(city,monkeypatch,online):
     monkeypatch.setattr(language,'available',lambda:online)
-    monkeypatch.setattr(provider,'generate',lambda *a,**k:pytest.fail('literal endpoint control needs no model'))
+    calls=[]
+    def semantic(*a,**k):
+        calls.append(1)
+        return {'actions':[{'kind':'modify','quote':'从开封站出发和返回'}],
+                'planning':{'quote':'从开封站出发和返回','fields':[field(role,'开封站','开封站') for role in ('origin','destination')]}},{'source':'mock_model'}
+    monkeypatch.setattr(provider,'generate',semantic)
     before=get(city)
     task=run(city,'从开封站出发和返回')
-    assert task['status']=='planning_input' and task['interpretation']['model_calls']==0
+    assert task['status']=='planning_input' and task['interpretation']['model_calls']==int(online)
+    assert len(calls)==int(online)
     action=task['result']['planning_action'];c=action['constraints']
     assert c['origin_text']==c['destination_text']=='开封站'
     assert c['origin_place_id'] is None and c['destination_place_id'] is None

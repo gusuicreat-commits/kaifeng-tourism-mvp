@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import {computed,nextTick,onBeforeUnmount,onMounted,ref,watch} from 'vue'
 import {api} from '../api'
-import {cityAgentApi,type AgentTask,type CityContext,type RouteLocationChoice} from '../cityAgentApi'
+import {cityAgentApi,type AgentTask,type CityContext,type RouteLocationChoice,type WeatherReport} from '../cityAgentApi'
 import {memoryEpoch,pendingVoiceText} from '../voiceDraft'
 import {cityApi} from '../cityApi'
 import {journey} from '../journey'
@@ -9,11 +9,14 @@ import {loadBasket} from '../journey'
 import BasketPlanning from './BasketPlanning.vue'
 import type {ObjectRef} from '../basketApi'
 import ReferenceRouteCard from './ReferenceRouteCard.vue'
+import TravelServiceCards from './TravelServiceCards.vue'
+import WeatherCard from './WeatherCard.vue'
 
 const props=defineProps<{tripId:string;focus?:ObjectRef|null;initialQuestion?:string;planning?:boolean}>()
 const showPlanning=ref(!!props.planning),planner=ref<InstanceType<typeof BasketPlanning>>(),planningBusy=ref(false)
 const inputBusy=computed(()=>busy.value||planningBusy.value)
 const ctx=ref<CityContext|null>(null),text=ref(''),task=ref<AgentTask|null>(null),busy=ref(false),error=ref('')
+const weather=ref<WeatherReport|null>(null)
 const messages=ref<{role:string;text:string}[]>([])
 const chatScroll=ref<HTMLElement>(),atLatest=ref(true)
 const earlier=ref<number|null>(null),historyBusy=ref(false)
@@ -31,17 +34,28 @@ async function loadEarlier(){
 function takeVoice(){if(pendingVoiceText.value){text.value=[text.value.trim(),pendingVoiceText.value].filter(Boolean).join('\n');pendingVoiceText.value=''}}
 watch(pendingVoiceText,takeVoice,{immediate:true})
 let epoch=0,disposed=false,resizeObserver:ResizeObserver|undefined
-const labels:Record<string,string>={search_locations:'正在查找起点和终点',query_reference_route:'正在查询高德参考路线',search_dining:'正在查找合适商家',query_shows:'正在核对演出时间',verify_travel:'正在验证交通衔接',preview_plan:'正在验证行程安排',understand:'正在理解你的要求'}
+const labels:Record<string,string>={query_weather:'正在查询和风天气',search_locations:'正在查找起点和终点',query_reference_route:'正在查询高德参考路线',search_dining:'正在查找合适商家',query_shows:'正在核对演出时间',verify_travel:'正在验证交通衔接',preview_plan:'正在验证行程安排',understand:'正在理解你的要求'}
 const progress=computed(()=>task.value?.waiting?'小汴梁正在思考':labels[task.value?.events.at(-1)?.tool||'']||'正在理解你的要求')
 const candidate=computed(()=>task.value?.status==='needs_confirmation'?task.value.result:null)
 watch(()=>[messages.value.length,busy.value,showPlanning.value,candidate.value,task.value?.status,error.value],async()=>{if(atLatest.value)await scrollLatest()},{flush:'post'})
 const activityName=(id:string)=>candidate.value?.activity_names?.[id]||'待核对活动'
 const clock=(value:string)=>new Date(value).toLocaleTimeString('zh-CN',{hour:'2-digit',minute:'2-digit',timeZone:'Asia/Shanghai'})
 async function refresh(){const guard=memoryEpoch.value,id=props.tripId;const value=await cityAgentApi.context(id);if(!disposed&&guard===memoryEpoch.value&&id===props.tripId)ctx.value=value}
-async function load(){const guard=memoryEpoch.value,id=props.tripId;try{await api.memorySession();await refresh();const page=await cityAgentApi.messages(id);if(disposed||guard!==memoryEpoch.value||id!==props.tripId)return;if(!props.focus&&!props.initialQuestion&&journey.choices.length&&!journey.trip?.route_version)showPlanning.value=true;earlier.value=page.before;atLatest.value=true;messages.value=page.messages.map(m=>({role:m.role==='user'?'你':'小汴梁',text:m.text}));if(props.initialQuestion){text.value=props.initialQuestion;await send()}}catch(e){error.value=e instanceof Error?e.message:'暂时无法读取行程'}}
-async function send(){
- if(!text.value.trim()||!ctx.value||inputBusy.value)return
- const current=++epoch,input=text.value.trim();text.value='';error.value='';busy.value=true
+async function checkWeather(){
+ const id=props.tripId,guard=memoryEpoch.value,version=ctx.value?.identity.version,routeVersion=ctx.value?.identity.route_version
+ if(version===undefined||routeVersion===undefined)return
+ try{const result=await cityAgentApi.weather(id)
+  if(disposed||guard!==memoryEpoch.value||id!==props.tripId||result.weather?.trip_version!==version||result.weather.route_version!==routeVersion)return
+  if(result.weather?.impacts.length){weather.value=result.weather
+   if(messages.value.at(-1)?.text!==result.reply)messages.value.push({role:'小汴梁',text:result.reply})
+  }
+ }catch{/* An optional weather check never blocks the existing trip or chat. */}
+}
+async function load(){const guard=memoryEpoch.value,id=props.tripId;try{await api.memorySession();await refresh();const page=await cityAgentApi.messages(id);if(disposed||guard!==memoryEpoch.value||id!==props.tripId)return;if(!props.focus&&!props.initialQuestion&&journey.choices.length&&!journey.trip?.route_version)showPlanning.value=true;earlier.value=page.before;atLatest.value=true;messages.value=page.messages.map(m=>({role:m.role==='user'?'你':'小汴梁',text:m.text}));void checkWeather();if(props.initialQuestion){text.value=props.initialQuestion;await send()}}catch(e){error.value=e instanceof Error?e.message:'暂时无法读取行程'}}
+async function send(inputOverride?:string){
+ const input=(inputOverride??text.value).trim()
+ if(!input||!ctx.value||inputBusy.value)return
+ const current=++epoch;text.value='';error.value='';busy.value=true
  atLatest.value=true
  messages.value.push({role:'你',text:input})
  try{
@@ -53,6 +67,7 @@ async function send(){
   task.value=t
   t=await drive(t,current)
   if(current!==epoch||disposed)return
+  weather.value=t.result?.weather||null
   if(t.result?.planning_action){
    showPlanning.value=true;await nextTick()
    if(current!==epoch||disposed)return
@@ -135,7 +150,9 @@ onBeforeUnmount(()=>{disposed=true;epoch++;resizeObserver?.disconnect();if(task.
    </div>
    <button type="button" class="text-link" :disabled="busy" @click="cancel">取消查询</button>
   </section>
+  <TravelServiceCards :trip-id="tripId" :revision="task?.result"/>
   <ReferenceRouteCard v-if="task?.result?.reference_route" :route="task.result.reference_route"/>
+  <WeatherCard v-if="weather" :report="weather" :busy="inputBusy" @adjust="send('可以，按天气调整行程')"/>
   <section v-if="candidate" aria-label="待确认修改" class="agent-preview">
    <h3>请核对新安排</h3>
    <p>以下为待确认候选，正式路线尚未改变。</p>

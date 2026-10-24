@@ -275,5 +275,7 @@ def export_city(db,session):
         trip['basket']=basket_snapshot(db,session,row['id'])
         from .exploration_state import read as exploration_snapshot
         trip['exploration']=exploration_snapshot(db,row['id'])
+        from .travel_services import read as service_snapshot
+        trip['travel_services']=service_snapshot(db,row['id'])
         output.append(trip)
     return output

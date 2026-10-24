@@ -1,0 +1,473 @@
+{
+  "checked_at": "2026-10-24T13:21:27.164559+08:00",
+  "mode": "real_providers_temporary_database",
+  "scenarios": {
+    "hotel": {
+      "status": "ok",
+      "count": 11,
+      "sample": [
+        {
+          "id": "flyai:91210030",
+          "name": "轻住·悦享酒店（鼓楼广场开封站店）",
+          "address": "卧龙街道文盛国际公馆1-2层121号",
+          "price_display": "¥121",
+          "nightly_from_fen": 12100,
+          "price_basis": "provider_display_starting_price",
+          "total_fen": null,
+          "image": "https://img.alicdn.com/imgextra/i1/6000000006256/O1CN01r3uBJr0R5qK66uSO_!!6000000006256-0-hotel.jpg",
+          "detail_url": "https://router.feizhu.com/multi/webview?url=https%3A%2F%2Frouter.feizhu.com%2Fws%2F3R4JEd",
+          "category": "舒适型",
+          "source": "FlyAI search-hotel",
+          "scope": "hotel_search_result_not_selected_room_or_rate_plan",
+          "checked_at": "2026-10-24T13:21:29.156816+08:00",
+          "expires_at": "2026-10-24T13:24:29.156816+08:00",
+          "attributes": {
+            "window": {
+              "label": "窗户",
+              "status": "unknown",
+              "value": null,
+              "source_field": null,
+              "scope": "selected_room_or_rate_plan",
+              "checked_at": "2026-10-24T13:21:29.156816+08:00"
+            },
+            "external_window": {
+              "label": "外窗",
+              "status": "unknown",
+              "value": null,
+              "source_field": null,
+              "scope": "selected_room_or_rate_plan",
+              "checked_at": "2026-10-24T13:21:29.156816+08:00"
+            },
+            "dry_wet": {
+              "label": "干湿分离",
+              "status": "unknown",
+              "value": null,
+              "source_field": null,
+              "scope": "selected_room_or_rate_plan",
+              "checked_at": "2026-10-24T13:21:29.156816+08:00"
+            },
+            "breakfast": {
+              "label": "早餐",
+              "status": "unknown",
+              "value": null,
+              "source_field": null,
+              "scope": "selected_room_or_rate_plan",
+              "checked_at": "2026-10-24T13:21:29.156816+08:00"
+            },
+            "free_parking": {
+              "label": "免费停车",
+              "status": "unknown",
+              "value": null,
+              "source_field": null,
+              "scope": "selected_room_or_rate_plan",
+              "checked_at": "2026-10-24T13:21:29.156816+08:00"
+            },
+            "charging": {
+              "label": "充电设施",
+              "status": "unknown",
+              "value": null,
+              "source_field": null,
+              "scope": "selected_room_or_rate_plan",
+              "checked_at": "2026-10-24T13:21:29.156816+08:00"
+            },
+            "clean": {
+              "label": "卫生",
+              "status": "unknown",
+              "value": null,
+              "source_field": null,
+              "scope": "selected_room_or_rate_plan",
+              "checked_at": "2026-10-24T13:21:29.156816+08:00"
+            },
+            "quiet": {
+              "label": "隔音",
+              "status": "unknown",
+              "value": null,
+              "source_field": null,
+              "scope": "selected_room_or_rate_plan",
+              "checked_at": "2026-10-24T13:21:29.156816+08:00"
+            },
+            "cancellation": {
+              "label": "取消政策",
+              "status": "unknown",
+              "value": null,
+              "source_field": null,
+              "scope": "selected_room_or_rate_plan",
+              "checked_at": "2026-10-24T13:21:29.156816+08:00"
+            },
+            "accessible": {
+              "label": "无障碍",
+              "status": "unknown",
+              "value": null,
+              "source_field": null,
+              "scope": "selected_room_or_rate_plan",
+              "checked_at": "2026-10-24T13:21:29.156816+08:00"
+            }
+          },
+          "unverified_conditions": [
+            "窗户",
+            "干湿分离",
+            "早餐",
+            "免费停车"
+          ],
+          "hard_conditions_verified": false,
+          "budget_verified": false
+        },
+        {
+          "id": "flyai:58391073",
+          "name": "轻住·城市优选酒店(清明上河园店)",
+          "address": "金明区西关北街50号。（近清明上河园）",
+          "price_display": "¥55",
+          "nightly_from_fen": 5500,
+          "price_basis": "provider_display_starting_price",
+          "total_fen": null,
+          "image": "https://img.alicdn.com/imgextra/i1/O1CN014ejldixJCrD24uLA_!!4611686018427387190-0-fliggy_content_upload_image.jpg",
+          "detail_url": "https://router.feizhu.com/multi/webview?url=https%3A%2F%2Frouter.feizhu.com%2Fws%2F2wMPX2",
+          "category": "舒适型",
+          "source": "FlyAI search-hotel",
+          "scope": "hotel_search_result_not_selected_room_or_rate_plan",
+          "checked_at": "2026-10-24T13:21:29.156816+08:00",
+          "expires_at": "2026-10-24T13:24:29.156816+08:00",
+          "attributes": {
+            "window": {
+              "label": "窗户",
+              "status": "unknown",
+              "value": null,
+              "source_field": null,
+              "scope": "selected_room_or_rate_plan",
+              "checked_at": "2026-10-24T13:21:29.156816+08:00"
+            },
+            "external_window": {
+              "label": "外窗",
+              "status": "unknown",
+              "value": null,
+              "source_field": null,
+              "scope": "selected_room_or_rate_plan",
+              "checked_at": "2026-10-24T13:21:29.156816+08:00"
+            },
+            "dry_wet": {
+              "label": "干湿分离",
+              "status": "unknown",
+              "value": null,
+              "source_field": null,
+              "scope": "selected_room_or_rate_plan",
+              "checked_at": "2026-10-24T13:21:29.156816+08:00"
+            },
+            "breakfast": {
+              "label": "早餐",
+              "status": "unknown",
+              "value": null,
+              "source_field": null,
+              "scope": "selected_room_or_rate_plan",
+              "checked_at": "2026-10-24T13:21:29.156816+08:00"
+            },
+            "free_parking": {
+              "label": "免费停车",
+              "status": "unknown",
+              "value": null,
+              "source_field": null,
+              "scope": "selected_room_or_rate_plan",
+              "checked_at": "2026-10-24T13:21:29.156816+08:00"
+            },
+            "charging": {
+              "label": "充电设施",
+              "status": "unknown",
+              "value": null,
+              "source_field": null,
+              "scope": "selected_room_or_rate_plan",
+              "checked_at": "2026-10-24T13:21:29.156816+08:00"
+            },
+            "clean": {
+              "label": "卫生",
+              "status": "unknown",
+              "value": null,
+              "source_field": null,
+              "scope": "selected_room_or_rate_plan",
+              "checked_at": "2026-10-24T13:21:29.156816+08:00"
+            },
+            "quiet": {
+              "label": "隔音",
+              "status": "unknown",
+              "value": null,
+              "source_field": null,
+              "scope": "selected_room_or_rate_plan",
+              "checked_at": "2026-10-24T13:21:29.156816+08:00"
+            },
+            "cancellation": {
+              "label": "取消政策",
+              "status": "unknown",
+              "value": null,
+              "source_field": null,
+              "scope": "selected_room_or_rate_plan",
+              "checked_at": "2026-10-24T13:21:29.156816+08:00"
+            },
+            "accessible": {
+              "label": "无障碍",
+              "status": "unknown",
+              "value": null,
+              "source_field": null,
+              "scope": "selected_room_or_rate_plan",
+              "checked_at": "2026-10-24T13:21:29.156816+08:00"
+            }
+          },
+          "unverified_conditions": [
+            "窗户",
+            "干湿分离",
+            "早餐",
+            "免费停车"
+          ],
+          "hard_conditions_verified": false,
+          "budget_verified": false
+        }
+      ],
+      "budget": {
+        "known_total_fen": null,
+        "feasibility": "unknown",
+        "missing": [
+          "selected_room_rate",
+          "occupancy",
+          "parking",
+          "dining",
+          "tickets",
+          "transport"
+        ]
+      }
+    },
+    "parking": {
+      "status": "ok",
+      "count": 10,
+      "sample": [
+        {
+          "id": "amap:B0G07S3HBU",
+          "name": "清明上河园1号地下停车场",
+          "address": "龙亭西路5号清明上河园(东北角)",
+          "category": "交通设施服务;停车场;公共停车场",
+          "source": "AMap POI",
+          "checked_at": "2026-10-24T13:21:29.544610+08:00",
+          "expires_at": "2026-10-24T13:24:29.544622+08:00",
+          "price_display": null,
+          "image": null,
+          "detail_url": null,
+          "attributes": {},
+          "fee_status": "unknown",
+          "availability_status": "unknown",
+          "supplies_status": "unknown",
+          "walking_route_status": "needs_explicit_destination_and_verified_entrance",
+          "hotel_free_parking": false,
+          "unverified_conditions": [
+            "早餐",
+            "干湿分离",
+            "免费停车",
+            "窗户"
+          ],
+          "hard_conditions_verified": false,
+          "budget_verified": false
+        },
+        {
+          "id": "amap:B0FFM217VH",
+          "name": "清明上河园2号停车场",
+          "address": "龙亭西路5号清明上河园(西南角)",
+          "category": "交通设施服务;停车场;公共停车场",
+          "source": "AMap POI",
+          "checked_at": "2026-10-24T13:21:29.544610+08:00",
+          "expires_at": "2026-10-24T13:24:29.544627+08:00",
+          "price_display": null,
+          "image": null,
+          "detail_url": null,
+          "attributes": {},
+          "fee_status": "unknown",
+          "availability_status": "unknown",
+          "supplies_status": "unknown",
+          "walking_route_status": "needs_explicit_destination_and_verified_entrance",
+          "hotel_free_parking": false,
+          "unverified_conditions": [
+            "早餐",
+            "干湿分离",
+            "免费停车",
+            "窗户"
+          ],
+          "hard_conditions_verified": false,
+          "budget_verified": false
+        }
+      ],
+      "budget": {
+        "known_total_fen": null,
+        "feasibility": "unknown",
+        "missing": [
+          "selected_room_rate",
+          "occupancy",
+          "parking",
+          "dining",
+          "tickets",
+          "transport"
+        ]
+      }
+    },
+    "merchants": {
+      "status": "ok",
+      "count": 10,
+      "sample": [
+        {
+          "id": "amap:B0L1MRHNED",
+          "name": "宋都禾源·灌汤包(万岁山店)",
+          "address": "复兴大道与017乡道交叉口东300米",
+          "category": "餐饮服务;中餐厅;中餐厅",
+          "source": "AMap POI",
+          "checked_at": "2026-10-24T13:21:29.924892+08:00",
+          "expires_at": "2026-10-24T13:24:29.924936+08:00",
+          "price_display": null,
+          "image": null,
+          "detail_url": null,
+          "attributes": {},
+          "fee_status": "unknown",
+          "availability_status": "unknown",
+          "supplies_status": "unknown",
+          "walking_route_status": "needs_explicit_destination_and_verified_entrance",
+          "hotel_free_parking": false,
+          "unverified_conditions": [
+            "早餐",
+            "干湿分离",
+            "免费停车",
+            "窗户"
+          ],
+          "hard_conditions_verified": false,
+          "budget_verified": false
+        },
+        {
+          "id": "amap:B0FFFAH9HG",
+          "name": "汴梁嘉宴灌汤包(向阳路店)",
+          "address": "新西门街32号",
+          "category": "餐饮服务;中餐厅;综合酒楼",
+          "source": "AMap POI",
+          "checked_at": "2026-10-24T13:21:29.924892+08:00",
+          "expires_at": "2026-10-24T13:24:29.924951+08:00",
+          "price_display": null,
+          "image": null,
+          "detail_url": null,
+          "attributes": {},
+          "fee_status": "unknown",
+          "availability_status": "unknown",
+          "supplies_status": "unknown",
+          "walking_route_status": "needs_explicit_destination_and_verified_entrance",
+          "hotel_free_parking": false,
+          "unverified_conditions": [
+            "早餐",
+            "干湿分离",
+            "免费停车",
+            "窗户"
+          ],
+          "hard_conditions_verified": false,
+          "budget_verified": false
+        }
+      ],
+      "budget": {
+        "known_total_fen": null,
+        "feasibility": "unknown",
+        "missing": [
+          "selected_room_rate",
+          "occupancy",
+          "parking",
+          "dining",
+          "tickets",
+          "transport"
+        ]
+      }
+    }
+  },
+  "hotel_selection": {
+    "saved": true,
+    "planning_status": "needs_data",
+    "formal_route_version": 0
+  },
+  "reference_route": {
+    "status": "answered",
+    "result": {
+      "status": "answered",
+      "state": "locations_explicit",
+      "reply": "开封站 → 清明上河园，已查得步行参考路线。以下为高德当前估计，出入口尚未核验，不是已确认行程。",
+      "history_reply": "已查询从开封站到清明上河园的步行高德参考路线；估时与路段仅本次显示，可重新查询。",
+      "reference_route": {
+        "source": "AMap Web Service",
+        "evidence_status": "provider_estimate",
+        "origin": "开封站",
+        "destination": "清明上河园",
+        "mode": "walking",
+        "mode_basis": "walking_default_for_reference",
+        "duration_seconds": 4164,
+        "distance_m": 5205.0,
+        "steps": [
+          "向西步行67米左转",
+          "向西步行27米向右前方行走",
+          "向北步行78米左转",
+          "沿魏都路辅路向西步行280米右转",
+          "步行63米向左前方行走",
+          "沿中山路南段辅路向西北步行223米向右前方行走",
+          "沿中山路中段辅路向北步行1752米右转",
+          "沿大纸坊街步行22米左转",
+          "向北步行1294米左转",
+          "沿龙亭南路向西步行275米向右前方行走",
+          "沿龙亭西路向西北步行702米左转",
+          "向西步行89米右转"
+        ],
+        "queried_at": "2026-10-24T13:21:30.724904+08:00",
+        "coordinate_system": "GCJ02",
+        "entrances_verified": false,
+        "navigation_certified": false,
+        "formal_admission": "needs_data",
+        "formal_state_changed": false,
+        "persisted_as_itinerary": false
+      },
+      "provider_status": "estimated"
+    }
+  },
+  "raw_hotel_response": {
+    "status": 0,
+    "message": "success",
+    "systemMessage": null,
+    "fields": [
+      "address",
+      "brandName",
+      "commissionMoneyYuan",
+      "decorationTime",
+      "detailUrl",
+      "interestsPoi",
+      "latitude",
+      "longitude",
+      "mainPic",
+      "name",
+      "price",
+      "rate",
+      "shId",
+      "star"
+    ],
+    "non_null_fields": [
+      "address",
+      "brandName",
+      "decorationTime",
+      "detailUrl",
+      "interestsPoi",
+      "latitude",
+      "longitude",
+      "mainPic",
+      "name",
+      "price",
+      "shId",
+      "star"
+    ],
+    "sample": {
+      "address": "金明区西关北街50号。（近清明上河园）",
+      "brandName": null,
+      "commissionMoneyYuan": null,
+      "decorationTime": "2019-01-01",
+      "detailUrl": "https://router.feizhu.com/multi/webview?url=https%3A%2F%2Frouter.feizhu.com%2Fws%2F2me7Cg",
+      "interestsPoi": "近清明上河园",
+      "latitude": "34.801728",
+      "longitude": "114.330416",
+      "mainPic": "https://img.alicdn.com/imgextra/i1/O1CN014ejldixJCrD24uLA_!!4611686018427387190-0-fliggy_content_upload_image.jpg",
+      "name": "轻住·城市优选酒店(清明上河园店)",
+      "price": "¥55",
+      "rate": null,
+      "shId": "58391073",
+      "star": "舒适型"
+    }
+  }
+}

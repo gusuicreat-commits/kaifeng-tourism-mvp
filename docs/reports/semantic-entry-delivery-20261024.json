@@ -1,0 +1,188 @@
+{
+  "schema_version": "semantic-entry-delivery/1",
+  "checked_at": "2026-10-24T08:56:55.643811+00:00",
+  "head": "e0e5b760df541d76b1e38f9ac91ae686eef5bacc",
+  "scope": "four_reported_failure_classes_not_full_unified_workflow",
+  "file_scope_note": "Audited task boundary. Shared files contain earlier increments; this is not a clean commit manifest.",
+  "primary_files": [
+    {
+      "path": "backend/app/city/agent/understand.py",
+      "sha256": "3dda45e26d7838277e4085af3f404d20b63674fd2618ed1bb538b762700297de"
+    },
+    {
+      "path": "backend/app/city/agent/service.py",
+      "sha256": "98ba1beeca186d366c2d810c45d567dbb4267553f0fb9b67d74dd5f20b3933b4"
+    },
+    {
+      "path": "backend/app/city/agent/conversation.py",
+      "sha256": "adc7674e9019d09d4e28920da451bbd95f708bbedb0535845754d86ce69737ba"
+    },
+    {
+      "path": "backend/app/city/agent/models.py",
+      "sha256": "dcfebff815042247d283473493d26f90070c5933e9df6c396879e8b48e7532d0"
+    },
+    {
+      "path": "backend/app/runtime.py",
+      "sha256": "2dd3daedebaea9085ab9b33ee0fdae0185c080a3b89227fc588602c46b98b4c7"
+    },
+    {
+      "path": "backend/app/main.py",
+      "sha256": "137580300cfb9ee156c4326129de8786bcf83d65f6997afe6a09ca121cfda0ea"
+    },
+    {
+      "path": "backend/tests/test_semantic_entry.py",
+      "sha256": "c4aec35af0b9038f1b5cbde6639d0597792b9da1cba4671e8130e38383a9c9a3"
+    },
+    {
+      "path": "backend/tests/test_travel_services.py",
+      "sha256": "52aa1f5b90ef0c53bf513884431718b72ab9163b84c690e848ead9d5fb376364"
+    },
+    {
+      "path": "backend/tests/test_runtime_identity.py",
+      "sha256": "cad23966ba7e7dbb89d7bc6cd40680e1a66454acb4b840fd616091e6d50599a7"
+    },
+    {
+      "path": "scripts/runtime_status.py",
+      "sha256": "5cc7b1e109c47465438af71e2528ddf16309d40bf5323e5f838a07484edbdd38"
+    },
+    {
+      "path": "scripts/travel_services_test_server.py",
+      "sha256": "b37cab4c6de97ab7533b8d85c337e00ef078ad26a5772ff1f218d58b8fe38859"
+    },
+    {
+      "path": "frontend/tests/travel-services.spec.ts",
+      "sha256": "240f26b4c2e80b901e91f8d4a32defdd6e6a7ead6eab65e17cc98782255faf68"
+    },
+    {
+      "path": "README.md",
+      "sha256": "fff33db6649a60d825df0bd8ab5a3a80832532acdcd1d72caf7de1707110bb4c"
+    },
+    {
+      "path": "docs/README.md",
+      "sha256": "84a0cef24c39d1f1912588b4bd57e5a1d568441872596d8cfe234f41fab25350"
+    },
+    {
+      "path": "docs/PROJECT_STATUS.md",
+      "sha256": "cab48c05b67e1270d21081cbd960bb0534b084e78ff90b733ecc7b30785fc852"
+    },
+    {
+      "path": "docs/UNIFIED_AGENT_WORKFLOW_PROPOSAL.md",
+      "sha256": "92f0d814b940f6a63103e47619b1706ed67383c89e4afcdae7b1cb047e44eee0"
+    },
+    {
+      "path": "docs/reports/semantic-entry-root-cause-20261024.md",
+      "sha256": "8bdc6c9e6d36ae9939dcbb3f720dd3bdd7de19094790078ef31e4b75310efa16"
+    }
+  ],
+  "shared_dependencies": [
+    {
+      "path": "backend/app/city/agent/evidence.py",
+      "sha256": "e9eae67df71245ee5d286ced5508853804d7e6d018557d5bfdc1375ef6d64009"
+    },
+    {
+      "path": "backend/app/city/agent/planning_intent.py",
+      "sha256": "f325e43321fb18630dc08d329d0b5f352ce733687e54dd6bc7d75cbe44fa559f"
+    },
+    {
+      "path": "backend/app/city/travel_services.py",
+      "sha256": "1e2fb7ac78914a95c320adcb46d032fb8d2f3bd70242f9f123f5dd8600663520"
+    },
+    {
+      "path": "backend/app/city/hotels.py",
+      "sha256": "7dd5cec761412ce6b8ee6ae8528be9b1c7a094544f6edaffa6c567e2b0982f88"
+    },
+    {
+      "path": "backend/app/city/weather.py",
+      "sha256": "c9236001419c874647d17214dc9ec92cec6940d35e5234967e5bae855d421453"
+    },
+    {
+      "path": "backend/app/city/providers/__init__.py",
+      "sha256": "ae6b63c1a7721ce2e4ed9f57b74b0bcd8a254833956d3bd17df4ee110b61a3e0"
+    },
+    {
+      "path": "backend/app/city/providers/adapters.py",
+      "sha256": "d9d2dedd7e02d6af5cc7a85bbd48736391c1f9f86a981b86a7691adf310fe0ba"
+    },
+    {
+      "path": "backend/app/city/providers/contracts.py",
+      "sha256": "3c86dd626c6bb306e9dd486ae5ebfd7123323e7e93c65253cab941ceef98c55d"
+    },
+    {
+      "path": "backend/app/city/providers/registry.py",
+      "sha256": "875a55ec5592381e7aed885d33eee34d9e0f2b5115bb2869f00a611e387fa395"
+    }
+  ],
+  "validation": {
+    "backend": {
+      "command": ".venv/bin/pytest -q",
+      "passed": 715,
+      "failed": 0,
+      "warnings": 1,
+      "log": ".test-results/semantic-entry-backend-final-20261024.log"
+    },
+    "frontend_build": {
+      "command": "npm run build --prefix frontend",
+      "status": "passed",
+      "log": ".test-results/semantic-entry-build-final-20261024.log"
+    },
+    "services_browser": {
+      "command": "npx playwright test --config playwright.services.config.ts",
+      "cwd": "frontend",
+      "passed": 2,
+      "data": "temporary_synthetic_database_mock_semantic_model_and_provider",
+      "log": ".test-results/semantic-entry-services-browser-20261024.log"
+    },
+    "agent_browser": {
+      "command": "npx playwright test --config playwright.agent.config.ts",
+      "cwd": "frontend",
+      "passed": 7,
+      "data": "temporary_synthetic_database_mock_model",
+      "log": ".test-results/semantic-entry-agent-browser-20261024.log"
+    },
+    "live_semantic": {
+      "evidence": "docs/reports/semantic-entry-live-20261024.json",
+      "new_live_calls_in_continuation": 0,
+      "scope": "one_utterance_isolated_task_api_model1_tools0_no_formal_write"
+    },
+    "whitespace": {
+      "command": "git diff --check",
+      "status": "passed"
+    }
+  },
+  "runtime": {
+    "status": "current",
+    "mismatches": [],
+    "running": {
+      "checkout_id": "8aa119167848ac47",
+      "backend_sha256": "a4d8b34cab2abc3880ff8620084be26f84e5b28fd61f6a38bf1676a7f0df25e3",
+      "git_head": "e0e5b760df541d76b1e38f9ac91ae686eef5bacc",
+      "pid": 18317,
+      "started_at": "2026-10-24T08:52:47.111975+00:00"
+    },
+    "disk": {
+      "checkout_id": "8aa119167848ac47",
+      "backend_sha256": "a4d8b34cab2abc3880ff8620084be26f84e5b28fd61f6a38bf1676a7f0df25e3",
+      "git_head": "e0e5b760df541d76b1e38f9ac91ae686eef5bacc"
+    }
+  },
+  "assistant_http_status": 200,
+  "preserved_boundaries": [
+    "formal_engine_confirmation",
+    "unknown_provider_fields",
+    "negative_and_quoted_mutation_evidence",
+    "stale_candidate_rejection",
+    "existing_unrelated_worktree_changes"
+  ],
+  "not_completed": [
+    "full_TurnIntent_mixed_requests",
+    "unified_requirements_merge",
+    "full_backend_planning_orchestration",
+    "real_city_route_acceptance",
+    "historical_mixed_changes_split_into_commits"
+  ],
+  "git_changes": {
+    "batch_commit_created": false,
+    "reset_or_clean_executed": false,
+    "staged_files": []
+  }
+}

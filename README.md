@@ -42,6 +42,8 @@ cd /Users/mac/Desktop/大挑/kaifeng-tourism-mvp
 
 默认应用/API 为 `http://127.0.0.1:8017`，开发前端为 `http://127.0.0.1:5177`，API 文档为 `/docs`，健康检查为 `/api/health`。端口以本地配置为准。默认模式提供已构建前端；修改后需重建，后端修改需正常重启。Ctrl+C 停止本启动器的子进程。
 
+修改后运行 `.venv/bin/python scripts/runtime_status.py`（Windows：`.venv\Scripts\python scripts/runtime_status.py`），核对8017实际加载的后端与本目录。`current`才表示启动指纹与磁盘一致；`restart_required`说明代码、提交或目录不一致，`unknown`说明旧服务缺少启动标识，`unavailable`说明服务不可达。检查只读，不会杀进程或修改数据。开发时可使用上面的`--dev`自动重载；它不代替保存改动后的测试与指纹核对。
+
 ## 配置与数据维护
 
 首次从 `.env.example` 复制到 `.env`；已有配置只补字段，不覆盖。配置名称以 `.env.example` 为准，密钥只写本地 `.env`。
