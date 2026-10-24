@@ -559,6 +559,7 @@ def _advance(session,trip_id,identity,body):
             t.mode,questions=understand.route(t.intent,t.snapshot)
             t.events[-1].update(status='ok',source=meta.get('source','mock_model'),fallback=meta['basis']=='rule_fallback',
                 request_sequence=1 if meta['model_calls'] else None,provider_failure=meta.get('provider_failure'))
+            if meta.get('context_budget'):t.events[-1]['context_budget']=meta['context_budget']
             if meta.get('validation_failure'):t.events[-1]['validation_failure']=meta['validation_failure']
             if meta.get('provider_failure'):
                 t.events[-1]['status']='failed'
@@ -686,6 +687,10 @@ def _advance(session,trip_id,identity,body):
             t.wait_started=time.monotonic()
     except HTTPException as exc:
         if exc.status_code in (401,403,404):raise
+        if isinstance(exc.detail,dict) and exc.detail.get('code')=='AGENT_CONTEXT_BUDGET':
+            if t.events:t.events[-1].update(status='blocked_before_request',context_budget=exc.detail)
+            _finish(session,t,'needs_clarification',{'code':'AGENT_CONTEXT_BUDGET','reply':exc.detail['message'],'context_budget':exc.detail})
+            return public(t)
         if t.intent is None and isinstance(exc.detail,dict) and str(exc.detail.get('code','')).startswith('MODEL_'):
             attempts=exc.detail.get('http_attempts',int(exc.detail.get('code')=='MODEL_HTTP_ERROR'))
             t.model_calls+=attempts
