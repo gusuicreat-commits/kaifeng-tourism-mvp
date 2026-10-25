@@ -27,11 +27,11 @@ try {
   await page.goto(base+'/pitch',{waitUntil:'networkidle'});
   await page.waitForURL('**/assets/pitch/index.html');
   await page.waitForFunction(()=>window.__pitchDemo);
-  assert.equal(await page.locator('#deck > section.slide').count(),14);
-  assert.equal(await page.evaluate(()=>window.__SPEAKER_NOTES__.length),14);
+  assert.equal(await page.locator('#deck > section.slide').count(),15);
+  assert.equal(await page.evaluate(()=>window.__SPEAKER_NOTES__.length),15);
   assert.deepEqual(report.apiRequests,[]);
   assert.deepEqual(report.externalRequests,[]);
-  record('Production /pitch entry loads 14 slides and notes without API or external requests');
+  record('Production /pitch entry loads 15 slides and notes without API or external requests');
 
   await page.waitForTimeout(800);await page.keyboard.press('PageDown');await page.waitForTimeout(800);
   assert.equal(await page.evaluate(()=>window.__currentSlideIndex),1);
@@ -88,7 +88,7 @@ try {
   const layouts=[];
   for(const viewport of [{width:1600,height:900},{width:1280,height:720},{width:1024,height:768},{width:390,height:844},{width:320,height:740}]){
     await page.setViewportSize(viewport);
-    for(let i=0;i<14;i++){
+    for(let i=0;i<15;i++){
       await goto(i);
       const metrics=await page.evaluate(()=>{
         const s=document.querySelectorAll('#deck > section.slide')[window.__currentSlideIndex];
@@ -122,7 +122,7 @@ try {
     layouts.push(viewport);
   }
   report.viewports=layouts;
-  record('All 14 slides fit desktop/projector widths and have no horizontal overflow at 320/390px');
+  record('All 15 slides fit desktop/projector widths and have no horizontal overflow at 320/390px');
 
   await page.setViewportSize({width:1600,height:900});await goto('adjust-demo');
   const popup=context.waitForEvent('page');await page.locator('#ppt-presenter-btn').click();const audience=await popup;
@@ -152,7 +152,7 @@ try {
   const offline=await browser.newContext({offline:true,viewport:{width:1280,height:720}});
   const local=await offline.newPage();const localErrors=[];local.on('pageerror',e=>localErrors.push(e.message));
   await local.goto(pathToFileURL(artifact).href);await local.waitForFunction(()=>window.__pitchDemo);
-  assert.equal(await local.locator('#deck > section.slide').count(),14);
+  assert.equal(await local.locator('#deck > section.slide').count(),15);
   await local.evaluate(()=>go(7,{force:true}));await local.waitForTimeout(800);
   await local.locator('#preview-adjustment').click();await local.locator('#confirm-adjustment').click();
   assert.equal(await local.evaluate(()=>window.__pitchDemo.snapshot().version),2);

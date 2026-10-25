@@ -1,9 +1,9 @@
 {
   "date": "2026-10-25",
-  "base": "http://127.0.0.1:8039",
+  "base": "http://127.0.0.1:8038",
   "checks": [
     {
-      "name": "Production /pitch entry loads 14 slides and notes without API or external requests",
+      "name": "Production /pitch entry loads 15 slides and notes without API or external requests",
       "status": "passed"
     },
     {
@@ -23,7 +23,7 @@
       "status": "passed"
     },
     {
-      "name": "All 14 slides fit desktop/projector widths and have no horizontal overflow at 320/390px",
+      "name": "All 15 slides fit desktop/projector widths and have no horizontal overflow at 320/390px",
       "status": "passed"
     },
     {
@@ -51,10 +51,11 @@
     "docs/screenshots/pitch-20261025/08-adjust-demo-desktop.png",
     "docs/screenshots/pitch-20261025/09-trip-interface-desktop.png",
     "docs/screenshots/pitch-20261025/10-architecture-desktop.png",
-    "docs/screenshots/pitch-20261025/11-evidence-boundaries-desktop.png",
-    "docs/screenshots/pitch-20261025/12-current-progress-desktop.png",
-    "docs/screenshots/pitch-20261025/13-validation-roadmap-desktop.png",
-    "docs/screenshots/pitch-20261025/14-closing-desktop.png",
+    "docs/screenshots/pitch-20261025/11-system-architecture-desktop.png",
+    "docs/screenshots/pitch-20261025/12-evidence-boundaries-desktop.png",
+    "docs/screenshots/pitch-20261025/13-current-progress-desktop.png",
+    "docs/screenshots/pitch-20261025/14-validation-roadmap-desktop.png",
+    "docs/screenshots/pitch-20261025/15-closing-desktop.png",
     "docs/screenshots/pitch-20261025/06-route-demo-mobile.png",
     "docs/screenshots/pitch-20261025/presenter-desktop.png"
   ],
