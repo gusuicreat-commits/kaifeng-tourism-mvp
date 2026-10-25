@@ -4,6 +4,7 @@ export interface Performance {
  start_time:string|null;duration_minutes:number|null;end_time:string|null;entry_deadline:string|null
  requires_booking:boolean|null;weather_sensitive:boolean|null;schedule_note:string
  verified_poi_id:string|null;eligible_for_solver:boolean;source_freshness:string
+ operating_status:string
 }
 export interface ScheduleStatus {
  approved_schedule:boolean;status:'approved_schedule'|'stale_source'|'review_required'|'unavailable'

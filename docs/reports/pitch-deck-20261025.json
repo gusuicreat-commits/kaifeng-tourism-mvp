@@ -1,0 +1,87 @@
+{
+  "date": "2026-10-25",
+  "base": "http://127.0.0.1:8039",
+  "checks": [
+    {
+      "name": "Production /pitch entry loads 14 slides and notes without API or external requests",
+      "status": "passed"
+    },
+    {
+      "name": "Keyboard, visible navigation and overview remain usable after button focus",
+      "status": "passed"
+    },
+    {
+      "name": "Five original screenshots load; full-size view closes with Escape without changing slides",
+      "status": "passed"
+    },
+    {
+      "name": "Candidate generation does not change confirmed demo state; adoption requires a click",
+      "status": "passed"
+    },
+    {
+      "name": "Adjustment preview/cancel preserve progress and version; confirmation increments once",
+      "status": "passed"
+    },
+    {
+      "name": "All 14 slides fit desktop/projector widths and have no horizontal overflow at 320/390px",
+      "status": "passed"
+    },
+    {
+      "name": "Presenter notes, manual timer, overview, 16:9 previews and audience demo-state sync work",
+      "status": "passed"
+    },
+    {
+      "name": "Downloaded HTML is self-contained and the interaction works offline over file://",
+      "status": "passed"
+    },
+    {
+      "name": "No browser script errors, business API requests or external resource requests",
+      "status": "passed"
+    }
+  ],
+  "screenshots": [
+    "docs/screenshots/pitch-20261025/07-adjustment-preview-desktop.png",
+    "docs/screenshots/pitch-20261025/01-cover-desktop.png",
+    "docs/screenshots/pitch-20261025/02-fragmented-services-desktop.png",
+    "docs/screenshots/pitch-20261025/03-one-request-desktop.png",
+    "docs/screenshots/pitch-20261025/04-planning-flow-desktop.png",
+    "docs/screenshots/pitch-20261025/05-product-interface-desktop.png",
+    "docs/screenshots/pitch-20261025/06-assistant-interface-desktop.png",
+    "docs/screenshots/pitch-20261025/07-route-demo-desktop.png",
+    "docs/screenshots/pitch-20261025/08-adjust-demo-desktop.png",
+    "docs/screenshots/pitch-20261025/09-trip-interface-desktop.png",
+    "docs/screenshots/pitch-20261025/10-architecture-desktop.png",
+    "docs/screenshots/pitch-20261025/11-evidence-boundaries-desktop.png",
+    "docs/screenshots/pitch-20261025/12-current-progress-desktop.png",
+    "docs/screenshots/pitch-20261025/13-validation-roadmap-desktop.png",
+    "docs/screenshots/pitch-20261025/14-closing-desktop.png",
+    "docs/screenshots/pitch-20261025/06-route-demo-mobile.png",
+    "docs/screenshots/pitch-20261025/presenter-desktop.png"
+  ],
+  "errors": [],
+  "apiRequests": [],
+  "externalRequests": [],
+  "viewports": [
+    {
+      "width": 1600,
+      "height": 900
+    },
+    {
+      "width": 1280,
+      "height": 720
+    },
+    {
+      "width": 1024,
+      "height": 768
+    },
+    {
+      "width": 390,
+      "height": 844
+    },
+    {
+      "width": 320,
+      "height": 740
+    }
+  ],
+  "status": "passed"
+}

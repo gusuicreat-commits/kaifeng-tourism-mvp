@@ -19,6 +19,8 @@ packaging==26.3
 pandas==3.0.6
 pluggy==1.7.0
 protobuf==6.33.6
+psycopg==3.3.6
+psycopg-binary==3.3.6
 pydantic==2.14.1
 pydantic_core==2.50.1
 Pygments==2.21.0

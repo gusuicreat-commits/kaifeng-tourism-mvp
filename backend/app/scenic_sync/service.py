@@ -39,14 +39,23 @@ def base_view(schedule: dict | None, park_id: str, service_date: date) -> dict:
                 "notice": "没有该日期经适用性与完整性核验的节目表。"}
     approved = schedule["status"] == "approved_schedule" and schedule["service_date"] == service_date
     freshness = "approved_schedule" if approved else schedule["status"]
+    display_status = "official_schedule_reviewed" if approved else {
+        "review_required": "today_unconfirmed",
+        "stale_source": "stale_reference_only",
+        "unavailable": "today_unconfirmed",
+    }.get(schedule["status"], "today_unconfirmed")
     return {"park_id": park_id, "service_date": service_date, "approved_schedule": approved,
-            "status": schedule["status"] if approved else "stale_source",
-            "display_status": "official_schedule_reviewed" if approved else "stale_reference_only",
+            "status": schedule["status"],
+            "display_status": display_status,
             "schedule_version": schedule["version"], "source_id": schedule["source_id"],
             "source_updated_on": schedule["source_updated_on"], "last_fetched_at": None,
             "reviewed_at": schedule["reviewed_at"], "reviewer": schedule["reviewer"],
             "source_freshness": freshness,
-            "notice": "日期与内容已审核；不等于现场保证演出，临时变动以景区广播为准。" if approved else "仅保留旧日程参考；不能视为该日期已确认节目表。"}
+            "notice": "日期与内容已审核；不等于现场保证演出，临时变动以景区广播为准。" if approved else {
+                "review_required": "节目表尚待核验日期与内容，以下候选不能视为已确认场次。",
+                "stale_source": "仅保留旧日程参考；不能视为该日期已确认节目表。",
+                "unavailable": "该版本已标记不可用，没有可确认的节目表。",
+            }.get(schedule["status"], "节目表尚未确认。")}
 
 
 def schedule_with_source(db, schedule):
@@ -64,6 +73,10 @@ def performance_view(db, row: dict, schedule: dict, source: dict) -> dict:
     with db.cursor() as cur:
         cur.execute("SELECT * FROM scenic_venue_bindings WHERE park_id=%s AND venue_name=%s", (row["park_id"], row["venue_name"]))
         binding = cur.fetchone()
+    eligibility = solver_eligibility(row, binding)
+    if schedule["status"] != "approved_schedule":
+        eligibility = {**eligibility, "eligible_for_solver": False,
+                       "missing_for_solver": [*eligibility["missing_for_solver"], "approved_schedule"]}
     return {"performance_id": row["performance_id"], "program_name": row["program_name"], "venue_name": row["venue_name"],
             "area": row["area"], "service_date": row["service_date"], "start_time": row["start_time"],
             "duration_minutes": row["duration_minutes"], "end_time": row["end_time"], "entry_deadline": row["entry_deadline"],
@@ -71,22 +84,30 @@ def performance_view(db, row: dict, schedule: dict, source: dict) -> dict:
             "operating_status": row["operating_status"], "schedule_note": row["schedule_note"],
             "verified_poi_id": binding["verified_poi_id"] if binding else None,
             "venue_binding_status": "verified" if binding and binding["verified_poi_id"] else "unbound",
-            **solver_eligibility(row, binding), "source": source_view(source),
-            "source_freshness": schedule["status"], "confidence_status": "approved_schedule" if schedule["status"] == "approved_schedule" else "stale_source",
+            **eligibility, "source": source_view(source),
+            "source_freshness": schedule["status"], "confidence_status": schedule["status"],
             "onsite_performance_guaranteed": False}
 
 
 def performances(url: str, park_id: str, service_date: date) -> dict:
     with connect(url) as db:
-        schedule = latest(db, park_id, service_date)
+        pending = latest(db, park_id, service_date, approved=False)
+        # A pending capture does not replace the last reviewed schedule. Without
+        # a reviewed version, expose dated candidates with their actual status.
+        approved = latest(db, park_id, service_date)
+        schedule = approved or pending
+        if pending and pending["status"] == "unavailable":
+            schedule = pending
         if not schedule:
             return {**base_view(None, park_id, service_date), "performances": [], "agent_citation": citation(park_id, service_date, None, "unavailable")}
         schedule, source, recent = schedule_with_source(db, schedule)
         base = base_view(schedule, park_id, service_date)
         base["source"] = source_view(source)
         base["last_fetched_at"] = recent["fetched_at"] if recent else None
-        rows = [performance_view(db, row, schedule, source) for row in sessions_for(db, schedule["schedule_id"])]
-        return {**base, "performances": rows, "agent_citation": citation(park_id, service_date, source, schedule["status"])}
+        rows = [] if schedule["status"] == "unavailable" else [performance_view(db, row, schedule, source) for row in sessions_for(db, schedule["schedule_id"])]
+        return {**base, "performances": rows, "latest_review_status": pending["status"],
+                "pending_review_schedule_id": pending["schedule_id"] if pending["status"] == "review_required" else None,
+                "agent_citation": citation(park_id, service_date, source, schedule["status"])}
 
 
 def citation(park_id, service_date, source, status):

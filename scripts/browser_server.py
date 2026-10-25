@@ -12,6 +12,9 @@ with tempfile.TemporaryDirectory(prefix='bianyou-e2e-') as test_dir:
     os.environ['DATABASE_PATH']=str(Path(test_dir)/'test.sqlite3')
     os.environ['M7_DELETION_LEDGER_PATH']=str(Path(test_dir)/'deletions.sqlite3')
     os.environ['TOURISM_LLM_API_KEY']=''  # Tests never trigger a paid provider from the user's .env.
+    os.environ['SCENIC_ADMIN_API_KEY']='e2e-only-admin-key-01234567890123456789'
+    # Many isolated browser identities share one loopback IP during the suite.
+    os.environ['M7_SESSION_RATE_LIMIT']='10000'
     # Explicit test-only catalog. All data live in this disposable directory.
     if os.getenv('E2E_CITY_FACTS'):
         from app.seed import seed

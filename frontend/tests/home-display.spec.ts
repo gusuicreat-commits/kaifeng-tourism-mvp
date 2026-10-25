@@ -24,7 +24,7 @@ test('手机两排独立滑动、搜索、九道菜图片及真实详情入口',
   const card=food.locator('.food-card').filter({hasText:name});await card.scrollIntoViewIfNeeded();await expect(card.locator('img')).toHaveAttribute('src',`/images/foods/${file}.jpg`);await expect.poll(()=>card.locator('img').evaluate(el=>(el as HTMLImageElement).naturalWidth)).toBe(1448)
  }
  await page.getByLabel('搜索景点、美食或演出').fill('四味菜');await expect(food.locator('.food-card')).toHaveCount(1);await food.getByRole('link').click();await expect(page).toHaveURL(/\/food\/siweicai/)
- await expect(page.getByRole('heading',{name:'四味菜',level:1,exact:true})).toBeVisible();await expect(page.locator('.food-detail-hero img')).toHaveAttribute('src','/images/foods/siweicai.jpg')
+ await expect(page.getByRole('heading',{name:'四味菜',level:1,exact:true})).toBeVisible();await expect(page.locator('.food-detail-hero img')).toHaveAttribute('src','/images/food-workbook/siweicai-r23-dish-1.jpg')
  for(const width of [320,390,768,1440]){await page.setViewportSize({width,height:844});expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true)}
  expect(errors).toEqual([]);await context.close()
 })

@@ -4,12 +4,15 @@ Road edges, simulated observations, dated starts and media publication are not
 imported here. Historic program times stay text and never become show sessions.
 """
 import csv
+import hashlib
+import json
 from pathlib import Path
 
 from scripts.import_team_workbook import base_fact, clip
 
 ROOT = Path(__file__).resolve().parents[1]
 PACKAGE = ROOT.parent / '开封旅游数据采集_20261020'
+SNAPSHOT = ROOT / 'data/mvp/source/historical-catalog-20261020.json'
 PARKS = {'qingming': 'pl_wb_000001', 'wansui': 'pl_wb_000002', 'kaifengfu': 'pl_wb_000003',
          'longting': 'pl_wb_000004', 'tieta': 'pl_wb_000006'}
 
@@ -24,6 +27,13 @@ def text(value):
 
 
 def build():
+    if SNAPSHOT.exists():
+        content = SNAPSHOT.read_bytes()
+        snapshot = json.loads(content)
+        return snapshot['records'], {'status': 'converted', 'path': str(SNAPSHOT.relative_to(ROOT)),
+            'records': len(snapshot['records']), 'input_kind': 'archived_normalized_catalog',
+            'snapshot_sha256': hashlib.sha256(content).hexdigest(), 'raw_evidence_available': False,
+            'provenance': snapshot['provenance']}
     if not (PACKAGE / 'SHA256SUMS.txt').exists():
         return [], {'status': 'not_present', 'path': str(PACKAGE)}
     sources = rows('sources')

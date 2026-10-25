@@ -54,6 +54,23 @@ OR-Tools 使用 Apache-2.0，NetworkX 和 Pandas 使用 BSD-3-Clause；未引入
 | @playwright/test | 1.64.1 | Apache-2.0 |
 | playwright-core | 1.64.1 | Apache-2.0 |
 
+本次路演页还随仓库保留了以下第三方内容：
+
+| Content | Version | License | Notice |
+| --- | --- | --- | --- |
+| 路演模板与相关模板代码 | 本地模板版本 | AGPL-3.0 | [模板许可证](../frontend/pitch/LICENSE.template)；模板来源和改动范围见 [路演展示](PITCH_DECK.md) |
+| motion | 11.11.17 | MIT | [motion LICENSE](licenses/motion-11.11.17-LICENSE) |
+| framer-motion | 11.11.17 | MIT | [framer-motion LICENSE](licenses/framer-motion-11.11.17-LICENSE) |
+
+路演页的 `motion.min.js` 与模板相关文件按上表保留版权和许可文本。仓库没有据此自动选择整体开源许可证；如果公开发布，团队仍需单独决定项目自身的许可证，并确保其与 AGPL 模板部分的分发方式一致。
+
+景区日程同步新增的 PostgreSQL 驱动也保留随包许可：
+
+| Package | Version | Declared license | Notice |
+| --- | --- | --- | --- |
+| psycopg | 3.3.6 | LGPL-3.0-only | [psycopg LICENSE](licenses/psycopg-LICENSE.txt) |
+| psycopg-binary | 3.3.6 | LGPL-3.0-only | [psycopg-binary LICENSE](licenses/psycopg-binary-LICENSE.txt) |
+
 ## 团队交接的数据处理依赖（2026-10-23）
 
 补充安装清单见 `backend/requirements-data.lock`。源码包不内置这些二进制包；以下保留本机已安装数据依赖的许可通知。Windows额外使用tzdata 2025.2，其许可随安装包分发。

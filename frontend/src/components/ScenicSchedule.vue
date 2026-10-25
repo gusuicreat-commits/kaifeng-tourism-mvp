@@ -33,12 +33,12 @@ const time=(value:string|null)=>value?.slice(0,5)||'时刻待确认'
  <div v-else-if="error" class="schedule-state" role="status">今日尚未确认<small>暂时无法读取节目日程，请稍后重试。</small><button class="quiet-link" @click="load">重新查询</button></div>
  <template v-else-if="schedule">
   <div class="schedule-notice" :data-status="schedule.display_status"><ShieldCheck :size="18"/><div><strong>{{label}}</strong><p>{{schedule.notice}}</p></div></div>
-  <p v-if="schedule.latest_review_status==='review_required'" class="schedule-pending" role="status">临时变动：发现待复核的新版本，当前仍保留上一次审核结果。</p>
+  <p v-if="schedule.approved_schedule&&schedule.latest_review_status==='review_required'" class="schedule-pending" role="status">临时变动：发现待复核的新版本，当前仍保留上一次审核结果。</p>
   <div v-if="!groups.length" class="schedule-state">{{featuredOnly?'暂无该日期已审核的主要演出场次。':'没有该日期已审核的场次。'}}<small>不会用其他日期的节目表补齐。</small></div>
   <div v-else class="schedule-groups">
-   <article v-for="group in groups" :key="group[0].program_name+group[0].venue_name" class="schedule-program">
+   <article v-for="group in groups" :key="group[0].performance_id" class="schedule-program">
     <div><h4>{{group[0].program_name}}</h4><p><MapPin :size="13"/>{{group[0].area?group[0].area+' · ':''}}{{group[0].venue_name}}</p></div>
-    <ul><li v-for="show in group" :key="show.performance_id"><Clock3 :size="14"/><strong>{{time(show.start_time)}}</strong><span v-if="show.schedule_note">{{show.schedule_note}}</span><span v-else>时长与入场规则待核验</span></li></ul>
+    <ul><li v-for="show in group" :key="show.performance_id"><Clock3 :size="14"/><strong>{{time(show.start_time)}}</strong><span v-if="show.operating_status==='cancelled'">已取消</span><span v-else-if="show.schedule_note">{{show.schedule_note}}</span><span v-else>时长与入场规则待核验</span></li></ul>
    </article>
   </div>
   <footer class="schedule-source">来源日期：{{schedule.source_updated_on||'未知'}} · 最近采集：{{schedule.last_fetched_at?new Date(schedule.last_fetched_at).toLocaleString():'未知'}}<a v-if="schedule.source?.source_ref.startsWith('http')" :href="schedule.source.source_ref" target="_blank" rel="noopener noreferrer">查看公开来源</a></footer>

@@ -1,12 +1,13 @@
 import {test,expect} from '@playwright/test'
 
-test('景区与未提供资料的美食保留媒体占位，不伪造名称地址或播放按钮',async({page})=>{
+test('缺资料保留媒体占位，景区已有视频只提供来源外链',async({page})=>{
  const errors:string[]=[];page.on('pageerror',e=>errors.push(e.message))
  for(const width of [320,390,482,1440]){
   await page.setViewportSize({width,height:844})
   for(const url of ['/scenic/qingming','/food/taosibao','/vendor/pending']){
    await page.goto(url);await expect(page.locator('.detail-media')).toBeVisible()
-   await expect(page.locator('.photo-strip .media-slot')).toHaveCount(3)
+   if(url!=='/scenic/qingming')await expect(page.locator('.photo-strip .media-slot')).toHaveCount(3)
+   else {await expect(page.locator('.video-link')).toHaveCount(3);await expect(page.locator('.photo-strip img[src*="wansui"]')).toHaveCount(0)}
    if(url==='/food/taosibao')await expect(page.locator('.video-slot')).toContainText('待添加');await expect(page.locator('video')).toHaveCount(0)
    if(url.startsWith('/food/'))await expect(page.getByText('适合何时品尝',{exact:true})).toHaveCount(0)
    expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true)
@@ -232,9 +233,10 @@ test('缺地点资料时可填写起终点，刷新保留且不生成正式路�
  expect(reported.origin_place_id).toBeNull();expect(reported.destination_place_id).toBeNull()
  await page.reload();await expect(page.getByLabel('已提供的安排')).toContainText(tomorrow)
  await expect(page.getByLabel('已提供的安排')).toContainText('回到开封站')
- await expect(page.getByText('从哪里出发，最后返回哪里？',{exact:true})).toHaveCount(0)
+  await expect(page.locator('.planning-question')).toHaveCount(0)
+  await expect(page.getByLabel('规划检测结果')).toContainText('位置资料待核验')
  const formal=await(await page.request.get(path)).json();expect(formal.version).toBe(trip.version);expect(formal.route_version).toBe(0);expect(formal.draft.stops).toEqual([])
- expect(tasks).toBe(6);expect(confirms).toBe(0);expect(understood.filter(x=>x==='needs_clarification').length).toBe(4)
+ expect(tasks).toBe(6);expect(confirms).toBe(0);expect(understood.filter(status=>status!=='running')).toEqual(Array(6).fill('needs_clarification'))
 })
 
 test('结构化规划输入必须属于当前旅程，相同版本也不能串写',async({page})=>{
@@ -250,7 +252,7 @@ test('结构化规划输入必须属于当前旅程，相同版本也不能串�
  const input=page.getByLabel('告诉小汴梁你的问题或想调整的安排',{exact:true})
  await expect(input).toBeEnabled();await input.fill('我明天想去开封玩')
  await page.getByRole('button',{name:'发送',exact:true}).click()
- await expect(page.locator('.agent-messages')).toContainText('安排已变化，请重新读取当前旅程。')
+ await expect(page.getByRole('alert')).toContainText('安排已变化，请重新读取当前旅程。')
  expect((await(await page.request.get('/api/city/v1/trips/'+first.id+'/exploration/constraints')).json()).version).toBe(1)
  expect((await(await page.request.get('/api/city/v1/trips/'+other.id+'/exploration/constraints')).json()).version).toBe(0)
 })

@@ -20,6 +20,24 @@ def greeting_only(text):
     return bool(_GREETING_ONLY.fullmatch(text or ''))
 
 
+def food_covered_by_material(constraint, planning, snapshot):
+    items = snapshot.planning.facts
+    foods = {r.fact_id for r in items.values() if r.kind == 'food'
+             and constraint.value in (r.name, *r.aliases) and facts.planning_visible(r)}
+    selected = {(i['fact_kind'], i['fact_id']) for i in snapshot.materials
+                if i['status'] != 'standby' and any(c.name == i['name'] for c in planning.choices)}
+    if any(('food', food_id) in selected for food_id in foods):
+        return True
+    for supply in items.values():
+        if supply.kind != 'supply' or supply.food_id not in foods or not facts.planning_visible(supply):
+            continue
+        vendor = items.get(('vendor', supply.vendor_id))
+        if vendor and facts.planning_visible(vendor) and (
+                ('vendor', vendor.fact_id) in selected or ('place', vendor.place_id) in selected):
+            return True
+    return False
+
+
 def prompt_schema(value):
     """Omit schema annotations, keeping validation rules and the input budget."""
     if isinstance(value,dict):
@@ -189,11 +207,19 @@ def _normalize_model_output(raw):
         if field=='walking_seconds' and val is not None:
             if type(val) is not int or not 1 <= val <= 43200:
                 continue
+        if field=='walking_seconds' and val is None:
+            # A walking bound without a value is never actionable; a real limit
+            # always carries an integer number of seconds.
+            continue
         if field=='objective' and val not in ('balanced','less_walking','less_waiting','lower_cost'):
             continue
         if field=='pace' and val not in ('relaxed','standard','compact'):
             continue
-        if field in ('objective','pace'):
+        # A spurious default objective/pace next to an explicit planning turn is
+        # redundant and rejected by preference_evidence anyway. But on a pure
+        # conversation a smuggled preference must still fail closed, so only
+        # drop it when a planning intent is present.
+        if field in ('objective','pace') and isinstance(planning,dict):
             try:
                 preference_evidence(field,val,c.get('quote',''))
             except ValueError:
@@ -317,7 +343,13 @@ def parse(text,snapshot,*,allow_model=True):
             result=result.model_copy(update={'actions':local.actions,'constraints':local.constraints})
         # Explicit deterministic clauses cannot be dropped or weakened by the model.
         keyed={(c.field,c.quote):c for c in result.constraints}
-        keyed.update({(c.field,c.quote):c for c in local.constraints})
+        # Keep a separate food requirement unless the selected material has a
+        # recorded supply relationship for that food.
+        local_for_merge=local.constraints
+        if result.planning and result.planning.choices:
+            local_for_merge=tuple(c for c in local.constraints if c.field!='food'
+                or not food_covered_by_material(c, result.planning, snapshot))
+        keyed.update({(c.field,c.quote):c for c in local_for_merge})
         if local.corrections:
             corrected={c.field for c in local.constraints if c.field in ('meal_at','return_by','visit_at')}
             keyed={k:c for k,c in keyed.items() if c.field not in corrected or c in local.constraints}

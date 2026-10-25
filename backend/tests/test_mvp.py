@@ -29,7 +29,7 @@ def record(**changes):
 
 
 def upload(client,rows):
-    return client.post('/api/crowds/import',files={'file':('data.csv',csv_bytes(rows),'text/csv')})
+    return client.post('/api/crowds/import',headers={'x-scenic-admin-key':'test-admin-key-012345678901234567890123456789','x-scenic-reviewer':'test-reviewer'},files={'file':('data.csv',csv_bytes(rows),'text/csv')})
 
 
 def test_search_and_scenic_details(client):
@@ -201,8 +201,10 @@ def test_invalid_api_input_and_oversized_csv(client):
     assert client.post('/api/routes',json={'scenic_id':'wansui','start':'unknown'}).status_code==422
     assert client.get('/api/scenics/wansui/crowds?hour=28').status_code==422
     assert client.get('/api/plans/nonexistent').status_code==404
-    assert client.post('/api/crowds/import',files={'file':('big.csv',b'x'*(1024*1024+1),'text/csv')}).status_code==413
-    assert client.post('/api/crowds/import',files={'file':('bad.csv',b'wrong,headers\nx,y','text/csv')}).status_code==422
+    headers={'x-scenic-admin-key':'test-admin-key-012345678901234567890123456789','x-scenic-reviewer':'test-reviewer'}
+    assert client.post('/api/crowds/import',headers=headers,files={'file':('big.csv',b'x'*(1024*1024+1),'text/csv')}).status_code==413
+    assert client.post('/api/crowds/import',headers=headers,files={'file':('bad.csv',b'wrong,headers\nx,y','text/csv')}).status_code==422
+    assert client.post('/api/crowds/import',files={'file':('data.csv',b'','text/csv')}).status_code==403
     assert b'is_simulated' in client.get('/api/crowds/template').content
 
 

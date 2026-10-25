@@ -20,6 +20,7 @@ import './style.css'
 import './journey.css'
 import './details.css'
 const router=createRouter({history:createWebHistory(),scrollBehavior:()=>({top:0}),routes:[
+ {path:'/pitch',component:()=>import('./pages/Pitch.vue')},
  {path:'/',component:Home},{path:'/guide',component:Guide},{path:'/assistant',component:Assistant},{path:'/memory',component:Memory},{path:'/scenic/:id',component:Detail},
  {path:'/city-trip/manage/:id?',component:CityTrip},
  {path:'/city-trip/:id?',component:JourneyPage},{path:'/food/:id',component:FoodDetail},{path:'/place/:id',component:PlaceDetail},{path:'/me',component:MyPage},

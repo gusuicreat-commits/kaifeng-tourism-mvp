@@ -4,7 +4,7 @@ async function openManual(page:Page){await page.getByLabel('更多行程操作',
 async function saveReview(page:Page){await page.getByRole('button',{name:'核对这份安排',exact:true}).click();await expect(page.getByRole('dialog',{name:'确认行程修改'})).toBeVisible();await page.getByRole('button',{name:'确认并保存安排',exact:true}).click();await expect(page.getByRole('dialog',{name:'确认行程修改'})).toHaveCount(0)}
 test('城市资料缺失时保留兴趣，保存日期后首页和地图读取同一行程',async({page})=>{
  await page.route('**/api/city/v1/facts',r=>r.fulfill({json:{items:[]}}));await page.goto('/scenic/qingming')
- await page.getByRole('button',{name:'加入素材篮：清明上河园',exact:true}).click();await page.getByRole('navigation',{name:'主导航'}).getByRole('link',{name:'行程',exact:true}).click()
+ await page.getByRole('button',{name:'加入素材篮：清明上河园',exact:true}).click();await expect(page.getByRole('button',{name:'移出素材篮：清明上河园',exact:true})).toBeVisible();await page.getByRole('navigation',{name:'主导航'}).getByRole('link',{name:'行程',exact:true}).click()
  await expect(page.locator('.journey-candidates')).toHaveCount(0);await expect(page.locator('.trip-plan-empty')).toBeVisible()
  await page.goto('/basket');await expect(page.locator('.basket-item')).toContainText('清明上河园');await page.goto('/city-trip');await openManual(page)
  await page.getByLabel('旅行日期',{exact:true}).fill('2026-11-01');await page.getByLabel('开始时间',{exact:true}).fill('09:00');await page.getByLabel('结束时间',{exact:true}).fill('19:00');await saveReview(page)
@@ -33,8 +33,8 @@ test('商家收进素材篮不自动写入行程，手动明确选择后才保�
  // Explicit local-ID binding is supplied to the isolated test server; no production mapping is changed.
  catalog.items.find((x:{record:{kind:string}})=>x.record.kind==='food').record.name='炒凉粉'
  await page.route('**/api/city/v1/facts',r=>r.fulfill({json:catalog}));await page.goto('/food/chaoliangfen')
- await expect(page.locator('.vendor-card')).toContainText('[测试]餐馆');await page.locator('.vendor-card').getByRole('link').click()
- await page.getByRole('button',{name:'加入素材篮：[测试]餐馆',exact:true}).click();await page.getByRole('navigation',{name:'主导航'}).getByRole('link',{name:'行程',exact:true}).click()
+ const verified=page.locator('.vendor-card').filter({hasText:'已核验供应关系'});await expect(verified).toContainText('[测试]餐馆');await verified.getByRole('link').click()
+ await page.getByRole('button',{name:'加入素材篮：[测试]餐馆',exact:true}).click();await expect(page.getByRole('button',{name:'移出素材篮：[测试]餐馆',exact:true})).toBeVisible();await page.getByRole('navigation',{name:'主导航'}).getByRole('link',{name:'行程',exact:true}).click()
  await expect(page.locator('.trip-plan-empty')).toBeVisible();await openManual(page)
  await expect(page.locator('.editor-stop-list article')).toHaveCount(0)
  await page.getByLabel('旅行日期',{exact:true}).fill('2026-11-01');await saveReview(page)

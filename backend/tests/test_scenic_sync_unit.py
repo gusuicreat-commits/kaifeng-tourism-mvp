@@ -8,6 +8,7 @@ from app.scenic_sync.mapper import cancellation_signal, solver_eligibility
 from app.scenic_sync.models import NormalizedSession, SyncSettings
 from app.scenic_sync.parse import parse_schedule
 from app.scenic_sync.provider import FetchRejected, QmsyunProvider
+from app.scenic_sync.service import base_view
 from app.scenic_sync.store import diff
 
 FIXTURES = Path(__file__).parent / "fixtures/scenic_sync"
@@ -76,4 +77,16 @@ def test_cancel_signal_does_not_mutate_itinerary():
     assert signal["signal"] == "schedule_cancelled_replan_required"
     assert signal["formal_itinerary_changed"] is False
     assert "explicit_confirmation" in signal["next_step"]
+
+
+@pytest.mark.parametrize("status,display", [
+    ("review_required", "today_unconfirmed"),
+    ("stale_source", "stale_reference_only"),
+])
+def test_public_status_preserves_unapproved_schedule_state(status, display):
+    result = base_view({"status": status, "service_date": DAY, "version": 1, "source_id": 7,
+                        "source_updated_on": DAY, "reviewed_at": None, "reviewer": None}, "qmsy", DAY)
+    assert result["status"] == status
+    assert result["display_status"] == display
+    assert result["approved_schedule"] is False
 

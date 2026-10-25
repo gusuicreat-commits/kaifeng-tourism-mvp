@@ -1,0 +1,58 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: scenic_test
+          POSTGRES_PASSWORD: isolated-ci-only
+          POSTGRES_DB: scenic_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U scenic_test"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    env:
+      SCENIC_TEST_DATABASE_URL: postgresql://scenic_test:isolated-ci-only@127.0.0.1:5432/scenic_test
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22.12'
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Install Python dependencies
+        run: |
+          python -m venv .venv
+          .venv/bin/python -m pip install -r backend/requirements.lock -r backend/requirements-data.lock
+
+      - name: Install frontend dependencies
+        run: npm ci --prefix frontend
+
+      - name: Run backend tests and frontend build
+        run: ./scripts/check.sh
+
+      - name: Run collection tests without network calls
+        run: .venv/bin/python -m pytest -q collector/tests
+
+      - name: Install browser for UI tests
+        run: npx --prefix frontend playwright install --with-deps chromium
+
+      - name: Run isolated browser tests
+        working-directory: frontend
+        run: npm run test:e2e

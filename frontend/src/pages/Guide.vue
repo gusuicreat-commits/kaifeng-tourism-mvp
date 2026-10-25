@@ -10,10 +10,11 @@ import {journey,loadJourney,localDate,clock,addChoice,choice,nameOf} from '../jo
 import GuideMap from '../components/GuideMap.vue'
 import CityMap from '../components/CityMap.vue'
 const route=useRoute(),router=useRouter(),scenicId=ref(String(route.query.scenic||'wansui'))
-const cityMode=computed(()=>route.query.demo!=='1')
+const demo=computed(()=>route.query.demo==='1')
+const cityMode=computed(()=>!demo.value)
 const mapView=computed(()=>String(route.query.scenic||'city'))
 const scenicName=computed(()=>scenicNames[scenicId.value]||scenicNames.wansui)
-const network=ref<Network>(fallbackNetwork(scenicId.value)),routeNetwork=ref<Network>(),loading=ref(false),error=ref(''),searchOpen=ref(false),search=ref(''),layerOpen=ref(false),performanceLayer=ref(true),selectedNode=ref(''),currentNode=ref('gate'),now=ref(Date.now()),demo=ref(route.query.demo==='1'),sheetOpen=ref(false),filter=ref('all')
+const network=ref<Network>(fallbackNetwork(scenicId.value)),routeNetwork=ref<Network>(),loading=ref(false),error=ref(''),searchOpen=ref(false),search=ref(''),layerOpen=ref(false),performanceLayer=ref(true),selectedNode=ref(''),currentNode=ref('gate'),now=ref(Date.now()),sheetOpen=ref(false),filter=ref('all')
 const performances=ref<GuidePerformance[]>([]),selectedEvent=ref<GuidePerformance>(),summary=ref<{distance:number;minutes:number;arrival:string}>(),message=ref('')
 let loadVersion=0,ticker:ReturnType<typeof setInterval>|undefined
 const nodes=computed(()=>network.value.features.filter(x=>x.geometry.type==='Point'))
@@ -30,7 +31,7 @@ async function loadScene(id:string){const version=++loadVersion;scenicId.value=i
 async function switchScene(id:string){await router.replace({path:'/guide',query:{scenic:id,...(demo.value?{demo:'1'}:{})}})}
 function selectEvent(event:GuidePerformance){selectedEvent.value=event;selectedNode.value=event.nodeId;sheetOpen.value=true}
 function navigate(id:string){const result=demoRoute(network.value,currentNode.value,id);if(!result){message.value='示意路网不连通，无法生成路线';routeNetwork.value=undefined;summary.value=undefined;return}selectedNode.value=id;routeNetwork.value=result.network;summary.value={distance:result.distance,minutes:result.minutes,arrival:clock(new Date(Date.now()+result.minutes*60000).toISOString())};message.value='演示路线，非实际导航';sheetOpen.value=false}
-function toggleDemo(){if(demo.value){void router.replace({path:'/guide',query:{scenic:scenicId.value}});return}demo.value=true;void loadScene(scenicId.value)}
+function toggleDemo(){void router.replace({path:'/guide',query:{scenic:scenicId.value,...(!demo.value?{demo:'1'}:{})}})}
 function clear(){selectedNode.value='';selectedEvent.value=undefined;message.value=''}
 function setCurrent(){currentNode.value=selectedNode.value||'gate';message.value='当前位置设为选中的示意点；不代表 GPS 定位。'}
 function addEvent(){if(!selectedEvent.value)return;const fact=journey.catalog.find(x=>x.record.kind==='show_session'&&x.record.fact_id===selectedEvent.value!.id&&x.ready&&!x.record.is_demo);if(!fact){message.value='这场演出尚未匹配可加入城市行程的有效记录，请先核对公告。';return}addChoice(choice('show',fact.record.fact_id,selectedEvent.value.name))}

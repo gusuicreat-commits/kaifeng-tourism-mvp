@@ -184,6 +184,24 @@ def test_model_cannot_downgrade_a_material_using_a_must_quote(city,monkeypatch):
     assert c.get(path(city,'/basket')).json()['items'][0]['priority']=='must'
 
 
+@pytest.mark.parametrize('place_id,covered',[('museum',False),('restaurant',True)])
+def test_named_material_does_not_erase_an_unmet_food_requirement(city,monkeypatch,place_id,covered):
+    from app.city import facts
+    from app.db import connect
+    with connect() as db:
+        food = facts.records(db)['food','food'].model_copy(update={'name':'灌汤包','version':2})
+        facts.import_bundle(facts.FactBundle(records=(food,)),db,apply=True)
+    name = '[合成测试]' + place_id
+    text = name + '想去，还必须吃灌汤包'
+    response = city['client'].patch(path(city,'/basket'),json={'request_id':rid(),'expected_version':0,
+        'item':{'kind':'place','object_id':place_id,'priority':'want'}})
+    assert response.status_code == 200
+    model(monkeypatch,text,planning={'quote':text,'choices':[{'name':name,'priority':'want','quote':text}]})
+    snap,_ = snapshot(city)
+    intent,meta = understand.parse(text,snap)
+    assert any(c.field == 'food' for c in intent.constraints) is not covered, (intent,meta,understand.rules(text,snap))
+
+
 def test_cancel_after_model_understanding_never_publishes_workflow_input(city,monkeypatch):
     from test_city_agent import start,step
     text='我明天想去开封玩';model(monkeypatch,text,[field('date','明天','明天')])

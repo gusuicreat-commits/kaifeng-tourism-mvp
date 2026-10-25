@@ -149,13 +149,23 @@ def proposal(session, trip_id, snapshot, intent, text, *, today=None):
     validated=Constraints.model_validate(values)
     choice_text=[]
     if p.choices:
-        # Existing answer endpoint owns consent, atomic priority writes, and arranged-item locks.
-        if p.fields or intent.constraints:return {'status':'needs_clarification','reply':'请先确认素材取舍，再调整日期或其他条件；本次尚未修改。'}
         with connect() as db:items=basket.snapshot(db,session,trip_id)['items']
         used=set()
         for choice in p.choices:
             matches=[i for i in items if i['name']==choice.name]
             if len(matches)!=1 or choice.name in used:return {'status':'needs_clarification','reply':'请明确要调整的素材名称；本次尚未修改。'}
+            used.add(choice.name)
+            current=matches[0]
+            # A choice that already matches the basket is a harmless echo of the
+            # existing selection, not a material change. It can accompany date/
+            # time fields in a single-utterance plan.
+            if current['priority']==choice.priority and current['status']==choice.status:
+                continue
+            # A real material change cannot be combined with date/time in one
+            # shot; the existing answer endpoint owns consent and atomic writes.
+            if p.fields or intent.constraints:return {'status':'needs_clarification','reply':'请先确认素材取舍，再调整日期或其他条件；本次尚未修改。'}
+            # The quote itself must authorize the stated priority; a "必去" text
+            # cannot be silently downgraded to "想去" by the model.
             from ..exploration import reply_patch
             try:
                 _,checked=reply_patch(choice.quote,items,c.model_dump(mode='json'))
@@ -163,7 +173,6 @@ def proposal(session, trip_id, snapshot, intent, text, *, today=None):
                 return {'status':'needs_clarification','reply':'需要你明确确认这项素材的取舍；本次尚未修改。'}
             if checked.get(matches[0]['key'])!={'priority':choice.priority,'status':choice.status}:
                 return {'status':'needs_clarification','reply':'这项素材的取舍还需要确认；本次尚未修改。'}
-            used.add(choice.name)
             suffix='先放候补' if choice.status=='standby' else {'must':'必去','want':'改为想去','optional':'顺路看看'}[choice.priority]
             choice_text.append(choice.name+suffix)
     return {'status':'planning_input','reply':'已理解你的规划要求，接着核验安排。',

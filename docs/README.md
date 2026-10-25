@@ -20,6 +20,7 @@
 
 | 领域 | 文档 |
 | --- | --- |
+| 瑞士风路演与用户提供的产品截图 | [PITCH_DECK](PITCH_DECK.md) |
 | 规划算法、接口及版本 | [ALGORITHMS](ALGORITHMS.md)、[PLANNING_ENGINE_V1](PLANNING_ENGINE_V1.md) |
 | 交互与行中修改 | [PLANNING_WORKFLOW](PLANNING_WORKFLOW.md) |
 | 城市状态、事实、导出删除 | [CITY_STORAGE_AND_FACTS](CITY_STORAGE_AND_FACTS.md)、[M7_MEMORY](M7_MEMORY.md) |

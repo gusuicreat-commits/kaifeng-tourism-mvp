@@ -1,5 +1,11 @@
 import {defineConfig} from '@playwright/test'
 import {browserLaunchOptions,testServerCommand} from './playwright.runtime'
+import {fileURLToPath} from 'node:url'
+// These fixtures are loaded only by the disposable browser test server.
+if(process.env.E2E_EMPTY_CATALOG!=='1'){
+ process.env.E2E_CITY_FACTS??=fileURLToPath(new URL('../backend/tests/fixtures/city_facts.json',import.meta.url))
+ process.env.E2E_OBJECT_BINDINGS??=fileURLToPath(new URL('../backend/tests/fixtures/object_bindings.json',import.meta.url))
+}
 const port=Number(process.env.E2E_PORT||8018)
 export default defineConfig({
  testDir:'./tests',testIgnore:['agent-v3.spec.ts','assistant-reference.spec.ts','travel-services.spec.ts','weather-reminder.spec.ts'],fullyParallel:false,workers:1,timeout:30000,

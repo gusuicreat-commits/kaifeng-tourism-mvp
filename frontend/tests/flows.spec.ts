@@ -11,12 +11,11 @@ test('景区直达、详情点位、外部地图降级与手机导航',async({pa
  await page.locator('.scenic-card').filter({hasText:'清明上河园'}).getByRole('link').click()
  await expect(page.getByRole('heading',{name:'清明上河园',level:1,exact:true})).toBeVisible()
  await page.getByRole('button',{name:'内部示意地图',exact:true}).click()
- await page.getByRole('button',{name:'虹桥',exact:true}).click()
- await expect(page.locator('.map-popup')).toContainText('建议停留约 15 分钟')
- await page.getByRole('button',{name:'放大地图'}).click()
- await page.getByRole('button',{name:'重置地图'}).click()
+ await expect(page.getByRole('img',{name:'清明上河园手绘导览图',exact:true})).toBeVisible()
+ await expect(page.locator('.scenic-handmap')).toContainText('标注步行时间为休闲估算')
+ await expect.poll(()=>page.locator('.scenic-handmap img').evaluate(el=>(el as HTMLImageElement).naturalWidth)).toBeGreaterThan(0)
  await page.getByRole('button',{name:'外部位置地图',exact:true}).click()
- await expect(page.getByText('在高德地图查看位置和前往路线。')).toBeVisible()
+ await expect(page.getByText('位置与入口以高德搜索结果为准',{exact:true})).toBeVisible()
  await expect(page.getByRole('link',{name:'高德位置 / 前往路线'})).toHaveAttribute('href',/uri.amap.com\/search/)
  await page.goto('/');await page.setViewportSize({width:390,height:844});await noOverflow(page)
  const nav=page.getByRole('navigation',{name:'主导航'})
@@ -70,7 +69,9 @@ test('客流融入问答、旧入口兼容、有数据与缺数据均可生成�
  await expect(page.locator('.itinerary .crowd-tag')).toHaveCount(0)
  const header='scenic_id,node_id,observed_at,crowd_level,source_type,source_name,measurement_kind,confidence,is_simulated\n'
  const rows=[1,2,3].map(day=>{const when=new Date(Date.now()-day*86400000);when.setUTCHours(5,0,0,0);return `qingming,theatre,${when.toISOString()},0.85,field,E2E测试夹具,observation,0.8,false`}).join('\n')
- expect((await request.post('/api/crowds/import',{multipart:{file:{name:'test.csv',mimeType:'text/csv',buffer:Buffer.from(header+rows+'\n')}}})).ok()).toBeTruthy()
+ const upload={file:{name:'test.csv',mimeType:'text/csv',buffer:Buffer.from(header+rows+'\n')}}
+ expect((await request.post('/api/crowds/import',{multipart:upload})).status()).toBe(403)
+ expect((await request.post('/api/crowds/import',{headers:{'x-scenic-admin-key':'e2e-only-admin-key-01234567890123456789','x-scenic-reviewer':'synthetic-e2e'},multipart:upload})).ok()).toBeTruthy()
  await openInterview(page,'qingming');await fillBasics(page)
  await page.getByRole('checkbox',{name:'景龙湖演出区',exact:true}).check()
  await finishInterests(page);await setPace(page,true)
@@ -98,6 +99,6 @@ test('时间不足能返回修改、网络失败重试与窄屏布局',async({pa
  await page.unroute('**/api/scenics?*');await page.getByRole('button',{name:'重试',exact:true}).click()
  for(const path of ['/','/plan','/scenic/qingming']){
   await page.setViewportSize({width:320,height:740});await page.goto(path)
-  await expect(page.locator('[role="status"]')).toHaveCount(0);await noOverflow(page)
+  await expect(page.locator('[role="alert"]')).toHaveCount(0);await noOverflow(page)
  }
 })

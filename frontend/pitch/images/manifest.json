@@ -1,0 +1,37 @@
+[
+  {
+    "image": 1,
+    "file": "user-home.png",
+    "source": "User-provided screenshot, 2026-10-25",
+    "sha256": "112739e08b66e84e0d654b9b954b8880c0c03643c5dbe95900c59d716b0a5879",
+    "treatment": "Original pixels retained; displayed with object-fit:contain"
+  },
+  {
+    "image": 2,
+    "file": "user-discovery.png",
+    "source": "User-provided screenshot, 2026-10-25",
+    "sha256": "50c4ebbc771d8b1eff650af11653afdeb9f777c637f8865d1b5f1327b466c719",
+    "treatment": "Original pixels retained; displayed with object-fit:contain"
+  },
+  {
+    "image": 3,
+    "file": "user-assistant.png",
+    "source": "User-provided screenshot, 2026-10-25",
+    "sha256": "f9b4d4344651826cd0964417520c55638f120a155fe8f12925fa13a39c1be605",
+    "treatment": "Original pixels retained; displayed with object-fit:contain"
+  },
+  {
+    "image": 4,
+    "file": "user-map.png",
+    "source": "User-provided screenshot, 2026-10-25",
+    "sha256": "620079d66ef9a12614995c2896521d461862e13df4efb19fe62f406aa9690d77",
+    "treatment": "Original pixels retained; displayed with object-fit:contain"
+  },
+  {
+    "image": 5,
+    "file": "user-media.png",
+    "source": "User-provided screenshot, 2026-10-25",
+    "sha256": "c0facef23e3756034a0ef2025600b178af5fee7b0a01690c90f5101abbbde6a9",
+    "treatment": "Original pixels retained; displayed with object-fit:contain"
+  }
+]

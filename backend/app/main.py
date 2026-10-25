@@ -10,7 +10,7 @@ from pathlib import Path
 from dotenv import load_dotenv
 load_dotenv(Path(__file__).resolve().parents[2]/'.env')
 
-from fastapi import FastAPI, HTTPException, UploadFile, File, Query, Request
+from fastapi import Depends, FastAPI, HTTPException, UploadFile, File, Query, Request
 from fastapi.responses import Response, FileResponse
 from fastapi.staticfiles import StaticFiles
 from .runtime import STARTUP
@@ -33,6 +33,7 @@ from .city.assistant.api import router as city_assistant_router
 from .city.agent.api import router as city_agent_router
 from .city.weather import router as city_weather_router
 from .scenic_sync.api import router as scenic_router, admin_router as scenic_admin_router
+from .scenic_sync.service import require_admin as require_scenic_admin
 from .city.exploration import router as exploration_router
 from .maps import router as maps_router
 import asyncio
@@ -174,7 +175,7 @@ def route(body:RouteRequest):
 
 
 @app.post('/api/crowds/import')
-async def upload(file:UploadFile=File(...)):
+async def upload(file:UploadFile=File(...), reviewer: str = Depends(require_scenic_admin)):
     content=await file.read(1024*1024+1)
     await file.close()
     if len(content)>1024*1024:

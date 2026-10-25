@@ -50,14 +50,20 @@ def review(schedule_id, request_id=None, version=1):
 def test_postgres_ingest_review_idempotency_stale_and_fallback():
     result = ingest()
     assert result["status"] == "review_required" and not result["approved_published"]
+    pending = service.performances(URL, "qmsy", NOW.date())
+    assert pending["status"] == "review_required" and pending["performances"]
+    assert not any(row["eligible_for_solver"] for row in pending["performances"])
+    assert ingest(now=NOW.replace(hour=10))["schedule_id"] == result["schedule_id"]
     review(result["schedule_id"])
     assert service.performances(URL, "qmsy", NOW.date())["approved_schedule"] is True
-    repeated = ingest(now=NOW.replace(hour=10))
+    repeated = ingest(now=NOW.replace(hour=11))
     assert repeated["unchanged"] and repeated["version"] == 1
     stale = ingest(now=NOW.replace(day=25), raw=FIXTURE.read_bytes())
     assert stale["status"] == "stale_source"
     assert service.performances(URL, "qmsy", NOW.date())["schedule_version"] == 1
-    assert service.performances(URL, "qmsy", NOW.date().replace(day=25))["status"] == "unavailable"
+    next_day = service.performances(URL, "qmsy", NOW.date().replace(day=25))
+    assert next_day["status"] == "stale_source" and not next_day["approved_schedule"]
+    assert all(row["service_date"] == NOW.date().replace(day=25) for row in next_day["performances"])
     with connect(URL) as db, db.cursor() as cur:
         cur.execute("SELECT octet_length(raw_snapshot),content_sha256 FROM scenic_schedule_sources WHERE raw_snapshot IS NOT NULL LIMIT 1")
         assert cur.fetchone()["octet_length"] > 0
@@ -75,6 +81,18 @@ def test_mass_drop_incomplete_and_stale_do_not_replace_approved():
     incomplete = ingest(raw=b"<p>2026\xe5\xb9\xb410\xe6\x9c\x8824\xe6\x97\xa5\xe6\x9b\xb4\xe6\x96\xb0</p>", now=NOW.replace(hour=11))
     assert incomplete["status"] == "review_required"
     assert service.performances(URL, "qmsy", NOW.date())["approved_schedule"]
+    payload = service.performances(URL, "qmsy", NOW.date())
+    assert payload["schedule_version"] == 1 and payload["latest_review_status"] == "review_required"
+
+
+def test_mark_unavailable_hides_withdrawn_sessions():
+    result = ingest()
+    review(result["schedule_id"])
+    service.review(URL, "qmsy", result["schedule_id"], ReviewRequest(request_id=uuid4().hex,
+        decision="mark_unavailable", note="合成测试：官方撤回"), "test-reviewer")
+    payload = service.performances(URL, "qmsy", NOW.date())
+    assert payload["status"] == "unavailable" and not payload["approved_schedule"]
+    assert payload["performances"] == []
 
 
 def test_same_day_changes_review_result_and_concurrent_ingest():

@@ -146,20 +146,15 @@ def create_schedule(db, *, park_id: str, source_id: int, service_date: date,
     ensure_parks(db)
     previous = latest(db, park_id, service_date)
     digest = source_fingerprint(source_updated_on, complete, issues, sessions, source_kind)
-    # Reprocessing identical approved content is a no-op; every fetch still has a source row.
-    if previous:
-        old = sessions_for(db, previous["schedule_id"])
-        if old and old[0]["source_fingerprint"] == digest:
-            return {"schedule_id": previous["schedule_id"], "status": previous["status"], "unchanged": True,
-                    "version": previous["version"], "service_date": service_date.isoformat()}
+    # Every fetch retains its source row; identical captures share a version.
     with db.cursor() as cur:
         cur.execute("SELECT pg_advisory_xact_lock(hashtext(%s))", (f"schedule:{park_id}:{service_date}",))
         # Recheck after waiting: concurrent imports must not manufacture duplicate versions.
+        captured = latest(db, park_id, service_date, approved=False)
+        if captured and captured["source_fingerprint"] == digest:
+            return {"schedule_id": captured["schedule_id"], "status": captured["status"], "unchanged": True,
+                    "version": captured["version"], "service_date": service_date.isoformat()}
         previous = latest(db, park_id, service_date)
-        previous_rows = sessions_for(db, previous["schedule_id"]) if previous else []
-        if previous_rows and previous_rows[0]["source_fingerprint"] == digest:
-            return {"schedule_id": previous["schedule_id"], "status": previous["status"], "unchanged": True,
-                    "version": previous["version"], "service_date": service_date.isoformat()}
         old = sessions_for(db, previous["schedule_id"]) if previous else []
         changes = diff(old, sessions) if previous else []
         if source_kind == "official_html" and source_updated_on != fetched_at.astimezone(TZ).date():

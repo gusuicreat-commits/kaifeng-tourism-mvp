@@ -13,6 +13,7 @@ def isolated_memory_runtime(monkeypatch):
     monkeypatch.setattr(model_schedule,'_scheduler',model_schedule.ModelScheduler(clock=lambda:next(ticks)))
     monkeypatch.setenv('TOURISM_LLM_API_KEY','')
     monkeypatch.setenv('AMAP_PLANNING_ENABLED','')
+    monkeypatch.setenv('SCENIC_ADMIN_API_KEY', 'test-admin-key-012345678901234567890123456789')
 
 
 @pytest.fixture

@@ -1,8 +1,8 @@
 # 汴梁游记
 
-面向开封自由行的城市旅游助手，以景区、演出、美食、休息与交通组成的连续行程为核心，支持途中修改。Vue 3 + TypeScript / FastAPI / SQLite，使用 NetworkX 与 OR-Tools CP-SAT 规划和独立复核。
+面向开封自由行的城市旅游助手，以景区、演出、美食、休息与交通组成的连续行程为核心，支持途中修改。Vue 3 + TypeScript / FastAPI，城市行程使用 SQLite，独立演出日程使用 PostgreSQL；使用 NetworkX 与 OR-Tools CP-SAT 规划和独立复核。
 
-**截至2026-10-23：城市规划引擎、素材篮、助手、行程确认和地图已有软件接线，高德参考问路已有真实调用证据；正式城市事实和交通资料仍为空，真实城市 V1 尚未完成。** 草稿、参考问路、合成测试与已确认路线须区分。
+**截至2026-10-25：这是可运行的城市旅游原型。规划引擎、素材篮、助手、行程确认和地图已有软件接线，参考资料和部分外部服务已有接入记录；目标日完整演出、园内真实路网及完整 V1 现场验收仍未完成。** 干净安装不会复制本机运行数据库，参考资料、合成测试与已确认路线须区分。第三方审阅建议先看[提交前检查与剩余限制](docs/reports/github-readiness-20261025.md)。
 
 ## 团队接手
 
@@ -26,6 +26,7 @@ Windows首次运行：`py -3 scripts/start.py`，或双击 `start.cmd`。完整�
 | `/city-trip/manage/:id?` | 结构化城市草稿管理 |
 | `/guide` | 真实地图、临时选点与参考路线；`?demo=1` 是显式示意入口 |
 | `/me`、`/memory` | 当前旅行、会话私有资料的导出与删除；没有账号及跨设备身份恢复 |
+| `/pitch` | 独立路演页面；其中的交互示例不写入游客真实行程 |
 
 素材篮是意向，预览尚未提交；正式行程来自同一引擎确认接口。地图路线查询不会自动成为正式交通矩阵，也不证明园内可通行。旧单景区接口继续兼容，模拟客流与示意道路不作为真实观测或导航依据。
 
@@ -34,7 +35,7 @@ Windows首次运行：`py -3 scripts/start.py`，或双击 `start.cmd`。完整�
 需要 Python 3.11+、Node.js 22.12+及 npm；首次安装需要联网。
 
 ```bash
-cd /Users/mac/Desktop/大挑/kaifeng-tourism-mvp
+cd kaifeng-tourism-mvp
 ./start.sh
 # 开发热更新
 ./start.sh --dev
@@ -55,6 +56,8 @@ cd /Users/mac/Desktop/大挑/kaifeng-tourism-mvp
 
 城市事实只经 `scripts/import_city_facts.py` 校验及导入，默认 dry-run，显式 `--apply` 才写入；交通运营资料经 `scripts/import_city_operations.py`。格式和核验要求见[存储与事实](docs/CITY_STORAGE_AND_FACTS.md)、[数据需求](docs/DATA_REQUIREMENTS.md)和[数据工程计划](docs/DATA_ENGINEERING_PLAN.md)。采集台账与运行事实库分开，fixture 不得导入运行库。恢复备份须使用当前删除台账，见[M7](docs/M7_MEMORY.md)。
 
+演出日程需要另行配置 PostgreSQL 并执行[日程迁移](docs/SCENIC_SCHEDULE_SYNC.md)，未配置时页面显示尚未确认。公共客流 CSV 导入与景区节目管理均需服务端 `SCENIC_ADMIN_API_KEY` 和审核人请求头，见[安全说明](SECURITY.md)。
+
 ## 验证
 
 ```bash
@@ -64,6 +67,8 @@ cd frontend
 npm run test:e2e
 ```
 
-浏览器验证使用隔离临时库；城市和 Agent 用例需按对应配置显式启用合成 fixture。专项命令见[规划引擎](docs/PLANNING_ENGINE_V1.md)、[V3](docs/CITY_AGENT_V3.md)及[地图说明](docs/AMAP_MAP_LOCATION_MVP.md)。在线测试可能产生 API 调用，应显式启用。
+浏览器验证使用隔离临时库，默认配置只向这个临时库装入合成测试资料；`E2E_EMPTY_CATALOG=1` 可验证空目录场景。不会写入本机旅游库。PostgreSQL 用例仅在配置独立的 `SCENIC_TEST_DATABASE_URL` 后执行，这些测试会重建该测试库的 public schema，禁止使用业务库连接。采集器测试为 `.venv/bin/python -m pytest -q collector/tests`。专项命令见[规划引擎](docs/PLANNING_ENGINE_V1.md)、[V3](docs/CITY_AGENT_V3.md)及[地图说明](docs/AMAP_MAP_LOCATION_MVP.md)。在线测试可能产生 API 调用，应显式启用。
+
+`npm run build` 会从 `frontend/pitch/` 自动生成路演；生成的 HTML 不重复提交。历史采集参考摘录已保存在 `data/mvp/source/historical-catalog-20261020.json`，保留来源摘要及未核验状态，重新整理资料不再依赖作者电脑上的相邻目录。摘录不是原始网页证据。
 
 最近已有测试结果、失败项和未覆盖范围统一见[项目现状](docs/PROJECT_STATUS.md)。历史测试报告移至[归档](docs/archive/README.md)，不替代当前回归或实地验收。

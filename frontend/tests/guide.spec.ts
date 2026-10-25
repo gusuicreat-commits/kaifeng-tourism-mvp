@@ -1,8 +1,9 @@
 import {test,expect} from '@playwright/test'
 test('景区地图默认没有模拟场次或热力，显式演示才出现示例路线',async({page})=>{
- await page.goto('/guide?scenic=wansui');await expect(page.getByRole('img',{name:/宋风浅立体景区示意地图/})).toBeVisible()
- await expect(page.getByText('暂无当天可核验的完整场次')).toBeVisible();await expect(page.locator('.guide-crowd-halo')).toHaveCount(0)
- await page.getByRole('button',{name:'查看模拟场次与路线交互演示'}).click();await expect(page.locator('.demo-mode-notice')).toContainText('模拟日程')
+ await page.goto('/guide?scenic=wansui');await expect(page.locator('.city-map-workspace')).toBeVisible()
+ await expect(page.locator('.guide-event-card,.guide-crowd-halo')).toHaveCount(0)
+ await page.getByRole('link',{name:'查看景区示意交互演示'}).click();await expect(page.locator('.demo-mode-notice')).toContainText('模拟日程')
+ await expect(page.getByRole('img',{name:/宋风浅立体景区示意地图/})).toBeVisible()
  await page.getByRole('button',{name:'切换地图图层'}).click();await page.getByLabel('演出点位').uncheck()
  await page.getByRole('tab',{name:'清明上河园',exact:true}).click();await expect(page).toHaveURL(/scenic=qingming/)
  await page.locator('.guide-event-card.status-upcoming').first().click();await page.getByRole('button',{name:'查看示意路线'}).click()
