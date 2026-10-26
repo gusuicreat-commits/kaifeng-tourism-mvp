@@ -90,7 +90,8 @@ def prepare(req,ctx,prior_order=(),fixed_order=()):
                 latest-=duration
             costs=[c for c in ctx.operations.costs if c.place_id==pid and ctx.evidence_ready(c.evidence,req.starts_at,req.ends_at)]
             cost=costs[0].upper_fen if len(costs)==1 else None
-            if req.budget_fen is not None and cost is None:bad.append('COST_UNKNOWN')
+            # Demo mode keeps unknown cost as unknown (cost_unknown on the itinerary) instead of blocking.
+            if req.budget_fen is not None and cost is None and not ctx.demo_reference:bad.append('COST_UNKNOWN')
             if bad:
                 blocked.append({'goal_id':goal.goal_id,'place_id':pid,'reasons':sorted(set(bad))});continue
             if earliest>latest or latest<0 or earliest+duration>horizon:

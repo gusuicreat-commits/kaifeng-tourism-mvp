@@ -27,7 +27,7 @@ def _solve(problem):
                            ('交通为预计耗时；额外缓冲和默认停留是规划参数。',),
                            metrics=meta|{'elapsed_ms':round((time.monotonic()-started)*1000,3),'solver_status':solver_status})
     if problem.issues:return response('needs_data',problem.issues)
-    if req.budget_fen is not None and problem.history_cost_unknown:
+    if req.budget_fen is not None and problem.history_cost_unknown and not ctx.demo_reference:
         return response('needs_data',[Issue(code='SPENT_COST_REQUIRED',message='有途中进度时需明确已支出费用，不能把预算重新从零计算')])
     if not acts and req.goals:return response('needs_data',[Issue(code='NO_CANDIDATES',message='没有可用候选，无法生成行程')])
     n=len(acts)+2;last=n-1;budget=int((req.ends_at-req.starts_at).total_seconds())

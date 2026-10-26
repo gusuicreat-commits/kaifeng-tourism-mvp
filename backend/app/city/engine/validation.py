@@ -71,7 +71,7 @@ def validate_itinerary(problem,itinerary):
     if itinerary.travel_seconds!=sum(travel_seconds(l.journey) for l in legs):fail('TRAVEL_TOTAL','交通时间汇总不一致')
     if abs(itinerary.walking_distance_m-sum(walking_metres(l.journey) for l in legs))>.001:fail('WALKING_TOTAL','步行距离不一致')
     if itinerary.cost_unknown!=bool(cost_unknown) or itinerary.known_cost_upper_fen!=cost:fail('COST_TOTAL','费用汇总不一致')
-    if req.budget_fen is not None and (cost_unknown or cost>req.budget_fen):fail('BUDGET','费用未知或超过硬预算')
+    if req.budget_fen is not None and (cost_unknown and not ctx.demo_reference or cost>req.budget_fen):fail('BUDGET','费用未知或超过硬预算')
     if req.max_walking_seconds is not None and sum(travel_seconds(l.journey) for l in legs if l.journey.travel.mode=='walking')>req.max_walking_seconds:
         fail('WALKING_LIMIT','剩余路线总步行估时超过明确硬上限')
     fixed=[g for g in selected if g in problem.fixed_order]

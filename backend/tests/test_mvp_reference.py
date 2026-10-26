@@ -145,3 +145,36 @@ def test_demo_mode_selects_curated_opening_and_uses_horizon_for_unknown_close(re
     problem=prepare(req,demo)
     activity=next(a for a in problem.activities if a.goal_id=='market')
     assert activity.latest==int((ends-starts).total_seconds())-2700
+
+
+def test_demo_mode_picks_split_window_overlapping_trip(reference):
+    with connect() as db:
+        catalog=facts.records(db)
+    for key in [k for k,v in catalog.items() if k[0]=='open_rule' and v.place_id=='pl_wb_000013']:
+        del catalog[key]
+    base=catalog['source','src_mvp_team_return']
+    def window(suffix,opens,closes):
+        rule=facts.OpenRule(kind='open_rule',fact_id='open_split_'+suffix,place_id='pl_wb_000013',business_date='2026-10-25',
+            opens_at=f'2026-10-25T{opens}:00+08:00',closes_at=f'2026-10-25T{closes}:00+08:00',source_ids=(base.fact_id,),
+            rights_status='internal_only',planning_status='reference',planning_note='分段营业测试')
+        catalog[('open_rule',rule.fact_id)]=rule
+    window('lunch','10:30','14:00');window('dinner','17:30','21:00')
+    starts=datetime.fromisoformat('2026-10-25T17:30:00+08:00');ends=datetime.fromisoformat('2026-10-25T22:00:00+08:00')
+    production=PlanningContext(catalog,OperationalBundle(),starts-timedelta(days=1))
+    demo=PlanningContext(catalog,OperationalBundle(),starts-timedelta(days=1),demo_reference=True)
+    assert len(production.planning_rules('pl_wb_000013',starts.date(),starts,ends))==2
+    assert [r.fact_id for r in demo.planning_rules('pl_wb_000013',starts.date(),starts,ends)]==['open_split_dinner']
+
+
+def test_budget_with_unknown_costs_blocks_in_production_but_not_in_demo(reference,monkeypatch):
+    c,t,r,provider=reference
+    budgeted=(c,t,r|{'budget_fen':80000},provider)
+    monkeypatch.delenv('KAIFENG_DEMO_MODE',raising=False)
+    blocked=preview(budgeted)
+    assert blocked['status']!='preview' and not blocked['result']['itineraries']
+    monkeypatch.setenv('KAIFENG_DEMO_MODE','1')
+    p=preview(budgeted)
+    assert p['status']=='preview',p
+    assert all(i['cost_unknown'] for i in p['result']['itineraries'])
+    assert any('费用未知时不按预算拦截' in w for w in p['result']['warnings'])
+    assert commit(budgeted,p).status_code==200

@@ -35,7 +35,7 @@ class TravelTimeService:
                 or not c.ready(c.facts.get(('source',sid)),req.starts_at,req.ends_at)
                 for sid in j.source_ids)):
             return False
-        if req.budget_fen is not None and journey_cost_upper(j) is None:return False
+        if req.budget_fen is not None and journey_cost_upper(j) is None and not c.demo_reference:return False
         origin=set(c.parks(t.origin_place_id));dest=set(c.parks(t.destination_place_id))
         expected={(p,'exit') for p in origin-dest}|{(p,'entry') for p in dest-origin}
         actual={(b.park_id,b.direction) for b in j.boundaries}

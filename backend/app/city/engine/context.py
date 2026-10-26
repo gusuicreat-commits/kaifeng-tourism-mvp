@@ -85,6 +85,15 @@ class PlanningContext:
             return (curated[0],)
         if len(usable)==1:
             return (usable[0],)
+        # Split windows (e.g. lunch and dinner): keep the one overlapping the trip horizon most.
+        if len(usable)>1 and len(moments)>=2:
+            start,end=min(moments),max(moments)
+            def overlap(r):
+                return ((min(r.closes_at or end,end)-max(r.opens_at or start,start)).total_seconds(),
+                        -(r.opens_at or start).timestamp())
+            best=max(usable,key=overlap)
+            if overlap(best)[0]>0:
+                return (best,)
         return tuple(usable)
 
     def demo_warnings(self):
@@ -92,8 +101,9 @@ class PlanningContext:
             return ()
         return (
             '演示模式：参考资料按演示准入参与规划；原始来源仍标记为 reference/unverified，未转为正式核验事实。',
-            '演示模式：同日营业规则冲突时优先采用 open_mvp_* 规则，这是本次演示假设。',
+            '演示模式：同日营业规则冲突时优先采用 open_mvp_* 规则；分段营业时按与行程时段重叠最多的一段安排。这是本次演示假设。',
             '演示模式：营业结束时间缺失时按本次行程结束时间计算，不代表实际关门时间。',
+            '演示模式：费用未知时不按预算拦截，行程显示“费用待添加”；预算只约束已知费用。',
         )
 
 
