@@ -3,7 +3,7 @@ import json
 from datetime import date
 
 from app.city import facts
-from scripts.import_mvp_inventory import EXCLUDED, PLACE_ALIASES, build_inventory
+from scripts.import_mvp_inventory import EXCLUDED, PLACE_ALIASES, _rewrite_place_bindings, build_inventory
 
 
 def test_inventory_deduplicates_and_keeps_real_sourced_supply():
@@ -30,6 +30,34 @@ def test_route_override_does_not_reassign_qingming_entrances():
     assert items['entrance', 'ent_wb_000002']['place_id'] == 'pl_wb_000001'
     assert items['entrance', 'ent_wb_000002']['direction'] == 'entry'
     assert any('v2-20261025' in item['path'] for item in EXCLUDED)
+
+
+def test_place_aliases_keep_demo_facts_and_rewrite_old_parent_references():
+    bundle, _ = build_inventory(date(2026, 10, 25))
+    items = {(r['kind'], r['fact_id']): r for r in bundle['records']}
+    for alias, canonical in PLACE_ALIASES.items():
+        assert items['place', alias]['superseded_by'] == canonical
+    assert items['place', 'kaifengfu']['superseded_by'] == 'pl_wb_000003'
+    assert items['place', 'daxiangguosi']['superseded_by'] == 'pl_wb_000005'
+    assert items['place', 'gulou_night']['superseded_by'] == 'pl_wb_000013'
+    assert items['open_rule', 'open_mvp_gulou_20261025']['place_id'] == 'pl_wb_000013'
+    assert items['vendor', 'ven_wb_000001']['place_id'] == 'pl_wb_vendor_000001'
+    assert items['supply', 'vf_wb_000001']['vendor_id'] == 'ven_wb_000001'
+    assert all(r.get('parent_place_id') not in PLACE_ALIASES for r in bundle['records'])
+    assert all(r.get('place_id') not in PLACE_ALIASES for r in bundle['records'])
+
+
+def test_place_alias_bindings_follow_canonical_id_without_touching_other_kinds():
+    import sqlite3
+    with sqlite3.connect(':memory:') as db:
+        db.execute('CREATE TABLE city_object_bindings (kind TEXT, object_id TEXT, fact_kind TEXT, fact_id TEXT)')
+        db.executemany('INSERT INTO city_object_bindings VALUES (?,?,?,?)', [
+            ('amap_poi', 'legacy', 'place', 'kaifengfu'),
+            ('food', 'legacy-food', 'food', 'kaifengfu'),
+        ])
+        _rewrite_place_bindings(db)
+        rows = db.execute('SELECT fact_kind,fact_id FROM city_object_bindings ORDER BY kind').fetchall()
+    assert rows == [('place', 'pl_wb_000003'), ('food', 'kaifengfu')]
 
 
 def test_inventory_is_repeatable_and_programs_are_not_dated_sessions():

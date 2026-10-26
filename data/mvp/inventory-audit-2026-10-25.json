@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-10-24T23:41:18.201721+08:00",
+  "generated_at": "2026-10-26T21:34:42.121684+08:00",
   "business_date": "2026-10-25",
   "scope": "显式列出的团队与采集 city-facts 包；不把媒体、节目介绍或抓取成功自动变成当日场次。",
   "inputs": {
@@ -51,15 +51,17 @@
   },
   "historical_package": {
     "status": "converted",
-    "path": "/Users/mac/Desktop/大挑/开封旅游数据采集_20261020",
+    "path": "data/mvp/source/historical-catalog-20261020.json",
     "records": 840,
-    "excluded": [
-      "osm道路与候选通行图",
-      "模拟客流",
-      "show_session",
-      "媒体公开转载",
-      "无坐标无名POI"
-    ]
+    "input_kind": "archived_normalized_catalog",
+    "snapshot_sha256": "ecbc0bf4fa77235c4755d8174c1aa7df2793cf3bedcb57626b38f0d7ad66c9fc",
+    "raw_evidence_available": false,
+    "provenance": {
+      "source_package": "开封旅游数据采集_20261020",
+      "source_manifest_sha256": "856f2e90777532f7b370eecc7c9a09e01261f4bcf553d7de76f8fec8bb1ca894",
+      "raw_evidence_included": false,
+      "note": "历史采集包的结构化参考摘录；不是原始网页快照，不提升为已核验事实。"
+    }
   },
   "historical_duplicate_matches": [
     {
@@ -365,12 +367,116 @@
   ],
   "canonical_place_aliases": [
     {
+      "from": "baogongci",
+      "to": "pl_wb_000008"
+    },
+    {
+      "from": "daxiangguosi",
+      "to": "pl_wb_000005"
+    },
+    {
+      "from": "kaifengfu",
+      "to": "pl_wb_000003"
+    },
+    {
+      "from": "hanyuan",
+      "to": "pl_wb_000007"
+    },
+    {
+      "from": "longting",
+      "to": "pl_wb_000004"
+    },
+    {
+      "from": "qingming",
+      "to": "pl_wb_000001"
+    },
+    {
+      "from": "wansuishan",
+      "to": "pl_wb_000002"
+    },
+    {
+      "from": "tieta",
+      "to": "pl_wb_000006"
+    },
+    {
+      "from": "tianboyangfu",
+      "to": "pl_wb_000009"
+    },
+    {
+      "from": "wall",
+      "to": "pl_wb_000010"
+    },
+    {
+      "from": "shanshangan",
+      "to": "pl_wb_000011"
+    },
+    {
+      "from": "yanqingguan",
+      "to": "pl_wb_000012"
+    },
+    {
+      "from": "gulou_night",
+      "to": "pl_wb_000013"
+    },
+    {
+      "from": "heda_night",
+      "to": "pl_wb_000014"
+    },
+    {
       "from": "diyilou_sihou",
       "to": "pl_wb_vendor_000001"
     },
     {
       "from": "place_diyilou_sihou",
       "to": "pl_wb_vendor_000001"
+    },
+    {
+      "from": "heyuan_jinxiang",
+      "to": "place_heyuan_jinxiang"
+    },
+    {
+      "from": "place_huangjia_dalianglu",
+      "to": "huangjia_daliang"
+    },
+    {
+      "from": "huangjia_xisi",
+      "to": "pl_wb_vendor_000016"
+    },
+    {
+      "from": "place_huangjia_xisi",
+      "to": "pl_wb_vendor_000016"
+    },
+    {
+      "from": "place_huangjia_jinanlu",
+      "to": "pl_wb_vendor_000003"
+    },
+    {
+      "from": "louzhonglou_xiaosong",
+      "to": "pl_wb_vendor_000004"
+    },
+    {
+      "from": "place_louzhonglou_xiaosong",
+      "to": "pl_wb_vendor_000004"
+    },
+    {
+      "from": "place_gulou_night_market",
+      "to": "pl_wb_000013"
+    },
+    {
+      "from": "xisi_night",
+      "to": "pl_wb_000015"
+    },
+    {
+      "from": "place_xisi_night_market",
+      "to": "pl_wb_000015"
+    },
+    {
+      "from": "xiaosongcheng",
+      "to": "pl_wb_000016"
+    },
+    {
+      "from": "place_xiaosongcheng",
+      "to": "pl_wb_000016"
     },
     {
       "from": "place_xingjia_daliangmen",
@@ -950,8 +1056,8 @@
     "facility": 26
   },
   "planning_status": {
-    "reference": 1691,
-    "candidate": 7
+    "reference": 1665,
+    "candidate": 33
   },
   "verification_status": {
     "unverified": 1698
@@ -965,8 +1071,8 @@
   "import": {
     "status": "imported",
     "received": 1698,
-    "changed": 372,
-    "unchanged": 1326
+    "changed": 8,
+    "unchanged": 1690
   },
   "bundle": "data/mvp/inventory-2026-10-25.json",
   "database": "data/tourism.sqlite3"

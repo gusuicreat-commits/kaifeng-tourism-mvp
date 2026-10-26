@@ -4453,10 +4453,14 @@
     },
     {
       "fact_id": "pl_wb_000001",
-      "version": 4,
+      "version": 6,
       "source_ids": [
         "src_teamworkbook_places",
-        "src_wb_src_000004"
+        "src_wb_src_000004",
+        "src_search_a_level_ticket_map_20261023",
+        "src_search_qingming_gates_20261023",
+        "src_qmsyun_program_20261023",
+        "src_qmsyun_architecture_20261023"
       ],
       "validation_status": "unverified",
       "business_status": "active",
@@ -4479,7 +4483,8 @@
       "latitude": null,
       "coordinate_system": "unknown",
       "aliases": [
-        "清园"
+        "清园",
+        "清明上河园"
       ],
       "external_poi_id": null,
       "description": "国家5A级旅游景区，以《清明上河图》为蓝本1:1复原的大型宋代历史文化主题公园，占地超过540亩。",
@@ -4491,10 +4496,13 @@
     },
     {
       "fact_id": "pl_wb_000002",
-      "version": 4,
+      "version": 5,
       "source_ids": [
         "src_teamworkbook_places",
-        "src_wb_src_000010"
+        "src_wb_src_000010",
+        "src_search_wansuishan_ticket_20261023",
+        "src_read_wansuishan_gov_20261023",
+        "src_search_a_level_ticket_map_20261023"
       ],
       "validation_status": "unverified",
       "business_status": "active",
@@ -4518,7 +4526,8 @@
       "coordinate_system": "unknown",
       "aliases": [
         "万岁山",
-        "大宋武侠城"
+        "大宋武侠城",
+        "万岁山武侠城"
       ],
       "external_poi_id": null,
       "description": "以武侠文化为核心的景区，包含江湖狂欢艺术区、武侠影视街区、山水田园区、仙侠奇境区、水浒区、十里洋场区等主题区。",
@@ -4530,11 +4539,13 @@
     },
     {
       "fact_id": "pl_wb_000003",
-      "version": 4,
+      "version": 5,
       "source_ids": [
         "src_teamworkbook_places",
         "src_wb_src_000015",
-        "src_mvp_amap"
+        "src_mvp_amap",
+        "src_read_kaifengfu_guide_20261023",
+        "src_search_a_level_ticket_map_20261023"
       ],
       "validation_status": "unverified",
       "business_status": "active",
@@ -4558,7 +4569,8 @@
       "coordinate_system": "GCJ02",
       "aliases": [
         "开封府景区",
-        "南衙"
+        "南衙",
+        "开封府"
       ],
       "external_poi_id": null,
       "description": "国家4A级旅游景区，北宋管理国都及京畿地区的重要机构复原，被誉为“天下首府”。",
@@ -4570,10 +4582,12 @@
     },
     {
       "fact_id": "pl_wb_000004",
-      "version": 4,
+      "version": 5,
       "source_ids": [
         "src_teamworkbook_places",
-        "src_wb_src_000019"
+        "src_wb_src_000019",
+        "src_search_longting_20261023",
+        "src_search_a_level_ticket_map_20261023"
       ],
       "validation_status": "unverified",
       "business_status": "active",
@@ -4597,7 +4611,8 @@
       "coordinate_system": "unknown",
       "aliases": [
         "龙亭公园",
-        "开封市龙亭景区"
+        "开封市龙亭景区",
+        "龙亭景区"
       ],
       "external_poi_id": null,
       "description": "国家AAAA级旅游景区，集皇家园林、历史文物和秀美风光于一体，历史上曾是六个朝代的皇宫所在地，距今1200多年。",
@@ -4609,10 +4624,12 @@
     },
     {
       "fact_id": "pl_wb_000005",
-      "version": 4,
+      "version": 5,
       "source_ids": [
         "src_teamworkbook_places",
-        "src_wb_src_000023"
+        "src_wb_src_000023",
+        "src_search_daxiangguosi_20261023",
+        "src_search_a_level_ticket_map_20261023"
       ],
       "validation_status": "unverified",
       "business_status": "active",
@@ -4636,7 +4653,8 @@
       "coordinate_system": "unknown",
       "aliases": [
         "相国寺",
-        "开封大相国寺"
+        "开封大相国寺",
+        "大相国寺"
       ],
       "external_poi_id": null,
       "description": "中国汉传佛教十大名寺之一，国家4A级旅游景区，始建于北齐天保六年（555年），北宋时期为皇家寺院。",
@@ -4648,10 +4666,12 @@
     },
     {
       "fact_id": "pl_wb_000006",
-      "version": 4,
+      "version": 5,
       "source_ids": [
         "src_teamworkbook_places",
-        "src_wb_src_000026"
+        "src_wb_src_000026",
+        "src_search_tieta_20261023",
+        "src_search_a_level_ticket_map_20261023"
       ],
       "validation_status": "unverified",
       "business_status": "active",
@@ -4675,7 +4695,8 @@
       "coordinate_system": "unknown",
       "aliases": [
         "铁塔公园",
-        "开封铁塔"
+        "开封铁塔",
+        "铁塔景区"
       ],
       "external_poi_id": null,
       "description": "国家4A级旅游景区，以现存铁塔（开宝寺塔）为核心的名胜古迹公园；铁塔为全国重点文物保护单位，高55.08米、八角十三层。",
@@ -4687,10 +4708,12 @@
     },
     {
       "fact_id": "pl_wb_000007",
-      "version": 4,
+      "version": 5,
       "source_ids": [
         "src_teamworkbook_places",
-        "src_wb_src_000030"
+        "src_wb_src_000030",
+        "src_search_hanyuan_20261023",
+        "src_search_a_level_ticket_map_20261023"
       ],
       "validation_status": "unverified",
       "business_status": "active",
@@ -4714,7 +4737,8 @@
       "coordinate_system": "unknown",
       "aliases": [
         "翰园碑林",
-        "中国翰园"
+        "中国翰园",
+        "中国翰园碑林"
       ],
       "external_poi_id": null,
       "description": "国家4A级旅游景区，集书画碑刻艺术与古典园林建筑于一体的文化园林，占地120亩，刻碑4000多块。",
@@ -4726,10 +4750,12 @@
     },
     {
       "fact_id": "pl_wb_000008",
-      "version": 4,
+      "version": 5,
       "source_ids": [
         "src_teamworkbook_places",
-        "src_wb_src_000032"
+        "src_wb_src_000032",
+        "src_search_baogongci_20261023",
+        "src_search_a_level_ticket_map_20261023"
       ],
       "validation_status": "unverified",
       "business_status": "active",
@@ -4753,7 +4779,8 @@
       "coordinate_system": "unknown",
       "aliases": [
         "开封包公祠",
-        "包公祠景区"
+        "包公祠景区",
+        "包公祠"
       ],
       "external_poi_id": null,
       "description": "国家4A级旅游景区，纪念北宋名臣包拯的祠堂，位于包公湖西畔，占地1公顷多，由大殿、二殿、东西配殿、半壁廊、碑亭组成。",
@@ -4765,10 +4792,12 @@
     },
     {
       "fact_id": "pl_wb_000009",
-      "version": 4,
+      "version": 5,
       "source_ids": [
         "src_teamworkbook_places",
-        "src_wb_src_000035"
+        "src_wb_src_000035",
+        "src_search_tianboyangfu_20261023",
+        "src_search_a_level_ticket_map_20261023"
       ],
       "validation_status": "unverified",
       "business_status": "active",
@@ -4792,7 +4821,8 @@
       "coordinate_system": "unknown",
       "aliases": [
         "开封天波杨府",
-        "天波府"
+        "天波府",
+        "天波杨府"
       ],
       "external_poi_id": null,
       "description": "北宋抗辽名将杨业府邸的仿宋重建建筑群，国家4A级旅游景区，由中院府衙、西院花园、东院演兵场组成。",
@@ -4804,10 +4834,12 @@
     },
     {
       "fact_id": "pl_wb_000010",
-      "version": 4,
+      "version": 5,
       "source_ids": [
         "src_teamworkbook_places",
-        "src_wb_src_000038"
+        "src_wb_src_000038",
+        "src_search_a_level_ticket_map_20261023",
+        "src_read_tourism_map_20261023"
       ],
       "validation_status": "unverified",
       "business_status": "active",
@@ -4831,7 +4863,8 @@
       "coordinate_system": "unknown",
       "aliases": [
         "开封城墙景区",
-        "宋都城墙"
+        "宋都城墙",
+        "开封城墙"
       ],
       "external_poi_id": null,
       "description": "全国重点文物保护单位，开封城墙景区开放大梁门至安远门段，含古马道遗址、大梁门、玻璃栈道等。",
@@ -4843,10 +4876,12 @@
     },
     {
       "fact_id": "pl_wb_000011",
-      "version": 4,
+      "version": 5,
       "source_ids": [
         "src_teamworkbook_places",
-        "src_wb_src_000040"
+        "src_wb_src_000040",
+        "src_search_shanshangan_20261023",
+        "src_search_a_level_ticket_map_20261023"
       ],
       "validation_status": "unverified",
       "business_status": "active",
@@ -4869,7 +4904,8 @@
       "latitude": null,
       "coordinate_system": "unknown",
       "aliases": [
-        "开封山陕甘会馆"
+        "开封山陕甘会馆",
+        "山陕甘会馆"
       ],
       "external_poi_id": null,
       "description": "全国重点文物保护单位，清代晋陕甘三省商帮会馆，以砖、石、木雕“三绝”著称，现存照壁、戏楼、牌楼、正殿等。",
@@ -4881,10 +4917,12 @@
     },
     {
       "fact_id": "pl_wb_000012",
-      "version": 4,
+      "version": 5,
       "source_ids": [
         "src_teamworkbook_places",
-        "src_wb_src_000044"
+        "src_wb_src_000044",
+        "src_search_yanqingguan_20261023",
+        "src_search_a_level_ticket_map_20261023"
       ],
       "validation_status": "unverified",
       "business_status": "active",
@@ -4908,7 +4946,8 @@
       "coordinate_system": "unknown",
       "aliases": [
         "开封延庆观",
-        "重阳观"
+        "重阳观",
+        "延庆观"
       ],
       "external_poi_id": null,
       "description": "全国重点文物保护单位，元代玉皇阁为开封现存唯一元代建筑，与北京白云观、四川常道观并称中国三大名观。",
@@ -4920,11 +4959,16 @@
     },
     {
       "fact_id": "pl_wb_000013",
-      "version": 4,
+      "version": 6,
       "source_ids": [
         "src_teamworkbook_places",
         "src_wb_src_000049",
-        "src_mvp_amap"
+        "src_mvp_amap",
+        "src_read_gulou_official_20261023",
+        "src_search_night_market_20261023",
+        "src_gulou_night_market",
+        "src_kfgov_night_market_kiosk",
+        "src_kfgov_night_market_plan_2020"
       ],
       "validation_status": "unverified",
       "business_status": "active",
@@ -4948,7 +4992,8 @@
       "coordinate_system": "GCJ02",
       "aliases": [
         "开封鼓楼夜市",
-        "鼓楼广场夜市"
+        "鼓楼广场夜市",
+        "鼓楼夜市"
       ],
       "external_poi_id": null,
       "description": "开封老城中心鼓楼一带的夜市，开封人气较旺的夜市之一，以小吃为主，延续北宋东京城夜市传统。",
@@ -4960,10 +5005,11 @@
     },
     {
       "fact_id": "pl_wb_000014",
-      "version": 4,
+      "version": 5,
       "source_ids": [
         "src_teamworkbook_places",
-        "src_wb_src_000050"
+        "src_wb_src_000050",
+        "src_search_night_market_20261023"
       ],
       "validation_status": "unverified",
       "business_status": "active",
@@ -4987,7 +5033,8 @@
       "coordinate_system": "unknown",
       "aliases": [
         "河大老夜市",
-        "老河大西门夜市"
+        "老河大西门夜市",
+        "老河大夜市"
       ],
       "external_poi_id": null,
       "description": "河南大学明伦校区西门一带的学生夜市，约200米，主打物美价廉；开封三大主题夜市之一，主题“青春记忆”。",
@@ -4999,10 +5046,13 @@
     },
     {
       "fact_id": "pl_wb_000015",
-      "version": 4,
+      "version": 5,
       "source_ids": [
         "src_teamworkbook_places",
-        "src_wb_src_000056"
+        "src_wb_src_000056",
+        "src_search_night_market_20261023",
+        "src_bendibao_xisi_night",
+        "src_kfgov_night_market_kiosk"
       ],
       "validation_status": "unverified",
       "business_status": "active",
@@ -5026,7 +5076,8 @@
       "coordinate_system": "unknown",
       "aliases": [
         "西司广场夜市",
-        "开封西司夜市"
+        "开封西司夜市",
+        "西司夜市"
       ],
       "external_poi_id": null,
       "description": "开封三大主题夜市之一，主题“市井烟火”，位于包公祠附近丁角街，规模较大，上百个摊位，本地人常去。",
@@ -5038,10 +5089,12 @@
     },
     {
       "fact_id": "pl_wb_000016",
-      "version": 4,
+      "version": 5,
       "source_ids": [
         "src_teamworkbook_places",
-        "src_wb_src_000057"
+        "src_wb_src_000057",
+        "src_search_xiaosong_20261023",
+        "src_read_xiaosong_ctrip_20261023"
       ],
       "validation_status": "unverified",
       "business_status": "active",
@@ -5065,7 +5118,8 @@
       "coordinate_system": "unknown",
       "aliases": [
         "小宋城",
-        "开封小宋城"
+        "开封小宋城",
+        "汴梁小宋城"
       ],
       "external_poi_id": null,
       "description": "由原东京艺术中心改造的文商旅综合体，约5万平方米，其中2万平方米为特色民俗餐饮街区，汇集开封及各地小吃，并有《千回大宋》演出。",
@@ -5161,10 +5215,11 @@
     },
     {
       "fact_id": "pl_wb_vendor_000003",
-      "version": 4,
+      "version": 5,
       "source_ids": [
         "src_teamworkbook_food_vendors",
-        "src_wb_src_000112"
+        "src_wb_src_000112",
+        "src_search_huangjia_20261023"
       ],
       "validation_status": "unverified",
       "business_status": "active",
@@ -5187,7 +5242,8 @@
       "latitude": null,
       "coordinate_system": "unknown",
       "aliases": [
-        "黄家老店晋安路店"
+        "黄家老店晋安路店",
+        "黄家老店（晋安路店）"
       ],
       "external_poi_id": null,
       "description": null,
@@ -5199,10 +5255,11 @@
     },
     {
       "fact_id": "pl_wb_vendor_000004",
-      "version": 4,
+      "version": 5,
       "source_ids": [
         "src_teamworkbook_food_vendors",
-        "src_wb_src_000067"
+        "src_wb_src_000067",
+        "src_search_louzhonglou_20261023"
       ],
       "validation_status": "unverified",
       "business_status": "active",
@@ -5225,7 +5282,8 @@
       "latitude": null,
       "coordinate_system": "unknown",
       "aliases": [
-        "楼中楼酒店小宋城店"
+        "楼中楼酒店小宋城店",
+        "楼中楼酒店（汴梁小宋城店）"
       ],
       "external_poi_id": null,
       "description": null,
@@ -5658,10 +5716,11 @@
     },
     {
       "fact_id": "pl_wb_vendor_000016",
-      "version": 4,
+      "version": 5,
       "source_ids": [
         "src_teamworkbook_food_vendors",
-        "src_wb_src_000113"
+        "src_wb_src_000113",
+        "src_search_huangjia_20261023"
       ],
       "validation_status": "unverified",
       "business_status": "active",
@@ -5684,7 +5743,8 @@
       "latitude": null,
       "coordinate_system": "unknown",
       "aliases": [
-        "黄家老店西司店"
+        "黄家老店西司店",
+        "黄家老店（西司店）"
       ],
       "external_poi_id": null,
       "description": null,
@@ -7787,7 +7847,7 @@
     },
     {
       "fact_id": "vf_wb_000001",
-      "version": 2,
+      "version": 3,
       "source_ids": [
         "src_mvp_team_return"
       ],
@@ -7797,9 +7857,9 @@
       "verified_at": null,
       "reviewer": null,
       "verification_method": null,
-      "observed_at": null,
-      "effective_from": "2026-10-24T00:00:00+08:00",
-      "effective_to": "2026-10-26T00:00:00+08:00",
+      "observed_at": "2026-10-25T00:00:00+08:00",
+      "effective_from": null,
+      "effective_to": null,
       "rights_status": "internal_only",
       "planning_status": "reference",
       "planning_note": "已有团队或公开来源资料，按 MVP 参考准入；不等于人工核实、实时营业、当日供应或现场通行保证。",
@@ -14086,7 +14146,7 @@
     },
     {
       "fact_id": "src_teamworkbook_open_rules",
-      "version": 2,
+      "version": 3,
       "source_ids": [],
       "validation_status": "unverified",
       "business_status": "active",
@@ -14104,7 +14164,7 @@
       "name": "团队数据工作簿v1.1（成员交接）·open_rules",
       "source_type": "other",
       "url": null,
-      "locator": "/Users/mac/Desktop/大挑/kaifeng-tourism-mvp/data/team-handoff/汴梁智游_最新数据模板_v1.1_成员1媒体试点_20261022_v17.xlsx#12_open_rules",
+      "locator": "/Users/mac/worktrees/kaifeng/C0/data/team-handoff/汴梁智游_最新数据模板_v1.1_成员1媒体试点_20261022_v17.xlsx#12_open_rules",
       "publisher": "汴梁游记数据小组",
       "collected_at": "2026-10-23T22:49:00+08:00",
       "published_at": null
@@ -16109,7 +16169,7 @@
     },
     {
       "fact_id": "qingming",
-      "version": 3,
+      "version": 4,
       "source_ids": [
         "src_search_a_level_ticket_map_20261023",
         "src_search_qingming_gates_20261023",
@@ -16117,7 +16177,7 @@
         "src_qmsyun_architecture_20261023"
       ],
       "validation_status": "unverified",
-      "business_status": "active",
+      "business_status": "cancelled",
       "is_demo": false,
       "verified_at": null,
       "reviewer": null,
@@ -16126,8 +16186,8 @@
       "effective_from": null,
       "effective_to": null,
       "rights_status": "internal_only",
-      "planning_status": "reference",
-      "planning_note": "已有团队或公开来源资料，按 MVP 参考准入；不等于人工核实、实时营业、当日供应或现场通行保证。",
+      "planning_status": "candidate",
+      "planning_note": "历史重复记录，已由 pl_wb_000001 统一承接。",
       "kind": "place",
       "name": "清明上河园",
       "place_type": "scenic",
@@ -16143,17 +16203,17 @@
       "business_hours": null,
       "price_band": null,
       "notes": null,
-      "superseded_by": null
+      "superseded_by": "pl_wb_000001"
     },
     {
       "fact_id": "kaifengfu",
-      "version": 3,
+      "version": 4,
       "source_ids": [
         "src_read_kaifengfu_guide_20261023",
         "src_search_a_level_ticket_map_20261023"
       ],
       "validation_status": "unverified",
-      "business_status": "active",
+      "business_status": "cancelled",
       "is_demo": false,
       "verified_at": null,
       "reviewer": null,
@@ -16162,8 +16222,8 @@
       "effective_from": null,
       "effective_to": null,
       "rights_status": "internal_only",
-      "planning_status": "reference",
-      "planning_note": "已有团队或公开来源资料，按 MVP 参考准入；不等于人工核实、实时营业、当日供应或现场通行保证。",
+      "planning_status": "candidate",
+      "planning_note": "历史重复记录，已由 pl_wb_000003 统一承接。",
       "kind": "place",
       "name": "开封府",
       "place_type": "scenic",
@@ -16179,17 +16239,17 @@
       "business_hours": null,
       "price_band": null,
       "notes": null,
-      "superseded_by": null
+      "superseded_by": "pl_wb_000003"
     },
     {
       "fact_id": "baogongci",
-      "version": 3,
+      "version": 4,
       "source_ids": [
         "src_search_baogongci_20261023",
         "src_search_a_level_ticket_map_20261023"
       ],
       "validation_status": "unverified",
-      "business_status": "active",
+      "business_status": "cancelled",
       "is_demo": false,
       "verified_at": null,
       "reviewer": null,
@@ -16198,8 +16258,8 @@
       "effective_from": null,
       "effective_to": null,
       "rights_status": "internal_only",
-      "planning_status": "reference",
-      "planning_note": "已有团队或公开来源资料，按 MVP 参考准入；不等于人工核实、实时营业、当日供应或现场通行保证。",
+      "planning_status": "candidate",
+      "planning_note": "历史重复记录，已由 pl_wb_000008 统一承接。",
       "kind": "place",
       "name": "包公祠",
       "place_type": "scenic",
@@ -16215,17 +16275,17 @@
       "business_hours": null,
       "price_band": null,
       "notes": null,
-      "superseded_by": null
+      "superseded_by": "pl_wb_000008"
     },
     {
       "fact_id": "longting",
-      "version": 3,
+      "version": 4,
       "source_ids": [
         "src_search_longting_20261023",
         "src_search_a_level_ticket_map_20261023"
       ],
       "validation_status": "unverified",
-      "business_status": "active",
+      "business_status": "cancelled",
       "is_demo": false,
       "verified_at": null,
       "reviewer": null,
@@ -16234,8 +16294,8 @@
       "effective_from": null,
       "effective_to": null,
       "rights_status": "internal_only",
-      "planning_status": "reference",
-      "planning_note": "已有团队或公开来源资料，按 MVP 参考准入；不等于人工核实、实时营业、当日供应或现场通行保证。",
+      "planning_status": "candidate",
+      "planning_note": "历史重复记录，已由 pl_wb_000004 统一承接。",
       "kind": "place",
       "name": "龙亭景区",
       "place_type": "scenic",
@@ -16251,17 +16311,17 @@
       "business_hours": null,
       "price_band": null,
       "notes": null,
-      "superseded_by": null
+      "superseded_by": "pl_wb_000004"
     },
     {
       "fact_id": "tieta",
-      "version": 3,
+      "version": 4,
       "source_ids": [
         "src_search_tieta_20261023",
         "src_search_a_level_ticket_map_20261023"
       ],
       "validation_status": "unverified",
-      "business_status": "active",
+      "business_status": "cancelled",
       "is_demo": false,
       "verified_at": null,
       "reviewer": null,
@@ -16270,8 +16330,8 @@
       "effective_from": null,
       "effective_to": null,
       "rights_status": "internal_only",
-      "planning_status": "reference",
-      "planning_note": "已有团队或公开来源资料，按 MVP 参考准入；不等于人工核实、实时营业、当日供应或现场通行保证。",
+      "planning_status": "candidate",
+      "planning_note": "历史重复记录，已由 pl_wb_000006 统一承接。",
       "kind": "place",
       "name": "铁塔景区",
       "place_type": "scenic",
@@ -16287,17 +16347,17 @@
       "business_hours": null,
       "price_band": null,
       "notes": null,
-      "superseded_by": null
+      "superseded_by": "pl_wb_000006"
     },
     {
       "fact_id": "daxiangguosi",
-      "version": 3,
+      "version": 4,
       "source_ids": [
         "src_search_daxiangguosi_20261023",
         "src_search_a_level_ticket_map_20261023"
       ],
       "validation_status": "unverified",
-      "business_status": "active",
+      "business_status": "cancelled",
       "is_demo": false,
       "verified_at": null,
       "reviewer": null,
@@ -16306,8 +16366,8 @@
       "effective_from": null,
       "effective_to": null,
       "rights_status": "internal_only",
-      "planning_status": "reference",
-      "planning_note": "已有团队或公开来源资料，按 MVP 参考准入；不等于人工核实、实时营业、当日供应或现场通行保证。",
+      "planning_status": "candidate",
+      "planning_note": "历史重复记录，已由 pl_wb_000005 统一承接。",
       "kind": "place",
       "name": "大相国寺",
       "place_type": "scenic",
@@ -16323,17 +16383,17 @@
       "business_hours": null,
       "price_band": null,
       "notes": null,
-      "superseded_by": null
+      "superseded_by": "pl_wb_000005"
     },
     {
       "fact_id": "hanyuan",
-      "version": 3,
+      "version": 4,
       "source_ids": [
         "src_search_hanyuan_20261023",
         "src_search_a_level_ticket_map_20261023"
       ],
       "validation_status": "unverified",
-      "business_status": "active",
+      "business_status": "cancelled",
       "is_demo": false,
       "verified_at": null,
       "reviewer": null,
@@ -16342,8 +16402,8 @@
       "effective_from": null,
       "effective_to": null,
       "rights_status": "internal_only",
-      "planning_status": "reference",
-      "planning_note": "已有团队或公开来源资料，按 MVP 参考准入；不等于人工核实、实时营业、当日供应或现场通行保证。",
+      "planning_status": "candidate",
+      "planning_note": "历史重复记录，已由 pl_wb_000007 统一承接。",
       "kind": "place",
       "name": "中国翰园碑林",
       "place_type": "scenic",
@@ -16359,7 +16419,7 @@
       "business_hours": null,
       "price_band": null,
       "notes": null,
-      "superseded_by": null
+      "superseded_by": "pl_wb_000007"
     },
     {
       "fact_id": "qifeng",
@@ -16398,14 +16458,14 @@
     },
     {
       "fact_id": "wansuishan",
-      "version": 3,
+      "version": 4,
       "source_ids": [
         "src_search_wansuishan_ticket_20261023",
         "src_read_wansuishan_gov_20261023",
         "src_search_a_level_ticket_map_20261023"
       ],
       "validation_status": "unverified",
-      "business_status": "active",
+      "business_status": "cancelled",
       "is_demo": false,
       "verified_at": null,
       "reviewer": null,
@@ -16414,8 +16474,8 @@
       "effective_from": null,
       "effective_to": null,
       "rights_status": "internal_only",
-      "planning_status": "reference",
-      "planning_note": "已有团队或公开来源资料，按 MVP 参考准入；不等于人工核实、实时营业、当日供应或现场通行保证。",
+      "planning_status": "candidate",
+      "planning_note": "历史重复记录，已由 pl_wb_000002 统一承接。",
       "kind": "place",
       "name": "万岁山武侠城",
       "place_type": "scenic",
@@ -16431,7 +16491,7 @@
       "business_hours": null,
       "price_band": null,
       "notes": null,
-      "superseded_by": null
+      "superseded_by": "pl_wb_000002"
     },
     {
       "fact_id": "jiaoyulu",
@@ -16470,13 +16530,13 @@
     },
     {
       "fact_id": "tianboyangfu",
-      "version": 3,
+      "version": 4,
       "source_ids": [
         "src_search_tianboyangfu_20261023",
         "src_search_a_level_ticket_map_20261023"
       ],
       "validation_status": "unverified",
-      "business_status": "active",
+      "business_status": "cancelled",
       "is_demo": false,
       "verified_at": null,
       "reviewer": null,
@@ -16485,8 +16545,8 @@
       "effective_from": null,
       "effective_to": null,
       "rights_status": "internal_only",
-      "planning_status": "reference",
-      "planning_note": "已有团队或公开来源资料，按 MVP 参考准入；不等于人工核实、实时营业、当日供应或现场通行保证。",
+      "planning_status": "candidate",
+      "planning_note": "历史重复记录，已由 pl_wb_000009 统一承接。",
       "kind": "place",
       "name": "天波杨府",
       "place_type": "scenic",
@@ -16502,7 +16562,7 @@
       "business_hours": null,
       "price_band": null,
       "notes": null,
-      "superseded_by": null
+      "superseded_by": "pl_wb_000009"
     },
     {
       "fact_id": "aisijia",
@@ -16611,13 +16671,13 @@
     },
     {
       "fact_id": "xiaosongcheng",
-      "version": 3,
+      "version": 4,
       "source_ids": [
         "src_search_xiaosong_20261023",
         "src_read_xiaosong_ctrip_20261023"
       ],
       "validation_status": "unverified",
-      "business_status": "active",
+      "business_status": "cancelled",
       "is_demo": false,
       "verified_at": null,
       "reviewer": null,
@@ -16626,8 +16686,8 @@
       "effective_from": null,
       "effective_to": null,
       "rights_status": "internal_only",
-      "planning_status": "reference",
-      "planning_note": "已有团队或公开来源资料，按 MVP 参考准入；不等于人工核实、实时营业、当日供应或现场通行保证。",
+      "planning_status": "candidate",
+      "planning_note": "历史重复记录，已由 pl_wb_000016 统一承接。",
       "kind": "place",
       "name": "汴梁小宋城",
       "place_type": "scenic",
@@ -16643,7 +16703,7 @@
       "business_hours": null,
       "price_band": null,
       "notes": null,
-      "superseded_by": null
+      "superseded_by": "pl_wb_000016"
     },
     {
       "fact_id": "yudian",
@@ -16717,13 +16777,13 @@
     },
     {
       "fact_id": "wall",
-      "version": 3,
+      "version": 4,
       "source_ids": [
         "src_search_a_level_ticket_map_20261023",
         "src_read_tourism_map_20261023"
       ],
       "validation_status": "unverified",
-      "business_status": "active",
+      "business_status": "cancelled",
       "is_demo": false,
       "verified_at": null,
       "reviewer": null,
@@ -16732,8 +16792,8 @@
       "effective_from": null,
       "effective_to": null,
       "rights_status": "internal_only",
-      "planning_status": "reference",
-      "planning_note": "已有团队或公开来源资料，按 MVP 参考准入；不等于人工核实、实时营业、当日供应或现场通行保证。",
+      "planning_status": "candidate",
+      "planning_note": "历史重复记录，已由 pl_wb_000010 统一承接。",
       "kind": "place",
       "name": "开封城墙",
       "place_type": "scenic",
@@ -16749,7 +16809,7 @@
       "business_hours": null,
       "price_band": null,
       "notes": null,
-      "superseded_by": null
+      "superseded_by": "pl_wb_000010"
     },
     {
       "fact_id": "yuwangtai",
@@ -16789,13 +16849,13 @@
     },
     {
       "fact_id": "shanshangan",
-      "version": 3,
+      "version": 4,
       "source_ids": [
         "src_search_shanshangan_20261023",
         "src_search_a_level_ticket_map_20261023"
       ],
       "validation_status": "unverified",
-      "business_status": "active",
+      "business_status": "cancelled",
       "is_demo": false,
       "verified_at": null,
       "reviewer": null,
@@ -16804,8 +16864,8 @@
       "effective_from": null,
       "effective_to": null,
       "rights_status": "internal_only",
-      "planning_status": "reference",
-      "planning_note": "已有团队或公开来源资料，按 MVP 参考准入；不等于人工核实、实时营业、当日供应或现场通行保证。",
+      "planning_status": "candidate",
+      "planning_note": "历史重复记录，已由 pl_wb_000011 统一承接。",
       "kind": "place",
       "name": "山陕甘会馆",
       "place_type": "scenic",
@@ -16821,7 +16881,7 @@
       "business_hours": null,
       "price_band": null,
       "notes": null,
-      "superseded_by": null
+      "superseded_by": "pl_wb_000011"
     },
     {
       "fact_id": "liushaoqi",
@@ -16861,13 +16921,13 @@
     },
     {
       "fact_id": "yanqingguan",
-      "version": 3,
+      "version": 4,
       "source_ids": [
         "src_search_yanqingguan_20261023",
         "src_search_a_level_ticket_map_20261023"
       ],
       "validation_status": "unverified",
-      "business_status": "active",
+      "business_status": "cancelled",
       "is_demo": false,
       "verified_at": null,
       "reviewer": null,
@@ -16876,8 +16936,8 @@
       "effective_from": null,
       "effective_to": null,
       "rights_status": "internal_only",
-      "planning_status": "reference",
-      "planning_note": "已有团队或公开来源资料，按 MVP 参考准入；不等于人工核实、实时营业、当日供应或现场通行保证。",
+      "planning_status": "candidate",
+      "planning_note": "历史重复记录，已由 pl_wb_000012 统一承接。",
       "kind": "place",
       "name": "延庆观",
       "place_type": "scenic",
@@ -16893,7 +16953,7 @@
       "business_hours": null,
       "price_band": null,
       "notes": null,
-      "superseded_by": null
+      "superseded_by": "pl_wb_000012"
     },
     {
       "fact_id": "yuefeimiao",
@@ -17040,13 +17100,13 @@
     },
     {
       "fact_id": "gulou_night",
-      "version": 3,
+      "version": 4,
       "source_ids": [
         "src_read_gulou_official_20261023",
         "src_search_night_market_20261023"
       ],
       "validation_status": "unverified",
-      "business_status": "active",
+      "business_status": "cancelled",
       "is_demo": false,
       "verified_at": null,
       "reviewer": null,
@@ -17055,8 +17115,8 @@
       "effective_from": null,
       "effective_to": null,
       "rights_status": "internal_only",
-      "planning_status": "reference",
-      "planning_note": "已有团队或公开来源资料，按 MVP 参考准入；不等于人工核实、实时营业、当日供应或现场通行保证。",
+      "planning_status": "candidate",
+      "planning_note": "历史重复记录，已由 pl_wb_000013 统一承接。",
       "kind": "place",
       "name": "鼓楼夜市",
       "place_type": "night_visit",
@@ -17072,16 +17132,16 @@
       "business_hours": null,
       "price_band": null,
       "notes": null,
-      "superseded_by": null
+      "superseded_by": "pl_wb_000013"
     },
     {
       "fact_id": "xisi_night",
-      "version": 3,
+      "version": 4,
       "source_ids": [
         "src_search_night_market_20261023"
       ],
       "validation_status": "unverified",
-      "business_status": "active",
+      "business_status": "cancelled",
       "is_demo": false,
       "verified_at": null,
       "reviewer": null,
@@ -17090,8 +17150,8 @@
       "effective_from": null,
       "effective_to": null,
       "rights_status": "internal_only",
-      "planning_status": "reference",
-      "planning_note": "已有团队或公开来源资料，按 MVP 参考准入；不等于人工核实、实时营业、当日供应或现场通行保证。",
+      "planning_status": "candidate",
+      "planning_note": "历史重复记录，已由 pl_wb_000015 统一承接。",
       "kind": "place",
       "name": "西司夜市",
       "place_type": "night_visit",
@@ -17107,16 +17167,16 @@
       "business_hours": null,
       "price_band": null,
       "notes": null,
-      "superseded_by": null
+      "superseded_by": "pl_wb_000015"
     },
     {
       "fact_id": "heda_night",
-      "version": 3,
+      "version": 4,
       "source_ids": [
         "src_search_night_market_20261023"
       ],
       "validation_status": "unverified",
-      "business_status": "active",
+      "business_status": "cancelled",
       "is_demo": false,
       "verified_at": null,
       "reviewer": null,
@@ -17125,8 +17185,8 @@
       "effective_from": null,
       "effective_to": null,
       "rights_status": "internal_only",
-      "planning_status": "reference",
-      "planning_note": "已有团队或公开来源资料，按 MVP 参考准入；不等于人工核实、实时营业、当日供应或现场通行保证。",
+      "planning_status": "candidate",
+      "planning_note": "历史重复记录，已由 pl_wb_000014 统一承接。",
       "kind": "place",
       "name": "老河大夜市",
       "place_type": "night_visit",
@@ -17142,16 +17202,16 @@
       "business_hours": null,
       "price_band": null,
       "notes": null,
-      "superseded_by": null
+      "superseded_by": "pl_wb_000014"
     },
     {
       "fact_id": "huangjia_xisi",
-      "version": 3,
+      "version": 4,
       "source_ids": [
         "src_search_huangjia_20261023"
       ],
       "validation_status": "unverified",
-      "business_status": "active",
+      "business_status": "cancelled",
       "is_demo": false,
       "verified_at": null,
       "reviewer": null,
@@ -17160,8 +17220,8 @@
       "effective_from": null,
       "effective_to": null,
       "rights_status": "internal_only",
-      "planning_status": "reference",
-      "planning_note": "已有团队或公开来源资料，按 MVP 参考准入；不等于人工核实、实时营业、当日供应或现场通行保证。",
+      "planning_status": "candidate",
+      "planning_note": "历史重复记录，已由 pl_wb_vendor_000016 统一承接。",
       "kind": "place",
       "name": "黄家老店（西司店）",
       "place_type": "restaurant",
@@ -17177,11 +17237,11 @@
       "business_hours": null,
       "price_band": null,
       "notes": null,
-      "superseded_by": null
+      "superseded_by": "pl_wb_vendor_000016"
     },
     {
       "fact_id": "huangjia_daliang",
-      "version": 3,
+      "version": 4,
       "source_ids": [
         "src_search_huangjia_20261023"
       ],
@@ -17205,7 +17265,9 @@
       "longitude": null,
       "latitude": null,
       "coordinate_system": "unknown",
-      "aliases": [],
+      "aliases": [
+        "黄家老店（大梁路店）"
+      ],
       "external_poi_id": null,
       "description": null,
       "suggested_stay_min": null,
@@ -17251,12 +17313,12 @@
     },
     {
       "fact_id": "louzhonglou_xiaosong",
-      "version": 3,
+      "version": 4,
       "source_ids": [
         "src_search_louzhonglou_20261023"
       ],
       "validation_status": "unverified",
-      "business_status": "active",
+      "business_status": "cancelled",
       "is_demo": false,
       "verified_at": null,
       "reviewer": null,
@@ -17265,8 +17327,8 @@
       "effective_from": null,
       "effective_to": null,
       "rights_status": "internal_only",
-      "planning_status": "reference",
-      "planning_note": "已有团队或公开来源资料，按 MVP 参考准入；不等于人工核实、实时营业、当日供应或现场通行保证。",
+      "planning_status": "candidate",
+      "planning_note": "历史重复记录，已由 pl_wb_vendor_000004 统一承接。",
       "kind": "place",
       "name": "楼中楼酒店（汴梁小宋城店）",
       "place_type": "restaurant",
@@ -17282,7 +17344,7 @@
       "business_hours": null,
       "price_band": null,
       "notes": null,
-      "superseded_by": null
+      "superseded_by": "pl_wb_vendor_000004"
     },
     {
       "fact_id": "heyuan_hanxing",
@@ -17321,12 +17383,12 @@
     },
     {
       "fact_id": "heyuan_jinxiang",
-      "version": 3,
+      "version": 4,
       "source_ids": [
         "src_search_heyuan_20261023"
       ],
       "validation_status": "unverified",
-      "business_status": "active",
+      "business_status": "cancelled",
       "is_demo": false,
       "verified_at": null,
       "reviewer": null,
@@ -17335,8 +17397,8 @@
       "effective_from": null,
       "effective_to": null,
       "rights_status": "internal_only",
-      "planning_status": "reference",
-      "planning_note": "已有团队或公开来源资料，按 MVP 参考准入；不等于人工核实、实时营业、当日供应或现场通行保证。",
+      "planning_status": "candidate",
+      "planning_note": "历史重复记录，已由 place_heyuan_jinxiang 统一承接。",
       "kind": "place",
       "name": "禾源灌汤包子（金祥路直营店）",
       "place_type": "restaurant",
@@ -17352,7 +17414,7 @@
       "business_hours": null,
       "price_band": null,
       "notes": null,
-      "superseded_by": null
+      "superseded_by": "place_heyuan_jinxiang"
     },
     {
       "fact_id": "diyilou_sihou",
@@ -17394,7 +17456,7 @@
     },
     {
       "fact_id": "qm_yingbin",
-      "version": 3,
+      "version": 4,
       "source_ids": [
         "src_search_qingming_gates_20261023"
       ],
@@ -17413,7 +17475,7 @@
       "kind": "place",
       "name": "迎宾门",
       "place_type": "entrance",
-      "parent_place_id": "qingming",
+      "parent_place_id": "pl_wb_000001",
       "address": null,
       "longitude": null,
       "latitude": null,
@@ -17429,7 +17491,7 @@
     },
     {
       "fact_id": "qm_duan",
-      "version": 3,
+      "version": 4,
       "source_ids": [
         "src_search_qingming_gates_20261023"
       ],
@@ -17448,7 +17510,7 @@
       "kind": "place",
       "name": "端门",
       "place_type": "entrance",
-      "parent_place_id": "qingming",
+      "parent_place_id": "pl_wb_000001",
       "address": null,
       "longitude": null,
       "latitude": null,
@@ -17464,7 +17526,7 @@
     },
     {
       "fact_id": "qm_jinshui",
-      "version": 3,
+      "version": 4,
       "source_ids": [
         "src_search_qingming_gates_20261023"
       ],
@@ -17483,7 +17545,7 @@
       "kind": "place",
       "name": "金水门",
       "place_type": "entrance",
-      "parent_place_id": "qingming",
+      "parent_place_id": "pl_wb_000001",
       "address": null,
       "longitude": null,
       "latitude": null,
@@ -17499,7 +17561,7 @@
     },
     {
       "fact_id": "qm_danfeng",
-      "version": 3,
+      "version": 4,
       "source_ids": [
         "src_search_qingming_gates_20261023"
       ],
@@ -17518,7 +17580,7 @@
       "kind": "place",
       "name": "丹凤门",
       "place_type": "entrance",
-      "parent_place_id": "qingming",
+      "parent_place_id": "pl_wb_000001",
       "address": null,
       "longitude": null,
       "latitude": null,
@@ -17534,7 +17596,7 @@
     },
     {
       "fact_id": "hanyuan_south",
-      "version": 3,
+      "version": 4,
       "source_ids": [
         "src_search_hanyuan_20261023"
       ],
@@ -17553,7 +17615,7 @@
       "kind": "place",
       "name": "南大门",
       "place_type": "entrance",
-      "parent_place_id": "hanyuan",
+      "parent_place_id": "pl_wb_000007",
       "address": null,
       "longitude": null,
       "latitude": null,
@@ -17569,7 +17631,7 @@
     },
     {
       "fact_id": "hanyuan_north",
-      "version": 3,
+      "version": 4,
       "source_ids": [
         "src_search_hanyuan_20261023"
       ],
@@ -17588,7 +17650,7 @@
       "kind": "place",
       "name": "北大门",
       "place_type": "entrance",
-      "parent_place_id": "hanyuan",
+      "parent_place_id": "pl_wb_000007",
       "address": null,
       "longitude": null,
       "latitude": null,
@@ -17604,7 +17666,7 @@
     },
     {
       "fact_id": "wall_daliang",
-      "version": 3,
+      "version": 4,
       "source_ids": [
         "src_kf_wall_entrances_20260813",
         "src_kf_wall_closure_20260104"
@@ -17624,7 +17686,7 @@
       "kind": "place",
       "name": "大梁门古马道登城口",
       "place_type": "entrance",
-      "parent_place_id": "wall",
+      "parent_place_id": "pl_wb_000010",
       "address": null,
       "longitude": null,
       "latitude": null,
@@ -17640,7 +17702,7 @@
     },
     {
       "fact_id": "wsd_east",
-      "version": 3,
+      "version": 4,
       "source_ids": [
         "src_search_wansuishan_20261023"
       ],
@@ -17659,7 +17721,7 @@
       "kind": "place",
       "name": "东大门",
       "place_type": "entrance",
-      "parent_place_id": "wansuishan",
+      "parent_place_id": "pl_wb_000002",
       "address": null,
       "longitude": null,
       "latitude": null,
@@ -17675,7 +17737,7 @@
     },
     {
       "fact_id": "wsd_west",
-      "version": 3,
+      "version": 4,
       "source_ids": [
         "src_search_wansuishan_20261023"
       ],
@@ -17694,7 +17756,7 @@
       "kind": "place",
       "name": "西大门（原北门）",
       "place_type": "entrance",
-      "parent_place_id": "wansuishan",
+      "parent_place_id": "pl_wb_000002",
       "address": null,
       "longitude": null,
       "latitude": null,
@@ -17710,7 +17772,7 @@
     },
     {
       "fact_id": "wsd_center",
-      "version": 3,
+      "version": 4,
       "source_ids": [
         "src_search_wansuishan_20261023"
       ],
@@ -17729,7 +17791,7 @@
       "kind": "place",
       "name": "中门",
       "place_type": "entrance",
-      "parent_place_id": "wansuishan",
+      "parent_place_id": "pl_wb_000002",
       "address": null,
       "longitude": null,
       "latitude": null,
@@ -17745,7 +17807,7 @@
     },
     {
       "fact_id": "dxgs_main",
-      "version": 3,
+      "version": 4,
       "source_ids": [
         "src_search_daxiangguosi_20261023"
       ],
@@ -17764,7 +17826,7 @@
       "kind": "place",
       "name": "大相国寺山门（待核）",
       "place_type": "entrance",
-      "parent_place_id": "daxiangguosi",
+      "parent_place_id": "pl_wb_000005",
       "address": null,
       "longitude": null,
       "latitude": null,
@@ -17780,7 +17842,7 @@
     },
     {
       "fact_id": "tieta_main",
-      "version": 3,
+      "version": 4,
       "source_ids": [
         "src_search_tieta_20261023"
       ],
@@ -17799,7 +17861,7 @@
       "kind": "place",
       "name": "铁塔景区入口（待核）",
       "place_type": "entrance",
-      "parent_place_id": "tieta",
+      "parent_place_id": "pl_wb_000006",
       "address": null,
       "longitude": null,
       "latitude": null,
@@ -18028,7 +18090,7 @@
     },
     {
       "fact_id": "qm_gate_yingbin",
-      "version": 3,
+      "version": 4,
       "source_ids": [
         "src_qmsyun_architecture_20261023",
         "src_qmsyun_gate_channels_20261023"
@@ -18048,7 +18110,7 @@
       "kind": "place",
       "name": "迎宾门",
       "place_type": "entrance",
-      "parent_place_id": "qingming",
+      "parent_place_id": "pl_wb_000001",
       "address": null,
       "longitude": null,
       "latitude": null,
@@ -18064,7 +18126,7 @@
     },
     {
       "fact_id": "qm_gate_jinshui",
-      "version": 3,
+      "version": 4,
       "source_ids": [
         "src_qmsyun_architecture_20261023",
         "src_qmsyun_song_banquet_20261023",
@@ -18085,7 +18147,7 @@
       "kind": "place",
       "name": "金水门",
       "place_type": "entrance",
-      "parent_place_id": "qingming",
+      "parent_place_id": "pl_wb_000001",
       "address": null,
       "longitude": null,
       "latitude": null,
@@ -18101,7 +18163,7 @@
     },
     {
       "fact_id": "qm_gate_duan",
-      "version": 3,
+      "version": 4,
       "source_ids": [
         "src_qmsyun_gate_channels_20261023",
         "src_qmsyun_song_banquet_20261023"
@@ -18121,7 +18183,7 @@
       "kind": "place",
       "name": "端门",
       "place_type": "entrance",
-      "parent_place_id": "qingming",
+      "parent_place_id": "pl_wb_000001",
       "address": null,
       "longitude": null,
       "latitude": null,
@@ -18173,7 +18235,7 @@
     },
     {
       "fact_id": "ent_qm_yingbin_entry",
-      "version": 1,
+      "version": 2,
       "source_ids": [
         "src_qmsyun_gate_channels_20261023"
       ],
@@ -18190,13 +18252,13 @@
       "planning_status": "reference",
       "planning_note": "已有团队或公开来源资料，按 MVP 参考准入；不等于人工核实、实时营业、当日供应或现场通行保证。",
       "kind": "entrance",
-      "place_id": "qingming",
+      "place_id": "pl_wb_000001",
       "entrance_place_id": "qm_gate_yingbin",
       "direction": "entry"
     },
     {
       "fact_id": "ent_qm_jinshui_entry",
-      "version": 1,
+      "version": 2,
       "source_ids": [
         "src_qmsyun_gate_channels_20261023",
         "src_qmsyun_song_banquet_20261023"
@@ -18214,13 +18276,13 @@
       "planning_status": "reference",
       "planning_note": "已有团队或公开来源资料，按 MVP 参考准入；不等于人工核实、实时营业、当日供应或现场通行保证。",
       "kind": "entrance",
-      "place_id": "qingming",
+      "place_id": "pl_wb_000001",
       "entrance_place_id": "qm_gate_jinshui",
       "direction": "entry"
     },
     {
       "fact_id": "ent_qm_duan_entry",
-      "version": 1,
+      "version": 2,
       "source_ids": [
         "src_qmsyun_gate_channels_20261023",
         "src_qmsyun_song_banquet_20261023"
@@ -18238,7 +18300,7 @@
       "planning_status": "reference",
       "planning_note": "已有团队或公开来源资料，按 MVP 参考准入；不等于人工核实、实时营业、当日供应或现场通行保证。",
       "kind": "entrance",
-      "place_id": "qingming",
+      "place_id": "pl_wb_000001",
       "entrance_place_id": "qm_gate_duan",
       "direction": "entry"
     },
@@ -23188,7 +23250,7 @@
     },
     {
       "fact_id": "place_gulou_night_market",
-      "version": 3,
+      "version": 4,
       "source_ids": [
         "src_gulou_night_market",
         "src_kfgov_night_market_kiosk",
@@ -23196,7 +23258,7 @@
         "src_search_night_market_20261023"
       ],
       "validation_status": "unverified",
-      "business_status": "active",
+      "business_status": "cancelled",
       "is_demo": false,
       "verified_at": null,
       "reviewer": null,
@@ -23205,8 +23267,8 @@
       "effective_from": null,
       "effective_to": null,
       "rights_status": "internal_only",
-      "planning_status": "reference",
-      "planning_note": "已有团队或公开来源资料，按 MVP 参考准入；不等于人工核实、实时营业、当日供应或现场通行保证。",
+      "planning_status": "candidate",
+      "planning_note": "历史重复记录，已由 pl_wb_000013 统一承接。",
       "kind": "place",
       "name": "鼓楼夜市",
       "place_type": "night_visit",
@@ -23222,18 +23284,18 @@
       "business_hours": null,
       "price_band": null,
       "notes": null,
-      "superseded_by": null
+      "superseded_by": "pl_wb_000013"
     },
     {
       "fact_id": "place_xisi_night_market",
-      "version": 3,
+      "version": 4,
       "source_ids": [
         "src_bendibao_xisi_night",
         "src_kfgov_night_market_kiosk",
         "src_search_night_market_20261023"
       ],
       "validation_status": "unverified",
-      "business_status": "active",
+      "business_status": "cancelled",
       "is_demo": false,
       "verified_at": null,
       "reviewer": null,
@@ -23242,8 +23304,8 @@
       "effective_from": null,
       "effective_to": null,
       "rights_status": "internal_only",
-      "planning_status": "reference",
-      "planning_note": "已有团队或公开来源资料，按 MVP 参考准入；不等于人工核实、实时营业、当日供应或现场通行保证。",
+      "planning_status": "candidate",
+      "planning_note": "历史重复记录，已由 pl_wb_000015 统一承接。",
       "kind": "place",
       "name": "西司夜市",
       "place_type": "night_visit",
@@ -23259,7 +23321,7 @@
       "business_hours": null,
       "price_band": null,
       "notes": null,
-      "superseded_by": null
+      "superseded_by": "pl_wb_000015"
     },
     {
       "fact_id": "place_laoheda_night_market",
@@ -23299,12 +23361,12 @@
     },
     {
       "fact_id": "place_xiaosongcheng",
-      "version": 3,
+      "version": 4,
       "source_ids": [
         "src_search_xiaosong_20261023"
       ],
       "validation_status": "unverified",
-      "business_status": "active",
+      "business_status": "cancelled",
       "is_demo": false,
       "verified_at": null,
       "reviewer": null,
@@ -23313,8 +23375,8 @@
       "effective_from": null,
       "effective_to": null,
       "rights_status": "internal_only",
-      "planning_status": "reference",
-      "planning_note": "已有团队或公开来源资料，按 MVP 参考准入；不等于人工核实、实时营业、当日供应或现场通行保证。",
+      "planning_status": "candidate",
+      "planning_note": "历史重复记录，已由 pl_wb_000016 统一承接。",
       "kind": "place",
       "name": "汴梁小宋城",
       "place_type": "night_visit",
@@ -23330,7 +23392,7 @@
       "business_hours": null,
       "price_band": null,
       "notes": null,
-      "superseded_by": null
+      "superseded_by": "pl_wb_000016"
     },
     {
       "fact_id": "place_shudianjie_night_market",
@@ -23369,12 +23431,12 @@
     },
     {
       "fact_id": "place_huangjia_xisi",
-      "version": 3,
+      "version": 4,
       "source_ids": [
         "src_search_huangjia_20261023"
       ],
       "validation_status": "unverified",
-      "business_status": "active",
+      "business_status": "cancelled",
       "is_demo": false,
       "verified_at": null,
       "reviewer": null,
@@ -23383,8 +23445,8 @@
       "effective_from": null,
       "effective_to": null,
       "rights_status": "internal_only",
-      "planning_status": "reference",
-      "planning_note": "已有团队或公开来源资料，按 MVP 参考准入；不等于人工核实、实时营业、当日供应或现场通行保证。",
+      "planning_status": "candidate",
+      "planning_note": "历史重复记录，已由 pl_wb_vendor_000016 统一承接。",
       "kind": "place",
       "name": "黄家老店（西司店）",
       "place_type": "restaurant",
@@ -23400,16 +23462,16 @@
       "business_hours": null,
       "price_band": null,
       "notes": null,
-      "superseded_by": null
+      "superseded_by": "pl_wb_vendor_000016"
     },
     {
       "fact_id": "place_huangjia_dalianglu",
-      "version": 3,
+      "version": 4,
       "source_ids": [
         "src_search_huangjia_20261023"
       ],
       "validation_status": "unverified",
-      "business_status": "active",
+      "business_status": "cancelled",
       "is_demo": false,
       "verified_at": null,
       "reviewer": null,
@@ -23418,8 +23480,8 @@
       "effective_from": null,
       "effective_to": null,
       "rights_status": "internal_only",
-      "planning_status": "reference",
-      "planning_note": "已有团队或公开来源资料，按 MVP 参考准入；不等于人工核实、实时营业、当日供应或现场通行保证。",
+      "planning_status": "candidate",
+      "planning_note": "历史重复记录，已由 huangjia_daliang 统一承接。",
       "kind": "place",
       "name": "黄家老店（大梁路店）",
       "place_type": "restaurant",
@@ -23435,16 +23497,16 @@
       "business_hours": null,
       "price_band": null,
       "notes": null,
-      "superseded_by": null
+      "superseded_by": "huangjia_daliang"
     },
     {
       "fact_id": "place_huangjia_jinanlu",
-      "version": 3,
+      "version": 4,
       "source_ids": [
         "src_search_huangjia_20261023"
       ],
       "validation_status": "unverified",
-      "business_status": "active",
+      "business_status": "cancelled",
       "is_demo": false,
       "verified_at": null,
       "reviewer": null,
@@ -23453,8 +23515,8 @@
       "effective_from": null,
       "effective_to": null,
       "rights_status": "internal_only",
-      "planning_status": "reference",
-      "planning_note": "已有团队或公开来源资料，按 MVP 参考准入；不等于人工核实、实时营业、当日供应或现场通行保证。",
+      "planning_status": "candidate",
+      "planning_note": "历史重复记录，已由 pl_wb_vendor_000003 统一承接。",
       "kind": "place",
       "name": "黄家老店（晋安路店）",
       "place_type": "restaurant",
@@ -23470,7 +23532,7 @@
       "business_hours": null,
       "price_band": null,
       "notes": null,
-      "superseded_by": null
+      "superseded_by": "pl_wb_vendor_000003"
     },
     {
       "fact_id": "place_huangjia_zhongshanlu",
@@ -23650,7 +23712,7 @@
     },
     {
       "fact_id": "place_heyuan_jinxiang",
-      "version": 3,
+      "version": 4,
       "source_ids": [
         "src_search_heyuan_20261023"
       ],
@@ -23674,7 +23736,9 @@
       "longitude": null,
       "latitude": null,
       "coordinate_system": "unknown",
-      "aliases": [],
+      "aliases": [
+        "禾源灌汤包子（金祥路直营店）"
+      ],
       "external_poi_id": null,
       "description": null,
       "suggested_stay_min": null,
@@ -23721,12 +23785,12 @@
     },
     {
       "fact_id": "place_louzhonglou_xiaosong",
-      "version": 3,
+      "version": 4,
       "source_ids": [
         "src_search_louzhonglou_20261023"
       ],
       "validation_status": "unverified",
-      "business_status": "active",
+      "business_status": "cancelled",
       "is_demo": false,
       "verified_at": null,
       "reviewer": null,
@@ -23735,8 +23799,8 @@
       "effective_from": null,
       "effective_to": null,
       "rights_status": "internal_only",
-      "planning_status": "reference",
-      "planning_note": "已有团队或公开来源资料，按 MVP 参考准入；不等于人工核实、实时营业、当日供应或现场通行保证。",
+      "planning_status": "candidate",
+      "planning_note": "历史重复记录，已由 pl_wb_vendor_000004 统一承接。",
       "kind": "place",
       "name": "楼中楼酒店（汴梁小宋城店）",
       "place_type": "restaurant",
@@ -23752,7 +23816,7 @@
       "business_hours": null,
       "price_band": null,
       "notes": null,
-      "superseded_by": null
+      "superseded_by": "pl_wb_vendor_000004"
     },
     {
       "fact_id": "place_diyilou_sihou",
@@ -23840,7 +23904,7 @@
     },
     {
       "fact_id": "src_bendibao_kfsbwg_address",
-      "version": 1,
+      "version": 2,
       "source_ids": [],
       "validation_status": "unverified",
       "business_status": "active",
@@ -23855,17 +23919,17 @@
       "planning_status": "reference",
       "planning_note": "已有团队或公开来源资料，按 MVP 参考准入；不等于人工核实、实时营业、当日供应或现场通行保证。",
       "kind": "source",
-      "name": "本地宝开封市博物馆地址转述",
+      "name": "src_bendibao_kfsbwg_address",
       "source_type": "other",
-      "url": "http://kf.bendibao.com/tour/20251225/23069.shtm",
-      "locator": "data/collection-runs/run_1d70ae0fdd19/raw/bendibao_kfsbwg_address.html",
-      "publisher": "开封本地宝",
+      "url": null,
+      "locator": "run:run_1d70ae0fdd19",
+      "publisher": null,
       "collected_at": "2026-10-23T22:53:49+08:00",
       "published_at": null
     },
     {
       "fact_id": "src_bendibao_kfsbwg_intro",
-      "version": 1,
+      "version": 2,
       "source_ids": [],
       "validation_status": "unverified",
       "business_status": "active",
@@ -23880,17 +23944,17 @@
       "planning_status": "reference",
       "planning_note": "已有团队或公开来源资料，按 MVP 参考准入；不等于人工核实、实时营业、当日供应或现场通行保证。",
       "kind": "source",
-      "name": "开封市博物馆简介（开封本地宝）",
+      "name": "src_bendibao_kfsbwg_intro",
       "source_type": "other",
-      "url": "https://kf.bendibao.com/tour/2026811/24509.shtm",
-      "locator": "data/collection-runs/run_1d70ae0fdd19/raw/bendibao_kfsbwg_intro.html",
-      "publisher": "开封本地宝",
+      "url": null,
+      "locator": "run:run_1d70ae0fdd19",
+      "publisher": null,
       "collected_at": "2026-10-23T22:53:49+08:00",
       "published_at": null
     },
     {
       "fact_id": "src_bendibao_library_hours",
-      "version": 1,
+      "version": 2,
       "source_ids": [],
       "validation_status": "unverified",
       "business_status": "active",
@@ -23905,17 +23969,17 @@
       "planning_status": "reference",
       "planning_note": "已有团队或公开来源资料，按 MVP 参考准入；不等于人工核实、实时营业、当日供应或现场通行保证。",
       "kind": "source",
-      "name": "开封市图书馆开放时间（开封本地宝，2021-07-13）",
+      "name": "src_bendibao_library_hours",
       "source_type": "other",
-      "url": "http://kf.bendibao.com/cyfw/2021713/4150.shtm",
-      "locator": "data/collection-runs/run_1d70ae0fdd19/raw/bendibao_library_hours.html",
-      "publisher": "开封本地宝",
+      "url": null,
+      "locator": "run:run_1d70ae0fdd19",
+      "publisher": null,
       "collected_at": "2026-10-23T22:53:49+08:00",
       "published_at": null
     },
     {
       "fact_id": "src_bendibao_xisi_night",
-      "version": 1,
+      "version": 2,
       "source_ids": [],
       "validation_status": "unverified",
       "business_status": "active",
@@ -23930,17 +23994,17 @@
       "planning_status": "reference",
       "planning_note": "已有团队或公开来源资料，按 MVP 参考准入；不等于人工核实、实时营业、当日供应或现场通行保证。",
       "kind": "source",
-      "name": "西司夜市营业时间（开封本地宝）",
+      "name": "src_bendibao_xisi_night",
       "source_type": "other",
-      "url": "http://kf.bendibao.com/tour/2022222/7281.shtm",
-      "locator": "data/collection-runs/run_1d70ae0fdd19/raw/bendibao_xisi_night.html",
-      "publisher": "开封本地宝",
+      "url": null,
+      "locator": "run:run_1d70ae0fdd19",
+      "publisher": null,
       "collected_at": "2026-10-23T22:53:49+08:00",
       "published_at": null
     },
     {
       "fact_id": "src_gulou_food_guide",
-      "version": 1,
+      "version": 2,
       "source_ids": [],
       "validation_status": "unverified",
       "business_status": "active",
@@ -23955,17 +24019,17 @@
       "planning_status": "reference",
       "planning_note": "已有团队或公开来源资料，按 MVP 参考准入；不等于人工核实、实时营业、当日供应或现场通行保证。",
       "kind": "source",
-      "name": "老饕的“五一”汴梁行：从早鲜到夜香，鼓楼美食全打卡（鼓楼区人民政府）",
+      "name": "src_gulou_food_guide",
       "source_type": "other",
-      "url": "http://www.gulou.gov.cn/kfsglqwz/c00202/pc/content/content_1935255435885350912.html",
-      "locator": "data/collection-runs/run_1d70ae0fdd19/raw/gulou_food_guide.html",
-      "publisher": "鼓楼区人民政府",
+      "url": null,
+      "locator": "run:run_1d70ae0fdd19",
+      "publisher": null,
       "collected_at": "2026-10-23T22:53:49+08:00",
       "published_at": null
     },
     {
       "fact_id": "src_gulou_night_market",
-      "version": 1,
+      "version": 2,
       "source_ids": [],
       "validation_status": "unverified",
       "business_status": "active",
@@ -23980,17 +24044,17 @@
       "planning_status": "reference",
       "planning_note": "已有团队或公开来源资料，按 MVP 参考准入；不等于人工核实、实时营业、当日供应或现场通行保证。",
       "kind": "source",
-      "name": "鼓楼区政府夜市介绍",
+      "name": "src_gulou_night_market",
       "source_type": "other",
-      "url": "http://www.gulou.gov.cn/kfsglqwz/c00173/pc/content/content_18895282829",
-      "locator": "data/collection-runs/run_1d70ae0fdd19/raw/gulou_night_market.html",
-      "publisher": "鼓楼区人民政府",
+      "url": null,
+      "locator": "run:run_1d70ae0fdd19",
+      "publisher": null,
       "collected_at": "2026-10-23T22:53:49+08:00",
       "published_at": null
     },
     {
       "fact_id": "src_gulou_shudianjie",
-      "version": 1,
+      "version": 2,
       "source_ids": [],
       "validation_status": "unverified",
       "business_status": "active",
@@ -24005,17 +24069,17 @@
       "planning_status": "reference",
       "planning_note": "已有团队或公开来源资料，按 MVP 参考准入；不等于人工核实、实时营业、当日供应或现场通行保证。",
       "kind": "source",
-      "name": "鼓楼区政府书店街介绍",
+      "name": "src_gulou_shudianjie",
       "source_type": "other",
-      "url": "http://www.gulou.gov.cn/kfsglqwz/c00173/pc/content/content_19116983454",
-      "locator": "data/collection-runs/run_1d70ae0fdd19/raw/gulou_shudianjie.html",
-      "publisher": "鼓楼区人民政府",
+      "url": null,
+      "locator": "run:run_1d70ae0fdd19",
+      "publisher": null,
       "collected_at": "2026-10-23T22:53:49+08:00",
       "published_at": null
     },
     {
       "fact_id": "src_kaifeng_gov_street_tour",
-      "version": 1,
+      "version": 2,
       "source_ids": [],
       "validation_status": "unverified",
       "business_status": "active",
@@ -24030,17 +24094,17 @@
       "planning_status": "reference",
       "planning_note": "已有团队或公开来源资料，按 MVP 参考准入；不等于人工核实、实时营业、当日供应或现场通行保证。",
       "kind": "source",
-      "name": "漫游开封文化街区（开封市人民政府）",
+      "name": "src_kaifeng_gov_street_tour",
       "source_type": "other",
-      "url": "https://www.kaifeng.gov.cn/kfsrmzfwz/qykf/pc/content/content_1763039087870939136.html",
-      "locator": "data/collection-runs/run_1d70ae0fdd19/raw/kaifeng_gov_street_tour.html",
-      "publisher": "开封市人民政府",
+      "url": null,
+      "locator": "run:run_1d70ae0fdd19",
+      "publisher": null,
       "collected_at": "2026-10-23T22:53:49+08:00",
       "published_at": null
     },
     {
       "fact_id": "src_kfgov_night_market_kiosk",
-      "version": 1,
+      "version": 2,
       "source_ids": [],
       "validation_status": "unverified",
       "business_status": "active",
@@ -24055,17 +24119,17 @@
       "planning_status": "reference",
       "planning_note": "已有团队或公开来源资料，按 MVP 参考准入；不等于人工核实、实时营业、当日供应或现场通行保证。",
       "kind": "source",
-      "name": "开封市市场监督管理局召开夜市智能查询机使用培训会（市政府）",
+      "name": "src_kfgov_night_market_kiosk",
       "source_type": "other",
-      "url": "https://www.kaifeng.gov.cn/kfsrmzfwz/bmdt/pc/content/content_1852265940682854400.html",
-      "locator": "data/collection-runs/run_1d70ae0fdd19/raw/kfgov_night_market_kiosk.html",
-      "publisher": "开封市市场监督管理局",
+      "url": null,
+      "locator": "run:run_1d70ae0fdd19",
+      "publisher": null,
       "collected_at": "2026-10-23T22:53:49+08:00",
       "published_at": null
     },
     {
       "fact_id": "src_kfgov_night_market_plan_2020",
-      "version": 1,
+      "version": 2,
       "source_ids": [],
       "validation_status": "unverified",
       "business_status": "active",
@@ -24080,17 +24144,17 @@
       "planning_status": "reference",
       "planning_note": "已有团队或公开来源资料，按 MVP 参考准入；不等于人工核实、实时营业、当日供应或现场通行保证。",
       "kind": "source",
-      "name": "开封市食品夜市升级改造实施方案（市政府办公室，2020）",
+      "name": "src_kfgov_night_market_plan_2020",
       "source_type": "other",
-      "url": "https://www.kaifeng.gov.cn/kfsrmzfwz/szfbx/pc/content/content_1742071176527785984.html",
-      "locator": "data/collection-runs/run_1d70ae0fdd19/raw/kfgov_night_market_plan_2020.html",
-      "publisher": "开封市人民政府办公室",
+      "url": null,
+      "locator": "run:run_1d70ae0fdd19",
+      "publisher": null,
       "collected_at": "2026-10-23T22:53:49+08:00",
       "published_at": null
     },
     {
       "fact_id": "src_kfsbwg_tips_openinfo",
-      "version": 1,
+      "version": 2,
       "source_ids": [],
       "validation_status": "unverified",
       "business_status": "active",
@@ -24105,17 +24169,17 @@
       "planning_status": "reference",
       "planning_note": "已有团队或公开来源资料，按 MVP 参考准入；不等于人工核实、实时营业、当日供应或现场通行保证。",
       "kind": "source",
-      "name": "开封市博物馆官网开放信息与参观须知",
+      "name": "src_kfsbwg_tips_openinfo",
       "source_type": "other",
-      "url": "https://www.kfsbwg.com/api/tips/text?p=w&text_key=KGSJ,BGSJ,TSSJ,KBGTS,CGXZ",
-      "locator": "data/collection-runs/run_1d70ae0fdd19/raw/kfsbwg_api_tips_text.html",
-      "publisher": "开封市博物馆",
+      "url": null,
+      "locator": "run:run_1d70ae0fdd19",
+      "publisher": null,
       "collected_at": "2026-10-23T22:53:49+08:00",
       "published_at": null
     },
     {
       "fact_id": "src_kfsfq_culture_directory",
-      "version": 1,
+      "version": 2,
       "source_ids": [],
       "validation_status": "unverified",
       "business_status": "active",
@@ -24130,17 +24194,17 @@
       "planning_status": "reference",
       "planning_note": "已有团队或公开来源资料，按 MVP 参考准入；不等于人工核实、实时营业、当日供应或现场通行保证。",
       "kind": "source",
-      "name": "开封市文化馆名录（城乡一体化示范区管委会）",
+      "name": "src_kfsfq_culture_directory",
       "source_type": "other",
-      "url": "http://www.kfsfq.gov.cn/cxythsfq/c00869/pc/content/content_1881510503819710465.html",
-      "locator": "data/collection-runs/run_1d70ae0fdd19/raw/kfsfq_culture_directory.html",
-      "publisher": "开封市城乡一体化示范区管委会",
+      "url": null,
+      "locator": "run:run_1d70ae0fdd19",
+      "publisher": null,
       "collected_at": "2026-10-23T22:53:49+08:00",
       "published_at": null
     },
     {
       "fact_id": "src_kfsfq_museum_directory",
-      "version": 1,
+      "version": 2,
       "source_ids": [],
       "validation_status": "unverified",
       "business_status": "active",
@@ -24155,17 +24219,17 @@
       "planning_status": "reference",
       "planning_note": "已有团队或公开来源资料，按 MVP 参考准入；不等于人工核实、实时营业、当日供应或现场通行保证。",
       "kind": "source",
-      "name": "示范区管委会公共文化场馆名录",
+      "name": "src_kfsfq_museum_directory",
       "source_type": "other",
-      "url": "http://www.kfsfq.gov.cn/cxythsfq/c00869/pc/content/content_18815105038",
-      "locator": "data/collection-runs/run_1d70ae0fdd19/raw/kfsfq_museum_directory.html",
-      "publisher": "城乡一体化示范区管委会",
+      "url": null,
+      "locator": "run:run_1d70ae0fdd19",
+      "publisher": null,
       "collected_at": "2026-10-23T22:53:49+08:00",
       "published_at": null
     },
     {
       "fact_id": "src_kfsbwg_tips_openinfo_live",
-      "version": 1,
+      "version": 2,
       "source_ids": [],
       "validation_status": "unverified",
       "business_status": "active",
@@ -24180,10 +24244,10 @@
       "planning_status": "reference",
       "planning_note": "已有团队或公开来源资料，按 MVP 参考准入；不等于人工核实、实时营业、当日供应或现场通行保证。",
       "kind": "source",
-      "name": "开封市博物馆官网开放信息（实时复抓）",
+      "name": "src_kfsbwg_tips_openinfo_live",
       "source_type": "other",
-      "url": "https://www.kfsbwg.com/api/tips/text?p=w&text_key=KGSJ,BGSJ,TSSJ,KBGTS,CGXZ",
-      "locator": "data/collection-runs/run_10712c5a07e1/raw/www.kfsbwg.com_api_tips_text_1f8cfa76.html",
+      "url": null,
+      "locator": "run:run_10712c5a07e1",
       "publisher": null,
       "collected_at": "2026-10-24T00:20:20+08:00",
       "published_at": null

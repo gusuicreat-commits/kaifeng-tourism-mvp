@@ -1,8 +1,8 @@
 {
   "status": "imported",
   "received": 1698,
-  "changed": 372,
-  "unchanged": 1326,
+  "changed": 8,
+  "unchanged": 1690,
   "records": [
     {
       "kind": "source",
@@ -4128,7 +4128,12 @@
       "id": "qingming",
       "ready": false,
       "issues": [
-        "LOCATION_UNKNOWN"
+        "UNVERIFIED",
+        "CANCELLED",
+        "RIGHTS_NOT_CONFIRMED",
+        "OUTSIDE_VALIDITY_OR_UNKNOWN",
+        "LOCATION_UNKNOWN",
+        "DEPENDENCY_NOT_READY:place:pl_wb_000001"
       ]
     },
     {
@@ -4136,6 +4141,10 @@
       "id": "kaifengfu",
       "ready": false,
       "issues": [
+        "UNVERIFIED",
+        "CANCELLED",
+        "RIGHTS_NOT_CONFIRMED",
+        "OUTSIDE_VALIDITY_OR_UNKNOWN",
         "LOCATION_UNKNOWN"
       ]
     },
@@ -4144,7 +4153,12 @@
       "id": "baogongci",
       "ready": false,
       "issues": [
-        "LOCATION_UNKNOWN"
+        "UNVERIFIED",
+        "CANCELLED",
+        "RIGHTS_NOT_CONFIRMED",
+        "OUTSIDE_VALIDITY_OR_UNKNOWN",
+        "LOCATION_UNKNOWN",
+        "DEPENDENCY_NOT_READY:place:pl_wb_000008"
       ]
     },
     {
@@ -4152,7 +4166,12 @@
       "id": "longting",
       "ready": false,
       "issues": [
-        "LOCATION_UNKNOWN"
+        "UNVERIFIED",
+        "CANCELLED",
+        "RIGHTS_NOT_CONFIRMED",
+        "OUTSIDE_VALIDITY_OR_UNKNOWN",
+        "LOCATION_UNKNOWN",
+        "DEPENDENCY_NOT_READY:place:pl_wb_000004"
       ]
     },
     {
@@ -4160,7 +4179,12 @@
       "id": "tieta",
       "ready": false,
       "issues": [
-        "LOCATION_UNKNOWN"
+        "UNVERIFIED",
+        "CANCELLED",
+        "RIGHTS_NOT_CONFIRMED",
+        "OUTSIDE_VALIDITY_OR_UNKNOWN",
+        "LOCATION_UNKNOWN",
+        "DEPENDENCY_NOT_READY:place:pl_wb_000006"
       ]
     },
     {
@@ -4168,7 +4192,12 @@
       "id": "daxiangguosi",
       "ready": false,
       "issues": [
-        "LOCATION_UNKNOWN"
+        "UNVERIFIED",
+        "CANCELLED",
+        "RIGHTS_NOT_CONFIRMED",
+        "OUTSIDE_VALIDITY_OR_UNKNOWN",
+        "LOCATION_UNKNOWN",
+        "DEPENDENCY_NOT_READY:place:pl_wb_000005"
       ]
     },
     {
@@ -4176,7 +4205,12 @@
       "id": "hanyuan",
       "ready": false,
       "issues": [
-        "LOCATION_UNKNOWN"
+        "UNVERIFIED",
+        "CANCELLED",
+        "RIGHTS_NOT_CONFIRMED",
+        "OUTSIDE_VALIDITY_OR_UNKNOWN",
+        "LOCATION_UNKNOWN",
+        "DEPENDENCY_NOT_READY:place:pl_wb_000007"
       ]
     },
     {
@@ -4192,7 +4226,12 @@
       "id": "wansuishan",
       "ready": false,
       "issues": [
-        "LOCATION_UNKNOWN"
+        "UNVERIFIED",
+        "CANCELLED",
+        "RIGHTS_NOT_CONFIRMED",
+        "OUTSIDE_VALIDITY_OR_UNKNOWN",
+        "LOCATION_UNKNOWN",
+        "DEPENDENCY_NOT_READY:place:pl_wb_000002"
       ]
     },
     {
@@ -4208,7 +4247,12 @@
       "id": "tianboyangfu",
       "ready": false,
       "issues": [
-        "LOCATION_UNKNOWN"
+        "UNVERIFIED",
+        "CANCELLED",
+        "RIGHTS_NOT_CONFIRMED",
+        "OUTSIDE_VALIDITY_OR_UNKNOWN",
+        "LOCATION_UNKNOWN",
+        "DEPENDENCY_NOT_READY:place:pl_wb_000009"
       ]
     },
     {
@@ -4240,7 +4284,12 @@
       "id": "xiaosongcheng",
       "ready": false,
       "issues": [
-        "LOCATION_UNKNOWN"
+        "UNVERIFIED",
+        "CANCELLED",
+        "RIGHTS_NOT_CONFIRMED",
+        "OUTSIDE_VALIDITY_OR_UNKNOWN",
+        "LOCATION_UNKNOWN",
+        "DEPENDENCY_NOT_READY:place:pl_wb_000016"
       ]
     },
     {
@@ -4264,7 +4313,12 @@
       "id": "wall",
       "ready": false,
       "issues": [
-        "LOCATION_UNKNOWN"
+        "UNVERIFIED",
+        "CANCELLED",
+        "RIGHTS_NOT_CONFIRMED",
+        "OUTSIDE_VALIDITY_OR_UNKNOWN",
+        "LOCATION_UNKNOWN",
+        "DEPENDENCY_NOT_READY:place:pl_wb_000010"
       ]
     },
     {
@@ -4280,7 +4334,12 @@
       "id": "shanshangan",
       "ready": false,
       "issues": [
-        "LOCATION_UNKNOWN"
+        "UNVERIFIED",
+        "CANCELLED",
+        "RIGHTS_NOT_CONFIRMED",
+        "OUTSIDE_VALIDITY_OR_UNKNOWN",
+        "LOCATION_UNKNOWN",
+        "DEPENDENCY_NOT_READY:place:pl_wb_000011"
       ]
     },
     {
@@ -4296,7 +4355,12 @@
       "id": "yanqingguan",
       "ready": false,
       "issues": [
-        "LOCATION_UNKNOWN"
+        "UNVERIFIED",
+        "CANCELLED",
+        "RIGHTS_NOT_CONFIRMED",
+        "OUTSIDE_VALIDITY_OR_UNKNOWN",
+        "LOCATION_UNKNOWN",
+        "DEPENDENCY_NOT_READY:place:pl_wb_000012"
       ]
     },
     {
@@ -4336,6 +4400,10 @@
       "id": "gulou_night",
       "ready": false,
       "issues": [
+        "UNVERIFIED",
+        "CANCELLED",
+        "RIGHTS_NOT_CONFIRMED",
+        "OUTSIDE_VALIDITY_OR_UNKNOWN",
         "LOCATION_UNKNOWN"
       ]
     },
@@ -4344,7 +4412,12 @@
       "id": "xisi_night",
       "ready": false,
       "issues": [
-        "LOCATION_UNKNOWN"
+        "UNVERIFIED",
+        "CANCELLED",
+        "RIGHTS_NOT_CONFIRMED",
+        "OUTSIDE_VALIDITY_OR_UNKNOWN",
+        "LOCATION_UNKNOWN",
+        "DEPENDENCY_NOT_READY:place:pl_wb_000015"
       ]
     },
     {
@@ -4352,7 +4425,12 @@
       "id": "heda_night",
       "ready": false,
       "issues": [
-        "LOCATION_UNKNOWN"
+        "UNVERIFIED",
+        "CANCELLED",
+        "RIGHTS_NOT_CONFIRMED",
+        "OUTSIDE_VALIDITY_OR_UNKNOWN",
+        "LOCATION_UNKNOWN",
+        "DEPENDENCY_NOT_READY:place:pl_wb_000014"
       ]
     },
     {
@@ -4360,7 +4438,12 @@
       "id": "huangjia_xisi",
       "ready": false,
       "issues": [
-        "LOCATION_UNKNOWN"
+        "UNVERIFIED",
+        "CANCELLED",
+        "RIGHTS_NOT_CONFIRMED",
+        "OUTSIDE_VALIDITY_OR_UNKNOWN",
+        "LOCATION_UNKNOWN",
+        "DEPENDENCY_NOT_READY:place:pl_wb_vendor_000016"
       ]
     },
     {
@@ -4388,7 +4471,12 @@
       "id": "louzhonglou_xiaosong",
       "ready": false,
       "issues": [
-        "LOCATION_UNKNOWN"
+        "UNVERIFIED",
+        "CANCELLED",
+        "RIGHTS_NOT_CONFIRMED",
+        "OUTSIDE_VALIDITY_OR_UNKNOWN",
+        "LOCATION_UNKNOWN",
+        "DEPENDENCY_NOT_READY:place:pl_wb_vendor_000004"
       ]
     },
     {
@@ -4409,7 +4497,12 @@
       "id": "heyuan_jinxiang",
       "ready": false,
       "issues": [
-        "LOCATION_UNKNOWN"
+        "UNVERIFIED",
+        "CANCELLED",
+        "RIGHTS_NOT_CONFIRMED",
+        "OUTSIDE_VALIDITY_OR_UNKNOWN",
+        "LOCATION_UNKNOWN",
+        "DEPENDENCY_NOT_READY:place:place_heyuan_jinxiang"
       ]
     },
     {
@@ -4430,7 +4523,7 @@
       "ready": false,
       "issues": [
         "LOCATION_UNKNOWN",
-        "DEPENDENCY_NOT_READY:place:qingming"
+        "DEPENDENCY_NOT_READY:place:pl_wb_000001"
       ]
     },
     {
@@ -4439,7 +4532,7 @@
       "ready": false,
       "issues": [
         "LOCATION_UNKNOWN",
-        "DEPENDENCY_NOT_READY:place:qingming"
+        "DEPENDENCY_NOT_READY:place:pl_wb_000001"
       ]
     },
     {
@@ -4448,7 +4541,7 @@
       "ready": false,
       "issues": [
         "LOCATION_UNKNOWN",
-        "DEPENDENCY_NOT_READY:place:qingming"
+        "DEPENDENCY_NOT_READY:place:pl_wb_000001"
       ]
     },
     {
@@ -4457,7 +4550,7 @@
       "ready": false,
       "issues": [
         "LOCATION_UNKNOWN",
-        "DEPENDENCY_NOT_READY:place:qingming"
+        "DEPENDENCY_NOT_READY:place:pl_wb_000001"
       ]
     },
     {
@@ -4466,7 +4559,7 @@
       "ready": false,
       "issues": [
         "LOCATION_UNKNOWN",
-        "DEPENDENCY_NOT_READY:place:hanyuan"
+        "DEPENDENCY_NOT_READY:place:pl_wb_000007"
       ]
     },
     {
@@ -4475,7 +4568,7 @@
       "ready": false,
       "issues": [
         "LOCATION_UNKNOWN",
-        "DEPENDENCY_NOT_READY:place:hanyuan"
+        "DEPENDENCY_NOT_READY:place:pl_wb_000007"
       ]
     },
     {
@@ -4484,7 +4577,7 @@
       "ready": false,
       "issues": [
         "LOCATION_UNKNOWN",
-        "DEPENDENCY_NOT_READY:place:wall"
+        "DEPENDENCY_NOT_READY:place:pl_wb_000010"
       ]
     },
     {
@@ -4493,7 +4586,7 @@
       "ready": false,
       "issues": [
         "LOCATION_UNKNOWN",
-        "DEPENDENCY_NOT_READY:place:wansuishan"
+        "DEPENDENCY_NOT_READY:place:pl_wb_000002"
       ]
     },
     {
@@ -4502,7 +4595,7 @@
       "ready": false,
       "issues": [
         "LOCATION_UNKNOWN",
-        "DEPENDENCY_NOT_READY:place:wansuishan"
+        "DEPENDENCY_NOT_READY:place:pl_wb_000002"
       ]
     },
     {
@@ -4511,7 +4604,7 @@
       "ready": false,
       "issues": [
         "LOCATION_UNKNOWN",
-        "DEPENDENCY_NOT_READY:place:wansuishan"
+        "DEPENDENCY_NOT_READY:place:pl_wb_000002"
       ]
     },
     {
@@ -4520,7 +4613,7 @@
       "ready": false,
       "issues": [
         "LOCATION_UNKNOWN",
-        "DEPENDENCY_NOT_READY:place:daxiangguosi"
+        "DEPENDENCY_NOT_READY:place:pl_wb_000005"
       ]
     },
     {
@@ -4529,7 +4622,7 @@
       "ready": false,
       "issues": [
         "LOCATION_UNKNOWN",
-        "DEPENDENCY_NOT_READY:place:tieta"
+        "DEPENDENCY_NOT_READY:place:pl_wb_000006"
       ]
     },
     {
@@ -4592,7 +4685,7 @@
       "ready": false,
       "issues": [
         "LOCATION_UNKNOWN",
-        "DEPENDENCY_NOT_READY:place:qingming"
+        "DEPENDENCY_NOT_READY:place:pl_wb_000001"
       ]
     },
     {
@@ -4601,7 +4694,7 @@
       "ready": false,
       "issues": [
         "LOCATION_UNKNOWN",
-        "DEPENDENCY_NOT_READY:place:qingming"
+        "DEPENDENCY_NOT_READY:place:pl_wb_000001"
       ]
     },
     {
@@ -4610,7 +4703,7 @@
       "ready": false,
       "issues": [
         "LOCATION_UNKNOWN",
-        "DEPENDENCY_NOT_READY:place:qingming"
+        "DEPENDENCY_NOT_READY:place:pl_wb_000001"
       ]
     },
     {
@@ -4626,7 +4719,7 @@
       "id": "ent_qm_yingbin_entry",
       "ready": false,
       "issues": [
-        "DEPENDENCY_NOT_READY:place:qingming",
+        "DEPENDENCY_NOT_READY:place:pl_wb_000001",
         "DEPENDENCY_NOT_READY:place:qm_gate_yingbin"
       ]
     },
@@ -4635,7 +4728,7 @@
       "id": "ent_qm_jinshui_entry",
       "ready": false,
       "issues": [
-        "DEPENDENCY_NOT_READY:place:qingming",
+        "DEPENDENCY_NOT_READY:place:pl_wb_000001",
         "DEPENDENCY_NOT_READY:place:qm_gate_jinshui"
       ]
     },
@@ -4644,7 +4737,7 @@
       "id": "ent_qm_duan_entry",
       "ready": false,
       "issues": [
-        "DEPENDENCY_NOT_READY:place:qingming",
+        "DEPENDENCY_NOT_READY:place:pl_wb_000001",
         "DEPENDENCY_NOT_READY:place:qm_gate_duan"
       ]
     },
@@ -4655,7 +4748,7 @@
       "issues": [
         "DEPENDENCY_NOT_READY:place:wall_daliang_scenic",
         "DEPENDENCY_NOT_READY:place:wall_daliang",
-        "DEPENDENCY_NOT_READY:place:wall"
+        "DEPENDENCY_NOT_READY:place:pl_wb_000010"
       ]
     },
     {
@@ -5798,6 +5891,10 @@
       "id": "place_gulou_night_market",
       "ready": false,
       "issues": [
+        "UNVERIFIED",
+        "CANCELLED",
+        "RIGHTS_NOT_CONFIRMED",
+        "OUTSIDE_VALIDITY_OR_UNKNOWN",
         "LOCATION_UNKNOWN"
       ]
     },
@@ -5806,7 +5903,12 @@
       "id": "place_xisi_night_market",
       "ready": false,
       "issues": [
-        "LOCATION_UNKNOWN"
+        "UNVERIFIED",
+        "CANCELLED",
+        "RIGHTS_NOT_CONFIRMED",
+        "OUTSIDE_VALIDITY_OR_UNKNOWN",
+        "LOCATION_UNKNOWN",
+        "DEPENDENCY_NOT_READY:place:pl_wb_000015"
       ]
     },
     {
@@ -5822,7 +5924,12 @@
       "id": "place_xiaosongcheng",
       "ready": false,
       "issues": [
-        "LOCATION_UNKNOWN"
+        "UNVERIFIED",
+        "CANCELLED",
+        "RIGHTS_NOT_CONFIRMED",
+        "OUTSIDE_VALIDITY_OR_UNKNOWN",
+        "LOCATION_UNKNOWN",
+        "DEPENDENCY_NOT_READY:place:pl_wb_000016"
       ]
     },
     {
@@ -5838,7 +5945,12 @@
       "id": "place_huangjia_xisi",
       "ready": false,
       "issues": [
-        "LOCATION_UNKNOWN"
+        "UNVERIFIED",
+        "CANCELLED",
+        "RIGHTS_NOT_CONFIRMED",
+        "OUTSIDE_VALIDITY_OR_UNKNOWN",
+        "LOCATION_UNKNOWN",
+        "DEPENDENCY_NOT_READY:place:pl_wb_vendor_000016"
       ]
     },
     {
@@ -5846,7 +5958,12 @@
       "id": "place_huangjia_dalianglu",
       "ready": false,
       "issues": [
-        "LOCATION_UNKNOWN"
+        "UNVERIFIED",
+        "CANCELLED",
+        "RIGHTS_NOT_CONFIRMED",
+        "OUTSIDE_VALIDITY_OR_UNKNOWN",
+        "LOCATION_UNKNOWN",
+        "DEPENDENCY_NOT_READY:place:huangjia_daliang"
       ]
     },
     {
@@ -5854,7 +5971,12 @@
       "id": "place_huangjia_jinanlu",
       "ready": false,
       "issues": [
-        "LOCATION_UNKNOWN"
+        "UNVERIFIED",
+        "CANCELLED",
+        "RIGHTS_NOT_CONFIRMED",
+        "OUTSIDE_VALIDITY_OR_UNKNOWN",
+        "LOCATION_UNKNOWN",
+        "DEPENDENCY_NOT_READY:place:pl_wb_vendor_000003"
       ]
     },
     {
@@ -5929,7 +6051,12 @@
       "id": "place_louzhonglou_xiaosong",
       "ready": false,
       "issues": [
-        "LOCATION_UNKNOWN"
+        "UNVERIFIED",
+        "CANCELLED",
+        "RIGHTS_NOT_CONFIRMED",
+        "OUTSIDE_VALIDITY_OR_UNKNOWN",
+        "LOCATION_UNKNOWN",
+        "DEPENDENCY_NOT_READY:place:pl_wb_vendor_000004"
       ]
     },
     {
@@ -6044,6 +6171,7 @@
       "id": "open_rule_wb_000001_2026-10-24",
       "ready": false,
       "issues": [
+        "BUSINESS_DATE_NOT_APPLICABLE",
         "DEPENDENCY_NOT_READY:place:pl_wb_000001"
       ]
     },
@@ -6052,20 +6180,24 @@
       "id": "open_rule_wb_000002_2026-10-24",
       "ready": false,
       "issues": [
+        "BUSINESS_DATE_NOT_APPLICABLE",
         "DEPENDENCY_NOT_READY:place:pl_wb_000002"
       ]
     },
     {
       "kind": "open_rule",
       "id": "open_rule_wb_000004_2026-10-24",
-      "ready": true,
-      "issues": []
+      "ready": false,
+      "issues": [
+        "BUSINESS_DATE_NOT_APPLICABLE"
+      ]
     },
     {
       "kind": "open_rule",
       "id": "open_rule_wb_000005_2026-10-24",
       "ready": false,
       "issues": [
+        "BUSINESS_DATE_NOT_APPLICABLE",
         "DEPENDENCY_NOT_READY:place:pl_wb_000004"
       ]
     },
@@ -6074,6 +6206,7 @@
       "id": "open_rule_wb_000006_2026-10-24",
       "ready": false,
       "issues": [
+        "BUSINESS_DATE_NOT_APPLICABLE",
         "DEPENDENCY_NOT_READY:place:pl_wb_000005"
       ]
     },
@@ -6082,6 +6215,7 @@
       "id": "open_rule_wb_000008_2026-10-24",
       "ready": false,
       "issues": [
+        "BUSINESS_DATE_NOT_APPLICABLE",
         "DEPENDENCY_NOT_READY:place:pl_wb_000006"
       ]
     },
@@ -6090,6 +6224,7 @@
       "id": "open_rule_wb_000009_2026-10-24",
       "ready": false,
       "issues": [
+        "BUSINESS_DATE_NOT_APPLICABLE",
         "DEPENDENCY_NOT_READY:place:pl_wb_000007"
       ]
     },
@@ -6098,6 +6233,7 @@
       "id": "open_rule_wb_000010_2026-10-24",
       "ready": false,
       "issues": [
+        "BUSINESS_DATE_NOT_APPLICABLE",
         "DEPENDENCY_NOT_READY:place:pl_wb_000008"
       ]
     },
@@ -6106,6 +6242,7 @@
       "id": "open_rule_wb_000012_2026-10-24",
       "ready": false,
       "issues": [
+        "BUSINESS_DATE_NOT_APPLICABLE",
         "DEPENDENCY_NOT_READY:place:pl_wb_000009"
       ]
     },
@@ -6114,6 +6251,7 @@
       "id": "open_rule_wb_000013_2026-10-24",
       "ready": false,
       "issues": [
+        "BUSINESS_DATE_NOT_APPLICABLE",
         "DEPENDENCY_NOT_READY:place:pl_wb_000010"
       ]
     },
@@ -6122,6 +6260,7 @@
       "id": "open_rule_wb_000014_2026-10-24",
       "ready": false,
       "issues": [
+        "BUSINESS_DATE_NOT_APPLICABLE",
         "DEPENDENCY_NOT_READY:place:pl_wb_000011"
       ]
     },
@@ -6130,20 +6269,24 @@
       "id": "open_rule_wb_000015_2026-10-24",
       "ready": false,
       "issues": [
+        "BUSINESS_DATE_NOT_APPLICABLE",
         "DEPENDENCY_NOT_READY:place:pl_wb_000012"
       ]
     },
     {
       "kind": "open_rule",
       "id": "open_rule_wb_000016_2026-10-24",
-      "ready": true,
-      "issues": []
+      "ready": false,
+      "issues": [
+        "BUSINESS_DATE_NOT_APPLICABLE"
+      ]
     },
     {
       "kind": "open_rule",
       "id": "open_rule_wb_000017_2026-10-24",
       "ready": false,
       "issues": [
+        "BUSINESS_DATE_NOT_APPLICABLE",
         "DEPENDENCY_NOT_READY:place:pl_wb_000014"
       ]
     },
@@ -6152,6 +6295,7 @@
       "id": "open_rule_wb_000019_2026-10-24",
       "ready": false,
       "issues": [
+        "BUSINESS_DATE_NOT_APPLICABLE",
         "DEPENDENCY_NOT_READY:place:pl_wb_000016"
       ]
     },

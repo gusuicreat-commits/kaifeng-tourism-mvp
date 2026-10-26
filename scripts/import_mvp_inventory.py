@@ -45,16 +45,92 @@ EXCLUDED = [{
     'reason': '复用清明上河园迎宾门/金水门 ID 记录开封府入口并改写归属、坐标；保留原包，禁止覆盖。可用队员回填与高德坐标已由路线导入器采用。',
 }]
 
-# Reconcile known duplicate collector aliases without changing old source rows.
+# Reconcile evidence-backed duplicate collector aliases without changing source rows.
+# The canonical ID is selected per duplicate group by the number of references from
+# open rules, supplies, programs/sessions, entrance relations, bindings and demo
+# material; ties keep the maintained workbook/collector ID.  This preserves the
+# most-used identity and lets old links resolve through superseded_by.
 PLACE_ALIASES = {
+    'baogongci': 'pl_wb_000008',
+    'daxiangguosi': 'pl_wb_000005',
+    'kaifengfu': 'pl_wb_000003',
+    'hanyuan': 'pl_wb_000007',
+    'longting': 'pl_wb_000004',
+    'qingming': 'pl_wb_000001',
+    'wansuishan': 'pl_wb_000002',
+    'tieta': 'pl_wb_000006',
+    'tianboyangfu': 'pl_wb_000009',
+    'wall': 'pl_wb_000010',
+    'shanshangan': 'pl_wb_000011',
+    'yanqingguan': 'pl_wb_000012',
+    'gulou_night': 'pl_wb_000013',
+    'heda_night': 'pl_wb_000014',
     'diyilou_sihou': 'pl_wb_vendor_000001',
     'place_diyilou_sihou': 'pl_wb_vendor_000001',
+    'heyuan_jinxiang': 'place_heyuan_jinxiang',
+    'place_huangjia_dalianglu': 'huangjia_daliang',
+    'huangjia_xisi': 'pl_wb_vendor_000016',
+    'place_huangjia_xisi': 'pl_wb_vendor_000016',
+    'place_huangjia_jinanlu': 'pl_wb_vendor_000003',
+    'louzhonglou_xiaosong': 'pl_wb_vendor_000004',
+    'place_louzhonglou_xiaosong': 'pl_wb_vendor_000004',
+    # Reviewed by Claude 2026-10-26 without address/coordinate evidence: each is the
+    # only market of that name in Kaifeng and every source describes the same one,
+    # so these are name identities, not near-matches. The canonical keeps the AMap
+    # coordinates; place_type differences come from older collector labels.
+    'place_gulou_night_market': 'pl_wb_000013',
+    'xisi_night': 'pl_wb_000015',
+    'place_xisi_night_market': 'pl_wb_000015',
+    'xiaosongcheng': 'pl_wb_000016',
+    'place_xiaosongcheng': 'pl_wb_000016',
     'place_xingjia_daliangmen': 'pl_wb_vendor_000010',
     'xingjia_daliangmen': 'pl_wb_vendor_000010',
     'place_heyuan_dingli': 'pl_wb_vendor_000012',
     'heyuan_hanxing': 'pl_wb_vendor_000024',
     'place_heyuan_hanxing': 'pl_wb_vendor_000024',
 }
+
+
+def _place_reference_counts(items):
+    """Count all maintained fact references used to choose a canonical place."""
+    counts = Counter()
+    vendors = {item['fact_id']: item.get('place_id') for item in items.values()
+               if item.get('kind') == 'vendor'}
+    for item in items.values():
+        kind = item.get('kind')
+        for field in ('place_id', 'parent_place_id', 'stage_place_id', 'entrance_place_id'):
+            target = item.get(field)
+            if target:
+                counts[target] += 1
+        if kind == 'supply' and vendors.get(item.get('vendor_id')):
+            counts[vendors[item['vendor_id']]] += 1
+    return counts
+
+
+def _rewrite_place_references(items):
+    """Point dependent facts at canonical places after marking old records."""
+    for item in items.values():
+        for field in ('place_id', 'parent_place_id', 'stage_place_id', 'entrance_place_id'):
+            target = item.get(field)
+            if target in PLACE_ALIASES:
+                item[field] = PLACE_ALIASES[target]
+
+
+def _validate_alias_selection(items):
+    counts = _place_reference_counts(items)
+    for alias_id, canonical_id in PLACE_ALIASES.items():
+        if alias_id in counts and counts[canonical_id] < counts[alias_id]:
+            raise ValueError(f'规范地点引用数不足：{alias_id} -> {canonical_id}')
+
+
+def _rewrite_place_bindings(db):
+    """Move maintenance bindings to canonical facts while preserving basket keys."""
+    tables = {r[0] for r in db.execute("SELECT name FROM sqlite_master WHERE type='table'")}
+    if 'city_object_bindings' not in tables:
+        return
+    for alias_id, canonical_id in PLACE_ALIASES.items():
+        db.execute("UPDATE city_object_bindings SET fact_id=? WHERE fact_kind='place' AND fact_id=?",
+                   (canonical_id, alias_id))
 
 
 def load_sources():
@@ -227,6 +303,7 @@ def build_inventory(day):
         from scripts.import_team_workbook import handoff_source
         record = handoff_source('open_rules')
         items['source', record['fact_id']] = record
+    _validate_alias_selection(items)
     alias_audit = []
     for alias_id, canonical_id in PLACE_ALIASES.items():
         alias, canonical = items.get(('place', alias_id)), items.get(('place', canonical_id))
@@ -243,6 +320,10 @@ def build_inventory(day):
         alias['planning_note'] = '历史重复记录，已由 ' + canonical_id + ' 统一承接。'
         alias['superseded_by'] = canonical_id
         alias_audit.append({'from': alias_id, 'to': canonical_id})
+    # Rewrite dependent facts whose park/venue pointer used an old ID.  Basket
+    # items and old links remain readable through superseded_by, while facts used
+    # by the planner have one canonical parent chain.
+    _rewrite_place_references(items)
     for item in items.values():
         if item.get('is_demo') or item.get('rights_status') == 'prohibited':
             excluded_records.append({'kind': item['kind'], 'fact_id': item['fact_id'],
@@ -325,6 +406,12 @@ def main():
         print(run.stdout or run.stderr, file=sys.stderr)
         raise SystemExit(run.returncode)
     report = json.loads(run.stdout)
+    if args.apply:
+        # A maintenance binding is an old UI/demo identity, so it follows the
+        # same canonical place map as fact references. Basket rows deliberately
+        # keep their old object_id and resolve through superseded_by.
+        with sqlite3.connect(args.database) as db:
+            _rewrite_place_bindings(db)
     audit['import'] = {k: report[k] for k in ('status', 'received', 'changed', 'unchanged')}
     audit['bundle'] = str(bundle_path.relative_to(ROOT))
     audit['database'] = str(args.database)
