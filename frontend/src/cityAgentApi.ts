@@ -1,6 +1,6 @@
 import {mutate,request} from './api'
 import type {ObjectRef} from './basketApi'
-import type {PlanningResult} from './explorationApi'
+import type {Itinerary,PlanningResult} from './explorationApi'
 
 export interface CityContext {
  identity:{trip_id:string;version:number;route_version:number;status:string}
@@ -37,7 +37,7 @@ export interface AgentTask {
  events:{tool:string;status:string}[]
  understanding:{constraints:{field:string;strength:string;value:string|number|null;quote:string}[]}|null
  result:{reply:string;state?:'locations_explicit'|'ambiguous_locations'|'current_position_required'|'model_unavailable';code?:string;reference_route?:ReferenceRoute;weather?:WeatherReport;location_choices?:RouteLocationChoice[];planning_workflow?:{trip_id:string;execution:'completed_backend';operation:string;date_changed:boolean;result:PlanningResult};questions?:string[];answers?:{status:string;reply:string}[];compound?:{partial:boolean;items:{kind:string;status:string;reply?:string;questions?:string[];result?:unknown;answers?:{status:string;reply:string}[]}[]};activity_names?:Record<string,string>;changes?:CandidateChange;confirmation?:{target_kind:'route'|'state';candidate_id:string;expected_version:number};
-  planning?:{result:{itineraries:{activities:{goal_id:string;place_id:string;session_id:string|null;starts_at:string;departs_at:string}[];walking_distance_m:number;travel_seconds:number}[];warnings?:string[]}}}|null
+  planning?:{result:{itineraries:Itinerary[];warnings?:string[]}}}|null
 }
 const prefix=(id:string)=>`/city/v1/trips/${encodeURIComponent(id)}`
 export const cityAgentApi={

@@ -48,7 +48,7 @@ class Requirements(Strict):
     access_confirmations: tuple[EntityId, ...] = Field(default=(), max_length=60)
     show_buffer_seconds: int = Field(default=300, ge=0, le=3600)
     solve_seconds: float = Field(default=1, ge=0.05, le=3)
-    alternatives: int = Field(default=2, ge=1, le=3)
+    alternatives: int = Field(default=3, ge=1, le=3)
 
     @model_validator(mode='after')
     def valid(self):
@@ -143,6 +143,7 @@ class ScheduledLeg(Strict):
 
 
 class Itinerary(Strict):
+    objectives: tuple[Literal['balanced','less_walking','less_waiting','lower_cost'], ...] = Field(default=('balanced',), min_length=0, max_length=3)
     activities: tuple[ScheduledActivity, ...]
     legs: tuple[ScheduledLeg, ...]
     completed_prefix: tuple[Stop, ...] = ()

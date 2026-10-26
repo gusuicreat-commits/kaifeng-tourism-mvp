@@ -36,6 +36,8 @@ def goal(gid,pid,**kwargs):return Goal(goal_id=gid,target_kind='place',target_id
 def test_initial_joint_plan_standalone_and_return_has_real_leg(sample):
     req,ctx=sample;r=plan_trip(req,ctx)
     assert r.status=='feasible',r
+    assert r.itineraries[0].objectives[0]=='balanced'
+    assert {o for p in r.itineraries for o in p.objectives}=={'balanced','less_walking','lower_cost'}
     for p in r.itineraries:
         assert {a.goal_id for a in p.activities}=={'visit','show','lunch'}
         assert len(p.legs)==4 and p.legs[-1].journey.travel.destination_place_id=='hotel'
@@ -121,6 +123,98 @@ def test_less_walking_selects_other_mode_and_budget_can_disallow_it(sample):
     b=plan_trip(req.model_copy(update={'objective':'lower_cost'}),ctx).itineraries[0]
     assert a.walking_distance_m<b.walking_distance_m
     assert a.known_cost_upper_fen>b.known_cost_upper_fen
+
+
+def three_objective_context(req,ctx,choices=None):
+    records=dict(ctx.facts)
+    for pid in ('museum','garden'):
+        records['place',pid]=records['place',pid].model_copy(update={'place_type':'restaurant'})
+        for kind,patch in [('vendor',{'place_id':pid}),('supply',{'vendor_id':'vendor:'+pid})]:
+            record=records[kind,kind].model_copy(update={'fact_id':kind+':'+pid,**patch})
+            records[kind,record.fact_id]=record
+    # Equal dining rewards: fastest, shortest walking, and cheapest are different vendors.
+    choices=choices or {'restaurant':(60,200,1500),'museum':(300,10,3000),'garden':(500,500,0)}
+    journeys=[]
+    for j in ctx.operations.journeys:
+        left=j.travel.origin_place_id;right=j.travel.destination_place_id
+        pid=right if left=='origin' else left if right=='hotel' else None
+        if j.travel.mode!='walking' or pid not in choices:continue
+        seconds,metres,_=choices[pid]
+        journeys.append(j.model_copy(update={'distance_m':metres,'travel':j.travel.model_copy(update={'lower_seconds':seconds,'upper_seconds':seconds})}))
+    costs=tuple(c.model_copy(update={'lower_fen':choices[c.place_id][2],'upper_fen':choices[c.place_id][2]})
+                for c in ctx.operations.costs if c.place_id in choices)
+    req=req.model_copy(update={'goals':(Goal(goal_id='meal',target_kind='food',target_id='food',kind='dining',required=True,duration_seconds=60),),
+                               'pace':'compact'})
+    return req,replace(ctx,facts=records,operations=OperationalBundle(journeys=tuple(journeys),costs=costs))
+
+
+@pytest.mark.parametrize('objective',['balanced','less_walking','lower_cost'])
+def test_three_objectives_choose_different_plans_and_explicit_preference_is_first(sample,objective):
+    req,ctx=three_objective_context(*sample);req=req.model_copy(update={'objective':objective})
+    result=plan_trip(req,ctx)
+    assert result.status=='feasible' and len(result.itineraries)==3
+    assert result.itineraries[0].objectives==(objective,)
+    plans={p.objectives[0]:p for p in result.itineraries}
+    assert {o:p.activities[0].place_id for o,p in plans.items()}=={'balanced':'restaurant','less_walking':'museum','lower_cost':'garden'}
+    assert plans['less_walking'].walking_distance_m<plans['balanced'].walking_distance_m
+    assert plans['lower_cost'].known_cost_upper_fen<plans['balanced'].known_cost_upper_fen
+    assert all(not validate_itinerary(prepare(req,ctx),p) for p in result.itineraries)
+
+
+def test_identical_plans_merge_then_add_validated_backups(sample,monkeypatch):
+    from app.city.engine import validation
+    req,ctx=three_objective_context(*sample,choices={'restaurant':(60,200,0),'museum':(300,300,3000),'garden':(500,500,5000)})
+    checked=[];original=validation.validate_itinerary
+    def check(problem,plan):
+        checked.append((problem,plan.objectives));return original(problem,plan)
+    monkeypatch.setattr(validation,'validate_itinerary',check)
+    result=plan_trip(req,ctx)
+    assert result.status=='feasible' and len(result.itineraries)==3
+    assert result.itineraries[0].objectives==('balanced','less_walking','lower_cost')
+    assert all(p.objectives==() for p in result.itineraries[1:])
+    assert [p.activities[0].place_id for p in result.itineraries]==['restaurant','museum','garden']
+    assert [o for _,o in checked]==[('balanced',),('less_walking',),('lower_cost',),(),()]
+    assert all(p is checked[0][0] and p.context is ctx for p,_ in checked)
+
+
+def test_replan_objectives_merge_with_requested_preference_first_and_unknown_cost(sample):
+    req,ctx=sample;req=req.model_copy(update={'goals':(req.goals[0],),'objective':'less_walking'})
+    ctx=replace(ctx,operations=ctx.operations.model_copy(update={'costs':()}))
+    result=replan_trip(req,ctx)
+    assert result.status=='feasible' and len(result.itineraries)==1
+    assert result.itineraries[0].objectives==('less_walking','balanced','lower_cost')
+    assert result.itineraries[0].cost_unknown and result.itineraries[0].known_cost_upper_fen==0
+
+
+def test_objective_solves_share_total_time_budget(sample,monkeypatch):
+    from types import SimpleNamespace
+    from ortools.sat.python import cp_model
+    from app.city.engine import solver
+    req,ctx=sample;elapsed=0;limits=[];original=cp_model.CpSolver.Solve
+    monkeypatch.setattr(solver,'time',SimpleNamespace(monotonic=lambda:elapsed))
+    def timed(instance,model):
+        nonlocal elapsed
+        limits.append(instance.parameters.max_time_in_seconds)
+        result=original(instance,model);elapsed+=limits[-1]
+        return result
+    monkeypatch.setattr(cp_model.CpSolver,'Solve',timed)
+    result=plan_trip(req,ctx)
+    assert result.status=='feasible' and len(limits)==5
+    assert sum(limits)==pytest.approx(req.solve_seconds)
+    assert limits==pytest.approx([req.solve_seconds/5]*5)
+
+
+def test_alternatives_one_returns_only_one_solution(sample):
+    req,ctx=sample;req=req.model_copy(update={'alternatives':1})
+    result=plan_trip(req,ctx)
+    assert len(result.itineraries)==1 and result.itineraries[0].objectives==('balanced',)
+
+
+def test_existing_less_waiting_preference_stays_main_with_walking_and_cost_alternatives(sample):
+    req,ctx=sample;req=req.model_copy(update={'objective':'less_waiting'})
+    result=plan_trip(req,ctx)
+    assert result.status=='feasible' and result.itineraries[0].objectives[0]=='less_waiting'
+    assert {o for p in result.itineraries for o in p.objectives}=={'less_waiting','less_walking','lower_cost'}
 
 
 def test_admission_deadline_and_buffer_use_earlier_cutoff(sample):

@@ -11,6 +11,7 @@ import type {ObjectRef} from '../basketApi'
 import ReferenceRouteCard from './ReferenceRouteCard.vue'
 import TravelServiceCards from './TravelServiceCards.vue'
 import WeatherCard from './WeatherCard.vue'
+import {objectiveLabel} from '../explorationApi'
 
 const props=defineProps<{tripId:string;focus?:ObjectRef|null;initialQuestion?:string;planning?:boolean}>()
 const showPlanning=ref(!!props.planning),planningRevision=ref(0),planningBusy=ref(false)
@@ -156,9 +157,13 @@ onBeforeUnmount(()=>{disposed=true;epoch++;resizeObserver?.disconnect();if(task.
   <section v-if="candidate" aria-label="待确认修改" class="agent-preview">
    <h3>请核对新安排</h3>
    <p>以下为待确认候选，正式路线尚未改变。</p>
-   <ol v-if="candidate.planning?.result.itineraries[0]">
+   <template v-if="candidate.planning?.result.itineraries[0]">
+   <h4>{{objectiveLabel(candidate.planning.result.itineraries[0].objectives)}}</h4>
+   <small v-if="candidate.planning.result.itineraries[0].objectives?.includes('lower_cost')&&candidate.planning.result.itineraries[0].cost_unknown">费用资料不全，只按已知费用比较</small>
+   <ol>
     <li v-for="stop in candidate.planning.result.itineraries[0].activities" :key="stop.goal_id">{{candidate.activity_names?.[stop.goal_id]||'待核对活动'}} · {{clock(stop.starts_at)}}—{{clock(stop.departs_at)}}</li>
    </ol>
+   </template>
    <p v-if="candidate.changes">步行距离变化 {{Math.round(candidate.changes.walking_distance_m_delta)}} 米；交通耗时变化 {{Math.round(candidate.changes.travel_seconds_delta/60)}} 分钟。</p>
    <p v-if="candidate.changes?.removed.length">移除的活动：{{candidate.changes.removed.map(activityName).join('、')}}</p>
    <p v-for="change in candidate.changes?.start_changes||[]" :key="change.goal_id">{{candidate.activity_names?.[change.goal_id]||'活动'}}：{{clock(change.before)}} → {{clock(change.after)}}</p>

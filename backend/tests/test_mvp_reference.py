@@ -99,6 +99,20 @@ def test_provider_estimate_preview_confirm_reload_and_sources(reference,monkeypa
     assert 'reference' in json.dumps(c.get('/api/city/v1/facts').json())
 
 
+def test_three_objectives_reuse_provider_quotes_and_keep_unknown_costs(reference):
+    c,t,req,provider=reference
+    single=preview((c,t,req|{'alternatives':1},provider))
+    calls=provider.request_count
+    multi=preview((c,t,req|{'alternatives':3},provider))
+    assert single['status']==multi['status']=='preview'
+    assert calls>0 and provider.request_count==2*calls
+    plans=multi['result']['itineraries']
+    assert {o for p in plans for o in p['objectives']}=={'balanced','less_walking','lower_cost'}
+    assert all(p['cost_unknown'] for p in plans)
+    assert commit(reference,multi).status_code==200
+    assert provider.request_count==2*calls
+
+
 def test_expired_quote_cannot_be_confirmed(reference,monkeypatch):
     p=preview(reference)
     monkeypatch.setattr(service,'now',lambda:datetime.fromisoformat('2026-10-24T19:20:00+08:00'))

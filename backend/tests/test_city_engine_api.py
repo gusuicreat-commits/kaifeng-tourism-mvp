@@ -39,10 +39,10 @@ def preview(e,requirements=None,request_id=None,version=None):
           'expected_version':version or t['version'],'requirements':requirements or d['requirements']})
 
 
-def confirm(e,p,request_id=None,version=None):
+def confirm(e,p,request_id=None,version=None,alternative_index=0):
     c,t,d=e
     return c.post(f"/api/city/v1/trips/{t['id']}/engine/confirm",json={'request_id':request_id or rid(),
-         'expected_version':version or p['base_version'],'candidate_id':p['candidate_id']})
+         'expected_version':version or p['base_version'],'candidate_id':p['candidate_id'],'alternative_index':alternative_index})
 
 
 def current(e):return e[0].get(f"/api/city/v1/trips/{e[1]['id']}/engine/current")
@@ -75,6 +75,34 @@ def test_preview_does_not_commit_confirm_is_idempotent_and_history_is_retained(e
     assert not current(e).json()['stale']
     exported=e[0].get('/api/v1/memory/export').json()['city_trips'][0]['planning_engine']
     assert len(exported['versions'])==1
+
+
+def test_objective_alternatives_keep_confirmation_index_and_replan_changes(engine,monkeypatch):
+    from app.city.engine.models import Itinerary
+    from app.city.engine.validation import compare_itineraries
+    e=engine;req=e[2]['requirements']|{'modes':['walking','driving'],'objective':'less_walking'}
+    enriched=[]
+    def enrich(ctx,requirements):
+        enriched.append(ctx);return ctx
+    monkeypatch.setattr(service.live_travel,'enrich',enrich)
+    p=preview(e,req).json();plans=p['result']['itineraries']
+    assert p['status']=='preview' and len(plans)>1
+    assert plans[0]['objectives'][0]=='less_walking'
+    assert len(enriched)==1
+    index=len(plans)-1
+    assert confirm(e,p,alternative_index=index).status_code==200
+    saved=current(e).json()['itinerary'];assert saved==plans[index]
+    assert len(enriched)==1
+    active(e,monkeypatch,'2030-05-01T08:30:00+08:00','origin')
+    p2=replan(e,req).json();plans2=p2['result']['itineraries']
+    assert p2['status']=='preview' and len(plans2)>1
+    assert len(enriched)==2
+    assert p2['alternative_changes']==[compare_itineraries(Itinerary.model_validate(saved),Itinerary.model_validate(i)) for i in plans2]
+    assert p2['changes']==p2['alternative_changes'][0]
+    index2=len(plans2)-1
+    assert confirm(e,p2,alternative_index=index2).status_code==200
+    assert current(e).json()['itinerary']==plans2[index2]
+    assert len(enriched)==2
 
 
 def test_identity_and_csrf_cannot_be_bypassed(engine):

@@ -665,6 +665,24 @@
     "Itinerary": {
       "additionalProperties": false,
       "properties": {
+        "objectives": {
+          "default": [
+            "balanced"
+          ],
+          "items": {
+            "enum": [
+              "balanced",
+              "less_walking",
+              "less_waiting",
+              "lower_cost"
+            ],
+            "type": "string"
+          },
+          "maxItems": 3,
+          "minItems": 0,
+          "title": "Objectives",
+          "type": "array"
+        },
         "activities": {
           "items": {
             "$ref": "#/$defs/ScheduledActivity"
@@ -1312,7 +1330,7 @@
           "type": "number"
         },
         "alternatives": {
-          "default": 2,
+          "default": 3,
           "maximum": 3,
           "minimum": 1,
           "title": "Alternatives",
