@@ -374,3 +374,12 @@ def test_pace_synonym_from_the_model_maps_to_the_enum(city,monkeypatch):
     run(city,text)
     saved=city['client'].get(path(city,'/exploration/constraints')).json()['constraints']
     assert saved['pace']=='relaxed',saved
+
+
+def test_plan_ready_reply_names_wanted_stops_the_default_plan_leaves_out():
+    from app.city.agent.orchestration import _ready_reply
+    result={'goal_keys':{'g1':'scenic:a','g2':'vendor:b'},'activity_names':{'g1':'开封府','g2':'第一楼'},
+            'planning':{'result':{'itineraries':[{'activities':[{'goal_id':'g2'}]},{'activities':[{'goal_id':'g1'}]}]}}}
+    assert _ready_reply(result)=='方案已准备好。时间不够，这版没排进：开封府。请点“确认方案”保存。'
+    result['planning']['result']['itineraries'][0]['activities'].append({'goal_id':'g1'})
+    assert _ready_reply(result)=='方案已准备好。请点“确认方案”保存。'

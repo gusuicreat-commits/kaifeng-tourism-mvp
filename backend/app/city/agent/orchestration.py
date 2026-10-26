@@ -10,6 +10,16 @@ LABELS={'date':'日期','start_time':'出发时间','end_time':'结束时间','o
         'budget_fen':'预算','mode':'出行方式','pace':'节奏','objective':'偏好','city':'城市'}
 
 
+
+def _ready_reply(result):
+    """Say which wanted stops the default (first) alternative leaves out, so the visitor need not spot it."""
+    first=(((result.get('planning') or {}).get('result') or {}).get('itineraries') or [{}])[0]
+    kept={a.get('goal_id') for a in first.get('activities',())}
+    names=result.get('activity_names') or {}
+    left=[names[g] for g in result.get('goal_keys') or {} if g not in kept and names.get(g)]
+    return '方案已准备好。'+(f"时间不够，这版没排进：{'、'.join(left)}。" if left else '')+'请点“确认方案”保存。'
+
+
 def execute(session,t,intent):
     proposed=proposal(session,t.trip_id,t.snapshot,intent,t.text,today=t.interpretation_date)
     action=proposed.get('planning_action')
@@ -48,7 +58,7 @@ def execute(session,t,intent):
         else:reply='从哪里出发？' if 'origin_place_id' in missing else '最后回到哪里？'
         status='needs_clarification'
     else:
-        reply='方案已准备好，请点“确认方案”保存。' if result['status']=='feasible' else result['reply']
+        reply=_ready_reply(result) if result['status']=='feasible' else result['reply']
         status='answered' if result['status']=='feasible' else 'needs_clarification' if result['status']=='infeasible' else 'needs_data'
     if action['date_changed']:reply='日期已记为 '+result['constraints']['business_date']+'。'+reply
     # Ask only about fields still empty after the workflow (e.g. a return point inferred from "回来" is filled).

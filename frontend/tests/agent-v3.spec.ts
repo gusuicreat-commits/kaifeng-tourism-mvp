@@ -75,7 +75,7 @@ test('basket planning uses the existing engine, blocks stale preview, then confi
  await page.getByRole('link',{name:'交给小汴梁安排',exact:true}).click();await page.getByRole('button',{name:'生成安排',exact:true}).click()
  await expect(page.getByLabel('规划检测结果')).toContainText('已有经过校验的候选')
  await page.getByLabel('告诉小汴梁你的问题或想调整的安排').fill('就这样');await page.getByRole('button',{name:'发送',exact:true}).click()
- await expect(page.locator('.agent-messages')).toContainText('方案已准备好，请点“确认方案”保存。')
+ await expect(page.locator('.agent-messages')).toContainText('方案已准备好。请点“确认方案”保存。')
  expect((await(await page.request.get(path)).json()).route_version).toBe(0)
  const count=await page.locator('.plan-option').count();expect(count).toBeGreaterThan(0);expect(count).toBeLessThanOrEqual(3)
  await page.getByRole('button',{name:'10:00—20:00',exact:true}).click();await page.getByLabel('最晚结束',{exact:true}).fill('19:00');await expect(page.getByRole('button',{name:/确认方案/})).toHaveCount(0)
