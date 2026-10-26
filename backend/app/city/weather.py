@@ -231,11 +231,10 @@ class QWeatherProvider:
                             if end <= start or end - start > timedelta(days=2):
                                 raise ValueError('invalid daily forecast')
                             periods = [_period(row[name], name) for name in ('daytime', 'nighttime')]
-                            low = min(period['temperature_c'] for period in periods)
-                            high = max(period['temperature_c'] for period in periods)
+                            # Periods carry no temperature; the day's range is reported at day level.
                             days.append({'date': start.date().isoformat(),
-                                         'temperature_min_c': low,
-                                         'temperature_max_c': high,
+                                         'temperature_min_c': _temperature(row, 'temperatureMin'),
+                                         'temperature_max_c': _temperature(row, 'temperatureMax'),
                                          'periods': periods})
                         data = {**base, 'days': days}
                     status = 'success'

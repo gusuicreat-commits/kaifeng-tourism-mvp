@@ -92,6 +92,7 @@ def test_provider_parses_official_v1_shape_and_caches(qweather):
     assert len(hourly.data['hours']) == 24
     assert hourly.data['hours'][11]['precipitation_mm'] == 1.2
     assert p.daily().data['days'][0]['periods'][0]['period'] == 'daytime'
+    assert (p.daily().data['days'][0]['temperature_min_c'], p.daily().data['days'][0]['temperature_max_c']) == (15, 26)
 
 
 @pytest.mark.parametrize('failure', ['timeout', 'invalid', 'unauthorized'])
