@@ -371,6 +371,24 @@ def name_matches(item, text):
     return False
 
 
+def trip_endpoint(items, place_id):
+    """Where a trip starts or ends when the user names a scenic area.
+
+    Standing at a scenic area means being at its gate, outside: the engine counts
+    the area itself as "inside", so returning there would be a re-entry. Use the
+    recorded open point at one of its gates (same coordinates, not part of the
+    area); keep the area when there is no such single point.
+    """
+    place = items.get(('place', place_id))
+    if not place or place.place_type != 'scenic':
+        return place_id
+    gates = {e.entrance_place_id for e in items.values() if isinstance(e, Entrance) and e.place_id == place_id}
+    spots = {(g.longitude, g.latitude) for g in (items.get(('place', i)) for i in gates) if g and g.longitude is not None}
+    outside = [p.fact_id for p in items.values() if isinstance(p, Place) and planning_visible(p) and not p.parent_place_id
+               and p.place_type != 'scenic' and (p.longitude, p.latitude) in spots]
+    return outside[0] if len(outside) == 1 else place_id
+
+
 def place_by_name(items, name):
     """Resolve a visible place by exact canonical name or alias.
 

@@ -9,6 +9,7 @@ from pydantic import ValidationError
 from ..db import connect
 from ..memory.session import current, Session, limit
 from ..memory.storage import stamp
+from . import facts
 from . import basket, state, exploration_state
 from .schema import Strict, EntityId
 from .state_schema import CityDraft
@@ -86,6 +87,8 @@ def preview_plan(trip_id,body,s,*,execution_guard=None):
         collected=basket.snapshot(db,s,trip_id);draft=CityDraft.model_validate_json(row['draft_json'])
         ctx=engine.context(db)
         values=body.constraints.model_dump(exclude={'origin_text','destination_text'})
+        for k in ('origin_place_id','destination_place_id'):
+            if values[k]:values[k]=facts.trip_endpoint(ctx.facts,values[k])
         missing=[k for k in ('business_date','starts_at','ends_at') if values[k] is None]
         missing += [k+'_place_id' for k in ('origin','destination') if not values[k+'_place_id'] and not getattr(body.constraints,k+'_text')]
         unmatched=[k for k in ('origin','destination') if not values[k+'_place_id'] and getattr(body.constraints,k+'_text')]
@@ -280,7 +283,6 @@ def answer_focus(text,snapshot):
     name=focus['name']
     if not focus['fact_id']:
         return {'status':'needs_data','reply':name+'：详细介绍、实景素材及可核验游览/营业资料待添加。已识别当前页面，不会根据主题插画推断时间或路线。','references':[],'page_focus':focus}
-    from . import facts
     item=snapshot.planning.facts.get((focus['fact_kind'],focus['fact_id']))
     if focus['fact_kind']=='vendor':item=snapshot.planning.facts.get(('place',item.place_id))
     if any(w in text for w in ('多久','时长')):

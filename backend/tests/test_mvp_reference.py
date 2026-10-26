@@ -178,3 +178,11 @@ def test_budget_with_unknown_costs_blocks_in_production_but_not_in_demo(referenc
     assert all(i['cost_unknown'] for i in p['result']['itineraries'])
     assert any('费用未知时不按预算拦截' in w for w in p['result']['warnings'])
     assert commit(budgeted,p).status_code==200
+
+
+def test_scenic_area_named_as_trip_endpoint_means_the_open_point_at_its_gate(reference):
+    with connect() as db:items=facts.records(db)
+    assert facts.trip_endpoint(items,'pl_wb_000003')=='pl_mvp_kaifengfu_meeting'
+    # Places that are not scenic areas, and areas without a recorded gate point, stay as named.
+    assert facts.trip_endpoint(items,'pl_wb_000013')=='pl_wb_000013'
+    assert facts.trip_endpoint(items,'pl_mvp_kaifengfu_meeting')=='pl_mvp_kaifengfu_meeting'
