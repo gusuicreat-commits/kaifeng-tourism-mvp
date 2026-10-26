@@ -1,6 +1,8 @@
 """V3.1: grounded multi-intent output, independently usable without the executor."""
 import json
 import re
+import traceback
+from pathlib import Path
 from pydantic import ValidationError
 from fastapi import HTTPException
 from ... import language
@@ -220,6 +222,32 @@ def _repair_quotes(value, text):
     return value
 
 
+_CODE=re.compile(r'[a-z][a-z_ ]{2,60}')
+_NAME=re.compile(r'[A-Za-z_][A-Za-z0-9_]{0,40}')
+
+
+def failure(exc):
+    """Name the failed check and where it ran, never echoing model output or visitor text.
+
+    Check names are the fixed English messages raised by validators; anything else
+    (e.g. a message carrying a value) is reported as ``unclassified``.
+    """
+    frames=[f for f in traceback.extract_tb(exc.__traceback__) if '/app/' in f.filename.replace('\\','/')]
+    where=f'{Path(frames[-1].filename).stem}.{frames[-1].name}' if frames else None
+    if isinstance(exc,ValidationError):
+        errors=[]
+        for e in exc.errors(include_input=False,include_context=False)[:6]:
+            path='.'.join(str(x) if isinstance(x,int) or _NAME.fullmatch(str(x)) else '?' for x in e['loc'])
+            message=str(e.get('msg','')).removeprefix('Value error, ')
+            errors.append({'field':path or '?','check':message if _CODE.fullmatch(message) else e.get('type','unclassified')})
+        return {'kind':'schema','at':where,'errors':errors,
+                'fields':[e['loc'][0] if e['loc'] and e['loc'][0] in Understanding.model_fields else 'unknown'
+                          for e in exc.errors(include_input=False,include_context=False)[:6]]}
+    if isinstance(exc,HTTPException):return {'kind':'provider','at':where}
+    message=str(exc)
+    return {'kind':'evidence','at':where,'check':message if _CODE.fullmatch(message) else 'unclassified'}
+
+
 def _normalize_model_output(raw):
     """Drop only constraints that cannot be valid for their field.
 
@@ -416,7 +444,7 @@ def parse(text,snapshot,*,allow_model=True):
         if meta.get('dropped_fields'):
             # A field the rule extractor recovered from the same words is not asked again.
             filled={c.field for c in local_for_merge if c.value is not None}|({'end_time'} if any(c.field=='return_by' and c.value for c in local_for_merge) else set())
-            meta['dropped_fields']=[f for f in meta['dropped_fields'] if f not in filled]
+            meta['dropped_fields']=[d for d in meta['dropped_fields'] if d['field'] not in filled]
             if not meta['dropped_fields']:del meta['dropped_fields']
         if local.corrections:
             corrected={c.field for c in local.constraints if c.field in ('meal_at','return_by','visit_at')}
@@ -438,11 +466,8 @@ def parse(text,snapshot,*,allow_model=True):
                              weather_query=result.weather_query,service_query=result.service_query,state_request=result.state_request)
         meta['basis']='kimi_validated';meta['source']=usage.get('source','mock_model');return result,meta
     except (HTTPException,ValidationError,ValueError) as exc:
-        # Keep bounded error categories, never raw model output, input or validation messages.
-        meta['validation_failure']=({'kind':'schema','fields':[
-            e['loc'][0] if e['loc'] and e['loc'][0] in Understanding.model_fields else 'unknown'
-            for e in exc.errors(include_input=False,include_context=False)[:6]]} if isinstance(exc,ValidationError)
-            else {'kind':'evidence'} if isinstance(exc,ValueError) else {'kind':'provider'})
+        # Record which check failed and where, never raw model output or visitor text.
+        meta['validation_failure']=failure(exc)
         if isinstance(exc,HTTPException) and isinstance(exc.detail,dict):
             if exc.detail.get('http_attempts')==0 or exc.detail.get('upstream_status') in (401,403,429):raise
             meta['provider_failure']=exc.detail

@@ -56,7 +56,7 @@ def execute(session,t,intent):
     filled={'date':final.get('business_date'),'start_time':final.get('starts_at'),'end_time':final.get('ends_at'),
             'origin':final.get('origin_place_id') or final.get('origin_text'),
             'destination':final.get('destination_place_id') or final.get('destination_text'),'budget_fen':final.get('budget_fen')}
-    dropped=[LABELS.get(f,f) for f in dict.fromkeys(t.interpretation.get('dropped_fields',())) if not filled.get(f)]
+    dropped=[LABELS.get(f,f) for f in dict.fromkeys(d['field'] for d in t.interpretation.get('dropped_fields',())) if not filled.get(f)]
     if dropped:reply+=f"另外，{'、'.join(dropped)}没听准，能再说一下吗？"
     if proposed.get('notes'):reply+=''.join(proposed['notes'])
     return {'status':status,'reply':reply,'formal_state_changed':False,

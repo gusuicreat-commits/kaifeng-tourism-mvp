@@ -5,6 +5,7 @@ and no formal-route commit tool. In-flight provider calls cannot be unbilled, bu
 cancellation is rechecked before any subsequent action or candidate publication.
 """
 import json
+import logging
 import re
 import threading
 import time
@@ -28,6 +29,12 @@ from .models import Budget, Decision, Understanding
 
 LOCK=threading.RLock()
 TASKS={}
+# One line per finished task: which mode, which checks failed or fields were dropped,
+# and each step's status. Codes only; never visitor text or model output.
+LOG=logging.getLogger('tourism.agent')
+if not LOG.handlers:
+    _handler=logging.StreamHandler();_handler.setFormatter(logging.Formatter('%(asctime)s agent %(message)s'))
+    LOG.addHandler(_handler);LOG.setLevel(logging.INFO);LOG.propagate=False
 LABELS={'understand':'正在理解你的要求。','search_dining':'正在查找合适商家。',
         'query_shows':'正在核对演出时间。','verify_travel':'正在核对交通与用餐衔接。',
         'preview_plan':'正在验证完整行程安排。','search_locations':'正在查找起点和终点。',
@@ -215,6 +222,14 @@ def _persist(session,t):
                    (encoded(saved),session.id,str(t.body.request_id)))
 
 
+def trace(t):
+    meta=t.interpretation or {}
+    return {'task':t.id[:8],'mode':t.mode,'status':t.status,'basis':meta.get('basis'),'model_calls':t.model_calls,
+            'ms':round(((t.terminal_at or time.monotonic())-t.started)*1000),'failure':meta.get('validation_failure'),
+            'dropped':meta.get('dropped_fields'),'code':(t.result or {}).get('code'),
+            'steps':[[e.get('tool'),e.get('status'),e.get('result_code')] for e in t.events]}
+
+
 def _finish(session,t,status,result):
     if t.wait_started is not None:
         t.waited_seconds+=time.monotonic()-t.wait_started;t.wait_started=None
@@ -226,6 +241,7 @@ def _finish(session,t,status,result):
         if queries:
             result['answers']=[_read_query(t,a,t.snapshot) for a in queries[:4]]
     t.status=status;t.result=result;t.terminal_at=time.monotonic()
+    LOG.info(json.dumps(trace(t),ensure_ascii=False,default=str))
     if t.snapshot is not None:
         try:_persist(session,t)
         except HTTPException as exc:
@@ -579,6 +595,7 @@ def _advance(session,trip_id,identity,body):
                 request_sequence=1 if meta['model_calls'] else None,provider_failure=meta.get('provider_failure'))
             if meta.get('context_budget'):t.events[-1]['context_budget']=meta['context_budget']
             if meta.get('validation_failure'):t.events[-1]['validation_failure']=meta['validation_failure']
+            t.events[-1].update(basis=meta['basis'],mode=t.mode,dropped_fields=meta.get('dropped_fields'))
             if meta.get('provider_failure'):
                 t.events[-1]['status']='failed'
                 _finish(session,t,'unavailable',{'state':'model_unavailable','code':meta['provider_failure'].get('code'),

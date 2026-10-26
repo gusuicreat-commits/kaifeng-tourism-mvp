@@ -29,33 +29,33 @@ def resolve_date(expression, today):
     raise ValueError('unsupported date expression')
 
 
-def _value_grounded(f, text, today):
-    """Whether one field's value is supported by its own quote."""
+def _field_check(f, text, today):
+    """Name of the check this field's value fails against its own quote, or None."""
     from .understand import clock_grounded
     try:
         if f.field=='date':
             if f.value in f.quote:
-                resolve_date(f.value,today);return True
+                resolve_date(f.value,today);return None
             # The model may normalize a relative date to ISO; the quoted expression must resolve to it.
             expressions=re.findall(DATE_EXPRESSION,f.quote)
-            return bool(expressions) and resolve_date(expressions[-1],today).isoformat()==str(f.value)
-        if f.field in ('start_time','end_time'):return clock_grounded(f.value,f.quote,text)
-        if f.field in ('city','origin','destination'):return f.value in f.quote
+            return None if expressions and resolve_date(expressions[-1],today).isoformat()==str(f.value) else 'date_not_in_quote'
+        if f.field in ('start_time','end_time'):return None if clock_grounded(f.value,f.quote,text) else 'clock_not_in_quote'
+        if f.field in ('city','origin','destination'):return None if f.value in f.quote else 'place_not_in_quote'
         if f.field in ('pace','objective','mode'):
-            preference_evidence(f.field,f.value,f.quote);return True
+            preference_evidence(f.field,f.value,f.quote);return None
         if f.field=='budget_fen':
             amounts=re.findall(r'(\d+(?:\.\d{1,2})?)\s*(?:元|块)',f.quote)
-            return len(amounts)==1 and int(Decimal(amounts[0])*100)==f.value
+            return None if len(amounts)==1 and int(Decimal(amounts[0])*100)==f.value else 'budget_not_in_quote'
     except ValueError:
-        return False
-    return True
+        return 'date_unresolved' if f.field=='date' else 'preference_not_in_quote'
+    return None
 
 
 def grounded(planning, text, snapshot, dropped=None):
     """Check evidence for every planning field.
 
     With ``dropped`` (a list), a field whose value is not supported by its quote is
-    removed and its name recorded, so the rest of the request still proceeds and
+    removed and recorded as ``{'field','check'}``, so the rest of the request still proceeds and
     only that field is asked again. Without it, any unsupported field raises.
     """
     today=snapshot.envelope.identity.generated_at.astimezone(TZ).date()
@@ -72,16 +72,17 @@ def grounded(planning, text, snapshot, dropped=None):
         # negation/hypothetical checks still protect the whole turn.
         if f.quote not in text:
             if dropped is None:raise ValueError('planning evidence absent')
-            dropped.append(f.field);continue
+            dropped.append({'field':f.field,'check':'quote_not_in_request'});continue
         request_evidence(text,f.quote)
         if f.field in seen and seen[f.field]!=f.value:raise ValueError('conflicting planning values')
         seen[f.field]=f.value
-        if _value_grounded(f,text,today):
+        check=_field_check(f,text,today)
+        if check is None:
             kept.append(f)
         elif dropped is None:
-            raise ValueError(f'unsupported {f.field} value')
+            raise ValueError(check)
         else:
-            dropped.append(f.field)
+            dropped.append({'field':f.field,'check':check})
     for choice in planning.choices:
         if choice.quote not in text:raise ValueError('material evidence absent')
         if choice.name not in choice.quote and not any(

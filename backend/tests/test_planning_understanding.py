@@ -63,7 +63,7 @@ def test_rejected_model_evidence_records_category_without_raw_output(city,monkey
     task=run(city,text)
     assert task['status']=='needs_clarification'
     # An invented field is dropped and asked again; its value never reaches state or output.
-    assert task['interpretation']['dropped_fields']==['origin']
+    assert task['interpretation']['dropped_fields']==[{'field':'origin','check':'quote_not_in_request'}]
     assert '编造的酒店' not in json.dumps(task,ensure_ascii=False)
 
 
@@ -314,3 +314,22 @@ def test_live_shaped_output_with_stitched_quotes_still_plans(city,monkeypatch):
     assert saved['starts_at'].endswith('T17:30:00+08:00') and saved['ends_at'].endswith('T22:00:00+08:00')
     assert (saved['destination_place_id'] or saved['destination_text'])==(saved['origin_place_id'] or saved['origin_text'])
     assert '没听准' not in t['result']['reply']
+
+
+def test_failures_name_the_check_and_log_one_line_without_visitor_text(city,monkeypatch,caplog):
+    import logging
+    from app.city.agent import service as agent_service
+    monkeypatch.setattr(agent_service.LOG,'propagate',True)
+    text='明天从开封府出发'
+    model(monkeypatch,text,[field('date','明天','明天'),field('origin','编造的酒店','从开封府出发')])
+    with caplog.at_level(logging.INFO,logger='tourism.agent'):
+        t=run(city,text)
+    assert t['interpretation']['dropped_fields']==[{'field':'origin','check':'place_not_in_quote'}]
+    assert t['events'][0]['basis']=='kimi_validated' and t['events'][0]['mode']
+    line=json.loads(caplog.records[-1].getMessage())
+    assert line['dropped']==[{'field':'origin','check':'place_not_in_quote'}] and line['steps'][0][0]=='understand'
+    assert '开封府' not in caplog.text and '编造' not in caplog.text
+    # A whole-turn rejection names the failed check and where it ran.
+    monkeypatch.setattr(provider,'generate',lambda s,p,**k:({'actions':[{'kind':'modify','quote':'不在原话里'}]},{'source':'mock_model'}))
+    t=run(city,'换个出发地点')
+    assert t['interpretation']['validation_failure']=={'kind':'evidence','at':'understand.grounded','check':'ungrounded evidence quote'}
