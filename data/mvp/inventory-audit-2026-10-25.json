@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-10-26T21:34:42.121684+08:00",
+  "generated_at": "2026-10-26T21:41:42.899979+08:00",
   "business_date": "2026-10-25",
   "scope": "显式列出的团队与采集 city-facts 包；不把媒体、节目介绍或抓取成功自动变成当日场次。",
   "inputs": {
@@ -1071,8 +1071,8 @@
   "import": {
     "status": "imported",
     "received": 1698,
-    "changed": 8,
-    "unchanged": 1690
+    "changed": 65,
+    "unchanged": 1633
   },
   "bundle": "data/mvp/inventory-2026-10-25.json",
   "database": "data/tourism.sqlite3"
