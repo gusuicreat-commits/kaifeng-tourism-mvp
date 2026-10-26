@@ -147,17 +147,26 @@ class Understanding(Strict):
 
     @model_validator(mode='before')
     @classmethod
-    def canonical_planning_action(cls,value):
-        # Typed planning is the semantic branch; actions are an execution index.
-        # Canonicalize redundant model indexing only, without interpreting text
-        # or granting permissions: planning evidence still passes mutation gates.
-        if isinstance(value,dict) and isinstance(value.get('planning'),dict):
-            quote=value['planning'].get('quote')
-            actions=value.get('actions',[])
-            if quote and isinstance(actions,(list,tuple)) and not any(a.get('kind')=='modify' for a in actions if isinstance(a,dict)):
-                retained=[a for a in actions if not (isinstance(a,dict) and a.get('kind')=='query' and a.get('quote')==quote)]
-                value=dict(value,actions=[*retained,{'kind':'modify','quote':quote}])
-        return value
+    def canonical_action_index(cls,value):
+        # Typed branches carry the meaning; actions are only an execution index derived
+        # from them. Fill the index entry a branch implies so the model states each
+        # request once. This grants nothing: every branch still passes its own gates.
+        if not isinstance(value,dict):return value
+        actions=list(value.get('actions') or [])
+        def has(kind,quote=None):
+            return any(isinstance(a,dict) and a.get('kind')==kind and (quote is None or a.get('quote')==quote) for a in actions)
+        planning=value.get('planning')
+        if isinstance(planning,dict) and planning.get('quote') and not has('modify'):
+            actions=[a for a in actions if not (isinstance(a,dict) and a.get('kind')=='query' and a.get('quote')==planning['quote'])]
+            actions.append({'kind':'modify','quote':planning['quote']})
+        for branch,kind in (('weather_query','query'),('route_query','query'),('service_query','search_services')):
+            quote=(value.get(branch) or {}).get('quote') if isinstance(value.get(branch),dict) else None
+            if quote and not has(kind,quote):actions.append({'kind':kind,'quote':quote})
+        state=value.get('state_request')
+        if isinstance(state,dict) and state.get('quote'):
+            kind={'complete':'progress','skip':'progress','position':'position','cancel':'cancel','restore':'modify'}.get(state.get('operation'))
+            if kind and not has(kind,state['quote']):actions.append({'kind':kind,'quote':state['quote']})
+        return dict(value,actions=actions) if actions!=list(value.get('actions') or []) else value
 
     @model_validator(mode='after')
     def validate_subrequests(self):
