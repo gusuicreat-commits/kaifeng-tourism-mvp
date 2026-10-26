@@ -9,6 +9,7 @@ from ..engine import service as engine
 from ..engine.models import Goal, PreviewRequest, ReplanRequest, Requirements
 from ..engine.travel import TravelTimeService, travel_seconds, entry_deadline
 from ..schema import TZ
+from .models import BasketProposal, BasketProposalItem
 
 
 def values(intent,field):return [c for c in intent.constraints if c.field==field]
@@ -92,8 +93,22 @@ def find_food(snapshot,intent,*,general=False):
         if general:return {'status':'needs_data','code':'NO_SUPPLY_REFERENCE','items':[],'reply':'暂时没有带供应记录的特色菜与店铺资料。','formal_state_changed':False}
         return {'status':'needs_clarification','code':'FOOD_NOT_NAMED','items':[],'reply':'想吃哪道菜？告诉我菜名就能帮你找店。'}
     tail='想去哪家可以加入素材篮。' if general else '想排进行程，在店铺详情页加入素材篮就行。' if items and not all(i['in_basket'] for i in items) else ''
-    return {'status':'answered' if items else 'needs_data','code':None if items else 'NO_SUPPLY_REFERENCE','items':items,
+    result={'status':'answered' if items else 'needs_data','code':None if items else 'NO_SUPPLY_REFERENCE','items':items,
             'reply':('以下是资料中的供应参考，尚未现场核实，当前供应请向店家确认。' if reference else '')+''.join(lines)+tail,'formal_state_changed':False}
+    # A named dish with one unambiguous Food record can itself become a basket
+    # candidate. Vendor/place results remain read-only until the visitor confirms.
+    if not general and len(foods)==1 and items:
+        food=foods[0];all_basket={(m['fact_kind'],m['fact_id']) for m in snapshot.materials}
+        covered=('food',food.fact_id) in all_basket or any(
+            ('vendor',i['vendor_id']) in all_basket or ('place',i['place_id']) in all_basket for i in items)
+        if not covered:
+            quote=next((a.quote for a in intent.actions if a.kind=='search_dining' and a.quote),food.name)
+            result['basket_proposal']=BasketProposal(
+                items=(BasketProposalItem(operation='put',kind='food',object_id=food.fact_id,name=food.name,
+                                          priority='want',quote=quote),),
+                basket_version=snapshot.envelope.basket['version']).model_dump(mode='json')
+            result['reply']+='确认后可以把这道菜加入素材篮，再继续排。'
+    return result
 
 
 def search_dining(snapshot,intent,relax=False):

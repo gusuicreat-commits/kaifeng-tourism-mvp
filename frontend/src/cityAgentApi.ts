@@ -1,5 +1,5 @@
 import {mutate,request} from './api'
-import type {ObjectRef} from './basketApi'
+import type {ObjectRef,BasketChoice} from './basketApi'
 import type {Itinerary,PlanningResult} from './explorationApi'
 
 export interface CityContext {
@@ -22,6 +22,14 @@ export interface RouteLocationChoice {
  role:'origin'|'destination';query:string;resolution_id:string
  candidates:{candidate_id:string;name:string;address:string|null}[]
 }
+export interface BasketProposal {
+ basket_version:number
+ items:(ObjectRef&{operation:'put'|'standby';name:string;priority:NonNullable<BasketChoice['priority']>;quote:string})[]
+}
+export interface BasketChoicePrompt {
+ query:string;quote:string;priority:'must'|'want'|'optional'
+ candidates:(ObjectRef&{name:string;address:string|null})[]
+}
 export interface WeatherReport {
  location_name:string;source:'QWeather';evidence_status:string;queried_at:string;attributions:string[]
  current:null|{condition:string;temperature_c:number;feels_like_c:number;precipitation_mm:number;precipitation_probability_percent:number|null;wind_direction:string;wind_speed_mps:number}
@@ -36,7 +44,7 @@ export interface AgentTask {
  waiting?:{retry_after_seconds:number}|null
  events:{tool:string;status:string}[]
  understanding:{constraints:{field:string;strength:string;value:string|number|null;quote:string}[]}|null
- result:{reply:string;state?:'locations_explicit'|'ambiguous_locations'|'current_position_required'|'model_unavailable';code?:string;reference_route?:ReferenceRoute;weather?:WeatherReport;location_choices?:RouteLocationChoice[];planning_workflow?:{trip_id:string;execution:'completed_backend';operation:string;date_changed:boolean;result:PlanningResult};questions?:string[];answers?:{status:string;reply:string}[];compound?:{partial:boolean;items:{kind:string;status:string;reply?:string;questions?:string[];result?:unknown;answers?:{status:string;reply:string}[]}[]};activity_names?:Record<string,string>;changes?:CandidateChange;confirmation?:{target_kind:'route'|'state';candidate_id:string;expected_version:number};
+ result:{reply:string;state?:'locations_explicit'|'ambiguous_locations'|'current_position_required'|'model_unavailable';code?:string;reference_route?:ReferenceRoute;weather?:WeatherReport;location_choices?:RouteLocationChoice[];basket_proposal?:BasketProposal;basket_choices?:BasketChoicePrompt[];planning_workflow?:{trip_id:string;execution:'completed_backend';operation:string;date_changed:boolean;result:PlanningResult};questions?:string[];answers?:{status:string;reply:string}[];compound?:{partial:boolean;items:{kind:string;status:string;reply?:string;questions?:string[];result?:unknown;answers?:{status:string;reply:string}[]}[]};activity_names?:Record<string,string>;changes?:CandidateChange;confirmation?:{target_kind:'route'|'state';candidate_id:string;expected_version:number};
   planning?:{result:{itineraries:Itinerary[];warnings?:string[]}}}|null
 }
 const prefix=(id:string)=>`/city/v1/trips/${encodeURIComponent(id)}`

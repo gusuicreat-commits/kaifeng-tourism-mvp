@@ -60,6 +60,10 @@ def test_pitch_reply_lists_recorded_dish_suppliers_and_single_day_scope(kaifeng,
     monkeypatch.setattr(provider,'generate',lambda *a,**k:(next(replies),{'source':'recorded_model'}))
     trip=model_replay.new_trip(kaifeng);before=kaifeng.get('/api/city/v1/trips/'+trip['id']).json()
     task=model_replay.run(kaifeng,trip,case['text']);reply=task['result']['reply']
+    proposal=task['result']['basket_proposal']
+    assert [(i['name'],i['kind'],i['priority']) for i in proposal['items']]==[
+        ('万岁山武侠城','place','want'),('清明上河园','place','want')]
+    assert kaifeng.get('/api/city/v1/trips/'+trip['id']+'/basket').json()['items']==[]
     recorded=datetime.fromisoformat(case['recorded_at']).date()
     saturday=(recorded+timedelta(days=5-recorded.weekday())).isoformat()
     saved=model_replay.saved(kaifeng,trip)

@@ -92,6 +92,189 @@
       "title": "AdvanceTask",
       "type": "object"
     },
+    "BasketCandidate": {
+      "additionalProperties": false,
+      "properties": {
+        "kind": {
+          "enum": [
+            "scenic",
+            "food",
+            "place",
+            "poi",
+            "show",
+            "vendor",
+            "program"
+          ],
+          "title": "Kind",
+          "type": "string"
+        },
+        "object_id": {
+          "maxLength": 120,
+          "minLength": 1,
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]*$",
+          "title": "Object Id",
+          "type": "string"
+        },
+        "name": {
+          "maxLength": 120,
+          "minLength": 1,
+          "title": "Name",
+          "type": "string"
+        },
+        "address": {
+          "anyOf": [
+            {
+              "maxLength": 300,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Address"
+        }
+      },
+      "required": [
+        "kind",
+        "object_id",
+        "name"
+      ],
+      "title": "BasketCandidate",
+      "type": "object"
+    },
+    "BasketChoicePrompt": {
+      "additionalProperties": false,
+      "properties": {
+        "query": {
+          "maxLength": 120,
+          "minLength": 1,
+          "title": "Query",
+          "type": "string"
+        },
+        "quote": {
+          "maxLength": 500,
+          "minLength": 1,
+          "title": "Quote",
+          "type": "string"
+        },
+        "priority": {
+          "enum": [
+            "must",
+            "want",
+            "optional"
+          ],
+          "title": "Priority",
+          "type": "string"
+        },
+        "candidates": {
+          "items": {
+            "$ref": "#/$defs/BasketCandidate"
+          },
+          "maxItems": 3,
+          "minItems": 2,
+          "title": "Candidates",
+          "type": "array"
+        }
+      },
+      "required": [
+        "query",
+        "quote",
+        "priority",
+        "candidates"
+      ],
+      "title": "BasketChoicePrompt",
+      "type": "object"
+    },
+    "BasketProposal": {
+      "additionalProperties": false,
+      "properties": {
+        "items": {
+          "items": {
+            "$ref": "#/$defs/BasketProposalItem"
+          },
+          "maxItems": 12,
+          "minItems": 1,
+          "title": "Items",
+          "type": "array"
+        },
+        "basket_version": {
+          "minimum": 0,
+          "title": "Basket Version",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "items",
+        "basket_version"
+      ],
+      "title": "BasketProposal",
+      "type": "object"
+    },
+    "BasketProposalItem": {
+      "additionalProperties": false,
+      "properties": {
+        "kind": {
+          "enum": [
+            "scenic",
+            "food",
+            "place",
+            "poi",
+            "show",
+            "vendor",
+            "program"
+          ],
+          "title": "Kind",
+          "type": "string"
+        },
+        "object_id": {
+          "maxLength": 120,
+          "minLength": 1,
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]*$",
+          "title": "Object Id",
+          "type": "string"
+        },
+        "operation": {
+          "enum": [
+            "put",
+            "standby"
+          ],
+          "title": "Operation",
+          "type": "string"
+        },
+        "name": {
+          "maxLength": 120,
+          "minLength": 1,
+          "title": "Name",
+          "type": "string"
+        },
+        "priority": {
+          "enum": [
+            "must",
+            "want",
+            "optional"
+          ],
+          "title": "Priority",
+          "type": "string"
+        },
+        "quote": {
+          "maxLength": 500,
+          "minLength": 1,
+          "title": "Quote",
+          "type": "string"
+        }
+      },
+      "required": [
+        "kind",
+        "object_id",
+        "operation",
+        "name",
+        "priority",
+        "quote"
+      ],
+      "title": "BasketProposalItem",
+      "type": "object"
+    },
     "Budget": {
       "additionalProperties": false,
       "properties": {
@@ -895,6 +1078,12 @@
     "reference_location_selection": {
       "$ref": "#/$defs/ReferenceSelection"
     },
+    "basket_proposal": {
+      "$ref": "#/$defs/BasketProposal"
+    },
+    "basket_choice": {
+      "$ref": "#/$defs/BasketChoicePrompt"
+    },
     "understanding": {
       "$ref": "#/$defs/Understanding"
     },
@@ -909,6 +1098,8 @@
     "start",
     "advance",
     "reference_location_selection",
+    "basket_proposal",
+    "basket_choice",
     "understanding",
     "model_decision_not_write_permission",
     "limits"

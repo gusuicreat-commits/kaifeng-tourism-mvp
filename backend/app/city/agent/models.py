@@ -76,6 +76,30 @@ class MaterialChoice(Strict):
     quote: str = Field(min_length=1,max_length=500)
 
 
+class BasketProposalItem(ObjectRef):
+    operation: Literal['put','standby']
+    name: str = Field(min_length=1,max_length=120)
+    priority: Literal['must','want','optional']
+    quote: str = Field(min_length=1,max_length=500)
+
+
+class BasketProposal(Strict):
+    items: tuple[BasketProposalItem,...] = Field(min_length=1,max_length=12)
+    basket_version: int = Field(ge=0)
+
+
+class BasketCandidate(ObjectRef):
+    name: str = Field(min_length=1,max_length=120)
+    address: str | None = Field(default=None,max_length=300)
+
+
+class BasketChoicePrompt(Strict):
+    query: str = Field(min_length=1,max_length=120)
+    quote: str = Field(min_length=1,max_length=500)
+    priority: Literal['must','want','optional']
+    candidates: tuple[BasketCandidate,...] = Field(min_length=2,max_length=3)
+
+
 class PlanningIntent(Strict):
     operation: Literal['update','continue','weather_replan']='update'
     quote: str = Field(min_length=1,max_length=500)

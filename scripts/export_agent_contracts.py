@@ -6,13 +6,15 @@ from pathlib import Path
 from pydantic import BaseModel
 ROOT=Path(__file__).resolve().parents[1]
 sys.path.insert(0,str(ROOT/'backend'))
-from app.city.agent.models import StartTask,AdvanceTask,Understanding,Decision,Budget,ReferenceSelection
+from app.city.agent.models import StartTask,AdvanceTask,Understanding,Decision,Budget,ReferenceSelection,BasketProposal,BasketChoicePrompt
 
 
 class Contracts(BaseModel):
     start: StartTask
     advance: AdvanceTask
     reference_location_selection: ReferenceSelection
+    basket_proposal: BasketProposal
+    basket_choice: BasketChoicePrompt
     understanding: Understanding
     model_decision_not_write_permission: Decision
     limits: Budget

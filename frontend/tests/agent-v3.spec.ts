@@ -108,6 +108,9 @@ test('conflict negotiation persists a structured choice across refresh, recomput
  await page.reload();await expect(page.getByLabel('规划检测结果')).toContainText('需要你决定取舍')
  await page.getByLabel('告诉小汴梁你的问题或想调整的安排',{exact:true}).fill('[合成测试]museum改为想去')
  await page.getByRole('button',{name:'发送',exact:true}).click()
+ await expect(page.getByLabel('待确认的素材篮变更')).toBeVisible()
+ expect((await(await page.request.get(path+'/basket')).json()).items[0].priority).toBe('must')
+ await page.getByRole('button',{name:'确认加入',exact:true}).click()
  await expect(page.getByLabel('规划检测结果')).toContainText('已有经过校验的候选')
  expect((await(await page.request.get(path+'/basket')).json()).items[0].priority).toBe('want')
  expect((await(await page.request.get(path)).json()).route_version).toBe(0)
@@ -125,6 +128,64 @@ test('conflict negotiation persists a structured choice across refresh, recomput
  await page.getByRole('button',{name:/确认方案/}).click()
  await expect(page.getByRole('status').filter({hasText:'已确认并更新正式路线'})).toBeVisible()
  expect((await(await page.request.get(path)).json()).route_version).toBe(1)
+})
+
+test('chat proposes a basket addition and only saves it after confirmation before continuing planning',async({page})=>{
+ await page.request.post('/api/v1/sessions')
+ const draft={business_date:'2030-05-01',starts_at:'2030-05-01T10:00:00+08:00',ends_at:'2030-05-01T20:00:00+08:00',origin_place_id:'origin',destination_place_id:'hotel',modes:['walking'],stops:[]}
+ const trip=await(await page.request.post('/api/city/v1/trips',{data:{request_id:crypto.randomUUID(),draft}})).json(),path='/api/city/v1/trips/'+trip.id
+ await page.goto('/assistant?city_trip='+trip.id)
+ const input=page.getByLabel('告诉小汴梁你的问题或想调整的安排')
+ await expect(input).toBeEnabled();await input.fill('想去[合成测试]museum')
+ await page.getByRole('button',{name:'发送',exact:true}).click()
+ const card=page.getByLabel('待确认的素材篮变更')
+ await expect(card).toContainText('[合成测试]museum · 加入素材篮')
+ await expect(card.getByLabel('[合成测试]museum优先级')).toHaveValue('want')
+ await card.getByLabel('[合成测试]museum优先级').selectOption('must')
+ expect((await(await page.request.get(path+'/basket')).json()).items).toEqual([])
+ await page.getByRole('button',{name:'确认加入',exact:true}).click()
+ await expect(card).toHaveCount(0)
+ await expect(page.getByLabel('规划检测结果')).toContainText('已有经过校验的候选')
+ const basket=await(await page.request.get(path+'/basket')).json()
+ expect(basket.items).toHaveLength(1);expect(basket.items[0]).toMatchObject({kind:'place',id:'museum',priority:'must',source:'assistant'})
+ expect((await(await page.request.get(path)).json()).route_version).toBe(0)
+})
+
+test('chat basket confirmation refuses a changed basket version without overwriting it',async({page})=>{
+ const {path}=await prepare(page)
+ const input=page.getByLabel('告诉小汴梁你的问题或想调整的安排')
+ await input.fill('想去[合成测试]museum');await page.getByRole('button',{name:'发送',exact:true}).click()
+ await expect(page.getByLabel('待确认的素材篮变更')).toBeVisible()
+ const changed=await page.request.patch(path+'/basket',{data:{request_id:crypto.randomUUID(),expected_version:0,item:{kind:'place',object_id:'restaurant',source:'detail'}}})
+ expect(changed.ok()).toBeTruthy();const before=await changed.json()
+ await page.getByRole('button',{name:'确认加入',exact:true}).click()
+ await expect(page.getByRole('alert')).toContainText('素材篮已变化，请刷新')
+ expect(await(await page.request.get(path+'/basket')).json()).toEqual(before)
+})
+
+test('ambiguous basket candidates require selection and then confirmation',async({page})=>{
+ const {path}=await prepare(page)
+ await page.route('**/agent/tasks/*/step',async route=>{
+  const response=await route.fetch(),task=await response.json()
+  const item=task.result?.basket_proposal?.items[0]
+  if(item){
+   delete task.result.basket_proposal
+   task.result.basket_choices=[{query:item.name,quote:item.quote,priority:item.priority,candidates:[
+    {kind:'place',object_id:'museum',name:'[合成测试]museum',address:'[合成测试]博物馆'},
+    {kind:'place',object_id:'restaurant',name:'[合成测试]restaurant',address:'[合成测试]餐厅'}]}]
+  }
+  await route.fulfill({response,json:task})
+ })
+ const input=page.getByLabel('告诉小汴梁你的问题或想调整的安排')
+ await input.fill('想去[合成测试]museum');await page.getByRole('button',{name:'发送',exact:true}).click()
+ const candidates=page.getByLabel('素材篮候选选择')
+ await expect(candidates).toBeVisible();await expect(candidates.getByRole('button')).toHaveCount(3)
+ await candidates.getByRole('button',{name:'[合成测试]restaurant [合成测试]餐厅',exact:true}).click()
+ await expect(page.getByLabel('待确认的素材篮变更')).toContainText('[合成测试]restaurant')
+ expect((await(await page.request.get(path+'/basket')).json()).items).toEqual([])
+ await page.getByRole('button',{name:'确认加入',exact:true}).click()
+ await expect(page.getByLabel('待确认的素材篮变更')).toHaveCount(0)
+ expect((await(await page.request.get(path+'/basket')).json()).items[0].id).toBe('restaurant')
 })
 
 test('changing date while a candidate is visible preserves the official trip and invalidates the old candidate',async({page})=>{

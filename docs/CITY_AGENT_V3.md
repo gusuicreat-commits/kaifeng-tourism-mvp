@@ -31,6 +31,20 @@ V3.3 已补充限流诊断、真实执行来源和受控请求预算；本轮重
 
 当前 8017 服务没有重启，`frontend/dist` 没有替换；新界面构建在独立测试目录，浏览器使用 8021 临时服务和临时合成库。因此“测试界面能运行”不能解释为“用户当前 8017 已升级”。期间检测到 `App.vue` 和 `journey.css` 的并行修改，保留原样；没有用备份覆盖它们。
 
+## 2026-10-26 A3 对话素材篮确认
+
+`planning.choices` 中尚未入篮的名称先调用 `facts.place_by_name`，能唯一确定规范地点时直接采用；否则匹配地点、Food 的名称/别名，无精确匹配时地点可按唯一短名匹配。仍有歧义时返回 `basket_choices`，最多3项，查不到不补造事实。前端显示名称、已知地址及选择按钮，游客选定后仍需确认加入。菜品提案的 `kind='food'`，由现有引擎按供应关系选择用餐地点。
+
+A3-fix2 按证据范围核对优先级/状态：从 choice.quote 去掉对象名、别名及素材篮名称后没有表态文字，或整个 quote 被同轮 planning field.quote 包含时，已有素材视为回显，不提案、不阻断日期时间规划；新素材只提议以 `want/pending` 加入。有表态文字且原话核对通过时采用模型 priority/status，仍由确认卡决定是否生效。提示词要求 choices.quote 包含意愿、优先级或不去的整段原话；没有增加语义关键词表。
+
+任务结果的 `basket_proposal={items:[{operation,kind,object_id,name,priority,quote}],basket_version}` 是待确认意向，`operation` 为 `put` 或 `standby`。模型输出 state_request.skip 时，在严格状态名称核对之前，先匹配素材篮名称/事实名/别名；目标唯一且不在已确认正式路线中、quote 含该对象名称的至少两字连续片段时，转为候补提案并保留原优先级；多项匹配则列名澄清。正式路线目标仍走原 grounded_state 与跳过预览/确认流程，不放宽名称核对。A3-fix3 将事实名称/别名读取统一为安全函数，Vendor 取关联 Place 的名称/别名，关联缺失时保留篮中名称。已有项的优先级变更也可与日期时间同行：先保存条件，确认卡显示可编辑的优先级，确认后接着规划；改回原优先级也使用游客确认值继续。无证据回显和无变化的 choice 不提案。
+
+A3-fix3 提示词明确 `must` 为游客明确表示非去不可、`want` 为一般想去及默认、`optional` 为有空/顺路再去，没有明确表态用 `want`；没有增加语义关键词表。同步修正模型替身中一般“想去/想吃”的人造优先级，真实模型历史原始回复保留。规划说明压缩重复表达，最长输入仍遵守原 12000 字符预算。
+
+后端只在原旅行、素材篮、条件及服务版本守卫下保存日期时间等规划条件，不在待确认阶段求解或写入素材篮。`CityAgentChat` 显示 `aria-label="待确认的素材篮变更"`，游客确认后通过 `basketApi.change(source='assistant')` 顺序提交，每项携带最新返回版本；起始版本或写入冲突时停止、刷新，不覆盖并发变更，若前几项已写入则明确告知。全部写入后 `loadBasket + planningRevision++ + showPlanning=true`，`BasketPlanning` 从保存条件接着出预览，正式行程仍通过原确认方案接口提交。“不用了”不写素材篮。
+
+A3-fix3 合成验证：`.venv/bin/python -m pytest backend/tests -q -p no:cacheprovider` 为 2031 passed / 9 skipped；四份契约 `--check`、`npx vue-tsc --noEmit`、`npx vite build --configLoader runner` 通过（默认构建尝试写入只读共享 node_modules 的临时目录而失败）。新增回归覆盖 Vendor/Food/Place 的部分名称、全称与别名候补（planning/state 两种模型输出）、Vendor 缺关联地点的安全降级、三档优先级提示词、已有优先级变更与日期时间同行、仅变更、确认时改回原值并继续预览。原有顺带提及、歧义、正式路线核对及最长输入预算回归通过；模型历史回放中只有地名的 quote 仍预期为 `want`。未调用真实模型、外部 Provider 或修改正式资料库，浏览器 e2e 与真实模型隐藏说法由 Claude 验收。
+
 ## 实际架构
 
 保留单个助手，不新增 Agent 框架、向量库或长期记忆。

@@ -466,9 +466,13 @@ def _compound_step(session,t):
         if item['kind']=='travel_services':result['services']=item['result']['services']
         elif item['kind']=='weather':result['weather']=item['result'].get('weather')
         elif item['kind']=='direct_query':result['answers']=item['answers']
+        elif item['kind']=='find_food':
+            for key in ('basket_proposal','basket_choices'):
+                if key in item['result']:result[key]=item['result'][key]
         elif item['kind']=='planning':
             result['planning']=item['result']
             if 'planning_workflow' in item['result']:result['planning_workflow']=item['result']['planning_workflow']
+            if 'basket_choices' in item['result']:result['basket_choices']=item['result']['basket_choices']
             if item['status']=='needs_confirmation':
                 result.update({key:value for key,value in item['result'].items() if key not in ('reply','status','formal_state_changed')})
     _finish(session,t,status,result)

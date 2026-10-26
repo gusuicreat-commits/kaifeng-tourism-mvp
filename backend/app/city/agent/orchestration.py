@@ -36,11 +36,35 @@ def _execute(session,t,intent):
         if travel_services.read(db,t.trip_id)['version']!=service_version:
             raise HTTPException(409,detail={'code':'SERVICE_CONDITIONS_CHANGED'})
     constraints=action['constraints']
-    if action.get('choice_text'):
-        saved=exploration.answer_choice(UUID(t.trip_id),exploration.Answer(
-            request_id=uuid5(UUID(t.id),'planning-choice'),expected_version=action['trip_version'],
-            basket_version=basket_version,planning_version=planning_version,text=action['choice_text']),session,execution_guard=guard)
-        planning_version=saved['version'];basket_version=saved['basket']['version'];constraints=saved['constraints']
+    if proposed.get('basket_proposal') or proposed.get('basket_choices'):
+        from ...db import connect
+        # Save only the understood conditions; no basket write or route is authorized yet.
+        with connect() as db:
+            db.execute('BEGIN IMMEDIATE');guard(db)
+            saved=exploration_state.save(db,t.trip_id,constraints,None,t.snapshot.workspace.get('rounds',0))
+        t.snapshot.workspace=saved
+        t.snapshot.envelope=t.snapshot.envelope.model_copy(update={'planning_constraints':{
+            'version':saved['version'],'constraints':constraints,'rounds':saved['rounds']}})
+        result=exploration.unknown('确认素材篮变更后接着安排。',code='BASKET_CONFIRMATION_REQUIRED')
+        result.update(constraints=constraints,planning_version=saved['version'],rounds=saved['rounds'],
+                      basket_version=basket_version,trip_version=action['trip_version'])
+        pending_basket=proposed.get('basket_proposal')
+        reply=''
+        if pending_basket:
+            existing={(i['kind'],i['id']) for i in t.snapshot.materials}
+            adding=[i['name'] for i in pending_basket['items'] if i['operation']=='put' and (i['kind'],i['object_id']) not in existing]
+            updating=[i['name'] for i in pending_basket['items'] if i['operation']=='put' and (i['kind'],i['object_id']) in existing]
+            standby=[i['name'] for i in pending_basket['items'] if i['operation']=='standby']
+            if adding:reply+='要把'+ '、'.join(adding)+'加入素材篮吗？'
+            if updating:reply+='要调整'+ '、'.join(updating)+'的优先级吗？'
+            if standby:reply+='要把'+ '、'.join(standby)+'改为候补吗？'
+            reply+='确认后我接着排。'
+        if action['date_changed']:reply='日期已记为 '+constraints['business_date']+'。'+reply
+        reply+=''.join(proposed.get('notes',[]))
+        return {'status':'needs_confirmation' if pending_basket else 'needs_clarification','reply':reply,'formal_state_changed':False,
+                **{key:proposed[key] for key in ('basket_proposal','basket_choices') if key in proposed},
+                'planning_workflow':{'trip_id':t.trip_id,'execution':'completed_backend','operation':action['operation'],
+                    'date_changed':action['date_changed'],'result':result}}
     result=exploration.preview_plan(UUID(t.trip_id),exploration.Plan(
         request_id=uuid5(UUID(t.id),'planning-preview'),expected_version=action['trip_version'],
         basket_version=basket_version,planning_version=planning_version,constraints=constraints),session,execution_guard=guard)

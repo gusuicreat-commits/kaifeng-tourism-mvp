@@ -6,7 +6,7 @@ import {alternativeDifference,explorationApi,objectiveLabel,type PlanningConstra
 import {ApiError} from '../api'
 import {memoryEpoch} from '../voiceDraft'
 import LocationPicker from './LocationPicker.vue'
-const props=defineProps<{tripId:string;revision?:number}>(),emit=defineEmits<{busy:[value:boolean]}>()
+const props=defineProps<{tripId:string;revision?:number;autoPlan?:boolean}>(),emit=defineEmits<{busy:[value:boolean]}>()
 const initializing=ref(true),confirming=ref(false),conversation=ref<HTMLElement>()
 let disposed=false,requestSequence=0
 const busy=ref(false),error=ref(''),result=ref<PlanningResult|null>(null),selected=ref(0),day=ref(''),start=ref(''),end=ref(''),budget=ref(''),rounds=ref(0),cancelled=ref(false)
@@ -58,8 +58,10 @@ async function cancel(){if(confirming.value)return;const version=planningVersion
 async function initialize(){error.value='';initializing.value=true;const epoch=memoryEpoch.value,id=props.tripId,sequence=++requestSequence
  try{await loadJourney();if(journey.trip?.id!==id)throw new Error('当前旅程已变化，请重新打开规划');const draft=journey.trip.draft;const saved=await explorationApi.constraints(id);if(disposed||sequence!==requestSequence||epoch!==memoryEpoch.value||journey.trip?.id!==id)return;const c=saved.constraints;applyConstraints(c||{business_date:draft.business_date,starts_at:draft.starts_at,ends_at:draft.ends_at,origin_place_id:draft.origin_place_id,destination_place_id:draft.destination_place_id,pace:draft.pace||'standard',objective:draft.objective||'balanced',modes:[...draft.modes],budget_fen:null});planningVersion.value=saved.version;rounds.value=saved.rounds;result.value=saved.result;submittedHash.value=JSON.stringify(params());activeStep.value=missingStep.value;initializing.value=false}
  catch(e){if(!disposed&&epoch===memoryEpoch.value)error.value='规划条件未加载完成：'+(e as Error).message}}
-watch(()=>props.revision,()=>void initialize())
-onMounted(initialize)
+async function resume(){await initialize();if(!disposed&&!initializing.value&&props.autoPlan&&missingStep.value==='ready')await run()}
+watch(()=>props.revision,()=>void resume())
+onMounted(resume)
+onBeforeUnmount(()=>emit('busy',false))
 onBeforeUnmount(()=>{disposed=true;requestSequence++})
 watch(memoryEpoch,()=>{resetLocal();error.value='记录已清除';busy.value=false})
 </script>

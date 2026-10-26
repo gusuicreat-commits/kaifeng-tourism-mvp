@@ -1,13 +1,13 @@
 <script setup lang="ts">
 import {computed,nextTick,onBeforeUnmount,onMounted,ref,watch} from 'vue'
-import {api} from '../api'
-import {cityAgentApi,type AgentTask,type CityContext,type RouteLocationChoice,type WeatherReport} from '../cityAgentApi'
+import {api,ApiError} from '../api'
+import {cityAgentApi,type AgentTask,type CityContext,type RouteLocationChoice,type WeatherReport,type BasketChoicePrompt} from '../cityAgentApi'
 import {memoryEpoch,pendingVoiceText} from '../voiceDraft'
 import {cityApi} from '../cityApi'
 import {journey} from '../journey'
 import {loadBasket} from '../journey'
 import BasketPlanning from './BasketPlanning.vue'
-import type {ObjectRef} from '../basketApi'
+import {basketApi,type ObjectRef} from '../basketApi'
 import ReferenceRouteCard from './ReferenceRouteCard.vue'
 import TravelServiceCards from './TravelServiceCards.vue'
 import WeatherCard from './WeatherCard.vue'
@@ -15,6 +15,7 @@ import {objectiveLabel} from '../explorationApi'
 
 const props=defineProps<{tripId:string;focus?:ObjectRef|null;initialQuestion?:string;planning?:boolean}>()
 const showPlanning=ref(!!props.planning),planningRevision=ref(0),planningBusy=ref(false)
+const continuePlanning=ref(false)
 const inputBusy=computed(()=>busy.value||planningBusy.value)
 const ctx=ref<CityContext|null>(null),text=ref(''),task=ref<AgentTask|null>(null),busy=ref(false),error=ref('')
 const weather=ref<WeatherReport|null>(null)
@@ -37,8 +38,10 @@ watch(pendingVoiceText,takeVoice,{immediate:true})
 let epoch=0,disposed=false,resizeObserver:ResizeObserver|undefined
 const labels:Record<string,string>={query_weather:'正在查询和风天气',search_locations:'正在查找起点和终点',query_reference_route:'正在查询高德参考路线',search_dining:'正在查找合适商家',query_shows:'正在核对演出时间',verify_travel:'正在验证交通衔接',preview_plan:'正在验证行程安排',understand:'正在理解你的要求'}
 const progress=computed(()=>task.value?.waiting?'小汴梁正在思考':labels[task.value?.events.at(-1)?.tool||'']||'正在理解你的要求')
-const candidate=computed(()=>task.value?.status==='needs_confirmation'?task.value.result:null)
-watch(()=>[messages.value.length,busy.value,showPlanning.value,candidate.value,task.value?.status,error.value],async()=>{if(atLatest.value)await scrollLatest()},{flush:'post'})
+const candidate=computed(()=>task.value?.status==='needs_confirmation'&&task.value.result?.confirmation?task.value.result:null)
+const basketProposal=computed(()=>task.value?.result?.basket_proposal)
+const basketChoices=computed(()=>task.value?.result?.basket_choices||[])
+watch(()=>[messages.value.length,busy.value,showPlanning.value,candidate.value,basketProposal.value,basketChoices.value.length,task.value?.status,error.value],async()=>{if(atLatest.value)await scrollLatest()},{flush:'post'})
 const activityName=(id:string)=>candidate.value?.activity_names?.[id]||'待核对活动'
 const clock=(value:string)=>new Date(value).toLocaleTimeString('zh-CN',{hour:'2-digit',minute:'2-digit',timeZone:'Asia/Shanghai'})
 async function refresh(){const guard=memoryEpoch.value,id=props.tripId;const value=await cityAgentApi.context(id);if(!disposed&&guard===memoryEpoch.value&&id===props.tripId)ctx.value=value}
@@ -56,7 +59,7 @@ async function load(){const guard=memoryEpoch.value,id=props.tripId;try{await ap
 async function send(inputOverride?:string){
  const input=(inputOverride??text.value).trim()
  if(!input||!ctx.value||inputBusy.value)return
- const current=++epoch;text.value='';error.value='';busy.value=true
+ const current=++epoch;text.value='';error.value='';busy.value=true;continuePlanning.value=false
  atLatest.value=true
  messages.value.push({role:'你',text:input})
  try{
@@ -73,7 +76,7 @@ async function send(inputOverride?:string){
    if(t.result.planning_workflow.trip_id!==props.tripId)throw new Error('安排已变化，请重新读取当前旅程。')
    await loadBasket()
    if(current!==epoch||disposed)return
-   planningRevision.value++;showPlanning.value=true
+   planningRevision.value++;showPlanning.value=!t.result.basket_proposal&&!t.result.basket_choices
   }
   messages.value.push({role:'小汴梁',text:t.result?.reply||'本次处理已停止，请重试。'})
  }catch(e){if(current===epoch)error.value=e instanceof Error?e.message:'处理失败，请重试'}
@@ -122,8 +125,44 @@ async function confirm(){
   messages.value.push({role:'小汴梁',text:'确认成功，已读取最新正式路线。'})
  }catch(e){error.value=e instanceof Error?e.message:'候选未提交，请重新计算'}finally{busy.value=false}
 }
-watch(memoryEpoch,()=>{epoch++;busy.value=false;ctx.value=null;task.value=null;messages.value=[];earlier.value=null;text.value='';error.value=''})
-watch(()=>props.tripId,()=>{epoch++;if(task.value&&['running','awaiting_locations'].includes(task.value.status))void cityAgentApi.cancel(task.value).catch(()=>{});task.value=null;messages.value=[];void load()})
+async function confirmBasket(){
+ const proposal=basketProposal.value
+ if(!proposal||inputBusy.value||basketChoices.value.length)return
+ const current=++epoch,guard=memoryEpoch.value,id=props.tripId
+ const active=()=>!disposed&&current===epoch&&guard===memoryEpoch.value&&id===props.tripId
+ busy.value=true;error.value=''
+ let applied=0
+ try{
+  let basket=await basketApi.get(id)
+  if(!active())return
+  if(basket.version!==proposal.basket_version)throw new Error('素材篮已变化，请刷新后重新提出要求；本次未覆盖已有素材。')
+  for(const item of proposal.items){
+   const existing=basket.items.find(x=>x.kind===item.kind&&x.id===item.object_id)
+   if(item.operation==='standby'&&existing?.status==='arranged')throw new Error(item.name+'已在正式行程里，请刷新后使用跳过操作。')
+   basket=await basketApi.change(id,basket.version,{...existing,key:item.kind+':'+item.object_id,kind:item.kind,id:item.object_id,
+    name:item.name,priority:item.priority,status:item.operation==='standby'?'standby':'pending',source:'assistant'})
+   applied++;if(!active())return
+  }
+  task.value=null;await loadBasket();await refresh();if(!active())return
+  messages.value.push({role:'小汴梁',text:'素材篮已更新，接着按已保存的条件安排。'})
+  continuePlanning.value=true;planningRevision.value++;showPlanning.value=true
+ }catch(e){if(active()){
+  task.value=null;await loadBasket()
+  error.value=e instanceof ApiError&&e.status===409?'素材篮或行程已变化，请刷新后重新提出要求；本次未覆盖冲突项。':e instanceof Error?e.message:'素材篮未更新，请重试'
+  if(applied)error.value+='已确认写入的 '+applied+' 项已保留，请核对后继续。'
+ }}finally{if(active())busy.value=false}
+}
+function selectBasketChoice(choice:BasketChoicePrompt,item:BasketChoicePrompt['candidates'][number]){
+ const result=task.value?.result,version=result?.basket_proposal?.basket_version??result?.planning_workflow?.result.basket_version
+ if(!result||version===undefined||inputBusy.value)return
+ const proposal=result.basket_proposal||{basket_version:version,items:[]}
+ if(!proposal.items.some(i=>i.kind===item.kind&&i.object_id===item.object_id))proposal.items.push({kind:item.kind,object_id:item.object_id,
+  name:item.name,operation:'put',priority:choice.priority,quote:choice.quote})
+ result.basket_proposal=proposal;result.basket_choices=result.basket_choices?.filter(c=>c!==choice)
+}
+function discardBasket(){if(inputBusy.value)return;task.value=null;messages.value.push({role:'小汴梁',text:'已放弃本次素材篮变更。'})}
+watch(memoryEpoch,()=>{epoch++;busy.value=false;continuePlanning.value=false;ctx.value=null;task.value=null;messages.value=[];earlier.value=null;text.value='';error.value=''})
+watch(()=>props.tripId,()=>{epoch++;continuePlanning.value=false;if(task.value&&['running','awaiting_locations'].includes(task.value.status))void cityAgentApi.cancel(task.value).catch(()=>{});task.value=null;messages.value=[];void load()})
 onMounted(()=>{void load();resizeObserver=new ResizeObserver(()=>{if(atLatest.value)void scrollLatest()});if(chatScroll.value)resizeObserver.observe(chatScroll.value)})
 onBeforeUnmount(()=>{disposed=true;epoch++;resizeObserver?.disconnect();if(task.value&&['running','awaiting_locations'].includes(task.value.status))void cityAgentApi.cancel(task.value).catch(()=>{})})
 </script>
@@ -154,6 +193,19 @@ onBeforeUnmount(()=>{disposed=true;epoch++;resizeObserver?.disconnect();if(task.
   <TravelServiceCards :trip-id="tripId" :revision="task?.result"/>
   <ReferenceRouteCard v-if="task?.result?.reference_route" :route="task.result.reference_route"/>
   <WeatherCard v-if="weather" :report="weather" :busy="inputBusy" @adjust="send('可以，按天气调整行程')"/>
+  <section v-if="basketChoices.length" class="route-location-choices" aria-label="素材篮候选选择">
+   <h3>请选择想加入的对象</h3>
+   <div v-for="choice in basketChoices" :key="choice.query"><h4>{{choice.query}}</h4>
+    <button v-for="item in choice.candidates" :key="item.kind+':'+item.object_id" type="button" :disabled="inputBusy" @click="selectBasketChoice(choice,item)"><strong>{{item.name}}</strong><small>{{item.address||'地址待补充'}}</small></button>
+   </div>
+   <button type="button" class="text-link" :disabled="inputBusy" @click="discardBasket">不用了</button>
+  </section>
+  <section v-if="basketProposal" aria-label="待确认的素材篮变更" class="agent-preview">
+   <h3>请确认素材篮变更</h3>
+   <ul><li v-for="item in basketProposal.items" :key="item.kind+':'+item.object_id">{{item.name}} · {{item.operation==='standby'?'改为候补':journey.choices.some(x=>x.kind===item.kind&&x.id===item.object_id)?'调整优先级':'加入素材篮'}} · <template v-if="item.operation==='put'"><label class="basket-priority">优先级<select :aria-label="item.name+'优先级'" v-model="item.priority"><option value="must">必去</option><option value="want">想去</option><option value="optional">顺路看看</option></select></label></template><template v-else>{{{must:'必去',want:'想去',optional:'顺路看看'}[item.priority]}}</template></li></ul>
+   <p>确认后接着规划，正式行程仍需确认方案才会保存。</p>
+   <div class="interview-actions"><button type="button" class="button" :disabled="inputBusy||!!basketChoices.length" @click="confirmBasket">确认加入</button><button type="button" class="button secondary" :disabled="inputBusy" @click="discardBasket">不用了</button></div>
+  </section>
   <section v-if="candidate" aria-label="待确认修改" class="agent-preview">
    <h3>请核对新安排</h3>
    <p>以下为待确认候选，正式路线尚未改变。</p>
@@ -170,13 +222,13 @@ onBeforeUnmount(()=>{disposed=true;epoch++;resizeObserver?.disconnect();if(task.
    <ul v-if="candidate.planning?.result.warnings?.length" class="agent-planning-warnings" aria-label="演示规划提醒"><li v-for="warning in candidate.planning.result.warnings" :key="warning">{{warning}}</li></ul>
    <div class="interview-actions"><button class="button" :disabled="busy" @click="confirm">确认修改</button><button class="button secondary" :disabled="busy" @click="cancel">放弃修改</button></div>
   </section>
-  <BasketPlanning v-if="showPlanning&&!candidate" :key="tripId" :trip-id="tripId" :revision="planningRevision" @busy="planningBusy=$event"/>
+  <BasketPlanning v-if="showPlanning&&!candidate&&!basketProposal" :key="tripId" :trip-id="tripId" :revision="planningRevision" :auto-plan="continuePlanning" @busy="planningBusy=$event"/>
   <div v-else-if="!messages.length&&!focus" class="chat-welcome"><p>想怎么逛开封？</p><button type="button" @click="showPlanning=true">一起安排行程</button></div>
   </div>
   <form class="chat-composer" @submit.prevent="send()">
    <label for="city-agent-input" class="visually-hidden">告诉小汴梁你的问题或想调整的安排</label>
-   <textarea id="city-agent-input" v-model="text" rows="2" maxlength="2000" :disabled="!ctx||inputBusy||!!candidate" placeholder="告诉小汴梁你的想法…"/>
-   <div class="interview-actions"><button class="button" :disabled="!ctx||inputBusy||!text.trim()||!!candidate">发送</button><button v-if="busy" type="button" class="button secondary" @click="cancel">停止处理</button></div>
+   <textarea id="city-agent-input" v-model="text" rows="2" maxlength="2000" :disabled="!ctx||inputBusy||!!candidate||!!basketProposal" placeholder="告诉小汴梁你的想法…"/>
+   <div class="interview-actions"><button class="button" :disabled="!ctx||inputBusy||!text.trim()||!!candidate||!!basketProposal">发送</button><button v-if="busy" type="button" class="button secondary" @click="cancel">停止处理</button></div>
   </form>
 
  </section>

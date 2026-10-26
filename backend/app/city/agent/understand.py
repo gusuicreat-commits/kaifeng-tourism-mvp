@@ -409,7 +409,7 @@ def parse(text,snapshot,*,allow_model=True):
         '普通query给purpose=trip/next/shows/dining/travel/history/reference。状态操作用state_request：complete/skip/position/cancel/restore；目标用原文完整名称，缺对象不猜。实际开始时间给HH:MM及start_quote；恢复给明确restore_version。'
         '只有单纯问两个地点之间怎么走/多久/多远/路线怎么走才给route_query；含多个停靠点、去A去B去C、出发并返回、全程步行等整趟游玩是planning，不是问路。地点抄原文，不发明ID或坐标，origin与use_current_position二选一。只有明确这里/当前位置才用当前位置，不因缺GPS阻止明确地点问路。天气给weather_query；查询不修改游玩日期，明确天气重排用planning.operation=weather_replan。'
         '问哪里能吃到某菜/附近吃什么用search_dining，target_name抄菜名/店名，说附近/这里时near=true；想去某地(含夜市)是planning。酒店/停车查询和追问用service_query及search_services；结合已保存条件辨别“明天入住”是住宿补充，不能写入planning。入住/退房date value抄原文；nights按晚数独立保存；room_type、location_text抄原词，标间不能推人数/间数。max_price为每晚元；stay_budget_fen为住宿合计分，不能混成整趟预算或报价。设施都行/没有也行用optional，不升为hard；真假与原文一致。'
-        '规划/游玩修改用planning，最多一个patch。city为城市，不是具体起终点；origin是出发地，destination为结束地，同地往返可同名。quote是原文连续片段勿拼接；field的quote含其value，同地往返destination可用origin的quote。日期抄原文，时间用HH:MM，前文今晚/晚上对后续钟点有效(今晚五点半…十点回→17:30、22:00)；只说下午/晚上不猜时刻，预算budget_fen(分)、日期时间起终点都写planning.fields，几点前回来写end_time。choices给完整素材名称、priority及status，不放宽必选。“就这样/开始安排”可continue且空fields/choices。'
+        'planning单patch：fields填city城市、origin出发地、destination结束地、日期、HH:MM时间、budget_fen分。quote连续摘本轮，field.quote含value；往返复用origin.quote。日期抄原文；晚间沿用到后续钟点（今晚五点半…十点回→17:30、22:00），无钟点不猜，几点前回来用end_time。choices含素材全名/priority/status；quote含整段意愿/优先级/不去，仅地名不填。priority：must=游客明确表示非去不可，want=一般想去（默认），optional=有空/顺路再去，没有明确表态时用want，不放宽必选。“就这样/开始安排”用continue，fields/choices空。'
         'constraints只放用户明确提出的要求，区分hard/soft/optional/unknown；模糊时间null/unknown。未提的偏好(节奏/目标/步行上限)不输出、不填默认值。走路/全程步行只是mode；walking_seconds仅在说“步行不超过X分钟”时给秒数。口语纠正取最后有效值。不能丢明确要求，暂不能处理放unresolved。'
         'conversation可与只读查询及一个planning并存，逐项处理，不丢分支或虚报完成；正式提交永远不在本输出。状态操作暂单独一轮。'
         +json.dumps(prompt_schema(Understanding.model_json_schema()),ensure_ascii=False,separators=(',',':')))
@@ -431,9 +431,6 @@ def parse(text,snapshot,*,allow_model=True):
                 result=result.model_copy(update={'actions':retained})
         if any((a.kind=='search_dining' or a.kind=='query' and a.purpose=='dining') and not a.near and _NEAR.search(a.quote) for a in result.actions):
             result=result.model_copy(update={'actions':tuple(a.model_copy(update={'near':True}) if (a.kind=='search_dining' or a.kind=='query' and a.purpose=='dining') and _NEAR.search(a.quote) else a for a in result.actions)})
-        if result.state_request:
-            from .semantic_execution import grounded_state
-            grounded_state(result.state_request,text)
         if not result.service_query and any(a.kind=='search_services' for a in result.actions):
             from .models import ServiceIntent
             action=next(a for a in result.actions if a.kind=='search_services')
@@ -459,6 +456,13 @@ def parse(text,snapshot,*,allow_model=True):
             if dropped:meta.setdefault('dropped_fields',[]).extend(dropped)
             if result.planning.operation=='weather_replan':
                 planning_intent.weather_replan(result.planning.quote)
+        if result.state_request:
+            # Pending materials allow evidenced short names; formal stops keep the strict state gate.
+            pending=planning_intent.pending_skip(result,snapshot,text)
+            if pending:result=pending
+            else:
+                from .semantic_execution import grounded_state
+                grounded_state(result.state_request,text)
         if local.corrections and not clock(text):
             # A cancelled clause cannot survive through a model-generated action list.
             result=result.model_copy(update={'actions':local.actions,'constraints':local.constraints})

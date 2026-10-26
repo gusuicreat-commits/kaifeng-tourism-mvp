@@ -25,6 +25,184 @@ def model(monkeypatch,text,fields=(),**extra):
 def field(name,value,quote):return {'field':name,'value':value,'quote':quote}
 
 
+def choices(monkeypatch,text,*items,fields=(),**extra):
+    return model(monkeypatch,text,planning={'quote':text,'fields':list(fields),'choices':[
+        {'name':name,'priority':priority,'status':status,'quote':quote} for name,priority,status,quote in items]},**extra)
+
+
+@pytest.fixture
+def reference_city(city):
+    import model_replay
+    model_replay.import_reference()
+    return city
+
+
+def test_empty_basket_proposes_places_saves_conditions_and_never_writes_materials(reference_city,monkeypatch):
+    from app.db import connect
+    e=reference_city;text='明晚五点半从开封府出发，想去清明上河园和鼓楼夜市，十点前回来'
+    before=get(e);basket=e['client'].get(path(e,'/basket')).json()
+    choices(monkeypatch,text,('清明上河园','want','pending','想去清明上河园和鼓楼夜市'),('鼓楼夜市','want','pending','想去清明上河园和鼓楼夜市'),fields=[
+        field('date','明天','明晚'),field('start_time','17:30','五点半'),field('origin','开封府','开封府'),field('end_time','22:00','十点前回来')])
+    task=run(e,text);proposal=task['result']['basket_proposal']
+    assert task['status']=='needs_confirmation' and proposal['basket_version']==0
+    assert [(i['operation'],i['kind'],i['object_id'],i['priority']) for i in proposal['items']]==[
+        ('put','place','pl_wb_000001','want'),('put','place','pl_wb_000013','want')]
+    saved=e['client'].get(path(e,'/exploration/constraints')).json()
+    assert saved['constraints']['business_date']=='2030-05-02'
+    assert saved['constraints']['starts_at']=='2030-05-02T17:30:00+08:00' and saved['constraints']['ends_at']=='2030-05-02T22:00:00+08:00'
+    assert saved['constraints']['origin_place_id']==saved['constraints']['destination_place_id']=='pl_wb_000003'
+    assert saved['result'] is None and '确认后我接着排' in task['result']['reply']
+    assert e['client'].get(path(e,'/basket')).json()==basket and get(e)==before
+    with connect() as db:assert db.execute('SELECT COUNT(*) FROM city_engine_candidates').fetchone()[0]==0
+
+
+@pytest.mark.parametrize('text,quote,model_priority,expected',[
+    ('清明上河园必去','清明上河园','must','want'),
+    ('一定要去清明上河园','一定要去清明上河园','must','must'),
+    ('清明上河园一定得去','清明上河园一定得去','must','must'),
+    ('想去清明上河园','想去清明上河园','want','want'),
+    ('清明上河园顺路看看','清明上河园顺路看看','optional','optional'),
+    ('鼓楼夜市必去，想去清明上河园','想去清明上河园','want','want'),
+])
+def test_new_material_priority_requires_attitude_evidence(reference_city,monkeypatch,text,quote,model_priority,expected):
+    choices(monkeypatch,text,('清明上河园',model_priority,'pending',quote))
+    task=run(reference_city,text)
+    assert task['result']['basket_proposal']['items'][0]['priority']==expected
+    assert reference_city['client'].get(path(reference_city,'/basket')).json()['items']==[]
+
+
+def test_material_priority_prompt_defines_default_and_all_three_levels(city,monkeypatch):
+    name='[合成测试]museum';text='去趟'+name
+    choices(monkeypatch,text,(name,'want','pending',text));generate=provider.generate
+    def check_prompt(system,payload,**kwargs):
+        for definition in ('must=游客明确表示非去不可','want=一般想去（默认）','optional=有空/顺路再去','没有明确表态时用want'):
+            assert definition in system
+        return generate(system,payload,**kwargs)
+    monkeypatch.setattr(provider,'generate',check_prompt)
+    task=run(city,text)
+    assert task['status']=='needs_confirmation' and task['result']['basket_proposal']['items'][0]['priority']=='want'
+
+
+@pytest.mark.parametrize('name,object_id',[('万岁山','pl_wb_000002'),('清明上河园','pl_wb_000001')])
+def test_named_scenic_can_be_proposed_without_a_detail_page(reference_city,monkeypatch,name,object_id):
+    text='想去'+name;choices(monkeypatch,text,(name,'want','pending',text))
+    task=run(reference_city,text)
+    assert task['result']['basket_proposal']['items'][0]['object_id']==object_id
+
+
+def test_food_name_or_alias_proposes_food_without_choosing_a_vendor(reference_city,monkeypatch):
+    from app.city import facts
+    from app.db import connect
+    e=reference_city
+    with connect() as db:
+        food=facts.records(db)['food','food_wb_000001']
+        facts.import_bundle(facts.FactBundle(records=(food.model_copy(update={'aliases':('汤包',),'version':food.version+1}),)),db,apply=True)
+    for name in ('灌汤包','汤包'):
+        text='想吃'+name;choices(monkeypatch,text,(name,'want','pending',text))
+        task=run(e,text);items=task['result']['basket_proposal']['items']
+        assert len(items)==1 and items[0]['kind']=='food' and items[0]['object_id']=='food_wb_000001' and items[0]['priority']=='want'
+        assert '把有这道菜的店加进素材篮' not in task['result']['reply']
+    assert e['client'].get(path(e,'/basket')).json()['items']==[]
+
+
+def test_unknown_material_has_explanation_and_no_proposal(city,monkeypatch):
+    text='想去不存在的景点';choices(monkeypatch,text,('不存在的景点','want','pending',text))
+    task=run(city,text)
+    assert 'basket_proposal' not in task['result'] and '资料里没有找到“不存在的景点”' in task['result']['reply']
+
+
+@pytest.mark.parametrize('compound',[False,True])
+def test_ambiguous_material_lists_at_most_three_candidates_without_picking(city,monkeypatch,compound):
+    from app.city import facts
+    from app.db import connect
+    with connect() as db:
+        original=facts.records(db)['place','museum']
+        records=tuple(original.model_copy(update={'fact_id':f'branch{i}','name':f'合成分店{i}','aliases':('合成店',)}) for i in range(4))
+        facts.import_bundle(facts.FactBundle(records=records),db,apply=True)
+    text='想去合成店';choices(monkeypatch,text,('合成店','want','pending',text),
+        **({'conversation':{'reply':'可以一起安排。'}} if compound else {}))
+    task=run(city,text)
+    assert 'basket_proposal' not in task['result']
+    candidates=task['result']['basket_choices'][0]['candidates']
+    assert task['result']['basket_choices'][0]['priority']=='want' and task['result']['basket_choices'][0]['quote']==text
+    assert len(candidates)==3 and all(i['object_id'] in {'branch0','branch1','branch2','branch3'} for i in candidates)
+    assert all(i['name'] in task['result']['reply'] for i in candidates)
+    assert city['client'].get(path(city,'/basket')).json()['items']==[]
+
+
+@pytest.mark.parametrize('text',['不去鼓楼夜市了','鼓楼夜市不去了'])
+def test_not_going_reply_patch_preserves_priority_and_rejects_unclear_choices(text):
+    from app.city.exploration import reply_patch
+    item={'key':'place:night','name':'鼓楼夜市','priority':'must','status':'pending'}
+    with pytest.raises(HTTPException):reply_patch(text,[item],{})
+    with pytest.raises(HTTPException):reply_patch('鼓楼夜市可能不去',[item],{})
+    with pytest.raises(HTTPException):reply_patch(text,[item|{'status':'arranged'}],{})
+
+
+@pytest.mark.parametrize('text',['不去鼓楼夜市了','鼓楼夜市不去了'])
+@pytest.mark.parametrize('arranged',[False,True])
+def test_not_going_only_proposes_standby_for_pending_material(reference_city,monkeypatch,text,arranged):
+    from test_city_assistant import planned
+    e=reference_city;c=e['client']
+    if arranged:
+        e['data']['requirements']['goals'][0]['target_id']='pl_wb_000013'
+        # Reuse the fixture's routable place so formal-arrangement detection is exercised without new data.
+        from app.city import facts
+        from app.db import connect
+        with connect() as db:
+            night=facts.records(db)['place','museum'].model_copy(update={'name':'鼓楼夜市','version':2})
+            facts.import_bundle(facts.FactBundle(records=(night,)),db,apply=True)
+        e['data']['requirements']['goals'][0]['target_id']='museum'
+        planned(e)
+    identity='museum' if arranged else 'pl_wb_000013'
+    assert c.patch(path(e,'/basket'),json={'request_id':rid(),'expected_version':0,'item':{'kind':'place','object_id':identity,'priority':'must'}}).status_code==200
+    before=c.get(path(e,'/basket')).json()
+    choices(monkeypatch,text,('鼓楼夜市','must','standby',text))
+    task=run(e,text)
+    if arranged:
+        assert 'basket_proposal' not in task['result'] and "鼓楼夜市已在正式行程里，途中想跳过可以说'跳过鼓楼夜市'" in task['result']['reply']
+    else:
+        item=task['result']['basket_proposal']['items'][0]
+        assert item['operation']=='standby' and item['object_id']==identity and item['priority']=='must'
+    assert c.get(path(e,'/basket')).json()==before
+
+
+def test_existing_same_priority_choice_remains_a_harmless_echo(city,monkeypatch):
+    name='[合成测试]museum';text='想去'+name
+    c=city['client'];assert c.patch(path(city,'/basket'),json={'request_id':rid(),'expected_version':0,'item':{'kind':'place','object_id':'museum'}}).status_code==200
+    before=c.get(path(city,'/basket')).json()
+    choices(monkeypatch,text,(name,'want','pending',name))
+    task=run(city,text)
+    assert 'basket_proposal' not in task['result'] and c.get(path(city,'/basket')).json()==before
+
+
+def test_existing_priority_change_also_waits_for_confirmation(city,monkeypatch):
+    name='[合成测试]museum';text=name+'改为想去';c=city['client']
+    assert c.patch(path(city,'/basket'),json={'request_id':rid(),'expected_version':0,'item':{'kind':'place','object_id':'museum','priority':'must'}}).status_code==200
+    choices(monkeypatch,text,(name,'want','pending',text))
+    task=run(city,text)
+    assert task['result']['basket_proposal']['items'][0]['priority']=='want'
+    assert c.get(path(city,'/basket')).json()['items'][0]['priority']=='must'
+
+
+def test_material_confirmation_uses_versioned_basket_api_then_saved_conditions(city,monkeypatch):
+    from test_city_assistant import modify
+    e=city;c=e['client']
+    modify(e,{'operation':'save_draft','draft':{'business_date':'2030-05-01','starts_at':'2030-05-01T10:00:00+08:00',
+        'ends_at':'2030-05-01T20:00:00+08:00','origin_place_id':'origin','destination_place_id':'hotel'}})
+    name='[合成测试]museum';text='想去'+name;choices(monkeypatch,text,(name,'want','pending',text))
+    task=run(e,text);proposal=task['result']['basket_proposal'];item=proposal['items'][0]
+    mutation={'request_id':rid(),'expected_version':proposal['basket_version'],'item':{
+        'kind':item['kind'],'object_id':item['object_id'],'priority':item['priority'],'source':'assistant'}}
+    saved=c.patch(path(e,'/basket'),json=mutation);assert saved.status_code==200,saved.text
+    assert c.patch(path(e,'/basket'),json=mutation|{'request_id':rid()}).status_code==409
+    workspace=c.get(path(e,'/exploration/constraints')).json()
+    preview=c.post(path(e,'/exploration/preview'),json={'request_id':rid(),'expected_version':get(e)['version'],
+        'basket_version':saved.json()['version'],'planning_version':workspace['version'],'constraints':workspace['constraints']})
+    assert preview.status_code==200 and preview.json()['status']=='feasible',preview.text
+    assert saved.json()['items'][0]['priority']=='want' and get(e)['route_version']==0
+
+
 @pytest.mark.parametrize('online',[False,True])
 def test_round_trip_semantic_online_and_deterministic_offline_never_commits(city,monkeypatch,online):
     monkeypatch.setattr(language,'available',lambda:online)
@@ -175,13 +353,13 @@ def test_continue_is_not_route_confirmation(city,monkeypatch):
     assert 'confirmation' not in t['result'] and get(city)==before
 
 
-def test_model_cannot_downgrade_a_material_using_a_must_quote(city,monkeypatch):
-    name='[合成测试]museum';text=name+'必去'
+def test_attitude_quote_uses_model_priority_and_still_requires_confirmation(city,monkeypatch):
+    name='[合成测试]museum';text=name+'保留为一般想去就行'
     c=city['client']
     assert c.patch(path(city,'/basket'),json={'request_id':rid(),'expected_version':0,'item':{'kind':'place','object_id':'museum','priority':'must'}}).status_code==200
     model(monkeypatch,text,planning={'quote':text,'choices':[{'name':name,'priority':'want','quote':text}]})
     t=run(city,text)
-    assert t['status']=='needs_clarification' and t['result'].get('planning_action') is None
+    assert t['status']=='needs_confirmation' and t['result']['basket_proposal']['items'][0]['priority']=='want'
     assert c.get(path(city,'/basket')).json()['items'][0]['priority']=='must'
 
 
@@ -520,3 +698,286 @@ def test_general_dining_limits_dishes_and_distinct_shops(city):
     assert len(counts)==5 and set(counts.values())=={2}
     for dish in counts:
         assert len({i['place_id'] for i in result['items'] if i['food_id']==dish})==2
+
+
+def test_echoed_basket_choice_is_dropped_but_date_field_survives(city,monkeypatch):
+    text='后天上午出发，帮我排一下路线'
+    model(monkeypatch,text,planning={'quote':text,'fields':[field('date','后天','后天')],
+        'choices':[{'name':'[合成测试]museum','priority':'must','status':'pending','quote':'[合成测试]museum'}]})
+    snap,_=snapshot(city);intent,meta=understand.parse(text,snap)
+    assert not intent.planning.choices
+    assert {'field':'choice','check':'choice_not_in_quote'} in meta['dropped_fields']
+    task=run(city,text)
+    assert 'basket_proposal' not in task['result'] and task['result']['planning_workflow']['result']['constraints']['business_date']=='2030-05-03'
+
+
+def test_pending_state_skip_becomes_standby_proposal_without_route_write(city,monkeypatch):
+    c=city['client'];assert c.patch(path(city,'/basket'),json={'request_id':rid(),'expected_version':0,
+        'item':{'kind':'place','object_id':'museum','priority':'must'}}).status_code==200
+    text='先把[合成测试]museum这站放到候补吧'
+    monkeypatch.setattr(language,'available',lambda:True)
+    monkeypatch.setattr(provider,'generate',lambda *a,**k:({'actions':[{'kind':'progress','quote':text}],
+        'state_request':{'operation':'skip','quote':text,'target_name':'[合成测试]museum'}},{'source':'mock_model'}))
+    before=get(city);task=run(city,text)
+    proposal=task['result']['basket_proposal']['items'][0]
+    assert proposal['operation']=='standby' and proposal['priority']=='must'
+    assert c.get(path(city,'/basket')).json()['items'][0]['status']=='pending' and get(city)==before
+
+
+def test_named_dish_lookup_offers_food_basket_candidate(city,monkeypatch):
+    text='哪家店能做[合成测试]菜品？'
+    dining(monkeypatch,text,target_name='[合成测试]菜品')
+    task=run(city,text);proposal=task['result']['basket_proposal']['items'][0]
+    assert proposal['kind']=='food' and proposal['object_id']=='food' and proposal['priority']=='want'
+    assert proposal['quote']==text
+
+
+def test_duplicate_candidate_names_without_addresses_explain_data_ambiguity(city,monkeypatch):
+    from app.city import facts
+    from app.db import connect
+    with connect() as db:
+        original=facts.records(db)['place','museum']
+        records=tuple(original.model_copy(update={'fact_id':f'same{i}','name':'同名园子','address':None,'aliases':()}) for i in range(2))
+        facts.import_bundle(facts.FactBundle(records=records),db,apply=True)
+    text='我想把同名园子也排进去';choices(monkeypatch,text,('同名园子','want','pending','同名园子'))
+    task=run(city,text)
+    assert '资料里有重复记录' in task['result']['reply']
+    assert len(task['result']['basket_choices'][0]['candidates'])>=2
+
+
+@pytest.mark.parametrize('mention,quote,slot',[
+    ('从{name}出发','从{name}出发','origin'),
+    ('最后回到{name}','最后回到{name}','destination'),
+    ('路过{name}之后再出发','路过{name}','origin'),
+    ('从{name}怎么走到住处','从{name}怎么走','origin'),
+    ('起点在{name}附近','{name}','origin'),
+    ('结束地点设在{name}门口','结束地点设在{name}','destination'),
+])
+@pytest.mark.parametrize('model_status',['pending','standby'])
+def test_incidental_basket_mentions_never_change_priority_or_block_planning(city,monkeypatch,mention,quote,slot,model_status):
+    from test_city_assistant import modify
+    e=city;c=e['client'];name='[合成测试]museum'
+    modify(e,{'operation':'save_draft','draft':{'business_date':'2030-05-01','starts_at':'2030-05-01T10:00:00+08:00',
+        'ends_at':'2030-05-01T20:00:00+08:00','origin_place_id':'origin','destination_place_id':'hotel'}})
+    assert c.patch(path(e,'/basket'),json={'request_id':rid(),'expected_version':0,
+        'item':{'kind':'place','object_id':'museum','priority':'want'}}).status_code==200
+    before=c.get(path(e,'/basket')).json();mention=mention.format(name=name);quote=quote.format(name=name)
+    text=mention+'，帮我安排今天的路线'
+    choices(monkeypatch,text,(name,'must',model_status,quote),fields=[field(slot,name,mention),field('date','今天','今天')])
+    task=run(e,text)
+    assert task['mode']=='planning' and 'planning_workflow' in task['result'],task
+    assert 'basket_proposal' not in task['result'] and '先确认素材的取舍' not in task['result']['reply']
+    assert c.get(path(e,'/basket')).json()==before
+
+
+@pytest.mark.parametrize('suffix,priority,status',[
+    ('这次非它不可','must','pending'),('留着有空再逛','optional','pending'),('这回就不安排它了','want','standby'),
+])
+def test_existing_basket_attitude_creates_confirmable_change(city,monkeypatch,suffix,priority,status):
+    name='[合成测试]museum';text=name+suffix;c=city['client']
+    assert c.patch(path(city,'/basket'),json={'request_id':rid(),'expected_version':0,
+        'item':{'kind':'place','object_id':'museum','priority':'want'}}).status_code==200
+    before=c.get(path(city,'/basket')).json();choices(monkeypatch,text,(name,priority,status,text))
+    task=run(city,text);item=task['result']['basket_proposal']['items'][0]
+    assert task['status']=='needs_confirmation' and item['priority']==priority
+    assert item['operation']==('standby' if status=='standby' else 'put')
+    assert c.get(path(city,'/basket')).json()==before
+
+
+def test_new_material_inside_endpoint_quote_defaults_to_want(city,monkeypatch):
+    name='[合成测试]museum';text='从'+name+'出发，帮我安排今天'
+    choices(monkeypatch,text,(name,'must','standby','从'+name+'出发'),
+        fields=[field('origin',name,'从'+name+'出发'),field('date','今天','今天')])
+    task=run(city,text);item=task['result']['basket_proposal']['items'][0]
+    assert item['operation']=='put' and item['priority']=='want'
+
+
+def test_alias_only_echo_uses_fact_and_basket_names(city,monkeypatch):
+    from app.city.agent import planning_intent
+    from app.city.agent.models import MaterialChoice, PlanningIntent
+    snap,_=snapshot(city);fact=snap.planning.facts['place','museum']
+    fact=fact.model_copy(update={'aliases':('博物馆',)})
+    snap.planning.facts['place','museum']=fact
+    item={'name':'游客篮中名称','fact_kind':'place','fact_id':'museum'}
+    for name,quote in ((fact.name,'博物馆'),('博物馆','游客篮中名称')):
+        choice=MaterialChoice(name=name,quote=quote,priority='must')
+        assert not planning_intent._choice_attitude(choice,PlanningIntent(quote=quote),[fact],[item],snap)
+
+
+def test_vendor_names_use_place_and_tolerate_missing_place(city):
+    from app.city.agent import planning_intent
+    from app.city.agent.models import MaterialChoice, PlanningIntent
+    snap,_=snapshot(city);vendor=snap.planning.facts['vendor','vendor'];place=snap.planning.facts['place',vendor.place_id]
+    snap.planning.facts['place',place.fact_id]=place.model_copy(update={'aliases':('食府别名',)})
+    item={'name':'游客篮中名称','fact_kind':'vendor','fact_id':vendor.fact_id}
+    assert planning_intent._material_names(item,snap)=={'游客篮中名称',place.name,'食府别名'}
+    choice=MaterialChoice(name=place.name,quote='食府别名',priority='must')
+    assert not planning_intent._choice_attitude(choice,PlanningIntent(quote=choice.quote),[vendor],[item],snap)
+    snap.planning.facts.pop(('place',place.fact_id))
+    assert planning_intent._material_names(item,snap)=={'游客篮中名称'}
+
+
+def test_duplicate_places_prefer_the_unique_canonical_record(city,monkeypatch):
+    from app.city import facts
+    from app.db import connect
+    with connect() as db:
+        original=facts.records(db)['place','museum']
+        canonical=original.model_copy(update={'name':'规范园子','aliases':('园子别名',),'version':2,
+            'coordinate_system':'WGS84','longitude':114.3,'latitude':34.8})
+        duplicate=original.model_copy(update={'fact_id':'legacy_museum','name':'规范园子','aliases':('园子别名',),
+            'coordinate_system':'unknown','longitude':None,'latitude':None})
+        facts.import_bundle(facts.FactBundle(records=(canonical,duplicate)),db,apply=True)
+    for name in ('规范园子','园子别名'):
+        text='我想去'+name;choices(monkeypatch,text,(name,'want','pending',text))
+        task=run(city,text)
+        assert 'basket_choices' not in task['result']
+        assert task['result']['basket_proposal']['items'][0]['object_id']=='museum'
+
+
+@pytest.mark.parametrize('spoken,target',[
+    ('鼓楼','鼓楼夜市'),('鼓楼夜市','鼓楼夜市'),('夜间小吃街','鼓楼夜市'),('鼓楼','鼓楼'),('夜间小吃街','夜间小吃街'),
+])
+@pytest.mark.parametrize('formal_route',[False,True])
+def test_pending_skip_accepts_unique_partial_full_or_alias_before_state_grounding(city,monkeypatch,spoken,target,formal_route):
+    from app.city import facts
+    from app.db import connect
+    from test_city_assistant import planned
+    e=city;c=e['client']
+    with connect() as db:
+        original=facts.records(db)['place','museum']
+        records=[original.model_copy(update={'name':'鼓楼夜市','aliases':('夜间小吃街',),'version':2})]
+        if formal_route:
+            records.append(original.model_copy(update={'fact_id':'outside_route','name':'鼓楼夜市','aliases':('夜间小吃街',)}))
+        facts.import_bundle(facts.FactBundle(records=tuple(records)),db,apply=True)
+    if formal_route:planned(e)
+    identity='outside_route' if formal_route else 'museum'
+    assert c.patch(path(e,'/basket'),json={'request_id':rid(),'expected_version':0,
+        'item':{'kind':'place','object_id':identity,'priority':'must'}}).status_code==200
+    text=spoken+'这次不去了';monkeypatch.setattr(language,'available',lambda:True)
+    monkeypatch.setattr(provider,'generate',lambda *a,**k:({'actions':[{'kind':'progress','quote':text}],
+        'state_request':{'operation':'skip','quote':text,'target_name':target}},{'source':'mock_model'}))
+    before=get(e);basket_before=c.get(path(e,'/basket')).json();task=run(e,text)
+    assert not task['interpretation'].get('validation_failure'),task
+    item=task['result']['basket_proposal']['items'][0]
+    assert task['status']=='needs_confirmation' and item['operation']=='standby' and item['object_id']==identity
+    assert item['priority']=='must' and item['quote']==text
+    assert get(e)==before and c.get(path(e,'/basket')).json()==basket_before
+
+
+def test_pending_skip_ambiguous_basket_target_asks_instead_of_guessing(city,monkeypatch):
+    from app.city import facts
+    from app.db import connect
+    with connect() as db:
+        original=facts.records(db)['place','museum']
+        facts.import_bundle(facts.FactBundle(records=tuple(original.model_copy(update={'fact_id':f'night{i}',
+            'name':f'鼓楼夜市{i}店','aliases':('小吃街',)}) for i in range(2))),db,apply=True)
+    for i in range(2):
+        assert city['client'].patch(path(city,'/basket'),json={'request_id':rid(),'expected_version':i,
+            'item':{'kind':'place','object_id':f'night{i}'}}).status_code==200
+    text='小吃街先不去了';monkeypatch.setattr(language,'available',lambda:True)
+    monkeypatch.setattr(provider,'generate',lambda *a,**k:({'state_request':{
+        'operation':'skip','quote':text,'target_name':'小吃街'}},{'source':'mock_model'}))
+    before=get(city);task=run(city,text)
+    assert task['status']=='needs_clarification' and all(f'鼓楼夜市{i}店' in task['result']['reply'] for i in range(2))
+    assert not task['interpretation'].get('validation_failure') and 'basket_proposal' not in task['result']
+    assert get(city)==before
+
+
+@pytest.mark.parametrize('text',['这站先不去了','鼓这次不去了','博物馆这次不去了'])
+def test_pending_skip_without_two_character_name_evidence_keeps_strict_gate(city,monkeypatch,text):
+    c=city['client'];assert c.patch(path(city,'/basket'),json={'request_id':rid(),'expected_version':0,
+        'item':{'kind':'place','object_id':'museum'}}).status_code==200
+    monkeypatch.setattr(language,'available',lambda:True)
+    monkeypatch.setattr(provider,'generate',lambda *a,**k:({'state_request':{
+        'operation':'skip','quote':text,'target_name':'[合成测试]museum'}},{'source':'mock_model'}))
+    task=run(city,text)
+    assert task['interpretation']['validation_failure']['check']=='state target absent'
+    assert 'basket_proposal' not in task['result']
+
+
+@pytest.mark.parametrize('spoken',['鼓楼','鼓楼夜市','夜间小吃街'])
+def test_official_stop_skip_keeps_strict_target_evidence_and_state_confirmation(city,monkeypatch,spoken):
+    from app.city import facts
+    from app.db import connect
+    from test_city_assistant import planned, modify
+    with connect() as db:
+        original=facts.records(db)['place','museum']
+        facts.import_bundle(facts.FactBundle(records=(original.model_copy(update={
+            'name':'鼓楼夜市','aliases':('夜间小吃街',),'version':2}),)),db,apply=True)
+    planned(city);modify(city,{'operation':'transition','status':'ACTIVE'});c=city['client']
+    assert c.patch(path(city,'/basket'),json={'request_id':rid(),'expected_version':0,
+        'item':{'kind':'place','object_id':'museum'}}).status_code==200
+    text=spoken+'这次不去了';monkeypatch.setattr(language,'available',lambda:True)
+    monkeypatch.setattr(provider,'generate',lambda *a,**k:({'state_request':{
+        'operation':'skip','quote':text,'target_name':'鼓楼夜市'}},{'source':'mock_model'}))
+    before=get(city);task=run(city,text)
+    assert 'basket_proposal' not in task['result'] and get(city)==before
+    if spoken=='鼓楼夜市':
+        assert task['status']=='needs_confirmation' and task['result']['confirmation']['target_kind']=='state'
+    else:
+        assert task['interpretation']['validation_failure']['check']=='state target absent'
+
+
+@pytest.mark.parametrize('kind,identity,place_id,name,alias',[
+    ('vendor','vendor','restaurant','宋味食府总店','宋味老店'),
+    ('food','food',None,'传统花生酥糖','花生甜点'),
+    ('place','museum',None,'汴梁民俗博物馆','民俗展馆'),
+])
+@pytest.mark.parametrize('mention',['partial','alias','full'])
+@pytest.mark.parametrize('output',['state','planning'])
+def test_material_skip_names_are_safe_for_vendor_food_and_place(city,monkeypatch,kind,identity,place_id,name,alias,mention,output):
+    from app.city import facts
+    from app.db import connect
+    with connect() as db:
+        original=facts.records(db)['place' if place_id else kind,place_id or identity]
+        facts.import_bundle(facts.FactBundle(records=(original.model_copy(update={
+            'name':name,'aliases':(alias,),'version':original.version+1}),)),db,apply=True)
+    c=city['client']
+    assert c.patch(path(city,'/basket'),json={'request_id':rid(),'expected_version':0,
+        'item':{'kind':kind,'object_id':identity,'priority':'must'}}).status_code==200
+    spoken={'partial':name[:3],'alias':alias,'full':name}[mention];text=spoken+'这次不去了'
+    if output=='planning':choices(monkeypatch,text,(spoken if mention=='partial' else name,'must','standby',text))
+    else:
+        monkeypatch.setattr(language,'available',lambda:True)
+        monkeypatch.setattr(provider,'generate',lambda *a,**k:({'state_request':{
+            'operation':'skip','quote':text,'target_name':name}},{'source':'mock_model'}))
+    before=get(city);basket_before=c.get(path(city,'/basket')).json();task=run(city,text)
+    assert not task['interpretation'].get('validation_failure'),task
+    item=task['result']['basket_proposal']['items'][0]
+    assert task['status']=='needs_confirmation' and item['operation']=='standby'
+    assert (item['kind'],item['object_id'],item['priority'])==(kind,identity,'must')
+    assert c.get(path(city,'/basket')).json()==basket_before and get(city)==before
+
+
+@pytest.mark.parametrize('with_fields,confirmed_priority',[(True,'optional'),(False,'optional'),(True,'must')])
+def test_existing_priority_confirmation_keeps_conditions_and_resumes_planning(city,monkeypatch,with_fields,confirmed_priority):
+    from test_city_assistant import modify
+    c=city['client'];name='[合成测试]museum'
+    modify(city,{'operation':'save_draft','draft':{'business_date':'2030-04-30' if with_fields else '2030-05-01',
+        'starts_at':('2030-04-30' if with_fields else '2030-05-01')+'T10:00:00+08:00',
+        'ends_at':('2030-04-30' if with_fields else '2030-05-01')+'T20:00:00+08:00',
+        'origin_place_id':'origin','destination_place_id':'hotel'}})
+    assert c.patch(path(city,'/basket'),json={'request_id':rid(),'expected_version':0,
+        'item':{'kind':'place','object_id':'museum','priority':'must'}}).status_code==200
+    quote=name+'有空再去就好';text=quote+('，今天上午9点到下午6点' if with_fields else '')
+    fields=[field('date','今天','今天'),field('start_time','09:00','上午9点'),field('end_time','18:00','下午6点')] if with_fields else []
+    choices(monkeypatch,text,(name,'optional','pending',quote),fields=fields)
+    before=get(city);basket_before=c.get(path(city,'/basket')).json();task=run(city,text)
+    assert task['status']=='needs_confirmation' and '调整'+name+'的优先级' in task['result']['reply']
+    assert '先确认素材的取舍' not in task['result']['reply']
+    proposal=task['result']['basket_proposal'];item=proposal['items'][0]
+    assert item['operation']=='put' and item['priority']=='optional'
+    workspace=c.get(path(city,'/exploration/constraints')).json();constraints=workspace['constraints']
+    assert workspace['result'] is None and constraints==task['result']['planning_workflow']['result']['constraints']
+    assert constraints['business_date']=='2030-05-01'
+    assert constraints['starts_at']=='2030-05-01T'+('09:00' if with_fields else '10:00')+':00+08:00'
+    assert constraints['ends_at']=='2030-05-01T'+('18:00' if with_fields else '20:00')+':00+08:00'
+    assert c.get(path(city,'/basket')).json()==basket_before and get(city)==before
+    saved=c.patch(path(city,'/basket'),json={'request_id':rid(),'expected_version':proposal['basket_version'],
+        'item':{'kind':item['kind'],'object_id':item['object_id'],'priority':confirmed_priority,'source':'assistant'}})
+    assert saved.status_code==200,saved.text
+    assert saved.json()['items'][0]['priority']==confirmed_priority
+    preview=c.post(path(city,'/exploration/preview'),json={'request_id':rid(),'expected_version':before['version'],
+        'basket_version':saved.json()['version'],'planning_version':workspace['version'],'constraints':constraints})
+    assert preview.status_code==200 and preview.json()['status']=='feasible',preview.text
+    assert preview.json()['constraints']==constraints and get(city)==before

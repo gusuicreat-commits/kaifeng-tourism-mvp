@@ -2,12 +2,16 @@
 import re
 from datetime import date, datetime
 from decimal import Decimal
-from fastapi import HTTPException
 from .. import facts
 from ..schema import TZ
-from .models import PlanningIntent, PlanningField
+from .models import PlanningIntent, PlanningField, BasketProposal, BasketProposalItem, BasketChoicePrompt, MaterialChoice, Action, Understanding
 from .dates import DATE_EXPRESSION, find_date_expressions, resolve_date
 from .evidence import request_evidence, effective_clock, preference_evidence
+
+
+def _fact_names(fact,snapshot):
+    if isinstance(fact,facts.Vendor):fact=snapshot.planning.facts.get(('place',fact.place_id))
+    return tuple(name for name in (getattr(fact,'name',None),*getattr(fact,'aliases',())) if name)
 
 
 def _field_check(f, text, today):
@@ -75,16 +79,23 @@ def grounded(planning, text, snapshot, dropped=None):
             raise ValueError(check)
         else:
             dropped.append({'field':f.field,'check':check})
+    kept_choices=[]
     for choice in planning.choices:
-        if choice.quote not in text:raise ValueError('material evidence absent')
+        if choice.quote not in text:
+            if dropped is None:raise ValueError('material evidence absent')
+            dropped.append({'field':'choice','check':'choice_not_in_quote'});continue
         if choice.name not in choice.quote and not any(
-                getattr(item,'name',None)==choice.name
+                choice.name in _fact_names(item,snapshot)
                 and any(alias and len(alias)>1 and alias in choice.quote
-                        for alias in getattr(item,'aliases',()))
+                        for alias in _fact_names(item,snapshot))
                 for item in snapshot.planning.facts.values()):
-            raise ValueError('material evidence absent')
+            if dropped is None:raise ValueError('material evidence absent')
+            dropped.append({'field':'choice','check':'choice_not_in_quote'});continue
         request_evidence(text,choice.quote)
-    return planning if len(kept)==len(planning.fields) else planning.model_copy(update={'fields':tuple(kept)})
+        kept_choices.append(choice)
+    if len(kept)!=len(planning.fields) or len(kept_choices)!=len(planning.choices):
+        return planning.model_copy(update={'fields':tuple(kept),'choices':tuple(kept_choices)})
+    return planning
 
 
 def weather_replan(quote):
@@ -133,6 +144,35 @@ def _dish_served_by_basket(name, snapshot):
     return food_covered_by_material(Constraint(field='food',value=name,strength='soft',quote=name),None,snapshot)
 
 
+def _choice_facts(name,snapshot):
+    catalog=snapshot.planning.facts
+    canonical=facts.place_by_name(catalog,name)
+    places=[canonical] if canonical else [p for p in catalog.values() if isinstance(p,facts.Place) and facts.planning_visible(p)
+        and name in _fact_names(p,snapshot)]
+    foods=[f for f in catalog.values() if isinstance(f,facts.Food) and facts.planning_visible(f) and name in _fact_names(f,snapshot)]
+    if not places and not foods and len(name)>1:
+        places=[p for p in catalog.values() if isinstance(p,facts.Place) and facts.planning_visible(p) and name in _fact_names(p,snapshot)[0]]
+    seen=set();result=[]
+    for item in (*places,*foods):
+        key=(item.kind,item.fact_id)
+        if key not in seen:seen.add(key);result.append(item)
+    return result
+
+
+def _material_names(item,snapshot):
+    fact=snapshot.planning.facts.get((item['fact_kind'],item['fact_id']))
+    return {item['name'],*_fact_names(fact,snapshot)}
+
+
+def _choice_attitude(choice,planning,resolved,matches,snapshot):
+    if any(choice.quote in f.quote for f in planning.fields):return False
+    names={choice.name}
+    for fact in resolved:names.update(_fact_names(fact,snapshot))
+    for item in matches:names.update(_material_names(item,snapshot))
+    pattern='|'.join(re.escape(name) for name in sorted(names,key=len,reverse=True) if name)
+    return bool(re.search(r'\w',re.sub(pattern,'',choice.quote)))
+
+
 def proposal(session, trip_id, snapshot, intent, text, *, today=None):
     from ...db import connect
     from .. import basket
@@ -149,7 +189,8 @@ def proposal(session, trip_id, snapshot, intent, text, *, today=None):
     notes=[]
     for c in intent.constraints:
         if c.field=='food':
-            notes.append(f'想吃{c.value}：把有这道菜的店加进素材篮，就能排进行程。' if c.value else '想吃什么？告诉我菜名或店名。')
+            if not any(c.value in (choice.name,*(a for f in _choice_facts(choice.name,snapshot) for a in _fact_names(f,snapshot))) for choice in p.choices):
+                notes.append(f'想吃{c.value}：把有这道菜的店加进素材篮，就能排进行程。' if c.value else '想吃什么？告诉我菜名或店名。')
         elif c.field not in ('pace','objective','return_by'):
             notes.append(f'“{c.quote[:30]}”这次还没排进去，确认方案前请留意。')
     saved=snapshot.envelope.planning_constraints
@@ -194,42 +235,88 @@ def proposal(session, trip_id, snapshot, intent, text, *, today=None):
         if field in fields:values[field]=fields[field]
     if 'mode' in fields:values['modes']=[fields['mode']]
     validated=Constraints.model_validate(values)
-    choice_text=[]
+    changes=[];ambiguities=[]
     if p.choices:
         with connect() as db:items=basket.snapshot(db,session,trip_id)['items']
         used=set()
         for choice in p.choices:
+            resolved=_choice_facts(choice.name,snapshot)
             # A short name ("第一楼") may stand for one basket item's full name.
-            matches=[i for i in items if i['name']==choice.name] or [i for i in items if choice.name in i['name']]
+            matches=[i for i in items if choice.name in _material_names(i,snapshot)] or [i for i in items if any(i['fact_kind']==f.kind and i['fact_id']==f.fact_id for f in resolved)] or [i for i in items if any(choice.name in name for name in _material_names(i,snapshot))]
             if choice.name in used:continue
-            if not matches and _dish_served_by_basket(choice.name,snapshot):continue
-            if len(matches)!=1:
-                # Not in the basket: leave it out of this turn and say so.
-                notes.append(f'“{choice.name}”在素材篮里有好几项，是哪一个？' if matches else f'“{choice.name}”不在素材篮里，想去的话先在详情页加入。')
-                continue
             used.add(choice.name)
+            if not _choice_attitude(choice,p,resolved,matches,snapshot):
+                if matches:continue
+                choice=choice.model_copy(update={'priority':'want','status':'pending'})
+            if not matches and _dish_served_by_basket(choice.name,snapshot):continue
+            if not matches:
+                if choice.status=='standby':
+                    notes.append(f'“{choice.name}”不在素材篮里，无需改为候补。');continue
+                if len(resolved)!=1:
+                    candidates=[{'kind':f.kind,'object_id':f.fact_id,'name':_fact_names(f,snapshot)[0],'address':getattr(f,'address',None)} for f in resolved[:3]]
+                    if candidates:
+                        ambiguities.append(BasketChoicePrompt(query=choice.name,quote=choice.quote,
+                            priority=choice.priority,candidates=tuple(candidates)).model_dump(mode='json'))
+                        notes.append(f'“{choice.name}”对应多个对象，请选一个：'+ '、'.join(f['name'] for f in candidates)+'。')
+                        if len({f['name'] for f in candidates})==1 and not all(f['address'] for f in candidates):
+                            notes.append('资料里有重复记录，部分记录没有地址等区分信息。')
+                    else:notes.append(f'资料里没有找到“{choice.name}”，暂不能加入素材篮。')
+                    continue
+                f=resolved[0]
+                changes.append(BasketProposalItem(operation='put',kind=f.kind,object_id=f.fact_id,name=_fact_names(f,snapshot)[0],
+                    priority=choice.priority,quote=choice.quote))
+                continue
+            if len(matches)!=1:
+                notes.append(f'“{choice.name}”在素材篮里有好几项，是哪一个？')
+                continue
             current=matches[0]
+            if choice.status=='standby':
+                if current['status']=='arranged':
+                    notes.append(f"{current['name']}已在正式行程里，途中想跳过可以说'跳过{current['name']}'。");continue
+                if current['status']!='standby':
+                    changes.append(BasketProposalItem(operation='standby',kind=current['kind'],object_id=current['id'],
+                        name=current['name'],priority=choice.priority,quote=choice.quote))
+                continue
             # A choice that already matches the basket is a harmless echo of the
             # existing selection, not a material change. It can accompany date/
             # time fields in a single-utterance plan.
             if current['priority']==choice.priority and current['status']==choice.status:
                 continue
-            # A real material change cannot be combined with date/time in one
-            # shot; the existing answer endpoint owns consent and atomic writes.
-            if p.fields or any(c.field in ('pace','objective','return_by') for c in intent.constraints):
-                return {'status':'needs_clarification','reply':'先确认素材的取舍，再改日期和时间吧。'}
-            # The quote itself must authorize the stated priority; a "必去" text
-            # cannot be silently downgraded to "想去" by the model.
-            from ..exploration import reply_patch
-            try:
-                _,checked=reply_patch(choice.quote,items,c.model_dump(mode='json'))
-            except (HTTPException,ValueError):
-                return {'status':'needs_clarification','reply':'这一项是必去、想去，还是先放候补？'}
-            if checked.get(matches[0]['key'])!={'priority':choice.priority,'status':choice.status}:
-                return {'status':'needs_clarification','reply':'这一项是必去、想去，还是先放候补？'}
-            suffix='先放候补' if choice.status=='standby' else {'must':'必去','want':'改为想去','optional':'顺路看看'}[choice.priority]
-            choice_text.append(choice.name+suffix)
+            changes.append(BasketProposalItem(operation='standby' if choice.status=='standby' else 'put',kind=current['kind'],
+                object_id=current['id'],name=current['name'],priority=choice.priority,quote=choice.quote))
+    changes=list({(i.kind,i.object_id):i for i in changes}.values())
     return {'status':'planning_input','reply':'好的，正在安排。','notes':notes,
+            **({'basket_proposal':BasketProposal(items=tuple(changes),basket_version=snapshot.envelope.basket['version']).model_dump(mode='json')} if changes else {}),
+            **({'basket_choices':ambiguities} if ambiguities else {}),
             'planning_action':{'trip_id':str(snapshot.envelope.identity.trip_id),'operation':p.operation,'constraints':validated.model_dump(mode='json'),
                 'planning_version':saved.get('version',0),'basket_version':snapshot.envelope.basket['version'],
-                'trip_version':snapshot.row['version'],'date_changed':'date' in fields,'choice_text':'，'.join(choice_text) or None}}
+                'trip_version':snapshot.row['version'],'date_changed':'date' in fields}}
+
+
+def pending_skip(intent, snapshot, text):
+    """Turn a modelled skip into a basket standby proposal when no formal stop matches."""
+    state=intent.state_request
+    if not state or state.operation!='skip' or not state.target_name:return None
+    request_evidence(text,state.quote)
+    query=state.target_name
+    matches=[]
+    for item in snapshot.materials:
+        names=_material_names(item,snapshot)
+        if query in names or any(len(query)>1 and query in name for name in names):matches.append(item)
+    unique={item['key']:item for item in matches}
+    route_version=snapshot.envelope.identity.route_version
+    route_ids={value for s in snapshot.draft.stops for value in (getattr(s,'place_id',None),getattr(s,'session_id',None)) if value}
+    for item in unique.values():
+        fact=snapshot.planning.facts.get((item['fact_kind'],item['fact_id']))
+        route_target=getattr(fact,'place_id',None) if item['fact_kind']=='vendor' else item['fact_id']
+        if route_version>0 and (item['status']=='arranged' or route_target in route_ids):return None
+    if len(unique)>1:
+        return Understanding(unresolved=('素材篮里有多个匹配项，请选一个：'+'、'.join(i['name'] for i in unique.values())+'。',))
+    if not unique:return None
+    item=next(iter(unique.values()))
+    if not any(name[i:i+2] in state.quote for name in _material_names(item,snapshot) for i in range(len(name)-1)):
+        return None
+    if item['status']=='standby':return None
+    choice=MaterialChoice(name=item['name'],priority=item['priority'],status='standby',quote=state.quote)
+    planning=PlanningIntent(quote=state.quote,choices=(choice,))
+    return Understanding(actions=(Action(kind='modify',quote=state.quote),),planning=planning)
