@@ -110,14 +110,20 @@ truth, and tool-backed factual questions must still use deterministic queries.
 
 
 PREFERENCE_CUES={
-    'pace':{'relaxed':r'轻松|宽松|慢点|慢一点|慢一些|放慢|悠闲|不赶|别太累','compact':r'紧凑|多安排|多逛|充实|快一点|加快','standard':r'标准|正常|普通节奏'},
-    'objective':{'less_walking':r'少走|走路少|步行少|近点|近一点|别走太远|不想走太多',
-        'less_waiting':r'少等|少排队|减少等待|不想等','lower_cost':r'省钱|便宜|少花|低费用|预算更低','balanced':r'均衡|平衡|综合'},
+    # pace/objective are semantic classifications supplied by the model.  Their
+    # quote is grounded by the caller; this table only keeps the strict mode gate.
+    'pace':{},
+    'objective':{},
     'mode':{'walking':r'步行|走路','driving':r'开车|驾车|自驾','transit':r'公交|公共交通|巴士|地铁'},
 }
 
 
 def preference_evidence(field,value,quote):
+    if not quote:raise ValueError('invented preference or mode')
+    if field in ('pace','objective'):
+        allowed={'pace':('relaxed','standard','compact'),'objective':('balanced','less_walking','less_waiting','lower_cost')}[field]
+        if value not in allowed:raise ValueError('invented preference or mode')
+        return
     pattern=PREFERENCE_CUES[field].get(value,r'(?!)')
     if not re.search(pattern,quote):raise ValueError('invented preference or mode')
     if re.search(r'(?:不要|不想|不是要|并非要|不用|不坐|不乘).{0,3}(?:'+pattern+r')',quote):

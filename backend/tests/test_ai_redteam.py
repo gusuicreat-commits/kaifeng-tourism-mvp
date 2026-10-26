@@ -86,6 +86,18 @@ def test_rt05_model_cannot_invent_preference_or_strength_from_irrelevant_quote(c
     assert business(city)==before
 
 
+def test_rt05b_invented_preference_from_unrelated_quote_is_shown_and_never_applied(city,monkeypatch):
+    # Pace/objective are taken from the model (A6). An invented one cannot be
+    # caught by meaning, so it must be named to the visitor and wait for consent.
+    walking(city);before=business(city)
+    model(monkeypatch,{'actions':[{'kind':'preference','quote':'今天天气不错'}],
+        'constraints':[{'field':'pace','value':'compact','strength':'hard','quote':'今天天气不错'}]})
+    t=run(city,'今天天气不错')
+    assert business(city)==before
+    assert t['status']!='answered' or not t['result'].get('confirmation')
+    if t['result'].get('confirmation'):assert '紧凑' in t['result']['reply'],t['result']['reply']
+
+
 def test_rt06_history_off_does_not_keep_original_body_or_answer_in_terminal_task(city,monkeypatch):
     c=city['client'];assert c.put('/api/v1/memory/history',json={'enabled':False}).status_code==200
     model(monkeypatch,{'conversation':{'reply':'敏感回复标记PRIVATE_ANSWER'}})
@@ -205,7 +217,9 @@ def test_rt16_calendar_question_is_not_a_request_to_change_date(city,monkeypatch
 def test_rt17_schema_and_evidence_attack_matrix_stops_without_state_changes(city,monkeypatch,raw):
     before=business(city);model(monkeypatch,raw)
     t=run(city,'你好')
-    assert t['status']=='needs_clarification' and not t['result'].get('confirmation')
+    # A greeting may be answered as plain conversation; it never yields an action.
+    assert t['status']=='needs_clarification' or t['status']=='answered' and t['mode']=='conversation'
+    assert not t['result'].get('confirmation') and not t['result'].get('planning_action')
     assert business(city)==before
 
 

@@ -251,7 +251,7 @@ def failure(exc):
     return {'kind':'evidence','at':where,'check':message if _CODE.fullmatch(message) else 'unclassified'}
 
 
-PLANNING_FIELDS=('city','date','start_time','end_time','origin','destination','mode','budget_fen')
+PLANNING_FIELDS=('city','date','start_time','end_time','origin','destination','mode','budget_fen','trip_days')
 
 
 # Plain-English synonyms the model uses for the enumerated preferences.
@@ -271,7 +271,26 @@ def _canonical_preferences(raw):
     return raw
 
 
-def _normalize_model_output(raw):
+def _legacy_trip_days(text):
+    """Compatibility-only recovery for recorded 3.3 replies missing trip_days."""
+    values=[]
+    for match in re.finditer(r'(\d+|[零一二两三四五六七八九十百千万]+)\s*天',text or ''):
+        token=match[1]
+        try:
+            if token.isdigit():values.append(int(token))
+            elif len(token)>1 and not any(c in token for c in '十百千万'):
+                values.extend(NUMBERS.get(c) for c in token if NUMBERS.get(c) is not None)
+            elif '百' in token:
+                digits={'零':0,'一':1,'二':2,'两':2,'三':3,'四':4,'五':5,'六':6,'七':7,'八':8,'九':9}
+                if token.endswith('百'):values.append((digits.get(token[:-1],1) if token[:-1] else 1)*100)
+            elif '十' in token:
+                a,b=token.split('十',1);values.append((NUMBERS.get(a,1) if a else 1)*10+(NUMBERS.get(b,0) if b else 0))
+            else:values.append(NUMBERS.get(token))
+        except (TypeError,ValueError):continue
+    return max((v for v in values if v),default=1)
+
+
+def _normalize_model_output(raw,text=None):
     """Drop only constraints that cannot be valid for their field.
 
     A model may redundantly copy planning targets into constraints with
@@ -284,7 +303,17 @@ def _normalize_model_output(raw):
     """
     if not isinstance(raw,dict):
         return raw
+    legacy_schema=raw.get('schema_version') in ('travel-intent/3.1','travel-intent/3.2','travel-intent/3.3')
     raw=_canonical_preferences(raw)
+    planning=raw.get('planning')
+    if legacy_schema and isinstance(planning,dict) and isinstance(text,str):
+        fields=list(planning.get('fields') or [])
+        if not any(isinstance(f,dict) and f.get('field')=='trip_days' for f in fields) and _legacy_trip_days(text)>1:
+            fields.append({'field':'trip_days','value':_legacy_trip_days(text),'quote':next((m.group(0) for m in re.finditer(r'(?:\d+|[零一二两三四五六七八九十百千万]+)\s*天',text)),''), 'budget_basis':None})
+        if any(isinstance(f,dict) and f.get('field')=='budget_fen' and f.get('budget_basis') is None for f in fields):
+            fields=[dict(f,budget_basis='per_person' if re.search(r'每人|人均|一人|每个人',text) else 'total') if isinstance(f,dict) and f.get('field')=='budget_fen' and f.get('budget_basis') is None else f for f in fields]
+        if fields:
+            raw=dict(raw,planning=dict(planning,fields=fields))
     raw_constraints=raw.get('constraints')
     if not isinstance(raw_constraints,(list,tuple)):
         return raw
@@ -293,7 +322,11 @@ def _normalize_model_output(raw):
     if moved:
         planning=dict(raw.get('planning') or {'operation':'update','quote':moved[0]['quote']})
         present={f.get('field') for f in planning.get('fields') or [] if isinstance(f,dict)}
-        planning['fields']=[*(planning.get('fields') or []),*({'field':c['field'],'value':c['value'],'quote':c['quote']} for c in moved if c['field'] not in present)]
+        def basis(c):
+            if c.get('budget_basis'):return {'budget_basis':c['budget_basis']}
+            if legacy_schema and c.get('field')=='budget_fen' and isinstance(text,str):return {'budget_basis':'per_person' if re.search(r'每人|人均|一人|每个人',text) else 'total'}
+            return {}
+        planning['fields']=[*(planning.get('fields') or []),*({'field':c['field'],'value':c['value'],'quote':c['quote'],**basis(c)} for c in moved if c['field'] not in present)]
         raw=dict(raw,planning=planning,constraints=[c for c in raw_constraints if c not in moved])
         raw_constraints=raw['constraints']
     planning=raw.get('planning')
@@ -408,8 +441,8 @@ def parse(text,snapshot,*,allow_model=True):
         '礼貌问句可查询，否定/引用/假设/教程不是操作授权。quote逐字摘自本轮；服务字段quote必须在service_query.quote内。实际事实查询走工具，不从模型记忆补价格/营业/路线/天气。'
         '普通query给purpose=trip/next/shows/dining/travel/history/reference。状态操作用state_request：complete/skip/position/cancel/restore；目标用原文完整名称，缺对象不猜。实际开始时间给HH:MM及start_quote；恢复给明确restore_version。'
         '只有单纯问两个地点之间怎么走/多久/多远/路线怎么走才给route_query；含多个停靠点、去A去B去C、出发并返回、全程步行等整趟游玩是planning，不是问路。地点抄原文，不发明ID或坐标，origin与use_current_position二选一。只有明确这里/当前位置才用当前位置，不因缺GPS阻止明确地点问路。天气给weather_query；查询不修改游玩日期，明确天气重排用planning.operation=weather_replan。'
-        '问哪里能吃到某菜/附近吃什么用search_dining，target_name抄菜名/店名，说附近/这里时near=true；想去某地(含夜市)是planning。酒店/停车查询和追问用service_query及search_services；结合已保存条件辨别“明天入住”是住宿补充，不能写入planning。入住/退房date value抄原文；nights按晚数独立保存；room_type、location_text抄原词，标间不能推人数/间数。max_price为每晚元；stay_budget_fen为住宿合计分，不能混成整趟预算或报价。设施都行/没有也行用optional，不升为hard；真假与原文一致。'
-        'planning单patch：fields填city城市、origin出发地、destination结束地、日期、HH:MM时间、budget_fen分。quote连续摘本轮，field.quote含value；往返复用origin.quote。日期抄原文；晚间沿用到后续钟点（今晚五点半…十点回→17:30、22:00），无钟点不猜，几点前回来用end_time。choices含素材全名/priority/status；quote含整段意愿/优先级/不去，仅地名不填。priority：must=游客明确表示非去不可，want=一般想去（默认），optional=有空/顺路再去，没有明确表态时用want，不放宽必选。“就这样/开始安排”用continue，fields/choices空。'
+        '问哪里能吃到某菜/附近吃什么用search_dining，target_name抄菜名/店名，说附近/这里时near=true；想去某地(含夜市)是planning。酒店/停车查询和追问用service_query及search_services；结合已保存条件辨别“明天入住”是住宿补充，不能写入planning。入住/退房date value抄原文；nights按晚数独立保存；room_type、location_text抄原词，标间不能推人数/间数。max_price为每晚元；stay_budget_fen为住宿合计分，不能混成整趟预算或报价；金额口径由你判断。设施/房间条件、真假与强弱由你判断，strength填hard/soft/optional；系统会把理解结果告诉游客。'
+        'planning单patch：fields填city城市、origin出发地、destination结束地、日期、HH:MM时间、budget_fen分。trip_days填整数，“两三天”取上限；budget_fen同时给budget_basis（total总预算/per_person每人预算），由你判断口径，系统会把理解结果告诉游客。quote连续摘本轮，field.quote含value；往返复用origin.quote。日期抄原文；晚间沿用到后续钟点（今晚五点半…十点回→17:30、22:00），无钟点不猜，几点前回来用end_time。choices含素材全名/priority/status；quote含整段意愿/优先级/不去，仅地名不填。priority：must=游客明确表示非去不可，want=一般想去（默认），optional=有空/顺路再去，没有明确表态时用want，不放宽必选。“就这样/开始安排”用continue，fields/choices空。'
         'constraints只放用户明确提出的要求，区分hard/soft/optional/unknown；模糊时间null/unknown。未提的偏好(节奏/目标/步行上限)不输出、不填默认值。走路/全程步行只是mode；walking_seconds仅在说“步行不超过X分钟”时给秒数。口语纠正取最后有效值。不能丢明确要求，暂不能处理放unresolved。'
         'conversation可与只读查询及一个planning并存，逐项处理，不丢分支或虚报完成；正式提交永远不在本输出。状态操作暂单独一轮。'
         +json.dumps(prompt_schema(Understanding.model_json_schema()),ensure_ascii=False,separators=(',',':')))
@@ -419,8 +452,13 @@ def parse(text,snapshot,*,allow_model=True):
     meta['model_calls']=1
     try:
         raw,usage=provider.generate(system,payload);meta['usage'].append(usage)
-        raw=_normalize_model_output(_repair_quotes(raw,text))
+        raw=_normalize_model_output(_repair_quotes(raw,text),text)
         result=grounded(Understanding.model_validate(raw),text)
+        # A pure salutation authorizes nothing. Preferences are semantic fields
+        # taken from the model, so a greeting cannot carry one either (rt05).
+        if greeting_only(text):
+            result=result.model_copy(update={'actions':(),'constraints':(),'corrections':(),'planning':None,
+                'route_query':None,'weather_query':None,'service_query':None,'state_request':None})
         # Some model responses include a harmless ``query`` action beside a
         # normal greeting. Treating that action as a business query creates a
         # spurious “请提供场次或商家名称” tail. A real question still keeps

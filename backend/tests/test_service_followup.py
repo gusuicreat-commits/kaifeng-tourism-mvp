@@ -83,26 +83,46 @@ def assert_dropped(entry,check):
     assert dropped==[{'field':entry['field'],'check':check,'quote':entry['quote']}]
 
 
-@pytest.mark.parametrize('entry,check',[
-    (field('nights',3,'住两个晚上'),'value_not_in_quote'),
-    (field('nights',2,'两个人'),'value_not_in_quote'),
-    (field('breakfast',True,'有没有早餐都行',strength='hard'),'optional_condition_promoted'),
-    (field('room_type','大床房','我要标间'),'value_not_in_quote'),
-    (field('window',True,'我要标间'),'attribute_not_in_quote'),
+@pytest.mark.parametrize('entry',[
+    field('nights',3,'住两个晚上'),
+    field('nights',2,'两个人'),
 ])
-def test_semantic_fields_cannot_invent_or_change_scope(entry,check):
-    assert_dropped(entry,check)
+def test_numeric_fields_still_cannot_invent_values(entry):
+    assert_dropped(entry,'value_not_in_quote')
 
-@pytest.mark.parametrize('entry,check',[
-    (field('nights',2,'两个人，住三晚'),'value_not_in_quote'),
-    (field('rooms',2,'两个人，一间房'),'value_not_in_quote'),
-    (field('max_price',500,'预算两天500元'),'money_scope_mismatch'),
-    (field('stay_budget_fen',50000,'整趟旅行预算500元'),'money_scope_mismatch'),
-    (field('stay_budget_fen',50000,'每晚预算500元'),'money_scope_mismatch'),
-    (field('stay_budget_fen',50123,'住宿预算501元'),'value_not_in_quote'),
+
+@pytest.mark.parametrize('entry',[
+    field('breakfast',True,'有没有早餐都行',strength='hard'),
+    field('room_type','大床房','我要标间'),
+    field('window',True,'我要标间'),
+    field('room_type','无窗房','不要无窗房'),
 ])
-def test_numeric_field_binds_its_unit_and_budget_scope(entry,check):
-    assert_dropped(entry,check)
+def test_model_semantics_are_kept_when_quote_is_grounded(entry):
+    dropped=[];text=entry['quote']
+    req=services.semantic_requirements(ServiceIntent(quote=text,fields=[entry]),text,{},datetime.now(TZ).date(),dropped)
+    assert not dropped
+    assert (req.get('attributes',{}).get(entry['field']) or req).get('value',req.get(entry['field']))==entry['value']
+
+@pytest.mark.parametrize('entry',[
+    field('nights',2,'两个人，住三晚'),
+    field('rooms',2,'两个人，一间房'),
+    field('stay_budget_fen',50123,'住宿预算501元'),
+])
+def test_numeric_field_binds_its_unit(entry):
+    assert_dropped(entry,'value_not_in_quote')
+
+
+@pytest.mark.parametrize('entry',[
+    field('max_price',500,'预算两天500元'),
+    field('stay_budget_fen',50000,'整趟旅行预算500元'),
+    field('stay_budget_fen',50000,'每晚预算500元'),
+    field('max_price',200,'预算200以内'),
+    field('stay_budget_fen',20000,'住宿合计两百块'),
+])
+def test_money_scope_is_model_selected_and_amount_is_grounded(entry):
+    dropped=[];text=entry['quote']
+    req=services.semantic_requirements(ServiceIntent(quote=text,fields=[entry]),text,{},datetime.now(TZ).date(),dropped)
+    assert not dropped and req[entry['field']]==entry['value']
 
 
 def test_date_patch_order_and_conflicts_preserve_explicit_stay():
@@ -124,23 +144,27 @@ def test_date_patch_order_and_conflicts_preserve_explicit_stay():
         assert dropped==[{'field':'check_out','check':'conflicting_values','quote':'后天退房'}]
     assert saved.get('check_in') is None  # patches never mutate the original
 
-@pytest.mark.parametrize('entry,check',[
-    (field('breakfast',False,'必须有早餐'),'polarity_mismatch'),
-    (field('window',True,'不要窗户'),'polarity_mismatch'),
-    (field('room_type','标间','标间大床房都行',strength='hard'),'optional_condition_promoted'),
-    (field('location_text','清明上河园','必须靠近清明上河园',strength='soft'),'hard_condition_weakened'),
+@pytest.mark.parametrize('entry',[
+    field('breakfast',False,'必须有早餐',strength='hard'),
+    field('window',True,'不要窗户',strength='hard'),
+    field('room_type','标间','标间大床房都行',strength='hard'),
+    field('location_text','清明上河园','必须靠近清明上河园',strength='soft'),
 ])
-def test_condition_polarity_and_strength_cannot_be_reversed(entry,check):
-    assert_dropped(entry,check)
+def test_condition_polarity_and_strength_follow_model(entry):
+    dropped=[];text=entry['quote']
+    req=services.semantic_requirements(ServiceIntent(quote=text,fields=[entry]),text,{},datetime.now(TZ).date(),dropped)
+    assert not dropped
+    value=req.get('attributes',{}).get(entry['field'],req).get('strength',req['field_strengths'][entry['field']])
+    assert value==entry['strength']
 
 
-def test_preference_keeps_saved_must_until_explicit_waiver():
+def test_preference_strength_is_replaced_by_the_model():
     today=datetime.now(TZ).date()
     def apply(entry,prev):
         return services.semantic_requirements(ServiceIntent(quote=entry['quote'],fields=[entry]),entry['quote'],prev,today)
     first=apply(field('window',True,'必须有窗户'),{})
     second=apply(field('window',True,'最好有窗户',strength='soft'),first)
-    assert second['attributes']['window']['strength']=='hard'
+    assert second['attributes']['window']['strength']=='soft'
     third=apply(field('window',True,'窗户没有也行',strength='optional'),second)
     assert third['attributes']['window']['strength']=='optional'
 
@@ -165,7 +189,7 @@ def test_optional_room_and_area_remain_unknown_without_becoming_must(env,monkeyp
     (field('free_parking',True,'原话没有这个条件'),'quote_not_in_request'),
     (field('nights',0,'住0晚'),'invalid_value'),
     (field('nights','两晚','住两晚'),'invalid_value'),
-    (field('nights',2,'住一一晚'),'invalid_value'),
+    (field('nights',2,'住一一晚'),'value_not_in_quote'),
     (field('check_in','2030-02-30','2030-02-30入住'),'date_unresolved'),
     (field('check_in','下个月','下个月入住'),'date_unresolved'),
     (field('check_in','后天','明天入住'),'value_not_in_quote'),
@@ -231,14 +255,14 @@ def test_pitch_hotel_fields_query_and_name_the_dropped_parking_condition(env,mon
     assert task['mode']=='travel_services' and task['status']==('answered' if saved_dates else 'needs_clarification')
     assert len(searches)==int(saved_dates)
     result=task['result'];req=result['services']['requirements']
-    assert set(req['attributes'])=={'clean','window'} and all(a['value'] is True for a in req['attributes'].values())
-    assert 'free_parking' not in req['field_strengths']
+    assert set(req['attributes'])=={'clean','window','free_parking'} and all(a['value'] is True for a in req['attributes'].values())
+    assert req['attributes']['free_parking']['strength']=='soft'
     assert bool(result['services']['result']['items']) is saved_dates
-    assert result['reply'].endswith('“最好附近方便停车”这条暂时没法按条件筛选，候选里需要自己核对。')
+    assert '酒店条件：' in result['reply'] and '免费停车（最好）' in result['reply']
     assert '没完全理解' not in result['reply']
-    assert task['interpretation']['dropped_fields']==[{'field':'service.free_parking','check':'attribute_not_in_quote'}]
+    assert 'dropped_fields' not in task['interpretation']
     lines=[json.loads(r.getMessage()) for r in caplog.records if r.name=='tourism.agent']
-    assert len(lines)==1 and lines[0]['dropped']==[{'field':'service.free_parking','check':'attribute_not_in_quote'}]
+    assert len(lines)==1 and lines[0]['dropped'] is None
     assert '最好附近方便停车' not in caplog.text
 
 
@@ -259,12 +283,10 @@ def test_compound_service_and_planning_drops_share_trace_without_duplicate_promp
     with caplog.at_level(logging.INFO,logger='tourism.agent'):
         task=run({'client':client,'trip':client.get(path).json()},message)
     assert task['mode']=='compound' and task['result']['services']['result']['items']
-    assert '“方便停车”、“有窗户”这几条暂时没法按条件筛选' in task['result']['reply']
-    assert task['result']['reply'].count('暂时没法按条件筛选')==1
+    assert '酒店条件：' in task['result']['reply'] and '免费停车（必须）' in task['result']['reply']
     assert '出发地没听准' in task['result']['reply'] and 'service.' not in task['result']['reply']
     line=json.loads([r for r in caplog.records if r.name=='tourism.agent'][-1].getMessage())
-    assert line['dropped']==[{'field':'service.free_parking','check':'attribute_not_in_quote'},
-        {'field':'service.breakfast','check':'attribute_not_in_quote'},{'field':'origin','check':'place_not_in_quote'}]
+    assert line['dropped']==[{'field':'origin','check':'place_not_in_quote'}]
 
 
 def test_hotel_missing_dates_use_normal_sentence_punctuation(env,monkeypatch):

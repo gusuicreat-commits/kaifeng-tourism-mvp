@@ -52,9 +52,10 @@ class Correction(Strict):
 
 
 class PlanningField(Strict):
-    field: Literal['city','date','start_time','end_time','origin','destination','pace','objective','mode','budget_fen']
+    field: Literal['city','date','start_time','end_time','origin','destination','pace','objective','mode','budget_fen','trip_days']
     value: str | int
     quote: str = Field(min_length=1, max_length=500)
+    budget_basis: Literal['total','per_person'] | None = None
 
     @model_validator(mode='after')
     def typed_value(self):
@@ -63,6 +64,10 @@ class PlanningField(Strict):
                  'mode':('walking','driving','transit')}
         if self.field=='budget_fen':
             if type(self.value) is not int or not 0<=self.value<=100000000:raise ValueError('invalid budget')
+        elif self.field=='trip_days':
+            if type(self.value) is not int or not 1<=self.value<=30:raise ValueError('invalid trip days')
+        elif self.budget_basis is not None:
+            raise ValueError('budget basis only applies to budget')
         elif not isinstance(self.value,str) or not self.value.strip() or len(self.value)>120:
             raise ValueError('planning value must be bounded text')
         if self.field in allowed and self.value not in allowed[self.field]:raise ValueError('unknown preference')
@@ -157,7 +162,7 @@ class Understanding(Strict):
     model_config = {'json_schema_extra':{'description':
         'A turn can contain conversation plus read-only queries and/or one planning patch. '
         'Each branch is independent; formal itinerary submission is never part of this object.'}}
-    schema_version: Literal['travel-intent/3.3'] = 'travel-intent/3.3'
+    schema_version: Literal['travel-intent/3.4'] = 'travel-intent/3.4'
     actions: tuple[Action, ...] = Field(default=(), max_length=8)
     constraints: tuple[Constraint, ...] = Field(default=(), max_length=16)
     corrections: tuple[Correction, ...] = Field(default=(), max_length=4)
@@ -168,6 +173,13 @@ class Understanding(Strict):
     weather_query: WeatherIntent | None = None
     service_query: ServiceIntent | None = None
     state_request: StateIntent | None = None
+
+    @model_validator(mode='before')
+    @classmethod
+    def accept_legacy_schema(cls,value):
+        if isinstance(value,dict) and value.get('schema_version') in ('travel-intent/3.1','travel-intent/3.2','travel-intent/3.3'):
+            return dict(value,schema_version='travel-intent/3.4')
+        return value
 
     @model_validator(mode='before')
     @classmethod

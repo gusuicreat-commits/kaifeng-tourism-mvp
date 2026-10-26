@@ -1,7 +1,7 @@
 """Validate extracted planning fields; propose inputs to the existing workflow, never commit routes."""
 import re
 from datetime import date, datetime
-from decimal import Decimal
+from decimal import Decimal, InvalidOperation
 from .. import facts
 from ..schema import TZ
 from .models import PlanningIntent, PlanningField, BasketProposal, BasketProposalItem, BasketChoicePrompt, MaterialChoice, Action, Understanding
@@ -30,21 +30,59 @@ def _field_check(f, text, today):
         if f.field in ('city','origin','destination'):return None if f.value in f.quote else 'place_not_in_quote'
         if f.field in ('pace','objective','mode'):
             preference_evidence(f.field,f.value,f.quote);return None
+        if f.field=='trip_days':
+            if type(f.value) is not int or not 1<=f.value<=30:return 'invalid_trip_days'
+            if '周末' in f.quote:return None if f.value==2 else 'trip_days_not_in_quote'
+            numbers=[]
+            for match in re.finditer(r'(\d+|[零一二两三四五六七八九十百千万]+)\s*(?:到|至|或)?\s*(\d+|[零一二两三四五六七八九十百千万]+)?\s*天',f.quote):
+                values=[]
+                for token in match.groups():
+                    if token:
+                        try:
+                            if not token.isdigit() and not any(c in token for c in '十百千万') and len(token)>1:
+                                values.extend(_CHINESE_DIGITS[c] for c in token)
+                            else:values.append(_chinese_number(token))
+                        except ValueError:continue
+                numbers.extend(values)
+            return None if not numbers or f.value==max(numbers) else 'trip_days_not_in_quote'
         if f.field=='budget_fen':
-            clauses=[q for q in re.split(r'[，,。；;！!？?\n]',text) if f.quote in q]
-            if re.search(r'每人|人均|一人|每个人',f.quote+' '.join(clauses)):return 'per_person_budget'
-            amounts=re.findall(r'(\d+(?:\.\d{1,2})?)\s*(?:元|块)',f.quote)
-            return None if len(amounts)==1 and int(Decimal(amounts[0])*100)==f.value else 'budget_not_in_quote'
+            amounts=_money_amounts(f.quote)
+            # The model selects the amount; other numbers in its quote are not conflicting budgets.
+            if f.value not in amounts:return 'budget_not_in_quote'
+            if f.budget_basis is None:return 'budget_basis_missing'
+            return 'per_person_budget' if f.budget_basis=='per_person' else None
     except ValueError:
         return 'date_unresolved' if f.field=='date' else 'preference_not_in_quote'
     return None
 
 
-def trip_days(text):
-    """Only describe the single-day limit; this never creates a planning field."""
-    from .understand import number
-    days=[number(m[1]) for m in re.finditer(r'(?<!\d)(\d+|[一二两三四五六七八九十]{1,3})\s*天',text)]
-    return max((d for d in days if d is not None),default=1)
+_CHINESE_DIGITS={'零':0,'一':1,'二':2,'两':2,'三':3,'四':4,'五':5,'六':6,'七':7,'八':8,'九':9}
+
+
+def _chinese_number(value):
+    if value.isdigit():return int(value)
+    if not value or any(c not in _CHINESE_DIGITS and c not in '十百千万' for c in value):raise ValueError('invalid number')
+    units={'十':10,'百':100,'千':1000,'万':10000};total=0;section=0;number=0
+    for char in value:
+        if char in _CHINESE_DIGITS:number=_CHINESE_DIGITS[char]
+        else:
+            unit=units[char]
+            if unit==10000:
+                section=(section+number)*unit;total+=section;section=number=0
+            else:
+                section+=(number or 1)*unit;number=0
+    return total+section+number
+
+
+def _money_amounts(quote):
+    values=[]
+    for match in re.finditer(r'(?<!\d)(\d+(?:\.\d{1,2})?|[零一二两三四五六七八九十百千万]+)',quote):
+        token=match[1]
+        if re.match(r'\s*个?\s*[天晚夜人位间房]',quote[match.end():]):continue
+        try:
+            values.append(int(Decimal(token)*100) if token[0].isdigit() else _chinese_number(token)*100)
+        except (InvalidOperation,ValueError):continue
+    return values
 
 
 def grounded(planning, text, snapshot, dropped=None):
@@ -173,6 +211,20 @@ def _choice_attitude(choice,planning,resolved,matches,snapshot):
     return bool(re.search(r'\w',re.sub(pattern,'',choice.quote)))
 
 
+PREFERENCE_LABELS={'pace':{'relaxed':'放松','standard':'标准','compact':'紧凑'},
+                   'objective':{'balanced':'均衡','less_walking':'少走路','less_waiting':'少等待','lower_cost':'省钱'}}
+
+
+def preference_notes(intent):
+    """Name every model-classified preference so the visitor sees it before confirming."""
+    fields=intent.planning.fields if intent.planning else ()
+    notes=[f'已按“{f.quote}”调整为{PREFERENCE_LABELS[f.field].get(f.value,f.value)}。' for f in fields if f.field in PREFERENCE_LABELS]
+    planned={f.field for f in fields if f.field in PREFERENCE_LABELS}
+    notes+=[f'已按“{c.quote}”调整为{PREFERENCE_LABELS[c.field].get(c.value,c.value)}。' for c in intent.constraints
+            if c.field in PREFERENCE_LABELS and c.field not in planned and c.value is not None]
+    return notes
+
+
 def proposal(session, trip_id, snapshot, intent, text, *, today=None):
     from ...db import connect
     from .. import basket
@@ -186,7 +238,8 @@ def proposal(session, trip_id, snapshot, intent, text, *, today=None):
         return {'status':'needs_clarification','reply':'标记进度、位置或取消，请单独说一下。'}
     # Requirements the basket workflow cannot take yet are reported back instead of
     # blocking the date/time/endpoint update the visitor also asked for.
-    notes=[]
+    notes=preference_notes(intent)
+    notes+=[f'预算按总额{f.value/100:g}元理解。' for f in p.fields if f.field=='budget_fen']
     for c in intent.constraints:
         if c.field=='food':
             if not any(c.value in (choice.name,*(a for f in _choice_facts(choice.name,snapshot) for a in _fact_names(f,snapshot))) for choice in p.choices):
@@ -241,8 +294,15 @@ def proposal(session, trip_id, snapshot, intent, text, *, today=None):
         used=set()
         for choice in p.choices:
             resolved=_choice_facts(choice.name,snapshot)
+            # A dish (exact Food name/alias) is matched only as that dish: "灌汤包" must not
+            # pick a shop whose name happens to contain it ("第一楼灌汤包总店"), or a wish to
+            # eat it would become a change to that shop's priority.
+            if any(isinstance(f,facts.Food) for f in resolved):
+                foods={(f.kind,f.fact_id) for f in resolved if isinstance(f,facts.Food)}
+                matches=[i for i in items if (i['fact_kind'],i['fact_id']) in foods]
+                if not matches and _dish_served_by_basket(choice.name,snapshot):continue
             # A short name ("第一楼") may stand for one basket item's full name.
-            matches=[i for i in items if choice.name in _material_names(i,snapshot)] or [i for i in items if any(i['fact_kind']==f.kind and i['fact_id']==f.fact_id for f in resolved)] or [i for i in items if any(choice.name in name for name in _material_names(i,snapshot))]
+            else:matches=[i for i in items if choice.name in _material_names(i,snapshot)] or [i for i in items if any(i['fact_kind']==f.kind and i['fact_id']==f.fact_id for f in resolved)] or [i for i in items if any(choice.name in name for name in _material_names(i,snapshot))]
             if choice.name in used:continue
             used.add(choice.name)
             if not _choice_attitude(choice,p,resolved,matches,snapshot):

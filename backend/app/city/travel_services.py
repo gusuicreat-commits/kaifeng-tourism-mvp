@@ -40,15 +40,20 @@ def matches(text,requirements=None):
     followup=requirements and re.search(r'换一家|换一个|便宜一点|改成.*(?:元|自驾|公交)|早餐|干湿分离|窗户|隔音',text)
     return bool(hotel_query or poi_query or followup) and not re.search(r'不要(?:搜索|查询)|别(?:搜索|查询)|取消查询',text)
 
-NUMBER = r'(\d+|[零一二两三四五六七八九十]+)'
+NUMBER = r'(\d+|[零一二两三四五六七八九十百千万]+)'
 
 def number(value):
     if value.isdigit():return int(value)
     digits={c:i for i,c in enumerate('零一二三四五六七八九')};digits['两']=2
-    if '十' in value:
-        left,right=value.split('十',1)
-        return (digits[left] if left else 1)*10+(digits[right] if right else 0)
-    return digits[value]
+    units={'十':10,'百':100,'千':1000,'万':10000};total=section=current=0
+    for char in value:
+        if char in digits:current=digits[char]
+        elif char in units:
+            unit=units[char]
+            if unit==10000:section=(section+current)*unit;total+=section;section=current=0
+            else:section+=(current or 1)*unit;current=0
+        else:raise ValueError('invalid number')
+    return total+section+current
 
 def stay_dates(req):
     # Nights are independent requirements: retain them even before check-in is
@@ -82,10 +87,6 @@ def _field_value(f,text,quote,today):
     if f.quote not in quote:raise ValueError('field_not_in_query')
     try:service_condition_evidence(text,f.quote,quote,literal_name=f.field in ('location_text','room_type'))
     except ValueError:raise ValueError('invalid_evidence') from None
-    optional=bool(re.search(r'都行|无所谓|没有也行|不强求|可选|不要求|不需要',f.quote))
-    hard=bool(re.search(r'必须|一定|不能缺|不可少',f.quote))
-    if optional and f.strength!='optional':raise ValueError('optional_condition_promoted')
-    if hard and not optional and f.strength!='hard':raise ValueError('hard_condition_weakened')
     if f.field in ('check_in','check_out'):
         if not isinstance(f.value,str) or f.value not in f.quote:raise ValueError('value_not_in_quote')
         try:return resolve_date(f.value,today).isoformat()
@@ -95,28 +96,17 @@ def _field_value(f,text,quote,today):
         if type(f.value) is not int or not 1<=f.value<=limits[f.field]:raise ValueError('invalid_value')
         # Bind a value to its unit/scope, not another number in a broad quote.
         units={'nights':r'\s*(?:个)?\s*(?:晚上|晚|夜)', 'guests':r'\s*(?:个)?\s*(?:人|位)',
-               'rooms':r'\s*间(?:房)?', 'max_price':r'\s*元', 'stay_budget_fen':r'\s*(?:元)?'}
+               'rooms':r'\s*间(?:房)?', 'max_price':r'', 'stay_budget_fen':r''}
         expected=f.value//100 if f.field=='stay_budget_fen' else f.value
         if f.field=='stay_budget_fen' and f.value%100:raise ValueError('value_not_in_quote')
         try:matched=any(number(m[1])==expected for m in re.finditer(NUMBER+units[f.field],f.quote))
         except (KeyError,ValueError):raise ValueError('invalid_value') from None
         if not matched:
             raise ValueError('value_not_in_quote')
-        if f.field=='max_price':
-            if not re.search(r'每晚|一晚|房价|酒店预算|\d+\s*元(?:以内|以下)',f.quote):raise ValueError('money_scope_mismatch')
-            if re.search(r'(?:两|二|\d+)\s*(?:天|晚).{0,8}预算|预算.{0,8}(?:两|二|\d+)\s*(?:天|晚)|总(?:预算|价)|合计|一共|整趟|全程',f.quote):raise ValueError('money_scope_mismatch')
-        if f.field=='stay_budget_fen':
-            if not re.search(r'预算|费用|合计',f.quote):raise ValueError('money_scope_mismatch')
-            if re.search(r'整趟|全程|旅行总预算|每晚|一晚|房价',f.quote):raise ValueError('money_scope_mismatch')
     elif f.field in ('location_text','room_type'):
         if not isinstance(f.value,str) or not f.value.strip() or len(f.value)>120:raise ValueError('invalid_value')
-        if f.value not in f.quote:raise ValueError('value_not_in_quote')
     elif f.field in hotels.ATTRS:
         if type(f.value) is not bool:raise ValueError('invalid_value')
-        aliases={'window':r'窗户|有窗','external_window':r'外窗','clean':r'卫生|干净'}.get(f.field,re.escape(hotels.ATTRS[f.field]))
-        if not re.search(aliases,f.quote):raise ValueError('attribute_not_in_quote')
-        negative=bool(re.search(r'(?:不要|不含|没有|不带|无).{0,3}(?:'+aliases+r')',f.quote))
-        if not optional and f.value==negative:raise ValueError('polarity_mismatch')
     return f.value
 
 
@@ -148,11 +138,7 @@ def semantic_requirements(intent,text,previous,today,dropped=None):
             kept=[(f,value) for f,value in kept if f.field!='check_out']
             values.pop('check_out')
     for f,value in kept:
-        optional=bool(re.search(r'都行|无所谓|没有也行|不强求|可选|不要求|不需要',f.quote))
         strength=f.strength
-        prior=attrs.get(f.field,{}).get('strength',strengths.get(f.field))
-        # A new preference is not permission to silently waive an earlier must.
-        if prior=='hard' and strength!='hard' and not optional:strength='hard'
         strengths[f.field]=strength
         if f.field in hotels.ATTRS:attrs[f.field]={'value':value,'strength':strength,'quote':f.quote}
         else:req[f.field]=value
@@ -281,7 +267,17 @@ def query(session,trip_id,text,expected_version=None,cancelled=None,*,intent=Non
         w.update(version=original_version+1,requirements=req,result=result)
         write(db,trip_id,w)
     reply=''.join(questions) if questions else f"已查询到 {len(result.get('items',[]))} 个{'酒店' if req['category']=='hotels' else '地点'}候选。" if result.get('items') else '查询暂未取得候选（'+result['status']+'），可稍后重试。'
-    if req['category']=='hotels':reply+=' 房型、设施和评价还没核实，价格以预订页面为准。'
+    if req['category']=='hotels':
+        reply+=' 房型、设施和评价还没核实，价格以预订页面为准。'
+        labels={'hard':'必须','soft':'最好','optional':'可选'}
+        condition_parts=[]
+        for field,data in req.get('attributes',{}).items():
+            condition_parts.append(f"{hotels.ATTRS[field]}（{labels.get(data['strength'],data['strength'])}）")
+        for field,label in (('room_type','房型'),('location_text','位置')):
+            if req.get(field):condition_parts.append(f"{label}：{req[field]}（{labels.get(req.get('field_strengths',{}).get(field,'hard'),req.get('field_strengths',{}).get(field,'hard'))}）")
+        if condition_parts:reply+=' 酒店条件：'+'、'.join(condition_parts)+'。'
+        if req.get('max_price') is not None:reply+=f" 价格口径：每晚不超过 {req['max_price']} 元。"
+        if req.get('stay_budget_fen') is not None:reply+=f" 价格口径：住宿合计不超过 {req['stay_budget_fen']//100} 元。"
     conditions=list(dict.fromkeys('“'+d['quote']+'”' if d['quote'] in text else '未听准的住宿条件' for d in dropped))
     if conditions:reply+='、'.join(conditions)+('这条' if len(conditions)==1 else '这几条')+'暂时没法按条件筛选，候选里需要自己核对。'
     return {'reply':reply,'services':w,'formal_state_changed':False}

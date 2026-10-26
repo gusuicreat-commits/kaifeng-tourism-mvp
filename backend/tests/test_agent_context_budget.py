@@ -48,7 +48,8 @@ def test_task_budget_failure_is_not_business_or_semantic_failure(city,monkeypatc
     assert get(city)==before
 
 
-def test_real_schema_and_maximum_turn_count_in_the_same_budget(city,monkeypatch):
+@pytest.mark.parametrize('repeats,over_budget',[(100,False),(285,True)])
+def test_real_schema_and_maximum_turn_count_in_the_same_budget(city,monkeypatch,repeats,over_budget):
     planned(city)
     monkeypatch.setattr(language,'available',lambda:True)
     calls=[]
@@ -57,6 +58,12 @@ def test_real_schema_and_maximum_turn_count_in_the_same_budget(city,monkeypatch)
         assert calls[-1]<=12000
         return {'conversation':{'reply':'请告诉我你希望了解的具体内容。'}},{'source':'mock_model'}
     monkeypatch.setattr(provider,'generate',generate)
-    task=run(city,'想聊聊旅行。'*285+'你好')
+    task=run(city,'想聊聊旅行。'*repeats+'你好')
+    if over_budget:
+        assert not calls and task['result']['code']=='AGENT_CONTEXT_BUDGET'
+        budget=task['result']['context_budget']
+        assert budget['required_characters']>budget['limit_characters']==12000
+        assert task['metrics']['model_calls']==0
+        return
     assert calls and task['status']=='answered',json.dumps(task,ensure_ascii=False)
     assert task['events'][0]['context_budget']['characters']==calls[0]

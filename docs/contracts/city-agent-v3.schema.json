@@ -540,7 +540,8 @@
             "pace",
             "objective",
             "mode",
-            "budget_fen"
+            "budget_fen",
+            "trip_days"
           ],
           "title": "Field",
           "type": "string"
@@ -561,6 +562,22 @@
           "minLength": 1,
           "title": "Quote",
           "type": "string"
+        },
+        "budget_basis": {
+          "anyOf": [
+            {
+              "enum": [
+                "total",
+                "per_person"
+              ],
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Budget Basis"
         }
       },
       "required": [
@@ -940,8 +957,8 @@
       "description": "A turn can contain conversation plus read-only queries and/or one planning patch. Each branch is independent; formal itinerary submission is never part of this object.",
       "properties": {
         "schema_version": {
-          "const": "travel-intent/3.3",
-          "default": "travel-intent/3.3",
+          "const": "travel-intent/3.4",
+          "default": "travel-intent/3.4",
           "title": "Schema Version",
           "type": "string"
         },

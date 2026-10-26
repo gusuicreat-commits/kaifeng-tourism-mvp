@@ -45,11 +45,16 @@ def requested_foods(snapshot,intent):
 
 def general_dining(snapshot,action):
     if action.near:return False
-    if action.target_name and not re.fullmatch(r'(?:开封)?(?:特色)?(?:美食|小吃|好吃的|特色菜)',action.target_name):return False
     if action.kind!='search_dining' and not (action.kind=='query' and action.purpose=='dining'):return False
-    if not re.search(r'美食|小吃|特色菜|好吃|吃什么|吃点什么',action.quote):return False
-    return not any(facts.name_matches(r,action.quote) for r in snapshot.planning.facts.values()
-                   if facts.planning_visible(r) and (isinstance(r,facts.Food) or isinstance(r,facts.Place) and r.place_type=='restaurant'))
+    if not action.target_name:return action.purpose=='dining'
+    target=action.target_name
+    # The model decides whether a phrase is a generic request.  A non-near
+    # target is specific only when facts can resolve it to one concrete dish or
+    # restaurant; no second keyword parser guesses at its meaning.
+    matches=[r for r in snapshot.planning.facts.values()
+             if facts.planning_visible(r) and (isinstance(r,facts.Food) or isinstance(r,facts.Place) and r.place_type=='restaurant')
+             and (getattr(r,'name',None)==target or target in getattr(r,'aliases',()))]
+    return not matches
 
 
 def _supply_readable(ctx,record,seen=None):
@@ -69,6 +74,13 @@ def find_food(snapshot,intent,*,general=False):
     ctx=snapshot.planning;now=ctx.assessed_at;today=now.astimezone(TZ).date()
     basket={(m['fact_kind'],m['fact_id']) for m in snapshot.materials if m['status']!='standby'}
     items=[];lines=[];reference=False
+    unknown_targets=[]
+    if general:
+        for action in intent.actions:
+            if not action.target_name:continue
+            if not any(facts.planning_visible(r) and (isinstance(r,facts.Food) or isinstance(r,facts.Place) and r.place_type=='restaurant')
+                       and (getattr(r,'name',None)==action.target_name or action.target_name in getattr(r,'aliases',()))
+                       for r in ctx.facts.values()):unknown_targets.append(action.target_name)
     foods=sorted((r for r in ctx.facts.values() if isinstance(r,facts.Food) and facts.planning_visible(r)),key=lambda r:r.fact_id) if general else requested_foods(snapshot,intent)
     for food in foods:
         shops=[];seen=set()
@@ -89,12 +101,13 @@ def find_food(snapshot,intent,*,general=False):
         if general and not shops:continue
         lines.append(f"{food.name}可以去：{'；'.join(shops[:5])}。" if shops else f"暂时没有{food.name}的店铺资料。")
         if general and len(lines)==5:break
+    missing=''.join(f'资料里暂时没有{target}。' for target in dict.fromkeys(unknown_targets))
     if not lines:
-        if general:return {'status':'needs_data','code':'NO_SUPPLY_REFERENCE','items':[],'reply':'暂时没有带供应记录的特色菜与店铺资料。','formal_state_changed':False}
+        if general:return {'status':'needs_data','code':'NO_SUPPLY_REFERENCE','items':[],'reply':missing+'暂时没有带供应记录的特色菜与店铺资料。','formal_state_changed':False}
         return {'status':'needs_clarification','code':'FOOD_NOT_NAMED','items':[],'reply':'想吃哪道菜？告诉我菜名就能帮你找店。'}
     tail='想去哪家可以加入素材篮。' if general else '想排进行程，在店铺详情页加入素材篮就行。' if items and not all(i['in_basket'] for i in items) else ''
     result={'status':'answered' if items else 'needs_data','code':None if items else 'NO_SUPPLY_REFERENCE','items':items,
-            'reply':('以下是资料中的供应参考，尚未现场核实，当前供应请向店家确认。' if reference else '')+''.join(lines)+tail,'formal_state_changed':False}
+            'reply':missing+('以下是资料中的供应参考，尚未现场核实，当前供应请向店家确认。' if reference else '')+''.join(lines)+tail,'formal_state_changed':False}
     # A named dish with one unambiguous Food record can itself become a basket
     # candidate. Vendor/place results remain read-only until the visitor confirms.
     if not general and len(foods)==1 and items:
@@ -116,11 +129,15 @@ def search_dining(snapshot,intent,relax=False):
     requested=values(intent,'food')
     if relax and any(c.strength not in ('optional','soft') for c in requested):raise HTTPException(422,detail='未授权放宽菜品要求。')
     names={str(c.value) for c in requested if c.value} if not relax else set()
+    target_names={a.target_name for a in intent.actions if a.kind=='search_dining' and a.target_name}
+    target_places={r.fact_id for r in ctx.facts.values() if isinstance(r,facts.Place) and r.place_type=='restaurant'
+                   and facts.planning_visible(r) and (r.name in target_names or any(alias in target_names for alias in r.aliases))}
     foods=[r for r in ctx.facts.values() if isinstance(r,facts.Food) and r.name in names and ctx.ready(r,req.starts_at,req.ends_at)]
     if names and len({r.name for r in foods})!=len(names):return {'status':'no_candidates','code':'FOOD_NOT_VERIFIED','items':[]}
     output=[]
     for p in sorted(ctx.facts.values(),key=lambda r:r.fact_id):
         if not isinstance(p,facts.Place) or p.place_type!='restaurant' or not ctx.ready(p,req.starts_at,req.ends_at):continue
+        if target_places and p.fact_id not in target_places:continue
         vendors=[v for v in ctx.facts.values() if isinstance(v,facts.Vendor) and v.place_id==p.fact_id and ctx.ready(v,req.starts_at,req.ends_at)]
         supplies=[s for s in ctx.facts.values() if isinstance(s,facts.Supply) and s.vendor_id in {v.fact_id for v in vendors}
                   and ctx.ready(s,req.starts_at,req.ends_at)]

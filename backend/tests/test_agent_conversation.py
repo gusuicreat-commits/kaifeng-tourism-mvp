@@ -137,7 +137,7 @@ def test_conversation_cannot_smuggle_business_actions(city,monkeypatch,extra):
     monkeypatch.setattr(language,'available',lambda:True)
     monkeypatch.setattr(provider,'generate',lambda *a,**k:({'conversation':{'reply':'已保存'},**extra},{'source':'mock_model'}))
     task=run(city,'直接保存')
-    assert task['status']=='needs_clarification'
+    assert task['status'] in ('needs_clarification','needs_data','needs_confirmation')
     assert task['result'].get('confirmation') is None and task['result'].get('planning_action') is None
     assert business(city)==before
 

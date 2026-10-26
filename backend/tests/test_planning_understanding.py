@@ -1,10 +1,12 @@
 """LLM -> validated fields -> existing workflow; all providers and data are isolated."""
 import copy
 import json
+from typing import get_args
 import pytest
 from fastapi import HTTPException
 from app import language
-from app.city.agent import provider, understand, service
+from app.city.agent import provider, understand, service, orchestration
+from app.city.agent.models import PlanningField, ServiceField, Constraint
 from test_city_assistant import city, path, get, rid
 from test_city_agent import run, snapshot, empty_tasks
 
@@ -587,9 +589,11 @@ def test_weekend_dates_share_planning_and_hotel_resolution(today,weekend,next_we
 @pytest.mark.parametrize('duration',['玩两天','三天两晚','2天','游玩 3 天'])
 def test_multiday_request_only_saves_first_day_and_explains_limit(city,monkeypatch,duration):
     text='2030-05-03去开封'+duration
-    model(monkeypatch,text,[field('date','2030-05-03','2030-05-03')])
+    days=3 if '三天' in duration or '3' in duration else 2
+    quote='三天' if '三天' in duration else '3 天' if '3 天' in duration else '2天' if '2天' in duration else '两天'
+    model(monkeypatch,text,[field('date','2030-05-03','2030-05-03'),field('trip_days',days,quote)])
     before=get(city);task=run(city,text)
-    assert '目前只能先排第一天（2030-05-03），多天行程还在开发中' in task['result']['reply']
+    assert f'理解为{days}天；目前只能先排第一天（2030-05-03），多天行程还在开发中' in task['result']['reply']
     saved=city['client'].get(path(city,'/exploration/constraints')).json()['constraints']
     assert saved['business_date']=='2030-05-03' and not {'days','nights','end_date'} & saved.keys()
     assert get(city)==before
@@ -605,7 +609,7 @@ def test_single_day_request_does_not_show_multiday_notice(city,monkeypatch):
 @pytest.mark.parametrize('home',['fields','constraints'])
 def test_per_person_budget_is_dropped_after_normalization(city,monkeypatch,scope,home):
     text='明天去开封，预算'+scope+'800元'
-    fields=[field('date','明天','明天')];budget=field('budget_fen',80000,'预算'+scope+'800元')
+    fields=[field('date','明天','明天')];budget=field('budget_fen',80000,'预算'+scope+'800元')|{'budget_basis':'per_person'}
     extra={}
     if home=='constraints':extra['constraints']=[budget|{'strength':'hard'}]
     else:fields.append(budget)
@@ -617,12 +621,12 @@ def test_per_person_budget_is_dropped_after_normalization(city,monkeypatch,scope
 
 
 @pytest.mark.parametrize('quote',['预算每人800元','800元'])
-def test_per_person_budget_gate_checks_original_budget_clause(quote):
+def test_budget_basis_gate_is_explicit(quote):
     from datetime import date
     from app.city.agent.models import PlanningField
     from app.city.agent.planning_intent import _field_check
-    assert _field_check(PlanningField(**field('budget_fen',80000,quote)),'预算每人800元',date(2026,10,26))=='per_person_budget'
-    assert _field_check(PlanningField(**field('budget_fen',80000,'800元')),'总预算800元',date(2026,10,26)) is None
+    assert _field_check(PlanningField(**(field('budget_fen',80000,quote)|{'budget_basis':'per_person'})),'预算每人800元',date(2026,10,26))=='per_person_budget'
+    assert _field_check(PlanningField(**(field('budget_fen',80000,'800元')|{'budget_basis':'total'})),'总预算800元',date(2026,10,26)) is None
 
 
 @pytest.mark.parametrize('slot,value,quote,question',[
@@ -644,7 +648,11 @@ def test_missing_field_question_does_not_repeat_dropped_field(city,monkeypatch,s
     assert len(task['interpretation']['dropped_fields'])==1
 
 
-@pytest.mark.parametrize('text,target_name',[('想吃开封特色美食',None),('有什么好吃的',None),('想吃开封特色美食','开封特色美食')])
+@pytest.mark.parametrize('text,target_name',[
+    ('想吃开封特色美食',None),('有什么好吃的',None),('来点当地的招牌',None),
+    ('给我推荐下吃的',None),('想找一家口碑不错的店',None),
+    ('想吃开封特色美食','开封特色美食'),
+])
 @pytest.mark.parametrize('kind',['query','search_dining'])
 def test_general_dining_lists_only_dishes_with_supply_records(city,monkeypatch,text,target_name,kind):
     monkeypatch.setattr(language,'available',lambda:True)
@@ -709,6 +717,7 @@ def test_echoed_basket_choice_is_dropped_but_date_field_survives(city,monkeypatc
     assert {'field':'choice','check':'choice_not_in_quote'} in meta['dropped_fields']
     task=run(city,text)
     assert 'basket_proposal' not in task['result'] and task['result']['planning_workflow']['result']['constraints']['business_date']=='2030-05-03'
+    assert 'choice' not in task['result']['reply'] and '没听准' not in task['result']['reply']
 
 
 def test_pending_state_skip_becomes_standby_proposal_without_route_write(city,monkeypatch):
@@ -722,6 +731,25 @@ def test_pending_state_skip_becomes_standby_proposal_without_route_write(city,mo
     proposal=task['result']['basket_proposal']['items'][0]
     assert proposal['operation']=='standby' and proposal['priority']=='must'
     assert c.get(path(city,'/basket')).json()['items'][0]['status']=='pending' and get(city)==before
+
+
+def test_dish_wish_never_changes_a_basket_shop_whose_name_contains_the_dish(city,monkeypatch):
+    # Real case: 第一楼 has the alias "第一楼灌汤包总店"; "想吃灌汤包" labelled must by the
+    # model became "把第一楼改为必去" and blocked the demo plan. A dish served by a basket
+    # shop is covered whatever priority the model gives it.
+    from app.city import facts
+    from app.db import connect
+    with connect() as db:
+        place=facts.records(db)['place','restaurant']
+        facts.import_bundle(facts.FactBundle(records=(place.model_copy(update={'version':place.version+1,'aliases':(*place.aliases,'[合成测试]菜品总店')}),)),db,apply=True)
+    c=city['client'];assert c.patch(path(city,'/basket'),json={'request_id':rid(),'expected_version':0,
+        'item':{'kind':'vendor','object_id':'vendor','priority':'want'}}).status_code==200
+    text='后天想吃[合成测试]菜品'
+    for priority in ('must','want','optional'):
+        choices(monkeypatch,text,('[合成测试]菜品',priority,'pending','想吃[合成测试]菜品'),fields=[field('date','后天','后天')])
+        task=run(city,text)
+        assert 'basket_proposal' not in task['result'] and '优先级' not in task['result']['reply'],(priority,task['result']['reply'])
+        assert c.get(path(city,'/basket')).json()['items'][0]['priority']=='want'
 
 
 def test_named_dish_lookup_offers_food_basket_candidate(city,monkeypatch):
@@ -981,3 +1009,90 @@ def test_existing_priority_confirmation_keeps_conditions_and_resumes_planning(ci
         'basket_version':saved.json()['version'],'planning_version':workspace['version'],'constraints':constraints})
     assert preview.status_code==200 and preview.json()['status']=='feasible',preview.text
     assert preview.json()['constraints']==constraints and get(city)==before
+
+
+@pytest.mark.parametrize('home',['fields','constraints'])
+@pytest.mark.parametrize('quote,value,basis',[
+    ('一个人不超过200块',20000,'per_person'),
+    ('我们俩每人500',50000,'per_person'),
+    ('两个人一共600',60000,'total'),
+    ('3个人合计735.50元',73550,'total'),
+    ('四位游客总共九百块',90000,'total'),
+    ('五人每位三百元',30000,'per_person'),
+])
+def test_budget_basis_survives_normalization_validation_storage_and_reply(city,monkeypatch,home,quote,value,basis):
+    text='明天去开封，'+quote
+    budget=field('budget_fen',value,quote)|{'budget_basis':basis}
+    fields=[field('date','明天','明天')]
+    extra={}
+    if home=='constraints':extra['constraints']=[budget|{'strength':'hard'}]
+    else:fields.append(budget)
+    model(monkeypatch,text,fields,**extra);task=run(city,text)
+    saved=city['client'].get(path(city,'/exploration/constraints')).json()['constraints']
+    assert task['interpretation']['basis']=='kimi_validated'
+    assert '预算没听准' not in task['result']['reply']
+    if basis=='total':
+        assert saved['budget_fen']==value
+        assert f'预算按总额{value/100:g}元理解' in task['result']['reply']
+        assert not task['interpretation'].get('dropped_fields')
+    else:
+        assert saved['budget_fen'] is None
+        assert '按人预算暂时不能用于规划' in task['result']['reply']
+        assert task['interpretation']['dropped_fields']==[{'field':'budget_fen','check':'per_person_budget'}]
+    assert get(city)['route_version']==0
+
+
+@pytest.mark.parametrize('home',['fields','constraints'])
+@pytest.mark.parametrize('basis',[{}, {'budget_basis':None}])
+def test_missing_budget_basis_is_not_silently_saved_as_total(city,monkeypatch,home,basis):
+    text='明天去开封，一个人不超过200块'
+    budget=field('budget_fen',20000,'一个人不超过200块')|basis
+    fields=[field('date','明天','明天')]
+    extra={'schema_version':'travel-intent/3.4'}
+    if home=='constraints':extra['constraints']=[budget|{'strength':'hard'}]
+    else:fields.append(budget)
+    model(monkeypatch,text,fields,**extra);task=run(city,text)
+    assert task['interpretation']['dropped_fields']==[{'field':'budget_fen','check':'budget_basis_missing'}]
+    assert city['client'].get(path(city,'/exploration/constraints')).json()['constraints']['budget_fen'] is None
+    assert '这笔预算是所有人合计，还是每人？' in task['result']['reply']
+    assert '预算没听准' not in task['result']['reply']
+
+
+def test_per_person_request_does_not_claim_to_remove_a_saved_total_budget(city,monkeypatch):
+    model(monkeypatch,'明天总预算900元',[field('date','明天','明天'),field('budget_fen',90000,'总预算900元')|{'budget_basis':'total'}])
+    run(city,'明天总预算900元')
+    text='我们俩每人500'
+    model(monkeypatch,text,[field('budget_fen',50000,text)|{'budget_basis':'per_person'}])
+    task=run(city,text)
+    assert city['client'].get(path(city,'/exploration/constraints')).json()['constraints']['budget_fen']==90000
+    assert '仍沿用已保存的总预算' in task['result']['reply'] and '先不按预算筛选' not in task['result']['reply']
+
+
+def test_budget_scope_is_echoed_before_basket_confirmation(city,monkeypatch):
+    text='明天去[合成测试]museum，两个人一共600'
+    choices(monkeypatch,text,('[合成测试]museum','want','pending','去[合成测试]museum'),fields=[
+        field('date','明天','明天'),field('budget_fen',60000,'两个人一共600')|{'budget_basis':'total'}])
+    task=run(city,text)
+    assert task['status']=='needs_confirmation' and '预算按总额600元理解' in task['result']['reply']
+    assert city['client'].get(path(city,'/basket')).json()['items']==[]
+
+
+@pytest.mark.parametrize('dropped_field',[
+    *get_args(PlanningField.model_fields['field'].annotation),
+    *get_args(Constraint.model_fields['field'].annotation),
+    *('service.'+f for f in get_args(ServiceField.model_fields['field'].annotation)),
+    'choice','future_unknown_field',
+])
+def test_dropped_fields_never_leak_program_names_in_questions(city,monkeypatch,dropped_field):
+    text='明天去开封'
+    model(monkeypatch,text,[field('date','明天','明天')])
+    parse=understand.parse
+    def dropped(*args,**kwargs):
+        intent,meta=parse(*args,**kwargs)
+        meta['dropped_fields']=[{'field':dropped_field,'check':'choice_not_in_quote' if dropped_field=='choice' else 'invalid_evidence'}]
+        return intent,meta
+    monkeypatch.setattr(understand,'parse',dropped)
+    reply=run(city,text)['result']['reply']
+    assert dropped_field not in reply
+    if dropped_field=='choice' or dropped_field not in orchestration.LABELS:
+        assert '没听准' not in reply

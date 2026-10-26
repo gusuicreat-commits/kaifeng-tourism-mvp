@@ -343,14 +343,16 @@ def _workflow(session,t):
     unsupported=[c for c in t.intent.constraints if c.field=='food']
     if unsupported:return {'status':'needs_clarification','reply':'新增菜品需要先搜索有供应证据的商家，请明确是否查找候选。'},[]
     result=toolbelt.preview(session,t.trip_id,snapshot,t.intent,t.id)
-    return _preview_result(result,snapshot),['preview_plan']
+    return _preview_result(result,snapshot,t.intent),['preview_plan']
 
 
-def _preview_result(result,snapshot):
+def _preview_result(result,snapshot,intent=None):
     if result['status']!='preview':return {'status':result['status'],'reply':'当前条件未产生可确认路线，请核对缺项或约束冲突。','planning':result}
     names={s['goal_id']:context.label(snapshot.planning.facts,s['place_id']) for i in result['result']['itineraries'] for s in i['activities']}
     names.update({s.stop_id:context.label(snapshot.planning.facts,s.place_id) for s in snapshot.draft.stops if s.stop_id not in names})
-    return {'status':'needs_confirmation','reply':'方案已准备好，看看是否合适，点“确认方案”后保存。',
+    from .planning_intent import preference_notes
+    echo=''.join(preference_notes(intent)) if intent else ''
+    return {'status':'needs_confirmation','reply':echo+'方案已准备好，看看是否合适，点“确认方案”后保存。',
             'activity_names':names,
             'planning':result,'changes':result['changes'],
             'confirmation':{'target_kind':'route','candidate_id':result['candidate_id'],'expected_version':result['base_version']}}
@@ -565,7 +567,7 @@ def _action(session,t,d):
         return toolbelt.verify_travel(snapshot,t.intent,d.place_id,shows['items'])
     verified=obs.get('verify_travel',{})
     if verified.get('status')!='ok' or verified.get('place_id')!=d.place_id:raise ValueError('matching transport validation required')
-    result=_preview_result(toolbelt.preview(session,t.trip_id,snapshot,t.intent,t.id,d.place_id),snapshot)
+    result=_preview_result(toolbelt.preview(session,t.trip_id,snapshot,t.intent,t.id,d.place_id),snapshot,t.intent)
     result['evidence']={k:v for k,v in obs.items()}
     return result
 
