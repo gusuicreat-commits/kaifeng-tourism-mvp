@@ -6,7 +6,7 @@ from fastapi import HTTPException
 from app import language
 from app.city.agent import provider, understand, service
 from test_city_assistant import city, path, get, rid
-from test_city_agent import run, snapshot
+from test_city_agent import run, snapshot, empty_tasks
 
 
 def model(monkeypatch,text,fields=(),**extra):
@@ -290,7 +290,7 @@ def test_unsupported_field_is_dropped_and_asked_while_the_rest_is_kept(city,monk
     t=run(city,text)
     saved=city['client'].get(path(city,'/exploration/constraints')).json()['constraints']
     assert saved['business_date'] and saved['ends_at'] is None,saved
-    assert '结束时间没听准' in t['result']['reply']
+    assert t['result']['reply'].count('最晚几点结束？')==1 and '结束时间没听准' not in t['result']['reply']
 
 
 def test_stitched_quote_is_mapped_back_to_the_request_span():
@@ -383,3 +383,140 @@ def test_plan_ready_reply_names_wanted_stops_the_default_plan_leaves_out():
     assert _ready_reply(result)=='方案已准备好。时间不够，这版没排进：开封府。请点“确认方案”保存。'
     result['planning']['result']['itineraries'][0]['activities'].append({'goal_id':'g1'})
     assert _ready_reply(result)=='方案已准备好。请点“确认方案”保存。'
+
+
+@pytest.mark.parametrize('today,weekend,next_weekend',[
+    ('2026-10-30','2026-10-31','2026-11-07'),
+    ('2026-10-31','2026-10-31','2026-11-07'),
+    ('2026-11-01','2026-11-01','2026-11-07'),
+])
+def test_weekend_dates_share_planning_and_hotel_resolution(today,weekend,next_weekend):
+    import re
+    from datetime import date
+    from app.city.agent.models import PlanningField,ServiceIntent
+    from app.city.agent.planning_intent import DATE_EXPRESSION,resolve_date,_field_check
+    from app.city.travel_services import semantic_requirements
+    for expression in ('周末','这周末','本周末','下周末'):
+        expected=next_weekend if expression=='下周末' else weekend
+        assert re.findall(DATE_EXPRESSION,'计划'+expression+'出发')==[expression]
+        assert resolve_date(expression,date.fromisoformat(today)).isoformat()==expected
+        assert _field_check(PlanningField(**field('date',expected,expression)),expression,date.fromisoformat(today)) is None
+        text=expression+'入住住一晚酒店'
+        req=semantic_requirements(ServiceIntent(quote=text,fields=[field('check_in',expression,expression)]),text,{},date.fromisoformat(today))
+        assert req['check_in']==expected
+
+
+@pytest.mark.parametrize('duration',['玩两天','三天两晚','2天','游玩 3 天'])
+def test_multiday_request_only_saves_first_day_and_explains_limit(city,monkeypatch,duration):
+    text='2030-05-03去开封'+duration
+    model(monkeypatch,text,[field('date','2030-05-03','2030-05-03')])
+    before=get(city);task=run(city,text)
+    assert '目前只能先排第一天（2030-05-03），多天行程还在开发中' in task['result']['reply']
+    saved=city['client'].get(path(city,'/exploration/constraints')).json()['constraints']
+    assert saved['business_date']=='2030-05-03' and not {'days','nights','end_date'} & saved.keys()
+    assert get(city)==before
+
+
+def test_single_day_request_does_not_show_multiday_notice(city,monkeypatch):
+    text='2030-05-03去开封玩一天'
+    model(monkeypatch,text,[field('date','2030-05-03','2030-05-03')])
+    assert '多天行程' not in run(city,text)['result']['reply']
+
+
+@pytest.mark.parametrize('scope',['每人','人均','一人','每个人'])
+@pytest.mark.parametrize('home',['fields','constraints'])
+def test_per_person_budget_is_dropped_after_normalization(city,monkeypatch,scope,home):
+    text='明天去开封，预算'+scope+'800元'
+    fields=[field('date','明天','明天')];budget=field('budget_fen',80000,'预算'+scope+'800元')
+    extra={}
+    if home=='constraints':extra['constraints']=[budget|{'strength':'hard'}]
+    else:fields.append(budget)
+    model(monkeypatch,text,fields,**extra);task=run(city,text)
+    assert {'field':'budget_fen','check':'per_person_budget'} in task['interpretation']['dropped_fields']
+    assert '按人预算暂时不能用于规划，先不按预算筛选' in task['result']['reply']
+    assert '预算没听准' not in task['result']['reply']
+    assert city['client'].get(path(city,'/exploration/constraints')).json()['constraints'].get('budget_fen') is None
+
+
+@pytest.mark.parametrize('quote',['预算每人800元','800元'])
+def test_per_person_budget_gate_checks_original_budget_clause(quote):
+    from datetime import date
+    from app.city.agent.models import PlanningField
+    from app.city.agent.planning_intent import _field_check
+    assert _field_check(PlanningField(**field('budget_fen',80000,quote)),'预算每人800元',date(2026,10,26))=='per_person_budget'
+    assert _field_check(PlanningField(**field('budget_fen',80000,'800元')),'总预算800元',date(2026,10,26)) is None
+
+
+@pytest.mark.parametrize('slot,value,quote,question',[
+    ('date','错误日期','明天','你打算哪天去？'),
+    ('start_time','13:00','上午9点','当天几点开始，最晚几点结束？'),
+    ('end_time','21:00','晚上8点','当天几点开始，最晚几点结束？'),
+    ('origin','不存在的起点','开封站','从哪里出发，最后返回哪里？'),
+    ('destination','不存在的终点','开封站','从哪里出发，最后返回哪里？'),
+])
+def test_missing_field_question_does_not_repeat_dropped_field(city,monkeypatch,slot,value,quote,question):
+    fields=[field('city','开封','开封')]
+    if slot!='date':fields.append(field('date','明天','明天'))
+    if slot in ('origin','destination'):
+        fields.extend([field('start_time','09:00','上午9点'),field('end_time','20:00','晚上8点')])
+    text='明天去开封，上午9点到晚上8点，从开封站出发和返回'
+    fields.append(field(slot,value,quote));model(monkeypatch,text,fields)
+    task=run(city,text);reply=task['result']['reply']
+    assert question in reply and '没听准' not in reply
+    assert len(task['interpretation']['dropped_fields'])==1
+
+
+@pytest.mark.parametrize('text,target_name',[('想吃开封特色美食',None),('有什么好吃的',None),('想吃开封特色美食','开封特色美食')])
+@pytest.mark.parametrize('kind',['query','search_dining'])
+def test_general_dining_lists_only_dishes_with_supply_records(city,monkeypatch,text,target_name,kind):
+    monkeypatch.setattr(language,'available',lambda:True)
+    monkeypatch.setattr(provider,'generate',lambda *a,**k:({'actions':[{'kind':kind,'purpose':'dining','quote':text,'target_name':target_name}]},{'source':'mock_model'}))
+    before=get(city);task=run(city,text);result=task['result']
+    assert task['status']=='answered' and '[合成测试]菜品可以去：[合成测试]restaurant' in result['reply']
+    assert result['items'][0]['food_id']=='food' and result['items'][0]['vendor_id']=='vendor'
+    assert '想去哪家可以加入素材篮' in result['reply'] and '你想问哪一场演出' not in result['reply']
+    assert get(city)==before
+
+
+@pytest.mark.parametrize('kind',['query','search_dining'])
+def test_general_nearby_dining_still_requires_position(city,monkeypatch,kind):
+    text='附近有什么好吃的'
+    monkeypatch.setattr(language,'available',lambda:True)
+    monkeypatch.setattr(provider,'generate',lambda *a,**k:({'actions':[{'kind':kind,'purpose':'dining','quote':text}]},{'source':'mock_model'}))
+    task=run(city,text)
+    assert task['result']['code']=='FRESH_POSITION_REQUIRED' and '你现在在哪' in task['result']['reply']
+    assert 'items' not in task['result']
+
+
+@pytest.mark.parametrize('mutation',['missing','cancelled','unverified'])
+def test_general_dining_does_not_infer_supply_from_restaurant_category(city,monkeypatch,mutation):
+    from app.city.agent import toolbelt
+    from app.city.agent.models import Understanding
+    snap,_=snapshot(city)
+    supply=next(r for r in snap.planning.facts.values() if r.kind=='supply')
+    key=('supply',supply.fact_id)
+    if mutation=='missing':snap.planning.facts.pop(key)
+    else:snap.planning.facts[key]=supply.model_copy(update={'business_status':'cancelled'} if mutation=='cancelled' else {'validation_status':'unverified'})
+    result=toolbelt.find_food(snap,Understanding(),general=True)
+    assert result['status']=='needs_data' and not result['items'] and '[合成测试]restaurant' not in result['reply']
+
+
+def test_general_dining_limits_dishes_and_distinct_shops(city):
+    from collections import Counter
+    from app.city.agent import toolbelt
+    from app.city.agent.models import Understanding
+    snap,_=snapshot(city);catalog=snap.planning.facts
+    food=catalog['food','food'];vendor=catalog['vendor','vendor'];place=catalog['place','restaurant'];supply=catalog['supply','supply']
+    for shop in range(3):
+        catalog['place',f'shop:{shop}']=place.model_copy(update={'fact_id':f'shop:{shop}','name':f'[合成测试]店{shop}'})
+        catalog['vendor',f'vendor:{shop}']=vendor.model_copy(update={'fact_id':f'vendor:{shop}','place_id':f'shop:{shop}'})
+    for dish in range(6):
+        catalog['food',f'dish:{dish}']=food.model_copy(update={'fact_id':f'dish:{dish}','name':f'[合成测试]菜{dish}'})
+        for shop in range(3):
+            identity=f'supply:{dish}:{shop}'
+            catalog['supply',identity]=supply.model_copy(update={'fact_id':identity,'food_id':f'dish:{dish}','vendor_id':f'vendor:{shop}'})
+    result=toolbelt.find_food(snap,Understanding(),general=True)
+    counts=Counter(i['food_id'] for i in result['items'])
+    assert len(counts)==5 and set(counts.values())=={2}
+    for dish in counts:
+        assert len({i['place_id'] for i in result['items'] if i['food_id']==dish})==2

@@ -429,8 +429,8 @@ def parse(text,snapshot,*,allow_model=True):
             retained=tuple(a for a in result.actions if not (a.kind=='query' and greeting_only(a.quote)))
             if len(retained)!=len(result.actions):
                 result=result.model_copy(update={'actions':retained})
-        if any(a.kind=='search_dining' and not a.near and _NEAR.search(a.quote) for a in result.actions):
-            result=result.model_copy(update={'actions':tuple(a.model_copy(update={'near':True}) if a.kind=='search_dining' and _NEAR.search(a.quote) else a for a in result.actions)})
+        if any((a.kind=='search_dining' or a.kind=='query' and a.purpose=='dining') and not a.near and _NEAR.search(a.quote) for a in result.actions):
+            result=result.model_copy(update={'actions':tuple(a.model_copy(update={'near':True}) if (a.kind=='search_dining' or a.kind=='query' and a.purpose=='dining') and _NEAR.search(a.quote) else a for a in result.actions)})
         if result.state_request:
             from .semantic_execution import grounded_state
             grounded_state(result.state_request,text)
@@ -536,9 +536,9 @@ def wants_find(intent,snapshot):
     Only a search limited to where the visitor is now ("附近") is in-trip replanning
     (react), which is the handler that needs a fresh position.
     """
-    from .toolbelt import requested_foods
+    from .toolbelt import requested_foods,general_dining
     dining=[a for a in intent.actions if a.kind=='search_dining']
-    return bool(dining) and not intent.planning and not any(a.near for a in dining) and bool(requested_foods(snapshot,intent))
+    return bool(dining) and not any(a.near for a in dining) and (not intent.planning and bool(requested_foods(snapshot,intent)) or any(general_dining(snapshot,a) for a in dining))
 
 
 def route(intent,snapshot):
@@ -554,7 +554,7 @@ def route(intent,snapshot):
         components.append('planning' if intent.planning else 'workflow')
     if any(a.kind=='search_services' for a in intent.actions) or intent.service_query:
         components.append('travel_services')
-    if any(a.kind=='search_dining' for a in intent.actions) and not intent.planning:
+    if has_dining and (not intent.planning or wants_find(intent,snapshot)):
         components.append('find' if wants_find(intent,snapshot) else 'react')
     typed_quotes={branch.quote for branch in (intent.weather_query,intent.route_query) if branch}
     if any(a.kind=='query' and a.quote not in typed_quotes for a in intent.actions):

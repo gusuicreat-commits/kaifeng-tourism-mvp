@@ -60,4 +60,13 @@ def check(case, task, constraints):
             got = got[11:16] if isinstance(got, str) else got
         if got != value:
             problems.append(f'{key}={got} expected {value}')
+    reply=(task.get('result') or {}).get('reply','')
+    for value in expect.get('reply_contains',[]):
+        if value not in reply:problems.append(f'reply missing {value}')
+    for value in expect.get('reply_excludes',[]):
+        if value in reply:problems.append(f'reply contains {value}')
+    for topic in expect.get('reply_topics',[]):
+        if not any(line.startswith(topic+'：') for line in reply.splitlines()):problems.append(f'reply missing topic {topic}')
+    for drop in expect.get('dropped_fields',[]):
+        if drop not in meta.get('dropped_fields',[]):problems.append(f'dropped fields missing {drop}')
     return problems

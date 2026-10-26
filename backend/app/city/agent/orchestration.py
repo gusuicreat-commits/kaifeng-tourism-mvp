@@ -4,7 +4,7 @@ from uuid import UUID,uuid5
 from fastapi import HTTPException
 from .. import exploration,exploration_state,basket,state,travel_services
 from ..schema import TZ
-from .planning_intent import proposal
+from .planning_intent import proposal,resolve_date,trip_days
 
 LABELS={'date':'日期','start_time':'出发时间','end_time':'结束时间','origin':'出发地','destination':'返回地',
         'budget_fen':'预算','mode':'出行方式','pace':'节奏','objective':'偏好','city':'城市'}
@@ -20,7 +20,7 @@ def _ready_reply(result):
     return '方案已准备好。'+(f"时间不够，这版没排进：{'、'.join(left)}。" if left else '')+'请点“确认方案”保存。'
 
 
-def execute(session,t,intent):
+def _execute(session,t,intent):
     proposed=proposal(session,t.trip_id,t.snapshot,intent,t.text,today=t.interpretation_date)
     action=proposed.get('planning_action')
     if not action:return proposed
@@ -51,11 +51,13 @@ def execute(session,t,intent):
         'planning_constraints':{'version':result['planning_version'],'constraints':result['constraints'],'rounds':result['rounds']},
         'basket':env.basket|{'version':basket_version}})
     missing=[q['field'] for q in result.get('questions',[])]
+    asked=set()
     if missing:
-        if 'business_date' in missing:reply='你打算哪天去？'
-        elif any(k in missing for k in ('starts_at','ends_at')):reply='当天几点开始，最晚几点结束？'
-        elif set(missing)>={'origin_place_id','destination_place_id'}:reply='从哪里出发，最后返回哪里？'
-        else:reply='从哪里出发？' if 'origin_place_id' in missing else '最后回到哪里？'
+        if 'business_date' in missing:reply='你打算哪天去？';asked={'date'}
+        elif any(k in missing for k in ('starts_at','ends_at')):reply='当天几点开始，最晚几点结束？';asked={'start_time','end_time'}
+        elif set(missing)>={'origin_place_id','destination_place_id'}:reply='从哪里出发，最后返回哪里？';asked={'origin','destination'}
+        elif 'origin_place_id' in missing:reply='从哪里出发？';asked={'origin'}
+        else:reply='最后回到哪里？';asked={'destination'}
         status='needs_clarification'
     else:
         reply=_ready_reply(result) if result['status']=='feasible' else result['reply']
@@ -66,9 +68,23 @@ def execute(session,t,intent):
     filled={'date':final.get('business_date'),'start_time':final.get('starts_at'),'end_time':final.get('ends_at'),
             'origin':final.get('origin_place_id') or final.get('origin_text'),
             'destination':final.get('destination_place_id') or final.get('destination_text'),'budget_fen':final.get('budget_fen')}
-    dropped=[LABELS.get(f,f) for f in dict.fromkeys(d['field'] for d in t.interpretation.get('dropped_fields',())) if not f.startswith('service.') and not filled.get(f)]
+    dropped=[LABELS.get(f,f) for f in dict.fromkeys(d['field'] for d in t.interpretation.get('dropped_fields',()) if d['check']!='per_person_budget')
+             if not f.startswith('service.') and f not in asked and not filled.get(f)]
     if dropped:reply+=f"另外，{'、'.join(dropped)}没听准，能再说一下吗？"
     if proposed.get('notes'):reply+=''.join(proposed['notes'])
     return {'status':status,'reply':reply,'formal_state_changed':False,
         'planning_workflow':{'trip_id':t.trip_id,'execution':'completed_backend','operation':action['operation'],
             'date_changed':action['date_changed'],'result':result}}
+
+
+def execute(session,t,intent):
+    result=_execute(session,t,intent)
+    if intent.planning and intent.planning.operation!='weather_replan' and trip_days(t.text)>1:
+        from .requirement_context import planning_values
+        day=planning_values(t.snapshot).get('business_date')
+        field=next((f for f in intent.planning.fields if f.field=='date'),None)
+        if field:day=resolve_date(field.value,t.interpretation_date or t.snapshot.envelope.identity.generated_at.astimezone(TZ).date()).isoformat()
+        result['reply']=f"目前只能先排第一天（{day or '日期待补充'}），多天行程还在开发中。"+result['reply'].removeprefix(f'日期已记为 {day}。')
+    if any(d['check']=='per_person_budget' for d in t.interpretation.get('dropped_fields',())):
+        result['reply']+='按人预算暂时不能用于规划，先不按预算筛选。'
+    return result

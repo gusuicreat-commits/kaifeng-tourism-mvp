@@ -1,4 +1,5 @@
 """Evidence-bound read tools and one preview adapter; no commit in this registry."""
+import re
 from datetime import datetime, timedelta
 from uuid import UUID, uuid5
 from fastapi import HTTPException
@@ -41,29 +42,58 @@ def requested_foods(snapshot,intent):
             and (f.name in words or any(n in t for t in texts for n in (f.name,*f.aliases) if n and len(n)>1))]
 
 
-def find_food(snapshot,intent):
-    """Read-only: which shops serve the named dishes. Needs no position, route or trip window."""
+def general_dining(snapshot,action):
+    if action.near:return False
+    if action.target_name and not re.fullmatch(r'(?:开封)?(?:特色)?(?:美食|小吃|好吃的|特色菜)',action.target_name):return False
+    if action.kind!='search_dining' and not (action.kind=='query' and action.purpose=='dining'):return False
+    if not re.search(r'美食|小吃|特色菜|好吃|吃什么|吃点什么',action.quote):return False
+    return not any(facts.name_matches(r,action.quote) for r in snapshot.planning.facts.values()
+                   if facts.planning_visible(r) and (isinstance(r,facts.Food) or isinstance(r,facts.Place) and r.place_type=='restaurant'))
+
+
+def _supply_readable(ctx,record,seen=None):
+    # A dish-to-shop lookup needs supply evidence, but no navigable coordinates.
+    if record is None or not facts.planning_visible(record):return False
+    if any(g!='LOCATION_UNKNOWN' for g in facts.gaps(record,ctx.facts,ctx.assessed_at)):return False
+    seen=set() if seen is None else seen
+    for ref in facts.references(record):
+        if ref in seen:continue
+        seen.add(ref)
+        if not _supply_readable(ctx,ctx.facts.get(ref),seen):return False
+    return True
+
+
+def find_food(snapshot,intent,*,general=False):
+    """Read-only dish-to-shop references, without requiring a position or route."""
     ctx=snapshot.planning;now=ctx.assessed_at;today=now.astimezone(TZ).date()
     basket={(m['fact_kind'],m['fact_id']) for m in snapshot.materials if m['status']!='standby'}
-    items=[];lines=[]
-    for food in requested_foods(snapshot,intent):
-        shops=[]
+    items=[];lines=[];reference=False
+    foods=sorted((r for r in ctx.facts.values() if isinstance(r,facts.Food) and facts.planning_visible(r)),key=lambda r:r.fact_id) if general else requested_foods(snapshot,intent)
+    for food in foods:
+        shops=[];seen=set()
         for supply in sorted((r for r in ctx.facts.values() if isinstance(r,facts.Supply) and r.food_id==food.fact_id),key=lambda r:r.fact_id):
             vendor=ctx.facts.get(('vendor',supply.vendor_id))
-            if not vendor or not ctx.ready(supply,now) or not facts.planning_visible(vendor):continue
+            if not vendor or vendor.place_id in seen or not _supply_readable(ctx,supply):continue
+            seen.add(vendor.place_id)
             windows=[f"{r.opens_at.astimezone(TZ):%H:%M}–{r.closes_at.astimezone(TZ):%H:%M}" for r in sorted(ctx.rules(vendor.place_id,today),key=lambda r:r.opens_at or now)
                      if r.opens_at and r.closes_at and facts.planning_visible(r)]
             name=context.label(ctx.facts,vendor.place_id)
             in_basket=('vendor',vendor.fact_id) in basket or ('place',vendor.place_id) in basket
             items.append({'food_id':food.fact_id,'vendor_id':vendor.fact_id,'place_id':vendor.place_id,'name':name,
-                          'today_hours':windows,'in_basket':in_basket})
+                          'today_hours':windows,'in_basket':in_basket,'supply_id':supply.fact_id,'source_ids':list(supply.source_ids),
+                          'validation_status':supply.validation_status,'planning_status':supply.planning_status})
+            reference=reference or supply.planning_status=='reference'
             shops.append(name+(f"（今天 {'、'.join(windows)}）" if windows else '')+('，已在素材篮' if in_basket else ''))
+            if general and len(shops)==2:break
+        if general and not shops:continue
         lines.append(f"{food.name}可以去：{'；'.join(shops[:5])}。" if shops else f"暂时没有{food.name}的店铺资料。")
+        if general and len(lines)==5:break
     if not lines:
+        if general:return {'status':'needs_data','code':'NO_SUPPLY_REFERENCE','items':[],'reply':'暂时没有带供应记录的特色菜与店铺资料。','formal_state_changed':False}
         return {'status':'needs_clarification','code':'FOOD_NOT_NAMED','items':[],'reply':'想吃哪道菜？告诉我菜名就能帮你找店。'}
-    tail='想排进行程，在店铺详情页加入素材篮就行。' if items and not all(i['in_basket'] for i in items) else ''
+    tail='想去哪家可以加入素材篮。' if general else '想排进行程，在店铺详情页加入素材篮就行。' if items and not all(i['in_basket'] for i in items) else ''
     return {'status':'answered' if items else 'needs_data','code':None if items else 'NO_SUPPLY_REFERENCE','items':items,
-            'reply':''.join(lines)+tail,'formal_state_changed':False}
+            'reply':('以下是资料中的供应参考，尚未现场核实，当前供应请向店家确认。' if reference else '')+''.join(lines)+tail,'formal_state_changed':False}
 
 
 def search_dining(snapshot,intent,relax=False):

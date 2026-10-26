@@ -265,3 +265,12 @@ def test_compound_service_and_planning_drops_share_trace_without_duplicate_promp
     line=json.loads([r for r in caplog.records if r.name=='tourism.agent'][-1].getMessage())
     assert line['dropped']==[{'field':'service.free_parking','check':'attribute_not_in_quote'},
         {'field':'service.breakfast','check':'attribute_not_in_quote'},{'field':'origin','check':'place_not_in_quote'}]
+
+
+def test_hotel_missing_dates_use_normal_sentence_punctuation(env,monkeypatch):
+    client,path=env;text='找干净的酒店'
+    monkeypatch.setattr(language,'available',lambda:True)
+    monkeypatch.setattr(provider,'generate',lambda *a,**k:({'service_query':{'quote':text,'fields':[field('clean',True,'干净')]}},{'source':'mock_model'}))
+    task=run({'client':client,'trip':client.get(path).json()},text)
+    assert '请提供入住日期。请提供退房日期或住几晚。' in task['result']['reply']
+    assert '。；' not in task['result']['reply']

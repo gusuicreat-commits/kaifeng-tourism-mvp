@@ -150,6 +150,7 @@ def test_compound_turn_answers_queries_searches_services_and_previews_planning(e
     assert t['result']['compound']['partial'] is True
     kinds=[item['kind'] for item in t['result']['compound']['items']]
     assert kinds==['conversation','travel_services','planning']
+    assert [line.split('：',1)[0] for line in t['result']['reply'].splitlines()]==['说明','住宿','行程']
     assert t['result']['services']['requirements']['nights']==2
     assert t['result']['planning_workflow']['result']['constraints']['business_date']==(datetime.now(TZ).date()+timedelta(days=2)).isoformat()
     assert t['result']['formal_state_changed'] is False

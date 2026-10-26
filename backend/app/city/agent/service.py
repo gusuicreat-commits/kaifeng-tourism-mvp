@@ -308,6 +308,10 @@ def _defer(session,t):
 
 
 def _read_query(t,action,snapshot):
+    if action.purpose=='dining':
+        if action.near and snapshot.envelope.position['status']!='fresh':
+            return {'status':'needs_data','code':'FRESH_POSITION_REQUIRED','reply':'你现在在哪？在地图上点一下位置，我再帮你找附近的。'}
+        if toolbelt.general_dining(snapshot,action):return toolbelt.find_food(snapshot,t.intent,general=True)
     if t.interpretation.get('basis')=='kimi_validated':
         from .semantic_execution import read_action
         intent=read_action(action,snapshot)
@@ -362,14 +366,16 @@ def _compound_step(session,t):
     """
     intent,snapshot=t.intent,t.snapshot
     parts=[];replies=[];statuses=[]
+    def add_reply(topic,reply):
+        if reply:replies.append((topic,reply if reply.endswith(('。','？','！','?','!')) else reply+'。'))
     from .evidence import checked_reply
     if intent.conversation:
         reply=checked_reply(intent.conversation.reply)
-        parts.append({'kind':'conversation','status':'answered','reply':reply});replies.append(reply);statuses.append('answered')
+        parts.append({'kind':'conversation','status':'answered','reply':reply});add_reply('说明',reply);statuses.append('answered')
     questions=understand.questions(intent,snapshot)
     if questions:
         parts.append({'kind':'clarify','status':'needs_clarification','questions':questions})
-        replies.extend(questions)
+        for question in questions:add_reply('待确认',question)
         statuses.append('needs_clarification')
     if intent.weather_query:
         t.tools+=1;t.events.append({'tool':'query_weather','status':'running','parameters':{},'source':'qweather'})
@@ -377,7 +383,7 @@ def _compound_step(session,t):
         if not _fresh(session,t):return public(t)
         t.events[-1].update(status=result['status'],provider_status=result.get('provider_status'),provider_events=result.pop('provider_events',[]))
         parts.append({'kind':'weather','status':result['status'],'result':result});statuses.append(result['status'])
-        if result.get('reply'):replies.append(result['reply'])
+        add_reply('天气',result.get('reply'))
     if intent.service_query or any(a.kind=='search_services' for a in intent.actions):
         from .. import travel_services
         t.tools+=1;t.events.append({'tool':'search_travel_services','status':'running','parameters':{},'source':'provider_registry'})
@@ -389,7 +395,7 @@ def _compound_step(session,t):
         service_status=result['services']['result']['status']
         part_status='answered' if service_status=='ok' else 'needs_clarification' if service_status=='needs_clarification' else 'needs_data' if service_status=='empty' else 'unavailable'
         parts.append({'kind':'travel_services','status':part_status,'result':result});statuses.append(part_status)
-        if result.get('reply'):replies.append(result['reply'])
+        add_reply({'hotels':'住宿','parking':'停车','merchants':'商家'}.get(result['services']['requirements']['category'],'服务'),result.get('reply'))
         snapshot=t.snapshot
     typed_quotes={branch.quote for branch in (intent.weather_query,intent.route_query) if branch}
     # A food wish inside a planning turn is answered by the planning reply, not a vendor lookup.
@@ -402,20 +408,21 @@ def _compound_step(session,t):
             answer=_read_query(t,action,snapshot);answers.append(answer)
         query_status='answered' if all(a.get('status')=='answered' for a in answers) else 'needs_data'
         parts.append({'kind':'direct_query','status':query_status,'answers':answers});statuses.append(query_status)
-        replies.extend(a.get('reply','') for a in answers if a.get('reply'))
+        for action,answer in zip(queries,answers):
+            add_reply({'dining':'美食','shows':'演出','travel':'交通','history':'历史'}.get(action.purpose,'行程'),answer.get('reply'))
     finding=understand.wants_find(intent,snapshot)
     if finding:
-        result=toolbelt.find_food(snapshot,intent)
+        result=toolbelt.find_food(snapshot,intent,general=any(toolbelt.general_dining(snapshot,a) for a in intent.actions))
         parts.append({'kind':'find_food','status':result['status'],'result':result});statuses.append(result['status'])
-        replies.append(result['reply'])
+        add_reply('美食',result['reply'])
     if intent.route_query:
         parts.append({'kind':'reference_route','status':'needs_clarification','reply':'问路需要单独确认起点与终点候选；本轮其他请求已分别处理。'})
-        statuses.append('needs_clarification');replies.append(parts[-1]['reply'])
+        statuses.append('needs_clarification');add_reply('交通',parts[-1]['reply'])
     snapshot=t.snapshot
     has_planning=bool(intent.planning or (intent.constraints and not finding) or intent.corrections or any(a.kind in ('modify','preference','cancel','progress','position') or a.kind=='search_dining' and not finding for a in intent.actions))
     if has_planning:
         if questions:
-            planning_result={'status':'needs_clarification','reply':'；'.join(questions)}
+            planning_result={'status':'needs_clarification','reply':''.join(questions)}
         elif any(a.kind in ('progress','position','cancel') for a in intent.actions):
             planning_result={'status':'needs_clarification','reply':'进度、当前位置与取消操作请单独确认；本轮未执行这些状态修改。'}
         elif intent.planning:
@@ -442,7 +449,7 @@ def _compound_step(session,t):
         else:
             parts.append({'kind':'planning','status':planning_result.get('status','needs_clarification'),'result':planning_result})
             statuses.append(planning_result.get('status','needs_clarification'))
-        if planning_result.get('reply'):replies.append(planning_result['reply'])
+        if not questions:add_reply('行程',planning_result.get('reply'))
     if not parts:
         parts.append({'kind':'clarify','status':'needs_clarification','questions':['这句话还包含未支持的组合，请分别说明要查询或修改的内容。']})
         statuses.append('needs_clarification')
@@ -450,7 +457,10 @@ def _compound_step(session,t):
     elif any(s in ('needs_clarification','needs_data','unavailable') for s in statuses):status='needs_clarification'
     else:status='answered'
     partial=any(s in ('needs_clarification','needs_data','unavailable') for s in statuses)
-    result={'reply':' '.join(r if r.endswith(('。','？','！','?','!')) else r+'。' for r in dict.fromkeys(r for r in replies if r)) or '已分别处理这轮请求，请查看各项结果。',
+    topics={}
+    for topic,reply in replies:
+        if reply not in topics.setdefault(topic,[]):topics[topic].append(reply)
+    result={'reply':'\n'.join(topic+'：'+''.join(lines) for topic,lines in topics.items()) or '已分别处理这轮请求，请查看各项结果。',
             'compound':{'items':parts,'partial':partial},'formal_state_changed':False}
     for item in parts:
         if item['kind']=='travel_services':result['services']=item['result']['services']
@@ -640,7 +650,7 @@ def _advance(session,trip_id,identity,body):
                 _finish(session,t,'answered' if code=='ok' else 'needs_clarification' if code=='needs_clarification' else 'needs_data' if code=='empty' else 'unavailable',result)
             elif t.mode=='find':
                 t.tools+=1;t.events.append({'tool':'find_food','status':'running','parameters':{},'source':'city_facts'})
-                result=toolbelt.find_food(t.snapshot,t.intent)
+                result=toolbelt.find_food(t.snapshot,t.intent,general=any(toolbelt.general_dining(t.snapshot,a) for a in t.intent.actions))
                 t.events[-1].update(status=result['status'],result_code=result.get('code'),item_count=len(result['items']))
                 _finish(session,t,result['status'],result)
             elif t.mode=='direct':

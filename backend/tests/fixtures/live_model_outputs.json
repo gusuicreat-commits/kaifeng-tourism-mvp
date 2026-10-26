@@ -418,6 +418,32 @@
    "expect": {
     "mode": [
      "compound"
+    ],
+    "saved": {
+     "business_date": "2026-10-31",
+     "budget_fen": null
+    },
+    "reply_contains": [
+     "只能先排第一天（2026-10-31）",
+     "多天行程还在开发中",
+     "按人预算暂时不能用于规划，先不按预算筛选",
+     "想去哪家可以加入素材篮"
+    ],
+    "reply_excludes": [
+     "。；",
+     "你想问哪一场演出",
+     "日期没听准"
+    ],
+    "reply_topics": [
+     "住宿",
+     "美食",
+     "行程"
+    ],
+    "dropped_fields": [
+     {
+      "field": "budget_fen",
+      "check": "per_person_budget"
+     }
     ]
    },
    "replies": [

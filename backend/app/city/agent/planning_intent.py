@@ -10,7 +10,7 @@ from .evidence import request_evidence, effective_clock, preference_evidence
 
 
 _RELATIVE_DAY={'今晚':'今天','今早':'今天','今夜':'今天','今日':'今天','明晚':'明天','明早':'明天'}
-DATE_EXPRESSION=r'(?:今天|明天|后天|今晚|今早|今夜|今日|明晚|明早|(?:本|这|下)周[一二三四五六日天]|\d{4}[-年]\d{1,2}[-月]\d{1,2}日?|\d{1,2}月\d{1,2}日?)'
+DATE_EXPRESSION=r'(?:今天|明天|后天|今晚|今早|今夜|今日|明晚|明早|(?:本|这|下)?周末|(?:本|这|下)周[一二三四五六日天]|\d{4}[-年]\d{1,2}[-月]\d{1,2}日?|\d{1,2}月\d{1,2}日?)'
 
 
 def resolve_date(expression, today):
@@ -18,6 +18,8 @@ def resolve_date(expression, today):
     expression=_RELATIVE_DAY.get(expression,expression)
     if expression in ('今天','明天','后天'):
         return today+timedelta(days=('今天','明天','后天').index(expression))
+    if expression in ('周末','这周末','本周末','下周末'):
+        return today+timedelta(days=5-today.weekday()+7 if expression=='下周末' else max(5-today.weekday(),0))
     match=re.fullmatch(r'(\d{4})[-年](\d{1,2})[-月](\d{1,2})日?',expression)
     if match:return date(*(int(x) for x in match.groups()))
     match=re.fullmatch(r'(\d{1,2})月(\d{1,2})日?',expression)
@@ -46,11 +48,20 @@ def _field_check(f, text, today):
         if f.field in ('pace','objective','mode'):
             preference_evidence(f.field,f.value,f.quote);return None
         if f.field=='budget_fen':
+            clauses=[q for q in re.split(r'[，,。；;！!？?\n]',text) if f.quote in q]
+            if re.search(r'每人|人均|一人|每个人',f.quote+' '.join(clauses)):return 'per_person_budget'
             amounts=re.findall(r'(\d+(?:\.\d{1,2})?)\s*(?:元|块)',f.quote)
             return None if len(amounts)==1 and int(Decimal(amounts[0])*100)==f.value else 'budget_not_in_quote'
     except ValueError:
         return 'date_unresolved' if f.field=='date' else 'preference_not_in_quote'
     return None
+
+
+def trip_days(text):
+    """Only describe the single-day limit; this never creates a planning field."""
+    from .understand import number
+    days=[number(m[1]) for m in re.finditer(r'(?<!\d)(\d+|[一二两三四五六七八九十]{1,3})\s*天',text)]
+    return max((d for d in days if d is not None),default=1)
 
 
 def grounded(planning, text, snapshot, dropped=None):
