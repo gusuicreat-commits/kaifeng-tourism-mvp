@@ -254,6 +254,23 @@ def failure(exc):
 PLANNING_FIELDS=('city','date','start_time','end_time','origin','destination','mode','budget_fen')
 
 
+# Plain-English synonyms the model uses for the enumerated preferences.
+_PREFERENCE_SYNONYMS={'pace':{'slow':'relaxed','slower':'relaxed','leisurely':'relaxed','normal':'standard','fast':'compact','tight':'compact'}}
+
+
+def _canonical_preferences(raw):
+    """Map synonym values ("slow") to the enum ("relaxed"); the quote is still checked against cues."""
+    def fix(item):
+        if not isinstance(item,dict):return item
+        value=_PREFERENCE_SYNONYMS.get(item.get('field'),{}).get(item.get('value'))
+        return dict(item,value=value) if value else item
+    if isinstance(raw.get('constraints'),list):raw=dict(raw,constraints=[fix(c) for c in raw['constraints']])
+    planning=raw.get('planning')
+    if isinstance(planning,dict) and isinstance(planning.get('fields'),list):
+        raw=dict(raw,planning=dict(planning,fields=[fix(f) for f in planning['fields']]))
+    return raw
+
+
 def _normalize_model_output(raw):
     """Drop only constraints that cannot be valid for their field.
 
@@ -267,6 +284,7 @@ def _normalize_model_output(raw):
     """
     if not isinstance(raw,dict):
         return raw
+    raw=_canonical_preferences(raw)
     raw_constraints=raw.get('constraints')
     if not isinstance(raw_constraints,(list,tuple)):
         return raw

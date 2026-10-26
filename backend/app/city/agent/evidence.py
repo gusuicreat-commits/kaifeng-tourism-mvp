@@ -110,7 +110,7 @@ truth, and tool-backed factual questions must still use deterministic queries.
 
 
 PREFERENCE_CUES={
-    'pace':{'relaxed':r'轻松|宽松|慢点|悠闲|不赶','compact':r'紧凑|多安排|多逛|充实','standard':r'标准|正常|普通节奏'},
+    'pace':{'relaxed':r'轻松|宽松|慢点|慢一点|慢一些|放慢|悠闲|不赶|别太累','compact':r'紧凑|多安排|多逛|充实|快一点|加快','standard':r'标准|正常|普通节奏'},
     'objective':{'less_walking':r'少走|走路少|步行少|近点|近一点|别走太远|不想走太多',
         'less_waiting':r'少等|少排队|减少等待|不想等','lower_cost':r'省钱|便宜|少花|低费用|预算更低','balanced':r'均衡|平衡|综合'},
     'mode':{'walking':r'步行|走路','driving':r'开车|驾车|自驾','transit':r'公交|公共交通|巴士|地铁'},

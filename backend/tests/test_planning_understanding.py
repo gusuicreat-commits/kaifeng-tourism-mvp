@@ -357,3 +357,20 @@ def test_nearby_dining_is_in_trip_replanning_and_declares_position(city,monkeypa
     t=run(city,text)
     assert t['mode']=='react' and t['result']['code']=='FRESH_POSITION_REQUIRED'
     assert t['understanding']['actions'][0]['near'] is True
+
+
+@pytest.mark.parametrize('value',['明天','明晚','2030-05-02'])
+def test_normalized_date_must_name_the_same_day_as_the_quote(city,monkeypatch,value):
+    text='明晚五点半从开封府出发'
+    model(monkeypatch,text,[field('date',value,'明晚'),field('start_time','17:30','明晚五点半')])
+    run(city,text)
+    saved=city['client'].get(path(city,'/exploration/constraints')).json()['constraints']
+    assert saved['business_date']=='2030-05-02' and saved['starts_at'].endswith('T17:30:00+08:00'),saved
+
+
+def test_pace_synonym_from_the_model_maps_to_the_enum(city,monkeypatch):
+    text='明天下午两点出发，节奏放慢一点'
+    model(monkeypatch,text,[field('date','明天','明天'),field('start_time','14:00','下午两点'),field('pace','slow','节奏放慢一点')])
+    run(city,text)
+    saved=city['client'].get(path(city,'/exploration/constraints')).json()['constraints']
+    assert saved['pace']=='relaxed',saved
