@@ -36,9 +36,11 @@ def _field_check(f, text, today):
         if f.field=='date':
             if f.value in f.quote:
                 resolve_date(f.value,today);return None
-            # The model may normalize a relative date to ISO; the quoted expression must resolve to it.
+            # The model may normalize the quoted expression ("明晚" -> "明天" or ISO); both must name the same day.
             expressions=re.findall(DATE_EXPRESSION,f.quote)
-            return None if expressions and resolve_date(expressions[-1],today).isoformat()==str(f.value) else 'date_not_in_quote'
+            try:value=date.fromisoformat(str(f.value))
+            except ValueError:value=resolve_date(str(f.value),today)
+            return None if expressions and resolve_date(expressions[-1],today)==value else 'date_not_in_quote'
         if f.field in ('start_time','end_time'):return None if clock_grounded(f.value,f.quote,text) else 'clock_not_in_quote'
         if f.field in ('city','origin','destination'):return None if f.value in f.quote else 'place_not_in_quote'
         if f.field in ('pace','objective','mode'):
@@ -128,6 +130,13 @@ def offline(text, snapshot):
     except ValueError:return None
 
 
+def _dish_served_by_basket(name, snapshot):
+    """A dish named as a choice is already covered when a basket shop serves it."""
+    from .models import Constraint
+    from .understand import food_covered_by_material
+    return food_covered_by_material(Constraint(field='food',value=name,strength='soft',quote=name),None,snapshot)
+
+
 def proposal(session, trip_id, snapshot, intent, text, *, today=None):
     from ...db import connect
     from .. import basket
@@ -194,8 +203,14 @@ def proposal(session, trip_id, snapshot, intent, text, *, today=None):
         with connect() as db:items=basket.snapshot(db,session,trip_id)['items']
         used=set()
         for choice in p.choices:
-            matches=[i for i in items if i['name']==choice.name]
-            if len(matches)!=1 or choice.name in used:return {'status':'needs_clarification','reply':'素材篮里没找到这一项，是哪个地点？'}
+            # A short name ("第一楼") may stand for one basket item's full name.
+            matches=[i for i in items if i['name']==choice.name] or [i for i in items if choice.name in i['name']]
+            if choice.name in used:continue
+            if not matches and _dish_served_by_basket(choice.name,snapshot):continue
+            if len(matches)!=1:
+                # Not in the basket: leave it out of this turn and say so.
+                notes.append(f'“{choice.name}”在素材篮里有好几项，是哪一个？' if matches else f'“{choice.name}”不在素材篮里，想去的话先在详情页加入。')
+                continue
             used.add(choice.name)
             current=matches[0]
             # A choice that already matches the basket is a harmless echo of the
