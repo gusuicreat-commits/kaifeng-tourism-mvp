@@ -412,6 +412,95 @@
      }
     }
    ]
+  },
+  {
+   "text": "我准备周末和朋友去开封玩两天，预算每人800元，想去万岁山和清明上河园，想吃开封特色美食。酒店希望干净、有窗户，最好附近方便停车，行程不要太赶。",
+   "expect": {
+    "mode": [
+     "compound"
+    ]
+   },
+   "replies": [
+    {
+     "schema_version": "travel-intent/3.3",
+     "actions": [
+      {
+       "kind": "query",
+       "quote": "想吃开封特色美食",
+       "purpose": "dining"
+      }
+     ],
+     "constraints": [
+      {
+       "field": "pace",
+       "strength": "soft",
+       "value": "relaxed",
+       "quote": "行程不要太赶"
+      },
+      {
+       "field": "budget_fen",
+       "strength": "hard",
+       "value": 80000,
+       "quote": "预算每人800元"
+      }
+     ],
+     "planning": {
+      "operation": "update",
+      "quote": "我准备周末和朋友去开封玩两天...想去万岁山和清明上河园",
+      "fields": [
+       {
+        "field": "city",
+        "value": "开封",
+        "quote": "去开封"
+       },
+       {
+        "field": "date",
+        "value": "周末",
+        "quote": "周末"
+       }
+      ],
+      "choices": [
+       {
+        "name": "万岁山",
+        "priority": "must",
+        "status": "pending",
+        "quote": "万岁山"
+       },
+       {
+        "name": "清明上河园",
+        "priority": "must",
+        "status": "pending",
+        "quote": "清明上河园"
+       }
+      ]
+     },
+     "service_query": {
+      "quote": "酒店希望干净、有窗户，最好附近方便停车",
+      "category": "hotels",
+      "fields": [
+       {
+        "field": "clean",
+        "value": true,
+        "quote": "干净",
+        "strength": "hard"
+       },
+       {
+        "field": "window",
+        "value": true,
+        "quote": "有窗户",
+        "strength": "hard"
+       },
+       {
+        "field": "free_parking",
+        "value": true,
+        "quote": "附近方便停车",
+        "strength": "soft"
+       }
+      ]
+     }
+    }
+   ],
+   "recorded_at": "2026-10-26T20:12:17+08:00"
   }
  ]
 }

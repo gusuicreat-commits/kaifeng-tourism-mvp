@@ -27,16 +27,20 @@ CASES = [c for c in DATA['cases'] if c.get('replies')]
 @pytest.fixture
 def kaifeng(client, monkeypatch):
     model_replay.import_reference()
-    moment = datetime.fromisoformat(DATA['recorded_at'])
-    for module in (memory_storage, memory_session, engine, state, context, service, tools):
-        monkeypatch.setattr(module, 'now', lambda: moment)
     monkeypatch.setattr(language, 'available', lambda: True)
     return client
+
+
+def freeze(monkeypatch, case):
+    moment = datetime.fromisoformat(case.get('recorded_at', DATA['recorded_at']))
+    for module in (memory_storage, memory_session, engine, state, context, service, tools):
+        monkeypatch.setattr(module, 'now', lambda: moment)
 
 
 @pytest.mark.skipif(not CASES, reason='no recorded model replies')
 @pytest.mark.parametrize('case', CASES, ids=[c['text'][:16] for c in CASES])
 def test_recorded_model_reply_passes_the_pipeline(kaifeng, monkeypatch, case):
+    freeze(monkeypatch, case)
     replies = iter(copy.deepcopy(case['replies']))
     monkeypatch.setattr(provider, 'generate', lambda system, payload, **kw: (next(replies), {'source': 'recorded_model'}))
     trip = model_replay.new_trip(kaifeng)

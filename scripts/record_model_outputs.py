@@ -63,9 +63,14 @@ def main():
             trip = model_replay.new_trip(client)
             task = model_replay.run(client, trip, case['text'])
             case['replies'] = list(calls)
+            if args.missing:
+                case['recorded_at'] = recorded_at.isoformat()  # the file-level time stays valid for the others
             problems = model_replay.check(case, task, model_replay.saved(client, trip))
             print(('ok   ' if not problems else 'FAIL ') + case['text'] + ('' if not problems else '  ' + '; '.join(problems)))
-    data.update(recorded_at=recorded_at.isoformat(), model=os.getenv('TOURISM_LLM_MODEL'))
+    if not args.missing:
+        for case in data['cases']:
+            case.pop('recorded_at', None)
+        data.update(recorded_at=recorded_at.isoformat(), model=os.getenv('TOURISM_LLM_MODEL'))
     model_replay.RECORDINGS.write_text(json.dumps(data, ensure_ascii=False, indent=1) + '\n', encoding='utf-8')
     print(f'\n已写入 {model_replay.RECORDINGS.relative_to(ROOT)}')
     return 0
