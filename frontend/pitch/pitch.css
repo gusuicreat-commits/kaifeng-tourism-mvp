@@ -25,6 +25,9 @@ body.low-power .schematic-route{animation:none!important}
 @media print{@page{size:landscape;margin:0}html,body{height:auto!important;overflow:visible!important;background:white}#deck{position:static!important;width:auto!important;height:auto!important;display:block!important;transform:none!important}.slide{width:100vw!important;height:100vh!important;break-after:page;display:flex!important;overflow:hidden!important;-webkit-print-color-adjust:exact;print-color-adjust:exact}.slide:last-child{break-after:auto}#nav,#hint,#pitch-step-controls,#overview,.ascii-bg,#ppt-presenter{display:none!important}.slide [data-anim]{opacity:1!important;transform:none!important}}
 #pitch-presenter-controls{margin-top:16px;padding-top:14px;border-top:1px solid #363a43}#pitch-presenter-controls>strong{font-size:13px;font-weight:500;color:#b4bdd0}#pitch-presenter-controls>div{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}#pitch-presenter-controls button{font-size:12px;padding:8px 10px}
 
+.scenario-title.scenario-full-request{font-size:min(2.35vw,4.2vh);line-height:1.65;font-weight:300;letter-spacing:0}
+@media(max-width:900px){.scenario-title.scenario-full-request{font-size:clamp(23px,5.8vw,34px);margin:28px 0;line-height:1.65}}
+
 /* User-selected product screenshots retain their full aspect ratio and original pixels. */
 .screenshot-page .h-xl-zh{font-size:min(3.8vw,6.8vh)}
 .screenshot-showcase{display:grid;grid-template-columns:3.7fr 4.15fr 4.15fr;gap:2.5vw;flex:1;min-height:0;margin-top:3vh;align-items:start}
