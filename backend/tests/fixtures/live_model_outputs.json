@@ -1,0 +1,417 @@
+{
+ "recorded_at": "2026-10-26T17:34:00+08:00",
+ "model": "qwen3.7-plus",
+ "cases": [
+  {
+   "text": "今晚五点半从开封府出发，想吃灌汤包，十点前回来，走路就行。",
+   "expect": {
+    "mode": [
+     "planning",
+     "compound"
+    ],
+    "saved": {
+     "starts_at": "17:30",
+     "ends_at": "22:00"
+    }
+   },
+   "replies": [
+    {
+     "schema_version": "travel-intent/3.3",
+     "actions": [
+      {
+       "kind": "search_dining",
+       "quote": "想吃灌汤包",
+       "target_name": "灌汤包",
+       "near": false,
+       "purpose": "dining"
+      }
+     ],
+     "constraints": [],
+     "corrections": [],
+     "unresolved": [],
+     "planning": {
+      "operation": "update",
+      "quote": "今晚五点半从开封府出发，想吃灌汤包，十点前回来，走路就行。",
+      "fields": [
+       {
+        "field": "date",
+        "value": "2026-10-26",
+        "quote": "今晚"
+       },
+       {
+        "field": "start_time",
+        "value": "17:30",
+        "quote": "五点半"
+       },
+       {
+        "field": "end_time",
+        "value": "22:00",
+        "quote": "十点前回来"
+       },
+       {
+        "field": "origin",
+        "value": "开封府",
+        "quote": "开封府"
+       },
+       {
+        "field": "destination",
+        "value": "开封府",
+        "quote": "回来"
+       },
+       {
+        "field": "mode",
+        "value": "walking",
+        "quote": "走路就行"
+       }
+      ],
+      "choices": []
+     },
+     "conversation": null,
+     "route_query": null,
+     "weather_query": null,
+     "service_query": null,
+     "state_request": null
+    }
+   ]
+  },
+  {
+   "text": "你能帮我做什么？",
+   "expect": {
+    "mode": [
+     "conversation"
+    ]
+   },
+   "replies": [
+    {
+     "schema_version": "travel-intent/3.3",
+     "actions": [],
+     "constraints": [],
+     "corrections": [],
+     "unresolved": [],
+     "planning": null,
+     "conversation": {
+      "reply": "我是开封旅行助手小汴梁。我可以帮您规划开封行程、查询景点路线、推荐当地美食，以及查找酒店和停车场信息。请问您有什么具体需求？"
+     },
+     "route_query": null,
+     "weather_query": null,
+     "service_query": null,
+     "state_request": null
+    }
+   ]
+  },
+  {
+   "text": "帮我找个能吃灌汤包的店",
+   "expect": {
+    "mode": [
+     "find"
+    ]
+   },
+   "replies": [
+    {
+     "schema_version": "travel-intent/3.3",
+     "actions": [
+      {
+       "kind": "search_dining",
+       "quote": "帮我找个能吃灌汤包的店",
+       "target_name": "灌汤包",
+       "near": false
+      }
+     ],
+     "constraints": [],
+     "corrections": [],
+     "unresolved": [],
+     "planning": null,
+     "conversation": null,
+     "route_query": null,
+     "weather_query": null,
+     "service_query": null,
+     "state_request": null
+    }
+   ]
+  },
+  {
+   "text": "附近有什么好吃的",
+   "expect": {
+    "mode": [
+     "react",
+     "travel_services"
+    ]
+   },
+   "replies": [
+    {
+     "schema_version": "travel-intent/3.3",
+     "actions": [
+      {
+       "kind": "search_dining",
+       "quote": "附近有什么好吃的",
+       "target_name": null,
+       "purpose": "dining",
+       "near": true
+      }
+     ],
+     "constraints": [],
+     "corrections": [],
+     "unresolved": [],
+     "planning": null,
+     "conversation": null,
+     "route_query": null,
+     "weather_query": null,
+     "service_query": null,
+     "state_request": null
+    }
+   ]
+  },
+  {
+   "text": "我想吃鲤鱼焙面，附近有吗",
+   "expect": {
+    "mode": [
+     "react"
+    ]
+   },
+   "replies": [
+    {
+     "schema_version": "travel-intent/3.3",
+     "actions": [
+      {
+       "kind": "search_dining",
+       "quote": "我想吃鲤鱼焙面，附近有吗",
+       "target_name": "鲤鱼焙面",
+       "near": true
+      }
+     ],
+     "constraints": [],
+     "corrections": [],
+     "unresolved": [],
+     "planning": null,
+     "conversation": null,
+     "route_query": null,
+     "weather_query": null,
+     "service_query": null,
+     "state_request": null
+    }
+   ]
+  },
+  {
+   "text": "明天上午九点从开封站出发，下午五点回到开封站，节奏轻松一点",
+   "expect": {
+    "mode": [
+     "planning",
+     "compound"
+    ],
+    "saved": {
+     "starts_at": "09:00",
+     "ends_at": "17:00",
+     "pace": "relaxed"
+    }
+   },
+   "replies": [
+    {
+     "schema_version": "travel-intent/3.3",
+     "actions": [],
+     "constraints": [
+      {
+       "field": "pace",
+       "strength": "soft",
+       "value": "轻松",
+       "quote": "节奏轻松一点"
+      }
+     ],
+     "corrections": [],
+     "unresolved": [],
+     "planning": {
+      "operation": "update",
+      "quote": "明天上午九点从开封站出发，下午五点回到开封站，节奏轻松一点",
+      "fields": [
+       {
+        "field": "date",
+        "value": "明天",
+        "quote": "明天"
+       },
+       {
+        "field": "start_time",
+        "value": "09:00",
+        "quote": "上午九点"
+       },
+       {
+        "field": "end_time",
+        "value": "17:00",
+        "quote": "下午五点"
+       },
+       {
+        "field": "origin",
+        "value": "开封站",
+        "quote": "开封站"
+       },
+       {
+        "field": "destination",
+        "value": "开封站",
+        "quote": "开封站"
+       }
+      ],
+      "choices": []
+     },
+     "conversation": null,
+     "route_query": null,
+     "weather_query": null,
+     "service_query": null,
+     "state_request": null
+    }
+   ]
+  },
+  {
+   "text": "今天晚上七点到九点半想去鼓楼夜市逛逛",
+   "expect": {
+    "mode": [
+     "planning",
+     "compound"
+    ],
+    "saved": {
+     "starts_at": "19:00",
+     "ends_at": "21:30"
+    }
+   },
+   "replies": [
+    {
+     "schema_version": "travel-intent/3.3",
+     "actions": [],
+     "constraints": [],
+     "corrections": [],
+     "unresolved": [],
+     "planning": {
+      "operation": "update",
+      "quote": "今天晚上七点到九点半想去鼓楼夜市逛逛",
+      "fields": [
+       {
+        "field": "date",
+        "value": "2026-10-26",
+        "quote": "今天"
+       },
+       {
+        "field": "start_time",
+        "value": "19:00",
+        "quote": "七点"
+       },
+       {
+        "field": "end_time",
+        "value": "21:30",
+        "quote": "九点半"
+       },
+       {
+        "field": "destination",
+        "value": "鼓楼夜市",
+        "quote": "鼓楼夜市"
+       }
+      ],
+      "choices": []
+     },
+     "conversation": null,
+     "route_query": null,
+     "weather_query": null,
+     "service_query": null,
+     "state_request": null
+    }
+   ]
+  },
+  {
+   "text": "这周六去开封玩一天，预算300元",
+   "expect": {
+    "mode": [
+     "planning",
+     "compound"
+    ],
+    "saved": {
+     "budget_fen": 30000
+    }
+   },
+   "replies": [
+    {
+     "schema_version": "travel-intent/3.3",
+     "planning": {
+      "operation": "update",
+      "quote": "这周六去开封玩一天，预算300元",
+      "fields": [
+       {
+        "field": "city",
+        "value": "开封",
+        "quote": "开封"
+       },
+       {
+        "field": "date",
+        "value": "这周六",
+        "quote": "这周六"
+       },
+       {
+        "field": "budget_fen",
+        "value": 30000,
+        "quote": "300元"
+       }
+      ]
+     }
+    }
+   ]
+  },
+  {
+   "text": "明天天气怎么样？",
+   "expect": {
+    "mode": [
+     "weather"
+    ]
+   },
+   "replies": [
+    {
+     "schema_version": "travel-intent/3.3",
+     "weather_query": {
+      "quote": "明天天气怎么样？"
+     }
+    }
+   ]
+  },
+  {
+   "text": "从清明上河园到开封府怎么走？",
+   "expect": {
+    "mode": [
+     "reference_route"
+    ]
+   },
+   "replies": [
+    {
+     "schema_version": "travel-intent/3.3",
+     "actions": [],
+     "constraints": [],
+     "corrections": [],
+     "unresolved": [],
+     "planning": null,
+     "conversation": null,
+     "route_query": {
+      "quote": "从清明上河园到开封府怎么走？",
+      "origin": "清明上河园",
+      "destination": "开封府",
+      "use_current_position": false,
+      "mode": "walking"
+     },
+     "weather_query": null,
+     "service_query": null,
+     "state_request": null
+    }
+   ]
+  },
+  {
+   "text": "帮我查一下开封有什么酒店",
+   "expect": {
+    "mode": [
+     "travel_services"
+    ]
+   },
+   "replies": [
+    {
+     "schema_version": "travel-intent/3.3",
+     "service_query": {
+      "quote": "帮我查一下开封有什么酒店",
+      "category": "hotels",
+      "fields": []
+     }
+    }
+   ]
+  }
+ ]
+}
