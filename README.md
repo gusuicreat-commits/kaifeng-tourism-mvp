@@ -52,7 +52,7 @@ cd kaifeng-tourism-mvp
 
 - 地图使用 `AMAP_JS_KEY` / `AMAP_JS_SECURITY_CODE` 和独立的 `AMAP_WEB_SERVICE_KEY`；安全码经后端代理，不使用旧 `VITE_AMAP_SECURITY_CODE`。见[地图说明](docs/AMAP_MAP_LOCATION_MVP.md)。
 - 地点搜索与参考问路由 `AMAP_LOCATION_SEARCH_ENABLED`、`AMAP_TERMS_REVIEWED`、`AMAP_LOCATION_POI_API_VERSION`、`AMAP_REFERENCE_ROUTES_ENABLED` 控制。见[主版本合并验收](docs/MAIN_REFERENCE_MERGE_ACCEPTANCE.md)。
-- Kimi 使用 `TOURISM_LLM_BASE_URL`、`TOURISM_LLM_MODEL`、`TOURISM_LLM_API_KEY`，见[Kimi说明](docs/KIMI_API.md)。
+- Qwen / Kimi 使用 `TOURISM_LLM_BASE_URL`、`TOURISM_LLM_MODEL`、`TOURISM_LLM_API_KEY`，本机已切换 Qwen3.7-Plus，见[模型接入说明](docs/KIMI_API.md)。
 - 百炼语音使用 `DASHSCOPE_API_KEY`，仅转写到输入草稿，不自动发送或修改行程。见[语音说明](docs/SPEECH.md)。手机录音和定位需要合适的 HTTPS 环境。
 
 城市事实只经 `scripts/import_city_facts.py` 校验及导入，默认 dry-run，显式 `--apply` 才写入；交通运营资料经 `scripts/import_city_operations.py`。格式和核验要求见[存储与事实](docs/CITY_STORAGE_AND_FACTS.md)、[数据需求](docs/DATA_REQUIREMENTS.md)和[数据工程计划](docs/DATA_ENGINEERING_PLAN.md)。采集台账与运行事实库分开，fixture 不得导入运行库。恢复备份须使用当前删除台账，见[M7](docs/M7_MEMORY.md)。

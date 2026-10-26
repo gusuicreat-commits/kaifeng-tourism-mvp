@@ -12,12 +12,19 @@ def configured(monkeypatch):
     monkeypatch.setenv('TOURISM_LLM_MODEL','kimi-k2.6')
 
 
-def test_json_action_protocol_collects_usage_and_limits(configured,monkeypatch):
+@pytest.mark.parametrize('model',['kimi-k2.6','qwen3.7-plus','qwen3.7-plus-2026-05-26'])
+def test_json_action_protocol_collects_usage_and_limits(configured,monkeypatch,model):
+    monkeypatch.setenv('TOURISM_LLM_MODEL',model)
     real=httpx.Client
     def response(request):
         body=json.loads(request.content)
-        assert body['max_tokens']==200 and body['thinking']=={'type':'disabled'}
-        assert 'temperature' not in body and 'tools' not in body
+        assert body['max_tokens']==200 and 'tools' not in body
+        assert body['response_format']=={'type':'json_object'}
+        if model.startswith('qwen3.7-plus'):
+            assert body['enable_thinking'] is False and body['temperature']==0
+            assert 'thinking' not in body and 'reasoning_effort' not in body
+        else:
+            assert body['thinking']=={'type':'disabled'} and 'temperature' not in body
         return httpx.Response(200,json={'choices':[{'finish_reason':'stop','message':{'content':'{"tool":"query_shows"}'}}],
                                        'usage':{'prompt_tokens':100,'completion_tokens':10,'total_tokens':110}})
     monkeypatch.setattr(httpx,'Client',lambda **kw:real(**kw,transport=httpx.MockTransport(response)))

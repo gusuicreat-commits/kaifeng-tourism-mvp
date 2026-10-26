@@ -21,7 +21,7 @@ def provider(monkeypatch):
     return install
 
 
-@pytest.mark.parametrize('model', ['kimi-k2.6', 'kimi-k3', 'kimi-k2.7-code', 'other-model'])
+@pytest.mark.parametrize('model', ['kimi-k2.6', 'kimi-k3', 'kimi-k2.7-code', 'qwen3.7-plus', 'qwen3.7-plus-2026-05-26', 'other-model'])
 def test_provider_parameters_and_validated_json(provider, monkeypatch, model):
     monkeypatch.setenv('TOURISM_LLM_MODEL', model)
     def handle(request):
@@ -30,7 +30,10 @@ def test_provider_parameters_and_validated_json(provider, monkeypatch, model):
         body = json.loads(request.content)
         assert body['response_format'] == {'type': 'json_object'}
         assert body['max_tokens'] == 700
-        if model == 'kimi-k2.6':
+        if model.startswith('qwen3.7-plus'):
+            assert body['enable_thinking'] is False and body['temperature'] == 0
+            assert 'thinking' not in body and 'reasoning_effort' not in body
+        elif model == 'kimi-k2.6':
             assert body['thinking'] == {'type': 'disabled'}
             assert 'temperature' not in body
         elif model.startswith('kimi-'):

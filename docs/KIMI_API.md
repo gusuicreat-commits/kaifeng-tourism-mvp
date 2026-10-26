@@ -1,4 +1,22 @@
-# 小汴梁 Kimi API 接入
+# 小汴梁模型 API 接入（Qwen / Kimi）
+
+## 当前配置：Qwen3.7-Plus（2026-10-26）
+
+本机 `.env` 已按用户要求从 Kimi 切换到百炼北京地域的 `qwen3.7-plus`，继续使用现有 OpenAI-compatible HTTP 通道，无新增 SDK。实际密钥只保存在忽略提交的 `.env`（权限 `0600`），不覆盖独立语音配置。
+
+```dotenv
+TOURISM_LLM_BASE_URL=https://dashscope.aliyuncs.com/compatible-mode/v1
+TOURISM_LLM_MODEL=qwen3.7-plus
+TOURISM_LLM_API_KEY=在本地私有配置填写
+```
+
+百炼[官方端点说明](https://help.aliyun.com/zh/model-studio/error-code)确认北京地域原域名仍可使用；业务空间专属域名需另提供真实 WorkspaceId。旧解析器和 V3 Agent 两个入口均显式发送 `enable_thinking=false`、`temperature=0` 和 `response_format={"type":"json_object"}`，沿用原有输出上限、服务端 Schema/证据校验和确认流程。思考开关见[官方说明](https://help.aliyun.com/en/model-studio/deep-thinking)，JSON 模式要求见[结构化输出](https://help.aliyun.com/en/model-studio/qwen-structured-output)。
+
+连接检查仍沿用历史文件名：`.venv/bin/python scripts/check_kimi_connection.py --live`。脚本仅允许已登记的 Kimi 与北京百炼官方端点；不打印密钥或原始上游正文。V3 内部的 `kimi_validated` 是兼容保留的历史校验标记，实际供应商以回执中的 `model`、`endpoint_host` 和 `source` 为准。
+
+本次验证：模型适配、调度与语义/规划回归共145项通过（Mock/临时库，1项既有弃用提示）；真实请求2次，分别为合成时长提取（约1.35秒）和临时隔离库的 V3 `/agent/understand`（约5.04秒，返回通过类型及证据校验）。两次均使用 `qwen3.7-plus`；未访问正式旅行库、未调用业务Provider、未提交路线。抽样结果不代表全部表达准确率或并发容量。
+
+## 历史：Kimi 接入（2026-10-21）
 
 > 2026-10-23增量：本页原有单景区 API 与700 token说明只适用于旧解析通道；城市 V2/V3 已接通，V3有独立预算。所有模型入口使用共享的进程内请求调度，首次理解等待规则见 [连续对话修复](reports/agent-conversation-repair-20261023.md)与 [V3.4](AGENT_V3_RATE_LIMIT_AND_LIVE_ACCEPTANCE.md)。不是跨进程限流或生产容量验收。
 

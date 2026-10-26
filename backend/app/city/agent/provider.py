@@ -45,7 +45,10 @@ def generate(system, payload, *, timeout=12.0, max_tokens=1400):
     model=os.environ['TOURISM_LLM_MODEL'].strip()
     body={'model':model,'max_tokens':max_tokens,'response_format':{'type':'json_object'},
           'messages':[{'role':'system','content':system},{'role':'user','content':json.dumps(payload,ensure_ascii=False)}]}
-    if model=='kimi-k2.6':body['thinking']={'type':'disabled'}
+    if model=='qwen3.7-plus' or model.startswith('qwen3.7-plus-'):
+        body['enable_thinking']=False
+        body['temperature']=0
+    elif model=='kimi-k2.6':body['thinking']={'type':'disabled'}
     elif model=='kimi-k3':body['reasoning_effort']='low'
     elif model not in ('kimi-k2.7-code','kimi-k2.7-code-highspeed'):body['temperature']=0
     started=time.monotonic()

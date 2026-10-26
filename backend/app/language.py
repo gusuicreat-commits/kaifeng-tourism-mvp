@@ -43,7 +43,11 @@ def _call(system, payload):
                 'response_format':{'type':'json_object'},
                 'messages':[{'role':'system', 'content':system},
                             {'role':'user', 'content':json.dumps(payload, ensure_ascii=False)}]}
-        if model == 'kimi-k2.6':
+        if model == 'qwen3.7-plus' or model.startswith('qwen3.7-plus-'):
+            # Qwen defaults to thinking; JSON extraction uses non-thinking mode.
+            body['enable_thinking'] = False
+            body['temperature'] = 0
+        elif model == 'kimi-k2.6':
             # K2.6 rejects temperature=0. Non-thinking mode suits bounded intent extraction.
             body['thinking'] = {'type':'disabled'}
         elif model in ('kimi-k3', 'kimi-k2.7-code', 'kimi-k2.7-code-highspeed'):

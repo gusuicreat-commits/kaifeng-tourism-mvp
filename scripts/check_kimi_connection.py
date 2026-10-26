@@ -1,4 +1,4 @@
-"""Opt-in real Kimi smoke test; synthetic text only, no database or visitor context."""
+"""Opt-in Kimi/Qwen smoke test (legacy filename); synthetic text only, no visitor context."""
 import argparse
 import json
 import os
@@ -28,10 +28,12 @@ def main():
         return 1
     # Never send this key to a URL supplied by a caller or follow redirects.
     base = os.environ['TOURISM_LLM_BASE_URL'].rstrip('/')
-    if base != 'https://api.moonshot.cn/v1':
+    providers = {'https://api.moonshot.cn/v1': 'Kimi',
+                 'https://dashscope.aliyuncs.com/compatible-mode/v1': 'Alibaba Cloud Qwen'}
+    if base not in providers:
         print(json.dumps({'status': 'unexpected_endpoint'}))
         return 1
-    report = {'provider': 'Kimi', 'model': os.environ['TOURISM_LLM_MODEL'],
+    report = {'provider': providers[base], 'model': os.environ['TOURISM_LLM_MODEL'],
               'data': 'synthetic text only; no visitor state', 'generation_requests': 0}
     before=scheduler().attempts
     try:
