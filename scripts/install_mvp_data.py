@@ -84,7 +84,8 @@ def build(day, collected_at=None):
              note='免费进入；回填收摊时刻含跨日歧义，闭市时间待确认，不把22点或23:59伪造成闭市时刻。')
         items['supply','vf_wb_000001']['source_ids']=['src_mvp_team_return']
         items['supply','vf_wb_000001']['evidence_note']='队员针对2026-10-25回填寺后街店有灌汤包；作为分店供应参考，现场售罄情况未知。'
-        items['supply','vf_wb_000001'].update(effective_from='2026-10-24T00:00:00+08:00',effective_to='2026-10-26T00:00:00+08:00')
+        # The team observed this on 2026-10-25; that is when it was seen, not when it stops being sold.
+        items['supply','vf_wb_000001'].update(observed_at='2026-10-25T00:00:00+08:00',effective_from=None,effective_to=None)
     for r in items.values():
         accepted = r['kind']!='supply' or (r['fact_id']=='vf_wb_000001' and day==date(2026,10,25))
         if accepted:
