@@ -232,7 +232,7 @@ def trace(t):
     meta=t.interpretation or {}
     return {'task':t.id[:8],'mode':t.mode,'status':t.status,'basis':meta.get('basis'),'model_calls':t.model_calls,
             'ms':round(((t.terminal_at or time.monotonic())-t.started)*1000),'failure':meta.get('validation_failure'),
-            'dropped':meta.get('dropped_fields'),'code':(t.result or {}).get('code'),
+            'dropped':[{k:d[k] for k in ('field','check')} for d in meta['dropped_fields']] if meta.get('dropped_fields') else None,'code':(t.result or {}).get('code'),
             'steps':[[e.get('tool'),e.get('status'),e.get('result_code')] for e in t.events]}
 
 

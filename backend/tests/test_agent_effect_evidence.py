@@ -65,8 +65,11 @@ def test_fields_cannot_be_taken_from_an_unrelated_quoted_or_negated_clause(env,m
     hotel_model(monkeypatch,'请查询后天入住一晚的酒店')
     monkeypatch.setattr(hotels,'search',lambda q:pytest.fail('fields outside current request must be rejected'))
     task=run({'client':c,'trip':before},message)
-    assert task['status']=='needs_clarification' and task['metrics']['tools']==0
-    assert c.get(p+'/services').json()['version']==0
+    assert task['status']=='needs_clarification' and task['metrics']['tools']==1
+    saved=c.get(p+'/services').json()
+    assert saved['version']==1 and 'check_in' not in saved['requirements'] and 'nights' not in saved['requirements']
+    assert [d['field'] for d in task['interpretation']['dropped_fields']]==['service.check_in','service.nights']
+    assert c.get(p).json()==before
 
 
 @pytest.mark.parametrize('message,quote',[
@@ -166,5 +169,8 @@ def test_query_permission_does_not_authorize_negated_condition_updates(env,monke
         'service_query':{'quote':message,'fields':fields}},{'source':'mock_model'}))
     monkeypatch.setattr(hotels,'search',lambda q:pytest.fail('negated requirement must be rejected before provider'))
     task=run({'client':c,'trip':before},message)
-    assert task['status']=='needs_clarification' and task['metrics']['tools']==0
-    assert c.get(p+'/services').json()['version']==0 and c.get(p).json()==before
+    assert task['status']=='needs_clarification' and task['metrics']['tools']==1
+    saved=c.get(p+'/services').json()
+    assert saved['version']==1 and fields[0]['field'] not in saved['requirements']
+    assert task['interpretation']['dropped_fields']==[{'field':'service.'+fields[0]['field'],'check':'invalid_evidence'}]
+    assert c.get(p).json()==before

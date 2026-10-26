@@ -75,67 +75,94 @@ def service_readiness(req,today):
 def service_questions(req,today):
     return service_readiness(req,today)['questions']
 
-def semantic_requirements(intent,text,previous,today):
-    """Apply only typed, current-turn service fields to the scoped workspace."""
+def _field_value(f,text,quote,today):
     from .agent.planning_intent import resolve_date
-    from .agent.evidence import query_evidence, service_condition_evidence
+    from .agent.evidence import service_condition_evidence
+    if f.quote not in text:raise ValueError('quote_not_in_request')
+    if f.quote not in quote:raise ValueError('field_not_in_query')
+    try:service_condition_evidence(text,f.quote,quote,literal_name=f.field in ('location_text','room_type'))
+    except ValueError:raise ValueError('invalid_evidence') from None
+    optional=bool(re.search(r'都行|无所谓|没有也行|不强求|可选|不要求|不需要',f.quote))
+    hard=bool(re.search(r'必须|一定|不能缺|不可少',f.quote))
+    if optional and f.strength!='optional':raise ValueError('optional_condition_promoted')
+    if hard and not optional and f.strength!='hard':raise ValueError('hard_condition_weakened')
+    if f.field in ('check_in','check_out'):
+        if not isinstance(f.value,str) or f.value not in f.quote:raise ValueError('value_not_in_quote')
+        try:return resolve_date(f.value,today).isoformat()
+        except ValueError:raise ValueError('date_unresolved') from None
+    if f.field in ('nights','guests','rooms','max_price','stay_budget_fen'):
+        limits={'nights':30,'guests':100,'rooms':20,'max_price':100000,'stay_budget_fen':100000000}
+        if type(f.value) is not int or not 1<=f.value<=limits[f.field]:raise ValueError('invalid_value')
+        # Bind a value to its unit/scope, not another number in a broad quote.
+        units={'nights':r'\s*(?:个)?\s*(?:晚上|晚|夜)', 'guests':r'\s*(?:个)?\s*(?:人|位)',
+               'rooms':r'\s*间(?:房)?', 'max_price':r'\s*元', 'stay_budget_fen':r'\s*(?:元)?'}
+        expected=f.value//100 if f.field=='stay_budget_fen' else f.value
+        if f.field=='stay_budget_fen' and f.value%100:raise ValueError('value_not_in_quote')
+        try:matched=any(number(m[1])==expected for m in re.finditer(NUMBER+units[f.field],f.quote))
+        except (KeyError,ValueError):raise ValueError('invalid_value') from None
+        if not matched:
+            raise ValueError('value_not_in_quote')
+        if f.field=='max_price':
+            if not re.search(r'每晚|一晚|房价|酒店预算|\d+\s*元(?:以内|以下)',f.quote):raise ValueError('money_scope_mismatch')
+            if re.search(r'(?:两|二|\d+)\s*(?:天|晚).{0,8}预算|预算.{0,8}(?:两|二|\d+)\s*(?:天|晚)|总(?:预算|价)|合计|一共|整趟|全程',f.quote):raise ValueError('money_scope_mismatch')
+        if f.field=='stay_budget_fen':
+            if not re.search(r'预算|费用|合计',f.quote):raise ValueError('money_scope_mismatch')
+            if re.search(r'整趟|全程|旅行总预算|每晚|一晚|房价',f.quote):raise ValueError('money_scope_mismatch')
+    elif f.field in ('location_text','room_type'):
+        if not isinstance(f.value,str) or not f.value.strip() or len(f.value)>120:raise ValueError('invalid_value')
+        if f.value not in f.quote:raise ValueError('value_not_in_quote')
+    elif f.field in hotels.ATTRS:
+        if type(f.value) is not bool:raise ValueError('invalid_value')
+        aliases={'window':r'窗户|有窗','external_window':r'外窗','clean':r'卫生|干净'}.get(f.field,re.escape(hotels.ATTRS[f.field]))
+        if not re.search(aliases,f.quote):raise ValueError('attribute_not_in_quote')
+        negative=bool(re.search(r'(?:不要|不含|没有|不带|无).{0,3}(?:'+aliases+r')',f.quote))
+        if not optional and f.value==negative:raise ValueError('polarity_mismatch')
+    return f.value
+
+
+def semantic_requirements(intent,text,previous,today,dropped=None):
+    """Keep valid fields; only the service query's evidence can reject the turn."""
+    from .agent.evidence import query_evidence
     req=json.loads(json.dumps(previous or {}));req['category']=intent.category
-    attrs=req.setdefault('attributes',{});seen={};strengths=req.setdefault('field_strengths',{})
+    attrs=req.setdefault('attributes',{});strengths=req.setdefault('field_strengths',{})
     query_evidence(text,intent.quote)
+    kept=[];seen={};conflicts=set()
+    def drop(f,check):
+        if dropped is not None:dropped.append({'field':f.field,'check':check,'quote':f.quote})
     for f in intent.fields:
-        service_condition_evidence(text,f.quote,intent.quote,literal_name=f.field in ('location_text','room_type'))
-        if f.field in seen and seen[f.field]!=f.value:raise ValueError('conflicting service fields')
-        seen[f.field]=f.value
+        try:value=_field_value(f,text,intent.quote,today)
+        except ValueError as exc:
+            drop(f,str(exc));continue
+        if f.field in seen and seen[f.field]!=value:conflicts.add(f.field)
+        seen[f.field]=value;kept.append((f,value))
+    # Reject the conflicting field as a whole, independent of model field order.
+    for f,value in kept:
+        if f.field in conflicts:drop(f,'conflicting_values')
+    kept=[(f,value) for f,value in kept if f.field not in conflicts]
+    values={f.field:value for f,value in kept}
+    start=values.get('check_in',req.get('check_in'));nights=values.get('nights',req.get('nights'))
+    if 'check_out' in values and 'nights' in values and start and nights:
+        if values['check_out']!=(date.fromisoformat(start)+timedelta(days=nights)).isoformat():
+            for f,value in kept:
+                if f.field=='check_out':drop(f,'conflicting_values')
+            kept=[(f,value) for f,value in kept if f.field!='check_out']
+            values.pop('check_out')
+    for f,value in kept:
         optional=bool(re.search(r'都行|无所谓|没有也行|不强求|可选|不要求|不需要',f.quote))
-        hard=bool(re.search(r'必须|一定|不能缺|不可少',f.quote))
-        if optional and f.strength!='optional':raise ValueError('optional condition promoted')
-        if hard and not optional and f.strength!='hard':raise ValueError('hard condition weakened')
         strength=f.strength
         prior=attrs.get(f.field,{}).get('strength',strengths.get(f.field))
         # A new preference is not permission to silently waive an earlier must.
         if prior=='hard' and strength!='hard' and not optional:strength='hard'
         strengths[f.field]=strength
-        if f.field in ('check_in','check_out'):
-            if not isinstance(f.value,str) or f.value not in f.quote:raise ValueError('service date absent')
-            req[f.field]=resolve_date(f.value,today).isoformat()
-        elif f.field in ('nights','guests','rooms','max_price','stay_budget_fen'):
-            limits={'nights':30,'guests':100,'rooms':20,'max_price':100000,'stay_budget_fen':100000000}
-            if type(f.value) is not int or not 1<=f.value<=limits[f.field]:raise ValueError('invalid service number')
-            # Bind a value to its unit/scope; finding the same number elsewhere
-            # in a broad quote is insufficient evidence for that field.
-            units={'nights':r'\s*(?:个)?\s*(?:晚上|晚|夜)', 'guests':r'\s*(?:个)?\s*(?:人|位)',
-                   'rooms':r'\s*间(?:房)?', 'max_price':r'\s*元', 'stay_budget_fen':r'\s*(?:元)?'}
-            expected=f.value//100 if f.field=='stay_budget_fen' else f.value
-            if f.field=='stay_budget_fen' and f.value%100:raise ValueError('fractional budget evidence unsupported')
-            numeric=[m for m in re.finditer(NUMBER+units[f.field],f.quote) if number(m[1])==expected]
-            if not numeric:raise ValueError('service number or unit absent')
-            if f.field=='max_price':
-                if not re.search(r'每晚|一晚|房价|酒店预算|\d+\s*元(?:以内|以下)',f.quote):raise ValueError('nightly money scope absent')
-                if re.search(r'(?:两|二|\d+)\s*(?:天|晚).{0,8}预算|预算.{0,8}(?:两|二|\d+)\s*(?:天|晚)|总(?:预算|价)|合计|一共|整趟|全程',f.quote):raise ValueError('stay budget is not nightly price')
-            if f.field=='stay_budget_fen':
-                if not re.search(r'预算|费用|合计',f.quote):raise ValueError('stay money scope absent')
-                if re.search(r'整趟|全程|旅行总预算|每晚|一晚|房价',f.quote):raise ValueError('money scope differs from stay')
-            req[f.field]=f.value
-        elif f.field in ('location_text','room_type'):
-            if not isinstance(f.value,str) or not f.value.strip() or f.value not in f.quote or len(f.value)>120:raise ValueError('service text absent')
-            req[f.field]=f.value
-        elif f.field in hotels.ATTRS:
-            if type(f.value) is not bool:raise ValueError('service attribute must be boolean')
-            aliases={'window':r'窗户|有窗','external_window':r'外窗','clean':r'卫生|干净'}.get(f.field,re.escape(hotels.ATTRS[f.field]))
-            if not re.search(aliases,f.quote):raise ValueError('service attribute absent')
-            if re.search(r'都行|无所谓|没有也行|不强求',f.quote) and f.strength!='optional':raise ValueError('optional attribute promoted')
-            if re.search(r'必须|一定',f.quote) and f.strength!='hard':raise ValueError('hard attribute weakened')
-            negative=bool(re.search(r'(?:不要|不含|没有|不带|无).{0,3}(?:'+aliases+r')',f.quote))
-            if not optional and f.value==negative:raise ValueError('attribute polarity differs from evidence')
-            attrs[f.field]={'value':f.value,'strength':strength,'quote':f.quote}
+        if f.field in hotels.ATTRS:attrs[f.field]={'value':value,'strength':strength,'quote':f.quote}
+        else:req[f.field]=value
     # Field order cannot change the meaning of an explicit check-out override.
-    if 'check_out' in seen and 'nights' not in seen:req.pop('nights',None)
+    if 'check_out' in values and 'nights' not in values:req.pop('nights',None)
     stay_dates(req)
-    if 'check_out' in seen and req['check_out']!=resolve_date(seen['check_out'],today).isoformat():raise ValueError('stay dates conflict')
     return req
 
-def validate_intent(intent,text,snapshot):
-    return semantic_requirements(intent,text,snapshot.services.get('requirements',{}),snapshot.envelope.identity.generated_at.astimezone(TZ).date())
+def validate_intent(intent,text,snapshot,dropped=None):
+    return semantic_requirements(intent,text,snapshot.services.get('requirements',{}),snapshot.envelope.identity.generated_at.astimezone(TZ).date(),dropped)
 
 def parse(text,previous=None):
     req=json.loads(json.dumps(previous or {}));today=datetime.now(TZ).date();questions=[]
@@ -199,13 +226,14 @@ def nearby(req):
     return execution.result.data | {'provider_trace':execution.provider_id}
 
 def query(session,trip_id,text,expected_version=None,cancelled=None,*,intent=None,today=None):
+    dropped=[]
     with connect() as db:
         row=state.owned(db,session,trip_id)
         if row['status'] in state.TERMINAL:raise HTTPException(409,detail='旅行已结束，请新建旅行。')
         w=read(db,trip_id);original_version=w['version'];trip_version=row['version']
         if expected_version is not None and expected_version!=original_version:raise HTTPException(409,detail='旅行服务条件已变化，请刷新。')
     if intent:
-        req=semantic_requirements(intent,text,w['requirements'],today or datetime.now(TZ).date())
+        req=semantic_requirements(intent,text,w['requirements'],today or datetime.now(TZ).date(),dropped)
         questions=service_questions(req,today or datetime.now(TZ).date())
         req['query_text']=text[:500]
     else:req,questions=parse(text,w['requirements'])
@@ -259,6 +287,8 @@ def query(session,trip_id,text,expected_version=None,cancelled=None,*,intent=Non
         write(db,trip_id,w)
     reply='；'.join(questions) if questions else f"已查询到 {len(result.get('items',[]))} 个{'酒店' if req['category']=='hotels' else '地点'}候选。" if result.get('items') else '查询暂未取得候选（'+result['status']+'），可稍后重试。'
     if req['category']=='hotels':reply+=' 房型、设施和评价还没核实，价格以预订页面为准。'
+    conditions=list(dict.fromkeys('“'+d['quote']+'”' if d['quote'] in text else '未听准的住宿条件' for d in dropped))
+    if conditions:reply+='、'.join(conditions)+('这条' if len(conditions)==1 else '这几条')+'暂时没法按条件筛选，候选里需要自己核对。'
     return {'reply':reply,'services':w,'formal_state_changed':False}
 
 class Query(Strict):

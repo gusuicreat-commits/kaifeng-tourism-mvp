@@ -9,7 +9,7 @@ from app.city.agent import provider
 from app.city.agent.models import ServiceIntent
 from app.city.schema import TZ
 from test_city_agent import run
-from test_travel_services import env, raw
+from test_travel_services import env, query, raw
 
 FIRST='我要标间，离清明上河园近的，住两个晚上，有没有早餐都行，住两个晚上，预算两天500'
 
@@ -75,37 +75,41 @@ def test_legacy_service_endpoint_retains_nights_before_checkin():
     assert not questions and third['nights']==2 and third['room_type']=='标间'
 
 
-@pytest.mark.parametrize('entry',[
-    field('nights',3,'住两个晚上'),
-    field('nights',2,'两个人'),
-    field('breakfast',True,'有没有早餐都行',strength='hard'),
-    field('room_type','大床房','我要标间'),
-    field('window',True,'我要标间'),
-])
-def test_semantic_fields_cannot_invent_or_change_scope(entry):
-    text=entry['quote']
-    intent=ServiceIntent(quote=text,fields=[entry])
-    with pytest.raises(ValueError):
-        services.semantic_requirements(intent,text,{},datetime.now(TZ).date())
+def assert_dropped(entry,check):
+    dropped=[];text=entry['quote']
+    req=services.semantic_requirements(ServiceIntent(quote=text,fields=[entry]),text,{},datetime.now(TZ).date(),dropped)
+    assert entry['field'] not in req and entry['field'] not in req['attributes']
+    assert entry['field'] not in req['field_strengths']
+    assert dropped==[{'field':entry['field'],'check':check,'quote':entry['quote']}]
 
-@pytest.mark.parametrize('entry',[
-    field('nights',2,'两个人，住三晚'),
-    field('rooms',2,'两个人，一间房'),
-    field('max_price',500,'预算两天500元'),
-    field('stay_budget_fen',50000,'整趟旅行预算500元'),
-    field('stay_budget_fen',50000,'每晚预算500元'),
-    field('stay_budget_fen',50123,'住宿预算501元'),
+
+@pytest.mark.parametrize('entry,check',[
+    (field('nights',3,'住两个晚上'),'value_not_in_quote'),
+    (field('nights',2,'两个人'),'value_not_in_quote'),
+    (field('breakfast',True,'有没有早餐都行',strength='hard'),'optional_condition_promoted'),
+    (field('room_type','大床房','我要标间'),'value_not_in_quote'),
+    (field('window',True,'我要标间'),'attribute_not_in_quote'),
 ])
-def test_numeric_field_binds_its_unit_and_budget_scope(entry):
-    with pytest.raises(ValueError):
-        services.semantic_requirements(ServiceIntent(quote=entry['quote'],fields=[entry]),entry['quote'],{},datetime.now(TZ).date())
+def test_semantic_fields_cannot_invent_or_change_scope(entry,check):
+    assert_dropped(entry,check)
+
+@pytest.mark.parametrize('entry,check',[
+    (field('nights',2,'两个人，住三晚'),'value_not_in_quote'),
+    (field('rooms',2,'两个人，一间房'),'value_not_in_quote'),
+    (field('max_price',500,'预算两天500元'),'money_scope_mismatch'),
+    (field('stay_budget_fen',50000,'整趟旅行预算500元'),'money_scope_mismatch'),
+    (field('stay_budget_fen',50000,'每晚预算500元'),'money_scope_mismatch'),
+    (field('stay_budget_fen',50123,'住宿预算501元'),'value_not_in_quote'),
+])
+def test_numeric_field_binds_its_unit_and_budget_scope(entry,check):
+    assert_dropped(entry,check)
 
 
 def test_date_patch_order_and_conflicts_preserve_explicit_stay():
     today=datetime.now(TZ).date()
-    def apply(entries,previous=None):
+    def apply(entries,previous=None,dropped=None):
         message='，'.join(e['quote'] for e in entries)
-        return services.semantic_requirements(ServiceIntent(quote=message,fields=entries),message,previous or {},today)
+        return services.semantic_requirements(ServiceIntent(quote=message,fields=entries),message,previous or {},today,dropped)
     saved=apply([field('nights',2,'住两个晚上'),field('room_type','标间','我要标间'),
                  field('location_text','清明上河园','离清明上河园近'),field('stay_budget_fen',50000,'预算两天500')])
     changed=apply([field('check_in','明天','明天入住')],saved)
@@ -114,18 +118,20 @@ def test_date_patch_order_and_conflicts_preserve_explicit_stay():
     assert changed['stay_budget_fen']==50000
     for entries in ([field('check_in','明天','明天入住'),field('check_out','后天','后天退房'),field('nights',2,'住两晚')],
                     [field('nights',2,'住两晚'),field('check_out','后天','后天退房'),field('check_in','明天','明天入住')]):
-        with pytest.raises(ValueError):apply(entries)
+        dropped=[];result=apply(entries,dropped=dropped)
+        assert result['nights']==2 and result['check_out']==(today+timedelta(days=3)).isoformat()
+        assert 'check_out' not in result['field_strengths']
+        assert dropped==[{'field':'check_out','check':'conflicting_values','quote':'后天退房'}]
     assert saved.get('check_in') is None  # patches never mutate the original
 
-@pytest.mark.parametrize('entry',[
-    field('breakfast',False,'必须有早餐'),
-    field('window',True,'不要窗户'),
-    field('room_type','标间','标间大床房都行',strength='hard'),
-    field('location_text','清明上河园','必须靠近清明上河园',strength='soft'),
+@pytest.mark.parametrize('entry,check',[
+    (field('breakfast',False,'必须有早餐'),'polarity_mismatch'),
+    (field('window',True,'不要窗户'),'polarity_mismatch'),
+    (field('room_type','标间','标间大床房都行',strength='hard'),'optional_condition_promoted'),
+    (field('location_text','清明上河园','必须靠近清明上河园',strength='soft'),'hard_condition_weakened'),
 ])
-def test_condition_polarity_and_strength_cannot_be_reversed(entry):
-    with pytest.raises(ValueError):
-        services.semantic_requirements(ServiceIntent(quote=entry['quote'],fields=[entry]),entry['quote'],{},datetime.now(TZ).date())
+def test_condition_polarity_and_strength_cannot_be_reversed(entry,check):
+    assert_dropped(entry,check)
 
 
 def test_preference_keeps_saved_must_until_explicit_waiver():
@@ -153,3 +159,109 @@ def test_optional_room_and_area_remain_unknown_without_becoming_must(env,monkeyp
     assert item['condition_status']=='unknown' and not item['budget_verified']
     assert {v['field']:v['strength'] for v in item['condition_evidence']}=={'room_type':'optional','location_text':'soft'}
     assert all(v['status']=='unknown' for v in item['condition_evidence'])
+
+
+@pytest.mark.parametrize('entry,check',[
+    (field('free_parking',True,'原话没有这个条件'),'quote_not_in_request'),
+    (field('nights',0,'住0晚'),'invalid_value'),
+    (field('nights','两晚','住两晚'),'invalid_value'),
+    (field('nights',2,'住一一晚'),'invalid_value'),
+    (field('check_in','2030-02-30','2030-02-30入住'),'date_unresolved'),
+    (field('check_in','下个月','下个月入住'),'date_unresolved'),
+    (field('check_in','后天','明天入住'),'value_not_in_quote'),
+    (field('window','true','有窗户'),'invalid_value'),
+    (field('room_type','','标间'),'invalid_value'),
+])
+def test_bad_field_does_not_discard_a_valid_field(entry,check):
+    text='酒店要干净，'+('方便停车' if check=='quote_not_in_request' else entry['quote'])
+    dropped=[]
+    req=services.semantic_requirements(ServiceIntent(quote=text,fields=[field('clean',True,'干净'),entry]),text,{},datetime.now(TZ).date(),dropped)
+    assert req['attributes']['clean']['value'] is True
+    assert entry['field'] not in req and entry['field'] not in req['attributes']
+    assert entry['field'] not in req['field_strengths']
+    assert dropped==[{'field':entry['field'],'check':check,'quote':entry['quote']}]
+
+
+@pytest.mark.parametrize('reverse',[False,True])
+def test_conflicting_field_keeps_previous_value_and_other_valid_fields(reverse):
+    today=datetime.now(TZ).date();saved={'category':'hotels','nights':3,'field_strengths':{'nights':'hard'}}
+    entries=[field('nights',1,'住一晚'),field('nights',2,'住两晚')]
+    if reverse:entries.reverse()
+    text='酒店要干净，住一晚，住两晚';dropped=[]
+    req=services.semantic_requirements(ServiceIntent(quote=text,fields=[field('clean',True,'干净'),*entries]),text,saved,today,dropped)
+    assert req['nights']==3 and req['field_strengths']['nights']=='hard'
+    assert req['attributes']['clean']['value'] is True
+    assert dropped==[{'field':'nights','check':'conflicting_values','quote':e['quote']} for e in entries]
+    assert saved=={'category':'hotels','nights':3,'field_strengths':{'nights':'hard'}}
+
+
+def test_service_query_itself_still_needs_current_evidence(env,monkeypatch):
+    client,path=env;message='酒店希望干净';before=client.get(path+'/services').json()
+    monkeypatch.setattr(language,'available',lambda:True)
+    monkeypatch.setattr(provider,'generate',lambda *a,**k:({'service_query':{'quote':'不在原话里的查询',
+        'fields':[field('clean',True,'干净')]}},{'source':'mock_model'}))
+    monkeypatch.setattr(hotels,'search',lambda q:pytest.fail('invalid query must not reach provider'))
+    task=run({'client':client,'trip':client.get(path).json()},message)
+    assert task['status']=='needs_clarification' and task['metrics']['tools']==0
+    assert task['interpretation']['validation_failure']['check']=='ungrounded evidence quote'
+    assert client.get(path+'/services').json()==before
+    with pytest.raises(ValueError,match='current query evidence missing'):
+        services.semantic_requirements(ServiceIntent(quote='不在原话里的查询',fields=[field('clean',True,'干净')]),message,{},datetime.now(TZ).date())
+
+
+@pytest.mark.parametrize('saved_dates',[False,True])
+def test_pitch_hotel_fields_query_and_name_the_dropped_parking_condition(env,monkeypatch,caplog,saved_dates):
+    import json
+    import logging
+    from app.city.agent import service
+    client,path=env;searches=[]
+    # A1 reuses explicit saved dates; interpreting a two-day weekend is a B task.
+    if saved_dates:query(env,'找明天入住住两晚的酒店')
+    message='我准备周末和朋友去开封玩两天，预算每人800元，想去万岁山和清明上河园，想吃开封特色美食。酒店希望干净、有窗户，最好附近方便停车，行程不要太赶。'
+    quote='酒店希望干净、有窗户，最好附近方便停车'
+    monkeypatch.setattr(language,'available',lambda:True)
+    monkeypatch.setattr(provider,'generate',lambda *a,**k:({'actions':[{'kind':'search_services','quote':quote}],
+        'service_query':{'quote':quote,'fields':[field('clean',True,'干净'),field('window',True,'有窗户'),
+            field('free_parking',True,'最好附近方便停车',strength='soft')]}},{'source':'mock_model'}))
+    monkeypatch.setattr(hotels,'search',lambda q:searches.append(q) or hotels.normalize(raw()))
+    monkeypatch.setattr(service.LOG,'handlers',[caplog.handler])
+    monkeypatch.setattr(service.LOG,'propagate',False)
+    with caplog.at_level(logging.INFO,logger='tourism.agent'):
+        task=run({'client':client,'trip':client.get(path).json()},message)
+    assert task['mode']=='travel_services' and task['status']==('answered' if saved_dates else 'needs_clarification')
+    assert len(searches)==int(saved_dates)
+    result=task['result'];req=result['services']['requirements']
+    assert set(req['attributes'])=={'clean','window'} and all(a['value'] is True for a in req['attributes'].values())
+    assert 'free_parking' not in req['field_strengths']
+    assert bool(result['services']['result']['items']) is saved_dates
+    assert result['reply'].endswith('“最好附近方便停车”这条暂时没法按条件筛选，候选里需要自己核对。')
+    assert '没完全理解' not in result['reply']
+    assert task['interpretation']['dropped_fields']==[{'field':'service.free_parking','check':'attribute_not_in_quote'}]
+    lines=[json.loads(r.getMessage()) for r in caplog.records if r.name=='tourism.agent']
+    assert len(lines)==1 and lines[0]['dropped']==[{'field':'service.free_parking','check':'attribute_not_in_quote'}]
+    assert '最好附近方便停车' not in caplog.text
+
+
+def test_compound_service_and_planning_drops_share_trace_without_duplicate_prompts(env,monkeypatch,caplog):
+    import json
+    import logging
+    from app.city.agent import service
+    client,path=env
+    message='查明天入住两晚酒店，有窗户，方便停车；游玩后天从开封府出发'
+    quote='查明天入住两晚酒店，有窗户，方便停车'
+    monkeypatch.setattr(language,'available',lambda:True)
+    monkeypatch.setattr(provider,'generate',lambda *a,**k:({'service_query':{'quote':quote,'fields':[
+        field('check_in','明天','明天入住'),field('nights',2,'两晚'),field('window',True,'有窗户'),
+        field('free_parking',True,'方便停车'),field('breakfast',True,'有窗户')]},
+        'planning':{'quote':'游玩后天从开封府出发','fields':[field('date','后天','后天'),field('origin','编造的酒店','开封府')]}},{'source':'mock_model'}))
+    monkeypatch.setattr(service.LOG,'handlers',[caplog.handler])
+    monkeypatch.setattr(service.LOG,'propagate',False)
+    with caplog.at_level(logging.INFO,logger='tourism.agent'):
+        task=run({'client':client,'trip':client.get(path).json()},message)
+    assert task['mode']=='compound' and task['result']['services']['result']['items']
+    assert '“方便停车”、“有窗户”这几条暂时没法按条件筛选' in task['result']['reply']
+    assert task['result']['reply'].count('暂时没法按条件筛选')==1
+    assert '出发地没听准' in task['result']['reply'] and 'service.' not in task['result']['reply']
+    line=json.loads([r for r in caplog.records if r.name=='tourism.agent'][-1].getMessage())
+    assert line['dropped']==[{'field':'service.free_parking','check':'attribute_not_in_quote'},
+        {'field':'service.breakfast','check':'attribute_not_in_quote'},{'field':'origin','check':'place_not_in_quote'}]

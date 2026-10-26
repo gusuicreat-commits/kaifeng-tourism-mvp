@@ -440,7 +440,9 @@ def parse(text,snapshot,*,allow_model=True):
             result=result.model_copy(update={'service_query':ServiceIntent(quote=action.quote,category=snapshot.services.get('requirements',{}).get('category','hotels'))})
         if result.service_query:
             from ..travel_services import validate_intent
-            validate_intent(result.service_query,text,snapshot)
+            dropped=[]
+            validate_intent(result.service_query,text,snapshot,dropped)
+            if dropped:meta['dropped_fields']=[{'field':'service.'+d['field'],'check':d['check']} for d in dropped]
         if result.weather_query:
             # Semantic routing is the model's job; read-only weather requests
             # need grounded text, not a second keyword-based intent parser.
@@ -454,7 +456,7 @@ def parse(text,snapshot,*,allow_model=True):
         if result.planning:
             dropped=[]
             result=result.model_copy(update={'planning':planning_intent.grounded(result.planning,text,snapshot,dropped)})
-            if dropped:meta['dropped_fields']=dropped
+            if dropped:meta.setdefault('dropped_fields',[]).extend(dropped)
             if result.planning.operation=='weather_replan':
                 planning_intent.weather_replan(result.planning.quote)
         if local.corrections and not clock(text):
