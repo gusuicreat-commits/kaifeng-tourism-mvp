@@ -51,7 +51,12 @@ def execute(session,t,intent):
         reply='方案已准备好，请点“确认方案”保存。' if result['status']=='feasible' else result['reply']
         status='answered' if result['status']=='feasible' else 'needs_clarification' if result['status']=='infeasible' else 'needs_data'
     if action['date_changed']:reply='日期已记为 '+result['constraints']['business_date']+'。'+reply
-    dropped=[LABELS.get(f,f) for f in dict.fromkeys(t.interpretation.get('dropped_fields',()))]
+    # Ask only about fields still empty after the workflow (e.g. a return point inferred from "回来" is filled).
+    final=result['constraints'] or {}
+    filled={'date':final.get('business_date'),'start_time':final.get('starts_at'),'end_time':final.get('ends_at'),
+            'origin':final.get('origin_place_id') or final.get('origin_text'),
+            'destination':final.get('destination_place_id') or final.get('destination_text'),'budget_fen':final.get('budget_fen')}
+    dropped=[LABELS.get(f,f) for f in dict.fromkeys(t.interpretation.get('dropped_fields',())) if not filled.get(f)]
     if dropped:reply+=f"另外，{'、'.join(dropped)}没听准，能再说一下吗？"
     if proposed.get('notes'):reply+=''.join(proposed['notes'])
     return {'status':status,'reply':reply,'formal_state_changed':False,

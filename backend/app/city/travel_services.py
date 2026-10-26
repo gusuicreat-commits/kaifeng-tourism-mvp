@@ -258,7 +258,7 @@ def query(session,trip_id,text,expected_version=None,cancelled=None,*,intent=Non
         w.update(version=original_version+1,requirements=req,result=result)
         write(db,trip_id,w)
     reply='；'.join(questions) if questions else f"已查询到 {len(result.get('items',[]))} 个{'酒店' if req['category']=='hotels' else '地点'}候选。" if result.get('items') else '查询暂未取得候选（'+result['status']+'），可稍后重试。'
-    reply+=' 房型设施、评价及完整预算尚未核实；候选选择不会改动正式路线。'
+    if req['category']=='hotels':reply+=' 房型、设施和评价还没核实，价格以预订页面为准。'
     return {'reply':reply,'services':w,'formal_state_changed':False}
 
 class Query(Strict):

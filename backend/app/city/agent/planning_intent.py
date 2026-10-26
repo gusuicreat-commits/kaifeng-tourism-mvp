@@ -68,8 +68,11 @@ def grounded(planning, text, snapshot, dropped=None):
             raise ValueError('continue needs an explicit planning request')
     seen={};kept=[]
     for f in planning.fields:
-        # Quote presence and negation/hypothetical checks protect the whole turn.
-        if f.quote not in text:raise ValueError('planning evidence absent')
+        # A quote the model did not copy from the request only loses that field;
+        # negation/hypothetical checks still protect the whole turn.
+        if f.quote not in text:
+            if dropped is None:raise ValueError('planning evidence absent')
+            dropped.append(f.field);continue
         request_evidence(text,f.quote)
         if f.field in seen and seen[f.field]!=f.value:raise ValueError('conflicting planning values')
         seen[f.field]=f.value

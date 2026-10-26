@@ -370,7 +370,10 @@ def _compound_step(session,t):
         if result.get('reply'):replies.append(result['reply'])
         snapshot=t.snapshot
     typed_quotes={branch.quote for branch in (intent.weather_query,intent.route_query) if branch}
-    queries=[a for a in intent.actions if a.kind=='query' and a.quote not in typed_quotes]
+    # A food wish inside a planning turn is answered by the planning reply, not a vendor lookup.
+    food_quotes={c.quote for c in intent.constraints if c.field=='food'} if intent.planning else set()
+    queries=[a for a in intent.actions if a.kind=='query' and a.quote not in typed_quotes
+             and not (getattr(a,'purpose',None)=='dining' and any(a.quote in q or q in a.quote for q in food_quotes))]
     if queries:
         answers=[]
         for action in queries[:4]:
@@ -420,7 +423,7 @@ def _compound_step(session,t):
     elif any(s in ('needs_clarification','needs_data','unavailable') for s in statuses):status='needs_clarification'
     else:status='answered'
     partial=any(s in ('needs_clarification','needs_data','unavailable') for s in statuses)
-    result={'reply':'；'.join(dict.fromkeys(r for r in replies if r)) or '已分别处理这轮请求，请查看各项结果。',
+    result={'reply':' '.join(r if r.endswith(('。','？','！','?','!')) else r+'。' for r in dict.fromkeys(r for r in replies if r)) or '已分别处理这轮请求，请查看各项结果。',
             'compound':{'items':parts,'partial':partial},'formal_state_changed':False}
     for item in parts:
         if item['kind']=='travel_services':result['services']=item['result']['services']
@@ -618,7 +621,7 @@ def _advance(session,trip_id,identity,body):
                 pass
             else:
                 if t.snapshot.envelope.position['status']!='fresh':
-                    _finish(session,t,'needs_data',{'reply':'请先手动确认当前已知地点；我没有持续定位你。','code':'FRESH_POSITION_REQUIRED'})
+                    _finish(session,t,'needs_data',{'reply':'你现在在哪？在地图上点一下位置，我再帮你找附近的。','code':'FRESH_POSITION_REQUIRED'})
             return public(t)
         if t.mode=='reference_route':
             _reference_step(session,t)

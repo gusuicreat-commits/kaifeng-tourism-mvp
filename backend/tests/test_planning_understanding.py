@@ -62,7 +62,8 @@ def test_rejected_model_evidence_records_category_without_raw_output(city,monkey
     model(monkeypatch,text,[field('origin','编造的酒店','当前原文没有这句话')])
     task=run(city,text)
     assert task['status']=='needs_clarification'
-    assert task['events'][0]['validation_failure']=={'kind':'evidence'}
+    # An invented field is dropped and asked again; its value never reaches state or output.
+    assert task['interpretation']['dropped_fields']==['origin']
     assert '编造的酒店' not in json.dumps(task,ensure_ascii=False)
 
 
@@ -290,3 +291,26 @@ def test_unsupported_field_is_dropped_and_asked_while_the_rest_is_kept(city,monk
     saved=city['client'].get(path(city,'/exploration/constraints')).json()['constraints']
     assert saved['business_date'] and saved['ends_at'] is None,saved
     assert '结束时间没听准' in t['result']['reply']
+
+
+def test_stitched_quote_is_mapped_back_to_the_request_span():
+    text='今晚五点半从开封府出发，想吃灌汤包，十点前回来，走路就行。'
+    assert understand.repair_quote('今晚五点半从开封府出发，十点前回来，走路就行。',text)==text[:-1]
+    assert understand.repair_quote('从开封府出发...回来',text)=='从开封府出发，想吃灌汤包，十点前回来'
+    assert understand.repair_quote('从开封站出发',text)=='从开封站出发'
+    assert understand.repair_quote('回来，从开封府出发',text)=='回来，从开封府出发'
+
+
+def test_live_shaped_output_with_stitched_quotes_still_plans(city,monkeypatch):
+    # Shape recorded from a real model reply: stitched planning quote and a bare "回来" destination quote.
+    text='今晚五点半从开封府出发，想吃灌汤包，十点前回来，走路就行。'
+    monkeypatch.setattr(language,'available',lambda:True)
+    monkeypatch.setattr(provider,'generate',lambda s,p,**k:({'actions':[{'kind':'query','quote':'想吃灌汤包','purpose':'dining'}],
+        'planning':{'quote':'今晚五点半从开封府出发，十点前回来，走路就行。','fields':[field('date','今晚','今晚'),field('start_time','17:30','五点半'),
+        field('end_time','22:00','十点前回来'),field('origin','开封府','从开封府出发'),field('destination','开封府','回来'),field('mode','walking','走路就行')]}},{'source':'mock_model'}))
+    t=run(city,text)
+    assert t['interpretation']['basis']=='kimi_validated',t['interpretation']
+    saved=city['client'].get(path(city,'/exploration/constraints')).json()['constraints']
+    assert saved['starts_at'].endswith('T17:30:00+08:00') and saved['ends_at'].endswith('T22:00:00+08:00')
+    assert (saved['destination_place_id'] or saved['destination_text'])==(saved['origin_place_id'] or saved['origin_text'])
+    assert '没听准' not in t['result']['reply']

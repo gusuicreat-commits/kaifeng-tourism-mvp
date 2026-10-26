@@ -193,6 +193,33 @@ def grounded(result,text):
     return result
 
 
+_PIECES=re.compile(r'[，,。；;！!？?、\s]+|\.{2,}|…+')
+
+
+def repair_quote(quote, text):
+    """Map a quote stitched from several pieces of the request back to the request's own span.
+
+    Models often drop a middle clause ("A，B，C" -> "A，C") or join pieces with "...".
+    When every piece occurs in order, the contiguous original span is used, so later
+    evidence checks still run on the visitor's real words.
+    """
+    if not isinstance(quote,str) or not quote or quote in text:return quote
+    pieces=[p for p in _PIECES.split(quote) if p]
+    start=end=None;cursor=0
+    for piece in pieces:
+        at=text.find(piece,cursor)
+        if at<0:return quote
+        start=at if start is None else start;end=cursor=at+len(piece)
+    return text[start:end] if start is not None else quote
+
+
+def _repair_quotes(value, text):
+    if isinstance(value,dict):
+        return {k:repair_quote(v,text) if k in ('quote','start_quote') else _repair_quotes(v,text) for k,v in value.items()}
+    if isinstance(value,list):return [_repair_quotes(v,text) for v in value]
+    return value
+
+
 def _normalize_model_output(raw):
     """Drop only constraints that cannot be valid for their field.
 
@@ -322,7 +349,7 @@ def parse(text,snapshot,*,allow_model=True):
         '普通query给purpose=trip/next/shows/dining/travel/history/reference。状态操作用匹配action及state_request：complete/skip/position/cancel/restore；目标用原文完整名称，缺对象不猜。实际开始时间给HH:MM及start_quote；恢复给明确restore_version。'
         '只有单纯问两个地点之间怎么走/多久/多远/路线怎么走才给route_query及匹配query；含多个停靠点、去A去B去C、出发并返回、全程步行等整趟游玩是planning，不是问路。地点抄原文，不发明ID或坐标，origin与use_current_position二选一。只有明确这里/当前位置才用当前位置，不因缺GPS阻止明确地点问路。天气给weather_query；查询不修改游玩日期，明确天气重排用planning.operation=weather_replan。'
         '酒店/停车/商家查询和追问用service_query及search_services；结合已保存条件辨别“明天入住”是住宿补充，不能写入planning。入住/退房date value抄原文；nights按晚数独立保存；room_type、location_text抄原词，标间不能推人数/间数。max_price为每晚元；stay_budget_fen为住宿合计分，不能混成整趟预算或报价。设施都行/没有也行用optional，不升为hard；真假与原文一致。'
-        '规划/游玩修改用planning及modify，最多一个patch。city为城市，不是具体起终点；origin是出发地，destination为结束地，同地往返可同名。每个field的quote必须是从原文逐字摘取、且完整包含该field的value的子串：例如destination=开封府时quote必须包含“开封府”三字(如“从开封府出发并返回”)，不能只写“并返回”。日期抄原文，明确时间用HH:MM，前文的今晚/晚上/下午对后面的钟点也有效（今晚五点半出发，十点前回来→17:30、22:00）；只有下午/晚上不猜时刻，预算为分。“几点前回来”写planning.end_time。choices给完整素材名称、priority及status，不放宽必选。“就这样/开始安排”可continue且空fields/choices。'
+        '规划/游玩修改用planning及modify，最多一个patch。city为城市，不是具体起终点；origin是出发地，destination为结束地，同地往返可同名。每个quote都是原文中连续的一段，逐字复制，不拼接、不省略中间内容；field的quote要包含该value，同地往返时destination可与origin用同一段quote。日期抄原文，明确时间用HH:MM，前文的今晚/晚上/下午对后面的钟点也有效（今晚五点半出发，十点前回来→17:30、22:00）；只有下午/晚上不猜时刻，预算为分。“几点前回来”写planning.end_time。choices给完整素材名称、priority及status，不放宽必选。“就这样/开始安排”可continue且空fields/choices。'
         'constraints只放用户明确提出的要求，区分hard/soft/optional/unknown；模糊时间null/unknown。用户没提过的偏好(如节奏、目标、步行上限)不要输出，不要填balanced/standard等默认值。“全程步行/走路/步行”只是交通方式mode，不是步行时间上限；walking_seconds只在用户明确说“步行不超过X分钟”时输出整数秒。口语纠正取最后有效值。不能丢明确要求，暂不能处理放unresolved。'
         'conversation可与只读查询及一个planning并存，各分支匹配action，逐项处理，不丢分支或虚报完成；正式提交永远不在本输出。状态操作暂单独一轮。'
         +json.dumps(prompt_schema(Understanding.model_json_schema()),ensure_ascii=False,separators=(',',':')))
@@ -332,7 +359,7 @@ def parse(text,snapshot,*,allow_model=True):
     meta['model_calls']=1
     try:
         raw,usage=provider.generate(system,payload);meta['usage'].append(usage)
-        raw=_normalize_model_output(raw)
+        raw=_normalize_model_output(_repair_quotes(raw,text))
         result=grounded(Understanding.model_validate(raw),text)
         # Some model responses include a harmless ``query`` action beside a
         # normal greeting. Treating that action as a business query creates a

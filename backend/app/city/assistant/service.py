@@ -87,7 +87,7 @@ def _query(text, snapshot, intent):
             return {'status':'answered','reply':'以下是当前行程目标对应的场次资料；有缺项或取消的场次不能当作仍可参加。',
                     'facts':values,'references':[{'kind':'show_session','id':v['id']} for v in values[:6]]}
         if len(references) != 1:
-            return {'status':'needs_clarification','reply':'请明确是哪一场演出或哪家店；当前存在多个对象，不能替你猜。' if references else '当前没有明确对应对象，请提供场次或商家名称。',
+            return {'status':'needs_clarification','reply':'有几个可能的对象，你说的是哪一个？' if references else '你想问哪一场演出或哪家店？',
                     'choices':[r.model_dump() for r in references]}
         ref = references[0]; item = snapshot.planning.facts.get((ref.kind,ref.id))
         if not item or not facts.planning_visible(item):
@@ -117,7 +117,7 @@ def _query(text, snapshot, intent):
         return {'status':'answered' if answer_ready else 'needs_data','reply':reply,
                 'references':[ref.model_dump()], 'facts':used_facts}
     if topic == 'travel':
-        if env.position['status'] != 'fresh': return {'status':'needs_data','reply':'请先手动确认你现在所在的已知地点；当前位置缺失或已过期，我没有持续定位你。'}
+        if env.position['status'] != 'fresh': return {'status':'needs_data','reply':'你现在在哪？在地图上点一下位置，我再帮你看。'}
         next_stop = env.progress['next']
         if not next_stop or not snapshot.requirements: return {'status':'needs_data','reply':'尚无正式下一站和完整交通要求，不能推测步行时间。'}
         if snapshot.requirements.ends_at <= now(): return {'status':'needs_data','reply':'原行程时间已过，请先核对新的旅行时间。'}
