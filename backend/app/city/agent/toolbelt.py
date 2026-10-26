@@ -33,6 +33,39 @@ def query_shows(snapshot,intent):
     return {'status':'ok' if output else 'needs_data','code':None if output else 'SHOW_REFERENCE_MISSING','items':output}
 
 
+def requested_foods(snapshot,intent):
+    """Dishes the visitor named in a dining search or food wish, resolved to food facts."""
+    words={str(c.value) for c in values(intent,'food') if c.value}
+    texts=[t for a in intent.actions if a.kind=='search_dining' for t in (a.quote,a.target_name) if t]
+    return [f for f in snapshot.planning.facts.values() if isinstance(f,facts.Food) and facts.planning_visible(f)
+            and (f.name in words or any(n in t for t in texts for n in (f.name,*f.aliases) if n and len(n)>1))]
+
+
+def find_food(snapshot,intent):
+    """Read-only: which shops serve the named dishes. Needs no position, route or trip window."""
+    ctx=snapshot.planning;now=ctx.assessed_at;today=now.astimezone(TZ).date()
+    basket={(m['fact_kind'],m['fact_id']) for m in snapshot.materials if m['status']!='standby'}
+    items=[];lines=[]
+    for food in requested_foods(snapshot,intent):
+        shops=[]
+        for supply in sorted((r for r in ctx.facts.values() if isinstance(r,facts.Supply) and r.food_id==food.fact_id),key=lambda r:r.fact_id):
+            vendor=ctx.facts.get(('vendor',supply.vendor_id))
+            if not vendor or not ctx.ready(supply,now) or not facts.planning_visible(vendor):continue
+            windows=[f"{r.opens_at.astimezone(TZ):%H:%M}–{r.closes_at.astimezone(TZ):%H:%M}" for r in sorted(ctx.rules(vendor.place_id,today),key=lambda r:r.opens_at or now)
+                     if r.opens_at and r.closes_at and facts.planning_visible(r)]
+            name=context.label(ctx.facts,vendor.place_id)
+            in_basket=('vendor',vendor.fact_id) in basket or ('place',vendor.place_id) in basket
+            items.append({'food_id':food.fact_id,'vendor_id':vendor.fact_id,'place_id':vendor.place_id,'name':name,
+                          'today_hours':windows,'in_basket':in_basket})
+            shops.append(name+(f"（今天 {'、'.join(windows)}）" if windows else '')+('，已在素材篮' if in_basket else ''))
+        lines.append(f"{food.name}可以去：{'；'.join(shops[:5])}。" if shops else f"暂时没有{food.name}的店铺资料。")
+    if not lines:
+        return {'status':'needs_clarification','code':'FOOD_NOT_NAMED','items':[],'reply':'想吃哪道菜？告诉我菜名就能帮你找店。'}
+    tail='想排进行程，在店铺详情页加入素材篮就行。' if items and not all(i['in_basket'] for i in items) else ''
+    return {'status':'answered' if items else 'needs_data','code':None if items else 'NO_SUPPLY_REFERENCE','items':items,
+            'reply':''.join(lines)+tail,'formal_state_changed':False}
+
+
 def search_dining(snapshot,intent,relax=False):
     ctx=snapshot.planning;req=v2tools.requirements(snapshot)
     requested=values(intent,'food')

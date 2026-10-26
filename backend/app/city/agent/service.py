@@ -40,6 +40,12 @@ LABELS={'understand':'正在理解你的要求。','search_dining':'正在查找
         'preview_plan':'正在验证完整行程安排。','search_locations':'正在查找起点和终点。',
         'query_reference_route':'正在查询高德参考路线。'}
 LABELS['query_weather']='正在查询和风天气预报。'
+LABELS['find_food']='正在查找有这道菜的店。'
+# Preconditions are declared by the handler that needs them and checked once before it runs.
+PRECONDITIONS={
+    'react':(('fresh_position',lambda s:s.envelope.position['status']=='fresh',
+              '你现在在哪？在地图上点一下位置，我再帮你找附近的。'),),
+}
 
 
 @dataclass
@@ -397,11 +403,16 @@ def _compound_step(session,t):
         query_status='answered' if all(a.get('status')=='answered' for a in answers) else 'needs_data'
         parts.append({'kind':'direct_query','status':query_status,'answers':answers});statuses.append(query_status)
         replies.extend(a.get('reply','') for a in answers if a.get('reply'))
+    finding=understand.wants_find(intent,snapshot)
+    if finding:
+        result=toolbelt.find_food(snapshot,intent)
+        parts.append({'kind':'find_food','status':result['status'],'result':result});statuses.append(result['status'])
+        replies.append(result['reply'])
     if intent.route_query:
         parts.append({'kind':'reference_route','status':'needs_clarification','reply':'问路需要单独确认起点与终点候选；本轮其他请求已分别处理。'})
         statuses.append('needs_clarification');replies.append(parts[-1]['reply'])
     snapshot=t.snapshot
-    has_planning=bool(intent.planning or intent.constraints or intent.corrections or any(a.kind in ('modify','preference','cancel','progress','position','search_dining') for a in intent.actions))
+    has_planning=bool(intent.planning or (intent.constraints and not finding) or intent.corrections or any(a.kind in ('modify','preference','cancel','progress','position') or a.kind=='search_dining' and not finding for a in intent.actions))
     if has_planning:
         if questions:
             planning_result={'status':'needs_clarification','reply':'；'.join(questions)}
@@ -627,6 +638,11 @@ def _advance(session,trip_id,identity,body):
                 t.events[-1].update(status=result['services']['result']['status'],query_diagnostics=result['services']['result'].get('query_diagnostics'))
                 code=result['services']['result']['status']
                 _finish(session,t,'answered' if code=='ok' else 'needs_clarification' if code=='needs_clarification' else 'needs_data' if code=='empty' else 'unavailable',result)
+            elif t.mode=='find':
+                t.tools+=1;t.events.append({'tool':'find_food','status':'running','parameters':{},'source':'city_facts'})
+                result=toolbelt.find_food(t.snapshot,t.intent)
+                t.events[-1].update(status=result['status'],result_code=result.get('code'),item_count=len(result['items']))
+                _finish(session,t,result['status'],result)
             elif t.mode=='direct':
                 action=next(a for a in t.intent.actions if a.kind=='query')
                 result=_read_query(t,action,t.snapshot)
@@ -637,8 +653,9 @@ def _advance(session,trip_id,identity,body):
                 # This branch executes on the next request to allow cancellation after understanding.
                 pass
             else:
-                if t.snapshot.envelope.position['status']!='fresh':
-                    _finish(session,t,'needs_data',{'reply':'你现在在哪？在地图上点一下位置，我再帮你找附近的。','code':'FRESH_POSITION_REQUIRED'})
+                missing=next(((code,reply) for code,ok,reply in PRECONDITIONS.get(t.mode,()) if not ok(t.snapshot)),None)
+                if missing:
+                    _finish(session,t,'needs_data',{'reply':missing[1],'code':missing[0].upper()+'_REQUIRED'})
             return public(t)
         if t.mode=='reference_route':
             _reference_step(session,t)

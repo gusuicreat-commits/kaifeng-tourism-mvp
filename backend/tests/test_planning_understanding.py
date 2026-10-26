@@ -333,3 +333,27 @@ def test_failures_name_the_check_and_log_one_line_without_visitor_text(city,monk
     monkeypatch.setattr(provider,'generate',lambda s,p,**k:({'actions':[{'kind':'modify','quote':'不在原话里'}]},{'source':'mock_model'}))
     t=run(city,'换个出发地点')
     assert t['interpretation']['validation_failure']=={'kind':'evidence','at':'understand.grounded','check':'ungrounded evidence quote'}
+
+
+def dining(monkeypatch,text,**action):
+    monkeypatch.setattr(language,'available',lambda:True)
+    monkeypatch.setattr(provider,'generate',lambda s,p,**k:({'actions':[{'kind':'search_dining','quote':text,**action}]},{'source':'mock_model'}))
+
+
+def test_finding_shops_for_a_named_dish_needs_no_position_or_route(city,monkeypatch):
+    text='帮我找个能吃[合成测试]菜品的店'
+    dining(monkeypatch,text,target_name='[合成测试]菜品')
+    before=get(city)
+    t=run(city,text)
+    assert t['mode']=='find' and t['status']=='answered',t['result']
+    assert t['result']['items'][0]['place_id']=='restaurant' and '[合成测试]菜品可以去' in t['result']['reply']
+    assert t['events'][-1]['tool']=='find_food' and get(city)==before
+
+
+def test_nearby_dining_is_in_trip_replanning_and_declares_position(city,monkeypatch):
+    # The model left near unset; the visitor's own "附近" still decides.
+    text='附近哪里有[合成测试]菜品'
+    dining(monkeypatch,text)
+    t=run(city,text)
+    assert t['mode']=='react' and t['result']['code']=='FRESH_POSITION_REQUIRED'
+    assert t['understanding']['actions'][0]['near'] is True

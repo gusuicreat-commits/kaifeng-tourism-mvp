@@ -13,6 +13,8 @@ from .evidence import request_evidence, query_evidence, effective_clock, prefere
 from .models import Action, Constraint, Correction, Understanding
 from . import planning_intent
 
+# The visitor limited a search to where they are now; only that needs a position.
+_NEAR=re.compile(r'附近|周边|周围|这附近|这儿|这里|旁边|就近|离我近')
 NUMBERS={'零':0,'一':1,'二':2,'两':2,'三':3,'四':4,'五':5,'六':6,'七':7,'八':8,'九':9,'十':10}
 _GREETING_ONLY=re.compile(r"^\s*(?:你好|您好|嗨|哈喽|hello|hi|早上好|上午好|中午好|下午好|晚上好|谢谢|感谢|在吗)[\s,，。.!！？?、'‘’\"“”]*$",re.I)
 
@@ -143,7 +145,8 @@ def rules(text, snapshot):
         strength='optional' if optional else 'hard' if hard and not soft else 'soft'
         if any(w in clause for w in ('找','搜','吃','餐厅','餐饮','饭店')):
             if not any(w in clause for w in ('吃完了','不吃','不用找')):
-                actions.append(Action(kind='search_dining' if any(w in clause for w in ('找','搜','附近','吃点','想吃')) else 'modify',quote=clause))
+                dining=any(w in clause for w in ('找','搜','附近','吃点','想吃'))
+                actions.append(Action(kind='search_dining' if dining else 'modify',quote=clause,near=dining and bool(_NEAR.search(clause))))
         food_named='灌汤包' in clause or any(item.kind=='food' and facts.planning_visible(item) and facts.name_matches(item, clause) for item in snapshot.planning.facts.values())
         excluded_food=bool(re.search(r'不吃|不想吃|不能吃|不要吃|忌口|过敏',clause) or food_named and re.search(r'不要',clause))
         if excluded_food:unresolved.append('请明确需要避开的食物；当前不能把忌口当作想吃的菜品来安排。')
@@ -376,8 +379,8 @@ def parse(text,snapshot,*,allow_model=True):
         '礼貌问句可查询，否定/引用/假设/教程不是操作授权。quote逐字摘自本轮；服务字段quote必须在service_query.quote内。实际事实查询走工具，不从模型记忆补价格/营业/路线/天气。'
         '普通query给purpose=trip/next/shows/dining/travel/history/reference。状态操作用匹配action及state_request：complete/skip/position/cancel/restore；目标用原文完整名称，缺对象不猜。实际开始时间给HH:MM及start_quote；恢复给明确restore_version。'
         '只有单纯问两个地点之间怎么走/多久/多远/路线怎么走才给route_query及匹配query；含多个停靠点、去A去B去C、出发并返回、全程步行等整趟游玩是planning，不是问路。地点抄原文，不发明ID或坐标，origin与use_current_position二选一。只有明确这里/当前位置才用当前位置，不因缺GPS阻止明确地点问路。天气给weather_query；查询不修改游玩日期，明确天气重排用planning.operation=weather_replan。'
-        '酒店/停车/商家查询和追问用service_query及search_services；结合已保存条件辨别“明天入住”是住宿补充，不能写入planning。入住/退房date value抄原文；nights按晚数独立保存；room_type、location_text抄原词，标间不能推人数/间数。max_price为每晚元；stay_budget_fen为住宿合计分，不能混成整趟预算或报价。设施都行/没有也行用optional，不升为hard；真假与原文一致。'
-        '规划/游玩修改用planning及modify，最多一个patch。city为城市，不是具体起终点；origin是出发地，destination为结束地，同地往返可同名。每个quote都是原文中连续的一段，逐字复制，不拼接、不省略中间内容；field的quote要包含该value，同地往返时destination可与origin用同一段quote。日期抄原文，明确时间用HH:MM，前文的今晚/晚上/下午对后面的钟点也有效（今晚五点半出发，十点前回来→17:30、22:00）；只有下午/晚上不猜时刻，预算为分。“几点前回来”写planning.end_time。choices给完整素材名称、priority及status，不放宽必选。“就这样/开始安排”可continue且空fields/choices。'
+        '找吃的一律search_dining，target_name抄菜名/店名，说附近/这里时near=true。酒店/停车查询和追问用service_query及search_services；结合已保存条件辨别“明天入住”是住宿补充，不能写入planning。入住/退房date value抄原文；nights按晚数独立保存；room_type、location_text抄原词，标间不能推人数/间数。max_price为每晚元；stay_budget_fen为住宿合计分，不能混成整趟预算或报价。设施都行/没有也行用optional，不升为hard；真假与原文一致。'
+        '规划/游玩修改用planning及modify，最多一个patch。city为城市，不是具体起终点；origin是出发地，destination为结束地，同地往返可同名。quote是原文连续片段勿拼接；field的quote含其value，同地往返destination可用origin的quote。日期抄原文，时间用HH:MM，前文今晚/晚上对后续钟点有效(今晚五点半…十点回→17:30、22:00)；只说下午/晚上不猜时刻，预算为分，几点前回来写end_time。choices给完整素材名称、priority及status，不放宽必选。“就这样/开始安排”可continue且空fields/choices。'
         'constraints只放用户明确提出的要求，区分hard/soft/optional/unknown；模糊时间null/unknown。用户没提过的偏好(如节奏、目标、步行上限)不要输出，不要填balanced/standard等默认值。“全程步行/走路/步行”只是交通方式mode，不是步行时间上限；walking_seconds只在用户明确说“步行不超过X分钟”时输出整数秒。口语纠正取最后有效值。不能丢明确要求，暂不能处理放unresolved。'
         'conversation可与只读查询及一个planning并存，各分支匹配action，逐项处理，不丢分支或虚报完成；正式提交永远不在本输出。状态操作暂单独一轮。'
         +json.dumps(prompt_schema(Understanding.model_json_schema()),ensure_ascii=False,separators=(',',':')))
@@ -397,6 +400,8 @@ def parse(text,snapshot,*,allow_model=True):
             retained=tuple(a for a in result.actions if not (a.kind=='query' and greeting_only(a.quote)))
             if len(retained)!=len(result.actions):
                 result=result.model_copy(update={'actions':retained})
+        if any(a.kind=='search_dining' and not a.near and _NEAR.search(a.quote) for a in result.actions):
+            result=result.model_copy(update={'actions':tuple(a.model_copy(update={'near':True}) if a.kind=='search_dining' and _NEAR.search(a.quote) else a for a in result.actions)})
         if result.state_request:
             from .semantic_execution import grounded_state
             grounded_state(result.state_request,text)
@@ -494,6 +499,17 @@ def questions(intent,snapshot):
     return list(dict.fromkeys(result))
 
 
+def wants_find(intent,snapshot):
+    """A dining search for named dishes outside a planning turn is a read-only lookup.
+
+    Only a search limited to where the visitor is now ("附近") is in-trip replanning
+    (react), which is the handler that needs a fresh position.
+    """
+    from .toolbelt import requested_foods
+    dining=[a for a in intent.actions if a.kind=='search_dining']
+    return bool(dining) and not intent.planning and not any(a.near for a in dining) and bool(requested_foods(snapshot,intent))
+
+
 def route(intent,snapshot):
     clarification=questions(intent,snapshot)
     components=[]
@@ -508,7 +524,7 @@ def route(intent,snapshot):
     if any(a.kind=='search_services' for a in intent.actions) or intent.service_query:
         components.append('travel_services')
     if any(a.kind=='search_dining' for a in intent.actions) and not intent.planning:
-        components.append('react')
+        components.append('find' if wants_find(intent,snapshot) else 'react')
     typed_quotes={branch.quote for branch in (intent.weather_query,intent.route_query) if branch}
     if any(a.kind=='query' and a.quote not in typed_quotes for a in intent.actions):
         components.append('direct')

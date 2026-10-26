@@ -10,6 +10,8 @@ class Action(Strict):
     quote: str = Field(min_length=1, max_length=500)
     target_name: str | None = Field(default=None, max_length=120)
     purpose: Literal['trip','next','shows','dining','travel','history','reference'] | None = None
+    # search_dining only: the visitor limited the search to where they are now.
+    near: bool = False
 
 
 class StateIntent(Strict):
