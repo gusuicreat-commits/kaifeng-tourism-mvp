@@ -6,6 +6,9 @@ from .. import exploration,exploration_state,basket,state,travel_services
 from ..schema import TZ
 from .planning_intent import proposal
 
+LABELS={'date':'日期','start_time':'出发时间','end_time':'结束时间','origin':'出发地','destination':'返回地',
+        'budget_fen':'预算','mode':'出行方式','pace':'节奏','objective':'偏好','city':'城市'}
+
 
 def execute(session,t,intent):
     proposed=proposal(session,t.trip_id,t.snapshot,intent,t.text,today=t.interpretation_date)
@@ -48,6 +51,9 @@ def execute(session,t,intent):
         reply='方案已准备好，请点“确认方案”保存。' if result['status']=='feasible' else result['reply']
         status='answered' if result['status']=='feasible' else 'needs_clarification' if result['status']=='infeasible' else 'needs_data'
     if action['date_changed']:reply='日期已记为 '+result['constraints']['business_date']+'。'+reply
+    dropped=[LABELS.get(f,f) for f in dict.fromkeys(t.interpretation.get('dropped_fields',()))]
+    if dropped:reply+=f"另外，{'、'.join(dropped)}没听准，能再说一下吗？"
+    if proposed.get('notes'):reply+=''.join(proposed['notes'])
     return {'status':status,'reply':reply,'formal_state_changed':False,
         'planning_workflow':{'trip_id':t.trip_id,'execution':'completed_backend','operation':action['operation'],
             'date_changed':action['date_changed'],'result':result}}

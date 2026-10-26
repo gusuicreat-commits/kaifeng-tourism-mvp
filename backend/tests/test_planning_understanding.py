@@ -155,7 +155,7 @@ def test_model_failure_does_not_disguise_itself_as_missing_user_intent(city,monk
     def fail(*a,**kw):raise HTTPException(503,detail='isolated provider failure')
     monkeypatch.setattr(provider,'generate',fail)
     t=run(city,text)
-    assert t['status']=='needs_clarification' and '尚未修改' in t['result']['reply']
+    assert t['status']=='needs_clarification' and '没有变动' in t['result']['reply']
     assert city['client'].get(path(city,'/exploration/constraints')).json()['version']==0
 
 
@@ -249,3 +249,44 @@ def test_reported_endpoints_replace_old_ids_without_becoming_facts(city,monkeypa
     assert c['origin_text']=='我住的酒店' and c['destination_text']=='开封站'
     assert c['origin_place_id'] is None and c['destination_place_id'] is None
     assert get(city)==before
+
+
+@pytest.mark.parametrize('text,expected',[
+    ('今晚五点半从开封府出发，十点前回来',['17:30','22:00']),
+    ('晚上七点到九点半',['19:00','21:30']),
+    ('明早八点出发，十一点半回来',['08:00','11:30']),
+    ('中午一点吃饭',['13:00']),
+    ('五点半出发',['05:30']),
+])
+def test_clock_inherits_day_period_stated_earlier(text,expected):
+    assert understand.clock_values(text)==expected
+
+
+def test_clock_grounding_accepts_pm_reading_of_bare_hour_only_without_period():
+    text='今晚五点半出发，十点前回来'
+    assert understand.clock_grounded('22:00','十点前回来',text)
+    assert not understand.clock_grounded('10:00','十点前回来',text)
+    assert understand.clock_grounded('22:00','十点前回来','十点前回来')
+    assert not understand.clock_grounded('22:00','早上十点前回来','早上十点前回来')
+
+
+def test_evening_trip_sentence_keeps_times_return_point_and_food(city,monkeypatch):
+    text='今晚五点半从开封府出发，想吃灌汤包，十点前回来，走路就行。'
+    model(monkeypatch,text,[field('date','今晚','今晚'),field('start_time','17:30','今晚五点半'),
+        field('origin','开封府','从开封府出发'),field('end_time','22:00','十点前回来'),field('mode','walking','走路就行')],
+        constraints=[{'field':'food','value':'灌汤包','strength':'soft','quote':'想吃灌汤包'}])
+    t=run(city,text)
+    saved=city['client'].get(path(city,'/exploration/constraints')).json()['constraints']
+    assert saved['starts_at'].endswith('T17:30:00+08:00') and saved['ends_at'].endswith('T22:00:00+08:00'),saved
+    assert saved['origin_text']==saved['destination_text']=='开封府' or saved['origin_place_id']==saved['destination_place_id']
+    assert '灌汤包' in t['result']['reply'] and '没听准' not in t['result']['reply']
+
+
+def test_unsupported_field_is_dropped_and_asked_while_the_rest_is_kept(city,monkeypatch):
+    text='明天从开封府出发，九点前结束'
+    # The quote has no evening word, so 21:00 is acceptable but 23:00 is invented.
+    model(monkeypatch,text,[field('date','明天','明天'),field('origin','开封府','从开封府出发'),field('end_time','23:00','九点前结束')])
+    t=run(city,text)
+    saved=city['client'].get(path(city,'/exploration/constraints')).json()['constraints']
+    assert saved['business_date'] and saved['ends_at'] is None,saved
+    assert '结束时间没听准' in t['result']['reply']

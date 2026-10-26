@@ -24,8 +24,10 @@ def food_covered_by_material(constraint, planning, snapshot):
     items = snapshot.planning.facts
     foods = {r.fact_id for r in items.values() if r.kind == 'food'
              and constraint.value in (r.name, *r.aliases) and facts.planning_visible(r)}
+    # Basket materials that stay selected after this turn's own choices are applied.
+    choices = {c.name: c.status for c in planning.choices} if planning else {}
     selected = {(i['fact_kind'], i['fact_id']) for i in snapshot.materials
-                if i['status'] != 'standby' and any(c.name == i['name'] for c in planning.choices)}
+                if choices.get(i['name'], i['status']) != 'standby'}
     if any(('food', food_id) in selected for food_id in foods):
         return True
     for supply in items.values():
@@ -58,27 +60,49 @@ def number(value):
     return NUMBERS.get(value)
 
 
-def clock(text, afternoon=False):
-    matches=list(re.finditer(r'(\d{1,2}|[一二两三四五六七八九十]{1,3})[点:：](\d{1,2}|半|[一二三四五六七八九十]{1,3})?',text))
-    if not matches:return None
-    m=matches[-1];h=number(m[1]);minute=30 if m[2]=='半' else number(m[2]) if m[2] else 0
-    if h is None or minute is None:return None
-    if ('下午' in text or '晚上' in text or afternoon) and h<12:h+=12
-    if h>23 or minute>59:return None
-    return f'{h:02d}:{minute:02d}'
+_CLOCK=re.compile(r'(\d{1,2}|[一二两三四五六七八九十]{1,3})[点:：](\d{1,2}|半|[一二三四五六七八九十]{1,3})?')
+_PERIOD=re.compile(r'下午|傍晚|晚上|今晚|明晚|今夜|晚饭|晚餐|夜里|中午|午饭|午餐|早上|上午|今早|明早|早饭|早餐|清晨|凌晨')
+
+
+def period_before(text, end):
+    """Latest day-period word before ``end``: 'pm', 'noon', 'am' or None.
+
+    People state the period once ("今晚五点半出发，十点前回来"); later clocks inherit it.
+    """
+    found=None
+    for m in _PERIOD.finditer(text[:max(end,0)]):
+        word=m.group()
+        found='noon' if word in ('中午','午饭','午餐') else 'am' if word in ('早上','上午','今早','明早','早饭','早餐','清晨','凌晨') else 'pm'
+    return found
 
 
 def clock_values(text, afternoon=False):
     """Return every clock in order, so ``17:30到22:00`` yields both endpoints."""
-    matches=list(re.finditer(r'(\d{1,2}|[一二两三四五六七八九十]{1,3})[点:：](\d{1,2}|半|[一二三四五六七八九十]{1,3})?',text))
     values=[]
-    for m in matches:
+    for m in _CLOCK.finditer(text):
         h=number(m[1]);minute=30 if m[2]=='半' else number(m[2]) if m[2] else 0
         if h is None or minute is None:continue
-        if ('下午' in text or '晚上' in text or afternoon) and h<12:h+=12
+        period=period_before(text,m.start()) or ('pm' if afternoon else None)
+        if h<12 and (period=='pm' or period=='noon' and h<=5):h+=12
         if h>23 or minute>59:continue
         values.append(f'{h:02d}:{minute:02d}')
     return values
+
+
+def clock(text, afternoon=False):
+    values=clock_values(text,afternoon)
+    return values[-1] if values else None
+
+
+def clock_grounded(value, quote, text):
+    """The clock digits must appear in the quote; an hour with no stated period may be read as AM or PM."""
+    start=text.find(quote)
+    period=period_before(text,start) if start>=0 else None
+    if value in clock_values(quote,afternoon=period=='pm'):return True
+    if period in (None,'noon') and not _PERIOD.search(quote) and re.fullmatch(r'(?:1[2-9]|2[0-3]):[0-5]\d',str(value)):
+        h,m=map(int,value.split(':'))
+        return f'{h-12:02d}:{m:02d}' in clock_values(quote)
+    return False
 
 
 def rules(text, snapshot):
@@ -95,7 +119,11 @@ def rules(text, snapshot):
             prefix=re.split(r'[，,。；;]',before.rstrip('，,。；; '))
             active='，'.join(prefix[:-1])+'，'+after if len(prefix)>1 else after
     clauses=[c.strip() for c in re.split(r'[，,。；;！!？?]',active) if c.strip()]
+    offset=0
     for index,clause in enumerate(clauses):
+        offset=active.find(clause,offset)
+        # A clock inherits the day period stated earlier in the sentence ("今晚…，十点前回来").
+        afternoon=period_before(active,offset)=='pm'
         if any(w in clause for w in ('几点','多久','还有几个','下一站')):
             actions.append(Action(kind='query',quote=clause))
         # These are only a bounded fallback after the model was unavailable.
@@ -128,8 +156,8 @@ def rules(text, snapshot):
         elif any(w in clause for w in ('近点','近一点','少走','别走太远','不要走太远')):add('objective','less_walking','soft',clause)
         if any(w in clause for w in ('轻松','宽松')):add('pace','relaxed','soft',clause)
         if any(w in clause for w in ('回酒店','回去','返程','回来','提前回')):
-            value=clock(clause);add('return_by',value,'hard' if value else 'unknown',clause)
-        if any(w in clause for w in ('午饭','晚饭','吃饭','用餐','午餐','晚餐')) and clock(clause):add('meal_at',clock(clause),'hard',clause)
+            value=clock(clause,afternoon);add('return_by',value,'hard' if value else 'unknown',clause)
+        if any(w in clause for w in ('午饭','晚饭','吃饭','用餐','午餐','晚餐')) and clock(clause,afternoon):add('meal_at',clock(clause,afternoon),'hard',clause)
     if corrections and clock(text):
         field='meal_at' if any(w in text for w in ('饭','餐')) else 'return_by' if any(w in text for w in ('回','返程')) else 'visit_at'
         constraints=[c for c in constraints if c.field!=field]
@@ -151,7 +179,7 @@ def grounded(result,text):
         elif kind is not None:request_evidence(text,item.quote)
     for c in result.constraints:
         if c.field in ('return_by','meal_at','visit_at') and c.value:
-            if c.value not in clock_values(c.quote):raise ValueError('invented clock')
+            if not clock_grounded(c.value,c.quote,text):raise ValueError('invented clock')
         if c.field=='walking_seconds' and c.value:
             m=re.search(r'(\d+|[一二两三四五六七八九十]{1,3})\s*分钟',c.quote)
             if not m or number(m[1])*60!=c.value:raise ValueError('invented walking limit')
@@ -236,7 +264,7 @@ def parse(text,snapshot,*,allow_model=True):
     try:local=rules(text,snapshot)
     except (ValueError,ValidationError):
         if not model_enabled:
-            return Understanding(unresolved=('这段要求的数值、长度或数量超出可处理范围，请拆开或更正后重试；条件尚未修改。',)),{'basis':'rule_fallback','source':'deterministic_fallback','model_calls':0,'usage':[],'validation_failure':{'kind':'input_limits'}}
+            return Understanding(unresolved=('这段要求太长或数值超出范围了，拆成几句再说？',)),{'basis':'rule_fallback','source':'deterministic_fallback','model_calls':0,'usage':[],'validation_failure':{'kind':'input_limits'}}
         # A limit in the fallback extractor does not invalidate a valid free-text
         # request. The model's own typed output remains subject to capacity checks.
         local=Understanding()
@@ -246,7 +274,7 @@ def parse(text,snapshot,*,allow_model=True):
         # invalid. Discard that proposed mutation, then let the semantic model
         # distinguish a question from a request. Model actions still pass the
         # same grounded() gate below; offline fallback stays non-executable.
-        local=Understanding(unresolved=('这段话的操作意图尚未确定，条件尚未修改。',))
+        local=Understanding(unresolved=('你是想调整行程，还是先问问？',))
     meta={'basis':'rule','source':'deterministic_fallback','model_calls':0,'usage':[]}
     state_read=all(a.kind=='query' for a in local.actions) and bool(re.fullmatch(
         r'\s*(?:(?:我)?下一站(?:去哪里|去哪儿|去哪|是什么|是哪里)|(?:今天)?(?:还有|还剩)(?:几个|多少)(?:景点|活动)|(?:我)?(?:今天)?都安排了什么)[？?。]?\s*',text))
@@ -263,14 +291,14 @@ def parse(text,snapshot,*,allow_model=True):
         if weather_intent:
             explicit_intent=Understanding(actions=(Action(kind='query',quote=weather_intent.quote),),weather_query=weather_intent)
             try:grounded(explicit_intent,text)
-            except ValueError:return Understanding(unresolved=('这段内容不是明确的当前查询请求，未执行查询。',)),meta
+            except ValueError:return Understanding(unresolved=('需要我现在帮你查吗？',)),meta
             return explicit_intent,meta | {'basis':'explicit_control','source':'deterministic_weather_query'}
         reference=reference_routes.explicit(text)
         if reference:
             reference_routes.grounded(reference,text)
             explicit_intent=Understanding(actions=(Action(kind='query',quote=reference.quote),),route_query=reference)
             try:grounded(explicit_intent,text)
-            except ValueError:return Understanding(unresolved=('这段内容不是明确的当前问路请求，未执行查询。',)),meta
+            except ValueError:return Understanding(unresolved=('需要我现在帮你查路线吗？',)),meta
             return explicit_intent,meta | {'basis':'explicit_control','source':'deterministic_reference_route'}
         endpoints=planning_intent.explicit_round_trip(text)
         if endpoints:
@@ -280,7 +308,7 @@ def parse(text,snapshot,*,allow_model=True):
         planning=planning_intent.offline(text,snapshot)
         if planning:return Understanding(actions=(Action(kind='modify',quote=text[:500]),),planning=planning),meta
         if not local.constraints and all(a.kind=='modify' for a in local.actions) and interpret.rules(text,snapshot).operation=='unknown':
-            return local.model_copy(update={'unresolved':('自然语言理解暂不可用，请用下方选项补充安排，或稍后重试。',)}),meta
+            return local.model_copy(update={'unresolved':('小汴梁暂时连不上，可以先用下方选项安排。',)}),meta
         if not state_read and all(a.kind=='query' for a in local.actions) and interpret.purpose(text)=='trip':
             return local.model_copy(update={'unresolved':('暂时无法连接小汴梁，请稍后再试。',)}),meta
         return local,meta
@@ -294,7 +322,7 @@ def parse(text,snapshot,*,allow_model=True):
         '普通query给purpose=trip/next/shows/dining/travel/history/reference。状态操作用匹配action及state_request：complete/skip/position/cancel/restore；目标用原文完整名称，缺对象不猜。实际开始时间给HH:MM及start_quote；恢复给明确restore_version。'
         '只有单纯问两个地点之间怎么走/多久/多远/路线怎么走才给route_query及匹配query；含多个停靠点、去A去B去C、出发并返回、全程步行等整趟游玩是planning，不是问路。地点抄原文，不发明ID或坐标，origin与use_current_position二选一。只有明确这里/当前位置才用当前位置，不因缺GPS阻止明确地点问路。天气给weather_query；查询不修改游玩日期，明确天气重排用planning.operation=weather_replan。'
         '酒店/停车/商家查询和追问用service_query及search_services；结合已保存条件辨别“明天入住”是住宿补充，不能写入planning。入住/退房date value抄原文；nights按晚数独立保存；room_type、location_text抄原词，标间不能推人数/间数。max_price为每晚元；stay_budget_fen为住宿合计分，不能混成整趟预算或报价。设施都行/没有也行用optional，不升为hard；真假与原文一致。'
-        '规划/游玩修改用planning及modify，最多一个patch。city为城市，不是具体起终点；origin是出发地，destination为结束地，同地往返可同名。每个field的quote必须是从原文逐字摘取、且完整包含该field的value的子串：例如destination=开封府时quote必须包含“开封府”三字(如“从开封府出发并返回”)，不能只写“并返回”。日期抄原文，明确时间用HH:MM；只有下午/晚上不猜时刻，预算为分。choices给完整素材名称、priority及status，不放宽必选。“就这样/开始安排”可continue且空fields/choices。'
+        '规划/游玩修改用planning及modify，最多一个patch。city为城市，不是具体起终点；origin是出发地，destination为结束地，同地往返可同名。每个field的quote必须是从原文逐字摘取、且完整包含该field的value的子串：例如destination=开封府时quote必须包含“开封府”三字(如“从开封府出发并返回”)，不能只写“并返回”。日期抄原文，明确时间用HH:MM，前文的今晚/晚上/下午对后面的钟点也有效（今晚五点半出发，十点前回来→17:30、22:00）；只有下午/晚上不猜时刻，预算为分。“几点前回来”写planning.end_time。choices给完整素材名称、priority及status，不放宽必选。“就这样/开始安排”可continue且空fields/choices。'
         'constraints只放用户明确提出的要求，区分hard/soft/optional/unknown；模糊时间null/unknown。用户没提过的偏好(如节奏、目标、步行上限)不要输出，不要填balanced/standard等默认值。“全程步行/走路/步行”只是交通方式mode，不是步行时间上限；walking_seconds只在用户明确说“步行不超过X分钟”时输出整数秒。口语纠正取最后有效值。不能丢明确要求，暂不能处理放unresolved。'
         'conversation可与只读查询及一个planning并存，各分支匹配action，逐项处理，不丢分支或虚报完成；正式提交永远不在本输出。状态操作暂单独一轮。'
         +json.dumps(prompt_schema(Understanding.model_json_schema()),ensure_ascii=False,separators=(',',':')))
@@ -335,21 +363,34 @@ def parse(text,snapshot,*,allow_model=True):
             # Conversation is an answer part and may coexist with typed requests.
             if not result.conversation.reply.strip():raise ValueError('empty conversation reply')
         if result.planning:
-            planning_intent.grounded(result.planning,text,snapshot)
+            dropped=[]
+            result=result.model_copy(update={'planning':planning_intent.grounded(result.planning,text,snapshot,dropped)})
+            if dropped:meta['dropped_fields']=dropped
             if result.planning.operation=='weather_replan':
                 planning_intent.weather_replan(result.planning.quote)
         if local.corrections and not clock(text):
             # A cancelled clause cannot survive through a model-generated action list.
             result=result.model_copy(update={'actions':local.actions,'constraints':local.constraints})
-        # Explicit deterministic clauses cannot be dropped or weakened by the model.
+        # The rule extractor is a safety net: it fills in a requirement the model left out,
+        # but does not override a field the model already interpreted from the same words.
+        # Spoken corrections ("八点，不，九点") keep the extractor's last value instead.
+        covered=set() if local.corrections else {c.field for c in result.constraints if c.value is not None}
+        if result.planning and any(f.field=='end_time' for f in result.planning.fields):covered.add('return_by')
+        # The model may not soften an explicit hard requirement it read the same way.
+        hard={(c.field,c.value) for c in local.constraints if c.strength=='hard'}
+        result=result.model_copy(update={'constraints':tuple(
+            c.model_copy(update={'strength':'hard'}) if (c.field,c.value) in hard else c for c in result.constraints)})
         keyed={(c.field,c.quote):c for c in result.constraints}
-        # Keep a separate food requirement unless the selected material has a
-        # recorded supply relationship for that food.
-        local_for_merge=local.constraints
-        if result.planning and result.planning.choices:
-            local_for_merge=tuple(c for c in local.constraints if c.field!='food'
-                or not food_covered_by_material(c, result.planning, snapshot))
+        # Drop a food wish already satisfied by a basket vendor with a recorded supply relation.
+        local_for_merge=tuple(c for c in local.constraints if c.field not in covered
+                              and (c.field!='food' or not food_covered_by_material(c, result.planning, snapshot)))
+        keyed={k:c for k,c in keyed.items() if c.field!='food' or not food_covered_by_material(c, result.planning, snapshot)}
         keyed.update({(c.field,c.quote):c for c in local_for_merge})
+        if meta.get('dropped_fields'):
+            # A field the rule extractor recovered from the same words is not asked again.
+            filled={c.field for c in local_for_merge if c.value is not None}|({'end_time'} if any(c.field=='return_by' and c.value for c in local_for_merge) else set())
+            meta['dropped_fields']=[f for f in meta['dropped_fields'] if f not in filled]
+            if not meta['dropped_fields']:del meta['dropped_fields']
         if local.corrections:
             corrected={c.field for c in local.constraints if c.field in ('meal_at','return_by','visit_at')}
             keyed={k:c for k,c in keyed.items() if c.field not in corrected or c in local.constraints}
@@ -380,7 +421,9 @@ def parse(text,snapshot,*,allow_model=True):
             meta['provider_failure']=exc.detail
             meta['usage'].append(exc.detail)
         # A failed whole-message interpretation cannot be replaced by a partial local modification.
-        local=Understanding(unresolved=('暂时没能完整理解这段要求，请重试或使用下方选项；条件尚未修改。',))
+        # A connection failure is not the visitor's fault; say so instead of asking them to rephrase.
+        reply='小汴梁暂时连不上，稍后再试一次，行程没有变动。' if isinstance(exc,HTTPException) else '这句话我没完全理解，换个说法再试试？'
+        local=Understanding(unresolved=(reply,))
         meta['basis']='rule_fallback';meta['source']='deterministic_fallback';return local,meta
 
 

@@ -319,7 +319,7 @@ def confirm(trip_id:UUID,body:Confirm,s:Session=Depends(current)):
         if row['status'] in state.TERMINAL or not body.confirmed or w['version']!=body.expected_version or not p or p['preview_id']!=str(body.preview_id) or p['trip_version']!=row['version'] or datetime.fromisoformat(p['expires_at'])<=datetime.now(TZ):raise HTTPException(409,detail='预览已过期或条件变化，请重新预览。')
         old=dict(w['selection'] or {});w['selection']=old|{w['requirements']['category']:p['after']};w['previous']=old
         w['version']+=1;w['result'].pop('preview',None);write(db,trip_id,w)
-        result={'workspace':w,'formal_state_changed':False,'planning_status':'needs_data','reply':'已保存候选意向；正式路线未变，需补齐核验资料后才能由现有引擎规划。'}
+        result={'workspace':w,'formal_state_changed':False,'planning_status':'needs_data','reply':'已记下这个意向，资料补齐后就能排进行程。'}
         state.remember(db,s,body.request_id,trip_id,scope,data,result);return result
 
 class Undo(Strict):

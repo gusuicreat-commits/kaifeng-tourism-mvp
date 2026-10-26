@@ -162,7 +162,7 @@ def get(session,trip_id,identity):
 def _fresh(session,t):
     if t.cancelled:return False
     if time.monotonic()-t.started>=t.budget.max_seconds:
-        _finish(session,t,'budget_exhausted',{'reply':'本次任务已达到时间预算，正式行程未变。'});return False
+        _finish(session,t,'budget_exhausted',{'reply':'这次处理时间有点长，先停在这里，行程没有变动。可以再说一次。'});return False
     snap=context.load(session,t.trip_id,'modify',t.text,t.body.page_focus)
     if t.cancelled or t.snapshot is None:return False
     if snap.row['version']!=t.body.expected_version or snap.row['route_version']!=t.body.expected_route_version or snap.planning.fingerprint()!=t.snapshot.planning.fingerprint() or snap.envelope.basket.get('version')!=t.snapshot.envelope.basket.get('version'):
@@ -220,7 +220,7 @@ def _finish(session,t,status,result):
         t.waited_seconds+=time.monotonic()-t.wait_started;t.wait_started=None
     t.waiting=None
     if t.cancelled and status not in ('cancelled','history_cleared','budget_exhausted'):
-        status='cancelled';result={'reply':'任务已取消，正式行程未变。'}
+        status='cancelled';result={'reply':'已取消。'}
     if not t.cancelled and t.snapshot is not None and t.intent and t.mode in ('workflow','react'):
         queries=[a for a in t.intent.actions if a.kind=='query']
         if queries:
@@ -324,7 +324,7 @@ def _preview_result(result,snapshot):
     if result['status']!='preview':return {'status':result['status'],'reply':'当前条件未产生可确认路线，请核对缺项或约束冲突。','planning':result}
     names={s['goal_id']:context.label(snapshot.planning.facts,s['place_id']) for i in result['result']['itineraries'] for s in i['activities']}
     names.update({s.stop_id:context.label(snapshot.planning.facts,s.place_id) for s in snapshot.draft.stops if s.stop_id not in names})
-    return {'status':'needs_confirmation','reply':'已生成经过规划校验的候选，请核对变更；确认前正式行程保持不变。',
+    return {'status':'needs_confirmation','reply':'方案已准备好，看看是否合适，点“确认方案”后保存。',
             'activity_names':names,
             'planning':result,'changes':result['changes'],
             'confirmation':{'target_kind':'route','candidate_id':result['candidate_id'],'expected_version':result['base_version']}}
@@ -509,7 +509,7 @@ def _action(session,t,d):
         conflict=next((v for v in obs.values() if v.get('status')=='conflict'),None)
         if conflict:return {'status':'needs_clarification','reply':'现有条件存在冲突，不能擅自放宽硬约束。请选择调整用餐、步行限制或演出要求。','issues':[conflict]}
         return {'status':'needs_data' if missing or not obs.get('search_dining',{}).get('items') else 'answered',
-                'reply':'现有核验资料不足以给出可确认安排，正式路线未变。' if missing or not obs.get('search_dining',{}).get('items') else '已找到资料候选；尚未通过完整规划校验，不能当作可执行路线。',
+                'reply':'现有资料还排不出可行方案，换个时间或地点试试？' if missing or not obs.get('search_dining',{}).get('items') else '已找到资料候选；尚未通过完整规划校验，不能当作可执行路线。',
                 'evidence':list(obs.values())}
     if tool=='search_dining':return toolbelt.search_dining(snapshot,t.intent,d.relax_optional_food)
     if tool=='query_shows':return toolbelt.query_shows(snapshot,t.intent)
@@ -584,7 +584,7 @@ def _advance(session,trip_id,identity,body):
                 _finish(session,t,'unavailable',{'state':'model_unavailable','code':'MODEL_NOT_CONFIGURED','model_status':meta['model_availability'],
                     'reply':'聊天模型尚未配置，暂不能理解这段追问。明确起点和终点的问路仍可直接查参考路线。'})
             elif t.mode=='clarify':
-                _defer(session,t);_finish(session,t,'needs_clarification',{'reply':'请先明确：'+'；'.join(questions),'questions':questions})
+                _defer(session,t);_finish(session,t,'needs_clarification',{'reply':' '.join(questions),'questions':questions})
             elif t.mode=='conversation':
                 from .evidence import checked_reply
                 raw_reply=t.intent.conversation.reply;reply=checked_reply(raw_reply)
@@ -651,7 +651,7 @@ def _advance(session,trip_id,identity,body):
             t.events[-1].update(status=result['status'],calls=calls)
             _finish(session,t,result['status'],result);return public(t)
         if t.tools>=t.budget.max_tools:
-            _finish(session,t,'budget_exhausted',{'reply':'已达到工具行动上限，正式行程未变。','evidence':list(t.observations.values())});return public(t)
+            _finish(session,t,'budget_exhausted',{'reply':'查了几轮还没有结果，先停在这里。','evidence':list(t.observations.values())});return public(t)
         try:d=_decision(t)
         except (ValidationError,ValueError):
             t.repairs+=1
@@ -660,10 +660,10 @@ def _advance(session,trip_id,identity,body):
         if not _fresh(session,t):return public(t)
         key=(d.tool,d.place_id,d.relax_optional_food)
         if key in t.seen:
-            _finish(session,t,'no_progress',{'reply':'重复查询没有新进展，已停止；正式行程未变。'});return public(t)
+            _finish(session,t,'no_progress',{'reply':'再查也没有新结果了，先停在这里。'});return public(t)
         if d not in _eligible(t):
             t.repairs+=1;t.events.append({'tool':d.tool,'status':'invalid_prerequisites','parameters':{},'source':t.decisions[-1]['source'],'legal':False})
-            if t.repairs>t.budget.max_repairs:_finish(session,t,'invalid_action',{'reply':'工具前置条件未满足，已停止；正式行程未变。'})
+            if t.repairs>t.budget.max_repairs:_finish(session,t,'invalid_action',{'reply':'还缺一些条件，补充后再试？'})
             return public(t)
         t.seen.add(key)
         if d.tool not in ('finish','clarify'):t.tools+=1
@@ -698,9 +698,9 @@ def _advance(session,trip_id,identity,body):
         # This sends no HTTP request and never retries upstream failures or extends tool exploration.
         initial_chat_wait=t.intent is None and exc.detail.get('reason') in ('request_spacing','rpm_window','concurrency')
         if t.execution_mode=='product' and not initial_chat_wait:
-            _finish(session,t,'model_busy',{'reply':'模型调用额度暂不可用，本次探索已停止；你可以继续使用已有行程或确定性规划，正式行程未变。','waiting':exc.detail})
+            _finish(session,t,'model_busy',{'reply':'小汴梁有点忙，稍等几秒再试；也可以先用下方选项安排。','waiting':exc.detail})
         elif time.monotonic()-t.started+exc.detail['retry_after_seconds']>=t.budget.max_seconds:
-            _finish(session,t,'budget_exhausted',{'reply':'下一次可用额度已超出本次任务时间预算，正式行程未变。','waiting':exc.detail})
+            _finish(session,t,'budget_exhausted',{'reply':'小汴梁有点忙，稍等几秒再试。','waiting':exc.detail})
         else:
             t.wait_started=time.monotonic()
     except HTTPException as exc:
@@ -717,10 +717,10 @@ def _advance(session,trip_id,identity,body):
                 source=exc.detail.get('source','scheduler'),provider_failure=exc.detail)
         status='stale' if exc.status_code==409 else 'budget_exhausted' if exc.status_code==429 else 'needs_data' if exc.status_code==422 else 'unavailable'
         safe=exc.detail if isinstance(exc.detail,dict) and exc.detail.get('code') in ('MODEL_HTTP_ERROR','MODEL_TRANSPORT_ERROR','MODEL_OUTPUT_INVALID','MODEL_SCHEDULE_STOPPED','MODEL_REQUEST_BUDGET','MODEL_TOKEN_BUDGET') else {'code':'BUSINESS_OR_PROVIDER_FAILURE'}
-        _finish(session,t,status,{'reply':'任务已停止，正式行程未变。','issues':[{'status':exc.status_code,**safe}],
+        _finish(session,t,status,{'reply':'已停止。','issues':[{'status':exc.status_code,**safe}],
             **({'state':'model_unavailable','code':safe['code'],'model_status':safe} if str(safe.get('code','')).startswith('MODEL_') else {})})
     except (TimeoutError,RuntimeError):
-        _finish(session,t,'unavailable',{'reply':'工具运行失败或超时，正式行程未变。'})
+        _finish(session,t,'unavailable',{'reply':'查询没有成功，稍后再试一次？'})
     finally:
         with LOCK:
             t.busy=False;t.step+=int(advanced)

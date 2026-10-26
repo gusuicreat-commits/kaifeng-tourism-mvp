@@ -285,7 +285,7 @@ def adjustment_requested(text):
 
 def _failure(status, code='WEATHER_UNAVAILABLE'):
     return {'status': 'unavailable', 'code': code, 'provider_status': status,
-            'reply': '天气服务暂不可用，无法据此判断行程是否受天气影响；正式行程未变。',
+            'reply': '天气暂时查不到，没法判断对行程的影响。',
             'weather': None, 'formal_state_changed': False}
 
 
@@ -353,7 +353,7 @@ def _report(snapshot, data, impacts, unknown):
         if first['basis'] == 'daily_period_forecast':
             reply += '这段只有白天/晚间时段预报，不能推断具体小时。'
     elif unknown:
-        reply = '部分行程时间超出现有天气预报覆盖范围，暂时无法判断这些时段的天气影响；正式行程未变。'
+        reply = '有些时段还没有天气预报，暂时判断不了。'
     else:
         reply = '已查询开封天气，当前有完整预报覆盖的行程时段未触发降水提醒；预报会变化，出行前可再次查询。'
     return {'status': 'answered', 'reply': reply, 'weather': report,
@@ -398,10 +398,10 @@ def adjustment_preview(session, trip_id, snapshot):
     preview = tools.preview(session, trip_id, snapshot,
                             Intent(operation='preview', purpose='modify', execute=True, preserve_shows=True), uuid4())
     if preview['status'] != 'preview':
-        return {'status': preview['status'], 'reply': '天气已查询，但现有条件未产生可确认的新安排；正式行程未变。',
+        return {'status': preview['status'], 'reply': '天气查过了，现在的行程不需要调整。',
                 'weather': result['weather'], 'planning': preview}
     output = _preview_result(preview, snapshot)
-    output.update(reply='已结合最新天气重新核算现有行程。预报不等同于室内适配或景区开放依据，请核对候选；确认前正式行程不变。',
+    output.update(reply='已按最新天气重新排了一版，看看是否合适，确认后保存。',
                   weather=result['weather'], weather_recheck='queried_before_preview')
     return output
 

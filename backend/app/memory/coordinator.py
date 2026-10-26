@@ -80,7 +80,7 @@ def chat(session,body):
                     reply='以下地点还没匹配到：'+'、'.join(parsed['unresolved_names'])+'。请先核对，不会自动改动行程。'
                 elif patch:
                     candidate=Candidate(operation='update_constraints',patch=patch)
-                    reply='已理解你提出的调整，请核对候选内容并确认；尚未修改行程。'
+                    reply='明白了，调整后的方案请看一下，确认后保存。'
                 else:reply='这条消息没有明确的行程修改。可以继续询问已有景区资料，或用选项补充需求。'
             except (HTTPException,ValueError):
                 reply='自然语言服务暂不可用；已保留当前行程，可以继续用选项回答或手动修改。'

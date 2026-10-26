@@ -155,8 +155,10 @@ def test_rt13_planning_enums_need_matching_semantic_evidence(city,monkeypatch,fi
     model(monkeypatch,{'actions':[{'kind':'modify','quote':text}],
         'planning':{'quote':text,'fields':[{'field':field,'value':value,'quote':quote}]}})
     t=run(city,text)
-    assert not t['result'].get('planning_action'),t
-    assert business(city)==before
+    # The mislabelled value is dropped, never applied; the rest of the turn may proceed.
+    saved=city['client'].get(path(city,'/exploration/constraints')).json()['constraints'] or {}
+    assert saved.get(field)!=value and value not in (saved.get('modes') or ()),saved
+    assert business(city)[:2]==before[:2]
 
 
 def test_rt14_position_expiring_between_steps_stops_before_search(city):

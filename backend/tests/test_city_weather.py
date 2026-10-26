@@ -184,7 +184,7 @@ def test_no_forecast_coverage_is_unknown_not_clear_weather(city, qweather):
     assert result['status'] == 'answered'
     assert result['weather']['impacts'] == []
     assert result['weather']['coverage_unknown'][0]['reason'] == 'forecast_coverage_incomplete'
-    assert '无法判断' in result['reply']
+    assert '判断不了' in result['reply']
     assert result['weather']['adjustment_offered'] is False
 
 

@@ -9,7 +9,13 @@ from .models import PlanningIntent, PlanningField
 from .evidence import request_evidence, effective_clock, preference_evidence
 
 
+_RELATIVE_DAY={'今晚':'今天','今早':'今天','今夜':'今天','今日':'今天','明晚':'明天','明早':'明天'}
+DATE_EXPRESSION=r'(?:今天|明天|后天|今晚|今早|今夜|今日|明晚|明早|(?:本|这|下)周[一二三四五六日天]|\d{4}[-年]\d{1,2}[-月]\d{1,2}日?|\d{1,2}月\d{1,2}日?)'
+
+
 def resolve_date(expression, today):
+    expression=re.sub(r'(?:早上|上午|中午|下午|傍晚|晚上|夜里)$','',expression.strip())
+    expression=_RELATIVE_DAY.get(expression,expression)
     if expression in ('今天','明天','后天'):
         return today+timedelta(days=('今天','明天','后天').index(expression))
     match=re.fullmatch(r'(\d{4})[-年](\d{1,2})[-月](\d{1,2})日?',expression)
@@ -23,8 +29,35 @@ def resolve_date(expression, today):
     raise ValueError('unsupported date expression')
 
 
-def grounded(planning, text, snapshot):
-    from .understand import clock
+def _value_grounded(f, text, today):
+    """Whether one field's value is supported by its own quote."""
+    from .understand import clock_grounded
+    try:
+        if f.field=='date':
+            if f.value in f.quote:
+                resolve_date(f.value,today);return True
+            # The model may normalize a relative date to ISO; the quoted expression must resolve to it.
+            expressions=re.findall(DATE_EXPRESSION,f.quote)
+            return bool(expressions) and resolve_date(expressions[-1],today).isoformat()==str(f.value)
+        if f.field in ('start_time','end_time'):return clock_grounded(f.value,f.quote,text)
+        if f.field in ('city','origin','destination'):return f.value in f.quote
+        if f.field in ('pace','objective','mode'):
+            preference_evidence(f.field,f.value,f.quote);return True
+        if f.field=='budget_fen':
+            amounts=re.findall(r'(\d+(?:\.\d{1,2})?)\s*(?:元|块)',f.quote)
+            return len(amounts)==1 and int(Decimal(amounts[0])*100)==f.value
+    except ValueError:
+        return False
+    return True
+
+
+def grounded(planning, text, snapshot, dropped=None):
+    """Check evidence for every planning field.
+
+    With ``dropped`` (a list), a field whose value is not supported by its quote is
+    removed and its name recorded, so the rest of the request still proceeds and
+    only that field is asked again. Without it, any unsupported field raises.
+    """
     today=snapshot.envelope.identity.generated_at.astimezone(TZ).date()
     if planning.quote not in text:raise ValueError('planning quote absent')
     request_evidence(text,planning.quote)
@@ -33,28 +66,19 @@ def grounded(planning, text, snapshot):
         control=planning.quote.strip().rstrip('。！!')
         if control not in ('好','好的','可以','就这样','就这样吧','就按这个安排','生成安排','开始安排','帮我安排','安排','规划') and not re.search(r'(?:开始|生成|继续|帮我|请).{0,20}(?:安排|规划)',control):
             raise ValueError('continue needs an explicit planning request')
-    seen={}
+    seen={};kept=[]
     for f in planning.fields:
+        # Quote presence and negation/hypothetical checks protect the whole turn.
         if f.quote not in text:raise ValueError('planning evidence absent')
         request_evidence(text,f.quote)
         if f.field in seen and seen[f.field]!=f.value:raise ValueError('conflicting planning values')
         seen[f.field]=f.value
-        if f.field=='date':
-            if f.value not in f.quote:
-                # The model may normalize a relative date to ISO. Accept it
-                # only when an explicit date expression in the quoted text
-                # resolves to exactly the same business date.
-                expressions=re.findall(r'(?:今天|明天|后天|\d{4}[-年]\d{1,2}[-月]\d{1,2}日?|\d{1,2}月\d{1,2}日?)',f.quote)
-                if not expressions or resolve_date(expressions[-1],today).isoformat()!=str(f.value):raise ValueError('date expression absent')
-            resolve_date(f.value,today) if f.value in f.quote else date.fromisoformat(str(f.value))
-        elif f.field in ('start_time','end_time'):
-            from .understand import clock_values
-            if f.value not in clock_values(f.quote):raise ValueError('invented time')
-        elif f.field in ('city','origin','destination') and f.value not in f.quote:raise ValueError('invented place name')
-        elif f.field in ('pace','objective','mode'):preference_evidence(f.field,f.value,f.quote)
-        elif f.field=='budget_fen':
-            amounts=re.findall(r'(\d+(?:\.\d{1,2})?)\s*(?:元|块)',f.quote)
-            if len(amounts)!=1 or int(Decimal(amounts[0])*100)!=f.value:raise ValueError('invented budget')
+        if _value_grounded(f,text,today):
+            kept.append(f)
+        elif dropped is None:
+            raise ValueError(f'unsupported {f.field} value')
+        else:
+            dropped.append(f.field)
     for choice in planning.choices:
         if choice.quote not in text:raise ValueError('material evidence absent')
         if choice.name not in choice.quote and not any(
@@ -64,7 +88,7 @@ def grounded(planning, text, snapshot):
                 for item in snapshot.planning.facts.values()):
             raise ValueError('material evidence absent')
         request_evidence(text,choice.quote)
-    return planning
+    return planning if len(kept)==len(planning.fields) else planning.model_copy(update={'fields':tuple(kept)})
 
 
 def weather_replan(quote):
@@ -109,8 +133,16 @@ def proposal(session, trip_id, snapshot, intent, text, *, today=None):
         weather_replan(p.quote)
         from .. import weather
         return weather.adjustment_preview(session,trip_id,snapshot)
-    if any(c.field not in ('pace','objective') for c in intent.constraints) or any(a.kind in ('search_dining','progress','position','cancel','query') for a in intent.actions):
-        return {'status':'needs_clarification','reply':'这句话还包含其他活动要求，需要一起确认；本次条件尚未修改。请补充具体活动或场次。'}
+    if any(a.kind in ('progress','position','cancel') for a in intent.actions):
+        return {'status':'needs_clarification','reply':'标记进度、位置或取消，请单独说一下。'}
+    # Requirements the basket workflow cannot take yet are reported back instead of
+    # blocking the date/time/endpoint update the visitor also asked for.
+    notes=[]
+    for c in intent.constraints:
+        if c.field=='food':
+            notes.append(f'想吃{c.value}：把有这道菜的店加进素材篮，就能排进行程。' if c.value else '想吃什么？告诉我菜名或店名。')
+        elif c.field not in ('pace','objective','return_by'):
+            notes.append(f'“{c.quote[:30]}”这次还没排进去，确认方案前请留意。')
     saved=snapshot.envelope.planning_constraints
     from .requirement_context import planning_values
     base=planning_values(snapshot)
@@ -121,12 +153,18 @@ def proposal(session, trip_id, snapshot, intent, text, *, today=None):
     for slot,markers in (('origin',('从','起点')),('destination',('回','返程','终点','结束','住'))):
         if fields.get(slot) in ('开封','开封市') and not any(marker in text for marker in markers):
             fields['city']=fields.pop(slot)
+    # "…出发，十点前回来" returns to the starting point unless another endpoint is named.
+    if 'origin' in fields and 'destination' not in fields and re.search(r'回来|返回|原路回|回到出发',text) and not re.search(r'回(?:到|去)?(?:酒店|宾馆|住处|民宿)',text):
+        fields['destination']=fields['origin']
     if 'city' in fields and fields['city'] not in ('开封','开封市'):
-        return {'status':'needs_data','reply':'目前支持开封旅行；这句话中的其他城市安排尚未保存。'}
+        return {'status':'needs_data','reply':'目前只支持开封的行程。'}
     for constraint in intent.constraints:
-        if constraint.field in fields and fields[constraint.field]!=constraint.value:
-            return {'status':'needs_clarification','reply':'这句话里有不同的游玩条件，请确认采用哪一个；本次尚未修改。'}
-        fields[constraint.field]=constraint.value
+        # "十点前回来" is the end of the planning window when no end time was stated.
+        slot={'return_by':'end_time'}.get(constraint.field,constraint.field)
+        if slot not in ('pace','objective','end_time') or constraint.value is None:continue
+        if slot in fields and fields[slot]!=constraint.value:
+            return {'status':'needs_clarification','reply':'同一项条件说了两个不同的值，以哪个为准？'}
+        fields[slot]=constraint.value
     if p.operation=='update' and not fields and not p.choices:
         return {'status':'needs_clarification','reply':'你想哪天出发？也可以先告诉我想去的地方。'}
     if 'date' in fields:values['business_date']=resolve_date(fields['date'],today).isoformat()
@@ -134,10 +172,10 @@ def proposal(session, trip_id, snapshot, intent, text, *, today=None):
     for field,key in (('start_time','starts_at'),('end_time','ends_at')):
         time=fields.get(field) or (datetime.fromisoformat(values[key]).astimezone(TZ).strftime('%H:%M') if values[key] else None)
         if fields.get(field) and not day:
-            return {'status':'needs_clarification','reply':'你打算哪天去？先确定日期，再保留这段时间。'}
+            return {'status':'needs_clarification','reply':'你打算哪天去？'}
         values[key]=day+'T'+time+':00+08:00' if day and time else None
     if values['starts_at'] and values['ends_at'] and values['ends_at']<=values['starts_at']:
-        return {'status':'needs_clarification','reply':'结束时间需要晚于开始时间'}
+        return {'status':'needs_clarification','reply':'结束时间要晚于出发时间，再确认一下？'}
     for field,key in (('origin','origin_place_id'),('destination','destination_place_id')):
         if field not in fields:continue
         resolved=facts.place_by_name(snapshot.planning.facts, fields[field])
@@ -153,7 +191,7 @@ def proposal(session, trip_id, snapshot, intent, text, *, today=None):
         used=set()
         for choice in p.choices:
             matches=[i for i in items if i['name']==choice.name]
-            if len(matches)!=1 or choice.name in used:return {'status':'needs_clarification','reply':'请明确要调整的素材名称；本次尚未修改。'}
+            if len(matches)!=1 or choice.name in used:return {'status':'needs_clarification','reply':'素材篮里没找到这一项，是哪个地点？'}
             used.add(choice.name)
             current=matches[0]
             # A choice that already matches the basket is a harmless echo of the
@@ -163,19 +201,20 @@ def proposal(session, trip_id, snapshot, intent, text, *, today=None):
                 continue
             # A real material change cannot be combined with date/time in one
             # shot; the existing answer endpoint owns consent and atomic writes.
-            if p.fields or intent.constraints:return {'status':'needs_clarification','reply':'请先确认素材取舍，再调整日期或其他条件；本次尚未修改。'}
+            if p.fields or any(c.field in ('pace','objective','return_by') for c in intent.constraints):
+                return {'status':'needs_clarification','reply':'先确认素材的取舍，再改日期和时间吧。'}
             # The quote itself must authorize the stated priority; a "必去" text
             # cannot be silently downgraded to "想去" by the model.
             from ..exploration import reply_patch
             try:
                 _,checked=reply_patch(choice.quote,items,c.model_dump(mode='json'))
             except (HTTPException,ValueError):
-                return {'status':'needs_clarification','reply':'需要你明确确认这项素材的取舍；本次尚未修改。'}
+                return {'status':'needs_clarification','reply':'这一项是必去、想去，还是先放候补？'}
             if checked.get(matches[0]['key'])!={'priority':choice.priority,'status':choice.status}:
-                return {'status':'needs_clarification','reply':'这项素材的取舍还需要确认；本次尚未修改。'}
+                return {'status':'needs_clarification','reply':'这一项是必去、想去，还是先放候补？'}
             suffix='先放候补' if choice.status=='standby' else {'must':'必去','want':'改为想去','optional':'顺路看看'}[choice.priority]
             choice_text.append(choice.name+suffix)
-    return {'status':'planning_input','reply':'已理解你的规划要求，接着核验安排。',
+    return {'status':'planning_input','reply':'好的，正在安排。','notes':notes,
             'planning_action':{'trip_id':str(snapshot.envelope.identity.trip_id),'operation':p.operation,'constraints':validated.model_dump(mode='json'),
                 'planning_version':saved.get('version',0),'basket_version':snapshot.envelope.basket['version'],
                 'trip_version':snapshot.row['version'],'date_changed':'date' in fields,'choice_text':'，'.join(choice_text) or None}}
