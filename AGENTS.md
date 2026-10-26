@@ -5,6 +5,7 @@
 - 开工前先读 [最后一周收口规划表](docs/PLAN_FINAL_WEEK.md)，只做表里当天的任务；表外的需求记入其"延后清单"，不当场实现。
 - 唯一主流程：素材篮 + 小汴梁对话 → 引擎规划 → 确认 → 行程页 → 途中修改。不新增功能、外部服务、数据源或 AI 防护轮次。
 - 每个会话只做一项任务、单独提交一次；汇报只写改了什么、怎么验证、还剩什么，不新建报告文档。
+- 2026-10-26 用户决定补齐[路演讲稿](docs/reference/Bianliang_Pitch_Script_20261025.pdf)描述的能力，任务表见 [PLAN_VISION_GAP.md](docs/PLAN_VISION_GAP.md)。表内任务不受上面"不新增功能"限制，但只在独立 worktree 的 `codex/<任务号>` 分支上开发，由 Claude 验收后合并；`main` 始终保持演示可用。
 
 本文件仅适用于本项目。用户于 2026-10-20 要求依据两份新文档调整开发思路和目标；新的 [docs/PRD.md](docs/PRD.md) 为需求与验收基准，[docs/DEVELOPMENT_DIRECTION.md](docs/DEVELOPMENT_DIRECTION.md) 记录来源、替代关系、实施次序与差距。
 
