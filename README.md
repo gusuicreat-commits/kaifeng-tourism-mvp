@@ -10,6 +10,7 @@ Windows首次运行：`py -3 scripts/start.py`，或双击 `start.cmd`。完整�
 
 ## 开发入口
 
+- [项目详细说明](docs/PROJECT_GUIDE.md)：技术栈、功能亮点、架构、目录与完整运行指南。
 - [文档导航](docs/README.md)：现行规范、专项说明和历史证据。
 - [项目现状与缺口](docs/PROJECT_STATUS.md)：代码、运行库和最近验收记录的核对结果。
 - [产品需求](docs/PRD.md)、[开发方向](docs/DEVELOPMENT_DIRECTION.md)、[项目约束](AGENTS.md)：范围与完成判据。

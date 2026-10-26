@@ -10,6 +10,8 @@
 
 | 文档 | 用途 |
 | --- | --- |
+| [PLAN_FINAL_WEEK](PLAN_FINAL_WEEK.md) | **本周唯一工作依据**：主流程、隐藏入口、不做清单、逐日任务与完成标准 |
+| [PROJECT_GUIDE](PROJECT_GUIDE.md) | 面向使用和开发的项目总览、技术栈、功能亮点与运行方式 |
 | [PROJECT_STATUS](PROJECT_STATUS.md) | 已实现、真实数据、测试失败、剩余缺口及能力接口滞后事项 |
 | [PRD](PRD.md) | 产品范围与正式V1完成要求 |
 | [DEVELOPMENT_DIRECTION](DEVELOPMENT_DIRECTION.md) | 产品来源、方向取舍、实施差距、V01–V18与游客评价口径 |
