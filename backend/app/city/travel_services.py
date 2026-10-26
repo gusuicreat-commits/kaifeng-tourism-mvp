@@ -8,6 +8,7 @@ from pydantic import Field
 from .schema import Strict, TZ
 from . import hotels, state, location_resolution  # compatibility export for existing adapter fakes
 from .providers import CapabilityRequest, default_registry
+from .agent.dates import find_date_expressions, resolve_date
 from ..db import connect
 from ..memory.session import Session, current, limit
 from ..memory.storage import encoded, stamp
@@ -76,7 +77,6 @@ def service_questions(req,today):
     return service_readiness(req,today)['questions']
 
 def _field_value(f,text,quote,today):
-    from .agent.planning_intent import resolve_date
     from .agent.evidence import service_condition_evidence
     if f.quote not in text:raise ValueError('quote_not_in_request')
     if f.quote not in quote:raise ValueError('field_not_in_query')
@@ -169,17 +169,12 @@ def parse(text,previous=None):
     category='hotels' if re.search(r'酒店|住宿|民宿',text) else 'parking' if '停车场' in text else 'merchants' if re.search(r'餐厅|饭店|美食|商家',text) else req.get('category','hotels')
     req['category']=category
     # Full dates and relative check-in dates. Never infer room count or guest count.
-    dates=re.findall(r'20\d{2}-\d{2}-\d{2}',text)
+    dates=find_date_expressions(text)
     try:
         if dates:
-            req['check_in']=date.fromisoformat(dates[0]).isoformat()
-            if len(dates)>1:req['check_out']=date.fromisoformat(dates[1]).isoformat()
+            req['check_in']=resolve_date(dates[0],today).isoformat()
+            if len(dates)>1:req['check_out']=resolve_date(dates[1],today).isoformat()
             elif not req.get('nights'):req.pop('check_out',None)
-        else:
-            relative=next((d for token,d in [('后天',2),('明天',1),('今天',0)] if token in text),None)
-            if relative is not None:
-                req['check_in']=(today+timedelta(days=relative)).isoformat()
-                if not req.get('nights'):req.pop('check_out',None)
         nights=re.search(r'(?:住|住宿)\s*'+NUMBER+r'\s*(?:个)?\s*(?:晚上|晚|夜)',text)
         if nights:
             req['nights']=number(nights[1])

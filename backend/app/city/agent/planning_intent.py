@@ -1,34 +1,13 @@
 """Validate extracted planning fields; propose inputs to the existing workflow, never commit routes."""
 import re
-from datetime import date, datetime, timedelta
+from datetime import date, datetime
 from decimal import Decimal
 from fastapi import HTTPException
 from .. import facts
 from ..schema import TZ
 from .models import PlanningIntent, PlanningField
+from .dates import DATE_EXPRESSION, find_date_expressions, resolve_date
 from .evidence import request_evidence, effective_clock, preference_evidence
-
-
-_RELATIVE_DAY={'今晚':'今天','今早':'今天','今夜':'今天','今日':'今天','明晚':'明天','明早':'明天'}
-DATE_EXPRESSION=r'(?:今天|明天|后天|今晚|今早|今夜|今日|明晚|明早|(?:本|这|下)?周末|(?:本|这|下)周[一二三四五六日天]|\d{4}[-年]\d{1,2}[-月]\d{1,2}日?|\d{1,2}月\d{1,2}日?)'
-
-
-def resolve_date(expression, today):
-    expression=re.sub(r'(?:早上|上午|中午|下午|傍晚|晚上|夜里)$','',expression.strip())
-    expression=_RELATIVE_DAY.get(expression,expression)
-    if expression in ('今天','明天','后天'):
-        return today+timedelta(days=('今天','明天','后天').index(expression))
-    if expression in ('周末','这周末','本周末','下周末'):
-        return today+timedelta(days=5-today.weekday()+7 if expression=='下周末' else max(5-today.weekday(),0))
-    match=re.fullmatch(r'(\d{4})[-年](\d{1,2})[-月](\d{1,2})日?',expression)
-    if match:return date(*(int(x) for x in match.groups()))
-    match=re.fullmatch(r'(\d{1,2})月(\d{1,2})日?',expression)
-    if match:return date(today.year,int(match[1]),int(match[2]))
-    match=re.fullmatch(r'(本|这|下)周([一二三四五六日天])',expression)
-    if match:
-        weekday='一二三四五六日'.index('日' if match[2]=='天' else match[2])
-        return today+timedelta(days=weekday-today.weekday()+(7 if match[1]=='下' else 0))
-    raise ValueError('unsupported date expression')
 
 
 def _field_check(f, text, today):
@@ -39,7 +18,7 @@ def _field_check(f, text, today):
             if f.value in f.quote:
                 resolve_date(f.value,today);return None
             # The model may normalize the quoted expression ("明晚" -> "明天" or ISO); both must name the same day.
-            expressions=re.findall(DATE_EXPRESSION,f.quote)
+            expressions=find_date_expressions(f.quote)
             try:value=date.fromisoformat(str(f.value))
             except ValueError:value=resolve_date(str(f.value),today)
             return None if expressions and resolve_date(expressions[-1],today)==value else 'date_not_in_quote'
@@ -133,7 +112,13 @@ def offline(text, snapshot):
     if value in ('好','好的','可以','就这样','就这样吧','就按这个安排','生成安排','开始安排','帮我安排','安排','规划'):
         return PlanningIntent(operation='continue',quote=value)
     fields=[]
-    if re.fullmatch(r'今天|明天|后天|\d{4}-\d{2}-\d{2}',value):fields=[PlanningField(field='date',value=value,quote=value)]
+    if len(find_date_expressions(value))==1:
+        try:
+            resolve_date(value, snapshot.envelope.identity.generated_at.astimezone(TZ).date())
+        except ValueError:
+            pass
+        else:
+            fields=[PlanningField(field='date',value=value,quote=value)]
     match=re.fullmatch(r'(\d{2}:\d{2})(?:到|—|-)(\d{2}:\d{2})',value)
     if match:fields=[PlanningField(field='start_time',value=match[1],quote=match[1]),PlanningField(field='end_time',value=match[2],quote=match[2])]
     if not fields:return None
