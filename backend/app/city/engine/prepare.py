@@ -5,7 +5,13 @@ from .context import Activity, Problem
 from .models import Issue
 from .travel import TravelTimeService
 
-DEFAULT_DURATIONS={'visit':1800,'dining':2700,'rest':900}
+DEFAULT_DURATIONS={'visit':1800,'dining':3600,'rest':900}
+# Planning parameters, not sourced facts: a whole scenic area or night market takes longer than a spot inside one.
+DEFAULT_STAY_BY_PLACE_TYPE={'scenic':5400,'night_visit':3600}
+
+
+def default_stay(kind, place):
+    return DEFAULT_STAY_BY_PLACE_TYPE.get(place.place_type,DEFAULT_DURATIONS[kind]) if kind=='visit' else DEFAULT_DURATIONS[kind]
 
 
 def issue(code,message,*ids):
@@ -85,7 +91,7 @@ def prepare(req,ctx,prior_order=(),fixed_order=()):
                 earliest=latest=showstart
                 refs.extend((f'show_session:{session.fact_id}',f'program:{session.program_id}'))
             else:
-                duration=goal.duration_seconds or (place.suggested_stay_min*60 if place.suggested_stay_min else DEFAULT_DURATIONS[goal.kind])
+                duration=goal.duration_seconds or (place.suggested_stay_min*60 if place.suggested_stay_min else default_stay(goal.kind,place))
                 if goal.duration_seconds is None:defaults[goal.goal_id]={'duration_seconds':duration,'basis':'sourced_reference' if place.suggested_stay_min else 'planning_parameter'}
                 latest-=duration
             costs=[c for c in ctx.operations.costs if c.place_id==pid and ctx.evidence_ready(c.evidence,req.starts_at,req.ends_at)]

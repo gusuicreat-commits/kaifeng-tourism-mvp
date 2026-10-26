@@ -186,3 +186,11 @@ def test_scenic_area_named_as_trip_endpoint_means_the_open_point_at_its_gate(ref
     # Places that are not scenic areas, and areas without a recorded gate point, stay as named.
     assert facts.trip_endpoint(items,'pl_wb_000013')=='pl_wb_000013'
     assert facts.trip_endpoint(items,'pl_mvp_kaifengfu_meeting')=='pl_mvp_kaifengfu_meeting'
+
+
+def test_default_stay_is_longer_for_a_whole_scenic_area_or_night_market(reference):
+    from app.city.engine.prepare import default_stay
+    with connect() as db:items=facts.records(db)
+    assert default_stay('visit',items['place','pl_wb_000003'])==5400
+    assert default_stay('visit',items['place','pl_wb_000013'])==3600
+    assert default_stay('dining',items['place','pl_wb_vendor_000001'])==3600

@@ -117,7 +117,7 @@ def preview_plan(trip_id,body,s,*,execution_guard=None):
             gid='basket:'+uuid5(UUID(str(trip_id)),item['key']).hex
             key_by_goal[gid]=item['key']
             goals.append(Goal(goal_id=gid,target_kind=fk,target_id=identity,
-                kind='show' if fk in ('session','program') else 'dining' if fk=='food' or getattr(fact,'place_type',None)=='restaurant' else 'visit',
+                kind='show' if fk in ('session','program') else 'dining' if fk=='food' or getattr(ctx.facts.get(('place',identity)),'place_type',None)=='restaurant' else 'visit',
                 required=item['priority']=='must',importance={'must':10,'want':6,'optional':1}[item['priority']]))
             if getattr(fact,'parent_place_id',None):parent_groups[identity]=fact.parent_place_id
         # Until internal duration/path coverage can be reconciled, do not double count a park and its POIs.
