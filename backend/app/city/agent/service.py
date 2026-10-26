@@ -731,10 +731,10 @@ def _advance(session,trip_id,identity,body):
         if t.events and t.events[-1]['tool']=='understand' and t.events[-1]['status']=='running':t.events.pop()
         if not _fresh(session,t):return public(t)
         t.waiting=exc.detail
-        # A new chat turn may wait for local admission before its first interpretation.
-        # This sends no HTTP request and never retries upstream failures or extends tool exploration.
-        initial_chat_wait=t.intent is None and exc.detail.get('reason') in ('request_spacing','rpm_window','concurrency')
-        if t.execution_mode=='product' and not initial_chat_wait:
+        # Local admission (spacing, per-minute window, concurrency) is a queue: the task keeps
+        # running and retries this step when allowed. An upstream cooldown is reported, not waited out.
+        local_wait=exc.detail.get('reason') in ('request_spacing','rpm_window','concurrency')
+        if t.execution_mode=='product' and not local_wait:
             _finish(session,t,'model_busy',{'reply':'小汴梁有点忙，稍等几秒再试；也可以先用下方选项安排。','waiting':exc.detail})
         elif time.monotonic()-t.started+exc.detail['retry_after_seconds']>=t.budget.max_seconds:
             _finish(session,t,'budget_exhausted',{'reply':'小汴梁有点忙，稍等几秒再试。','waiting':exc.detail})

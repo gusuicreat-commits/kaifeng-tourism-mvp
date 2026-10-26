@@ -180,10 +180,23 @@ def waiting_task(city,gate,monkeypatch,accept=True):
     return t,req,calls
 
 
-def test_product_returns_busy_promptly_without_changing_45_seconds(city,gate,monkeypatch):
+def test_product_queues_a_mid_task_model_call_for_local_admission(city,gate,monkeypatch):
     t,req,calls=waiting_task(city,gate,monkeypatch,False)
-    assert t['status']=='model_busy' and t['limits']['max_seconds']==45
+    assert t['status']=='running' and t['phase']=='waiting_model' and t['limits']['max_seconds']==45
+    assert t['waiting']['retry_after_seconds']>0
     assert t['metrics']['tools']==0 and len(calls)==1 and t['metrics']['elapsed_ms']<2000
+
+
+def test_concurrency_limit_admits_that_many_calls(gate):
+    g,c=gate;g.concurrency=2
+    with g.permit(1):
+        c.advance(100)
+        with g.permit(1):
+            c.advance(100)
+            with pytest.raises(model_schedule.ModelWaiting) as e:
+                with g.permit(1):pytest.fail('third concurrent call')
+            assert e.value.detail['reason']=='concurrency'
+    assert g.inflight==0
 
 
 def test_wait_does_not_consume_steps_tools_or_requests_and_replay_never_sends(city,gate,monkeypatch):

@@ -1,4 +1,8 @@
-"""Nonblocking, process-local model admission. No queue, sleepers, credentials or retries."""
+"""Nonblocking, process-local model admission. No sleepers, credentials or retries.
+
+A request that is not admitted gets ModelWaiting with the next allowed time; the agent
+task keeps running and retries on its next step, so waiting happens in the task loop.
+"""
 import math
 import os
 import re
@@ -42,15 +46,15 @@ def retry_seconds(value,wall):
 
 
 class ModelScheduler:
-    def __init__(self,*,rpm=3,interval=25.0,tpm=None,tpd=None,max_attempts=None,
+    def __init__(self,*,rpm=3,interval=25.0,tpm=None,tpd=None,max_attempts=None,concurrency=1,
                  clock=time.monotonic,wall=lambda:datetime.now(timezone.utc)):
-        if rpm<1 or interval<0 or (tpm is not None and tpm<1) or (tpd is not None and tpd<1):raise ValueError('invalid model limits')
+        if rpm<1 or interval<0 or not 1<=concurrency<=16 or (tpm is not None and tpm<1) or (tpd is not None and tpd<1):raise ValueError('invalid model limits')
         self.rpm=rpm;self.interval=max(interval,60/rpm+0.1);self.tpm=tpm;self.tpd=tpd
         self.max_attempts=max_attempts;self.clock=clock;self.wall=wall;self.lock=threading.RLock()
-        self.records=deque();self.last=None;self.inflight=False;self.cool_until=0;self.stopped=None
+        self.records=deque();self.last=None;self.inflight=0;self.concurrency=concurrency;self.cool_until=0;self.stopped=None
         self.attempts=0;self.day=None;self.day_tokens=0
         self.stats={'scope':'single_python_process','organization_global':False,'rpm':rpm,'interval_seconds':self.interval,
-                    'concurrency_limit':1,'tpm':tpm,'tpd':tpd,'token_basis':'conservative_utf8_reservation_then_usage',
+                    'concurrency_limit':concurrency,'tpm':tpm,'tpd':tpd,'token_basis':'conservative_utf8_reservation_then_usage',
                     'unknown_provider_token_limits':tpm is None or tpd is None,'automatic_retries':0}
 
     def _prune(self,now):
@@ -86,14 +90,14 @@ class ModelScheduler:
             if self.tpd is not None and self.day_tokens+tokens>self.tpd:
                 tomorrow=datetime.combine(self.day+timedelta(days=1),datetime.min.time(),timezone.utc)
                 due=max(due,now+(tomorrow-self.wall()).total_seconds());reason='local_utc_daily_tokens'
-            if self.inflight:due=max(due,now+1);reason='concurrency'
+            if self.inflight>=self.concurrency:due=max(due,now+1);reason='concurrency'
             if due>now:raise ModelWaiting(self._wait(now,due,reason))
-            self.inflight=True;self.last=now;self.attempts+=1;self.day_tokens+=tokens
+            self.inflight+=1;self.last=now;self.attempts+=1;self.day_tokens+=tokens
             record={'at':now,'tokens':tokens,'day':self.day,'sequence':self.attempts,'started_at':self.wall().isoformat()}
             self.records.append(record)
         try:yield record
         finally:
-            with self.lock:self.inflight=False
+            with self.lock:self.inflight-=1
 
     def observe(self,record,response):
         with self.lock:
@@ -146,7 +150,8 @@ def scheduler():
             def optional(name):return int(os.environ[name]) if os.getenv(name,'').strip() else None
             _scheduler=ModelScheduler(rpm=int(os.getenv('TOURISM_LLM_RPM','3')),
                 interval=float(os.getenv('TOURISM_LLM_INTERVAL_SECONDS','25')),
-                tpm=optional('TOURISM_LLM_TPM'),tpd=optional('TOURISM_LLM_TPD'))
+                tpm=optional('TOURISM_LLM_TPM'),tpd=optional('TOURISM_LLM_TPD'),
+                concurrency=int(os.getenv('TOURISM_LLM_CONCURRENCY','').strip() or 1))
         return _scheduler
 
 
