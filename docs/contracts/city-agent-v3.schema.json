@@ -56,6 +56,11 @@
           ],
           "default": null,
           "title": "Purpose"
+        },
+        "near": {
+          "default": false,
+          "title": "Near",
+          "type": "boolean"
         }
       },
       "required": [

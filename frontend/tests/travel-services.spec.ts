@@ -31,7 +31,7 @@ test('同一聊天中查询、预览、确认候选、刷新、多轮修改与�
  await page.getByRole('button',{name:'发送',exact:true}).click()
  const services=page.getByLabel('住宿与周边候选')
  await expect(services).toContainText('[合成测试]候选甲')
- await expect(services).toContainText('所提条件尚未核实：窗户、干湿分离、免费停车')
+ for(const label of ['窗户（必须，待核实）','干湿分离（必须，待核实）','免费停车（偏好，待核实）'])await expect(services).toContainText(label)
  await services.getByRole('button',{name:'选择候选并预览影响'}).first().click()
  const preview=page.getByLabel('候选意向预览')
  await expect(preview).toContainText('正式交通依据待核实')

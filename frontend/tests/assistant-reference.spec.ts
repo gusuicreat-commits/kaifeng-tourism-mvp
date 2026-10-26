@@ -43,7 +43,7 @@ test('同名地点先点选，选择之前不能发起算路工具',async({page}
 
 test('明确说从当前位置出发才补问位置，且不自动请求GPS',async({page})=>{
  await prepare(page);await send(page,'从我这里到清明上河园怎么走')
- await expect(page.locator('.agent-messages')).toContainText('这次起点是“当前位置”')
+ await expect(page.locator('.agent-messages')).toContainText('这次起点是当前位置')
  await expect(page.getByLabel('高德参考路线',{exact:true})).toHaveCount(0)
  expect(await page.evaluate(()=>(window as any).geoCalls)).toBe(0)
 })

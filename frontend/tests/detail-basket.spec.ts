@@ -175,7 +175,7 @@ test('明确日期时段和节奏可以一次回答，无效时段不写入条�
  await page.goto('/assistant?context=city&plan=basket')
  const input=page.getByLabel('告诉小汴梁你的问题或想调整的安排',{exact:true})
  await input.fill('2030-05-01，下午6点到上午9点');await page.getByRole('button',{name:'发送',exact:true}).click()
- await expect(page.locator('.agent-messages')).toContainText('结束时间需要晚于开始时间')
+ await expect(page.locator('.agent-messages')).toContainText('结束时间要晚于出发时间')
  const trip=(await(await page.request.get('/api/city/v1/trips/current')).json()).trip,path='/api/city/v1/trips/'+trip.id
  expect((await(await page.request.get(path+'/exploration/constraints')).json()).version).toBe(0)
  await input.fill('2030-05-01，上午9点到下午6点，轻松一点');await page.getByRole('button',{name:'发送',exact:true}).click()

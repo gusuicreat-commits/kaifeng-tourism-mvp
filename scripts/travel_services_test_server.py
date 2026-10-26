@@ -50,6 +50,19 @@ with tempfile.TemporaryDirectory(prefix='travel-services-') as folder:
                         {'field':'nights','value':2,'quote':'两晚'},
                         {'field':'room_type','value':'标间','quote':'标间'}]},
                     'planning':{'quote':'把游玩日期改后天','fields':[{'field':'date','value':'后天','quote':'后天'}]}},{'source':'mock_model'}
+            if text=='明天找开封酒店，住2晚，两个人，200元以内，必须有窗户和干湿分离，最好免费停车，总预算1000元，自驾':
+                fields=[{'field':'check_in','value':'明天','quote':'明天找开封酒店'},
+                        {'field':'nights','value':2,'quote':'住2晚'},
+                        {'field':'guests','value':2,'quote':'两个人'},
+                        {'field':'max_price','value':200,'quote':'200元以内'},
+                        {'field':'window','value':True,'quote':'必须有窗户'},
+                        {'field':'dry_wet','value':True,'quote':'干湿分离'},
+                        {'field':'free_parking','value':True,'strength':'soft','quote':'最好免费停车'}]
+                return {'actions':[{'kind':'search_services','quote':text}],'service_query':{'quote':text,'fields':fields}},{'source':'mock_model'}
+            if text=='换一个150元以内的，早餐也要有':
+                fields=[{'field':'max_price','value':150,'quote':'150元以内'},
+                        {'field':'breakfast','value':True,'quote':'早餐也要有'}]
+                return {'actions':[{'kind':'search_services','quote':text}],'service_query':{'quote':text,'fields':fields}},{'source':'mock_model'}
             return {'actions':[{'kind':'search_services','quote':text}]},{'source':'mock_model'}
         provider.generate=semantic
         def search(q):
