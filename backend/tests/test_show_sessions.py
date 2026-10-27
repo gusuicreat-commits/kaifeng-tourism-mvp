@@ -290,6 +290,11 @@ def test_sourced_venues_import_query_and_keep_original_poi(venue_catalog,tmp_pat
     assert len(answer['facts'])==1
     assert items['show_session',answer['facts'][0]['id']].stage_place_id==venue.fact_id
     assert not ctx.ready(items['place',venue.fact_id],ctx.assessed_at)  # No surveyed coordinates were invented.
+    # Visitors name the spot, not the program: the stage name finds that venue's sessions.
+    text=f'今天{original.name}几点有节目？'
+    answer=shows.query(Action(kind='query',purpose='shows',target_name=original.name,quote=text),SimpleNamespace(planning=ctx))
+    assert answer['status']=='answered' and venue.name in answer['reply'],answer
+    assert {items['show_session',f['id']].stage_place_id for f in answer['facts']}=={venue.fact_id}
 
 
 def test_ordinary_poi_rejected_by_importer_and_fact_validator(csv_catalog,tmp_path):

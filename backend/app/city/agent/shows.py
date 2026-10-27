@@ -29,7 +29,11 @@ def query(action, snapshot):
     progs=[p for p in hits if isinstance(p,facts.Program) and inside(p)]
     # Preserve the existing itinerary-reference query for a pronoun such as “那场”.
     if not named and not t and interpret.refers_back(action.quote):return None
-    if t and not progs and not places:
+    # A stage name (英武楼 for 英武楼演出点) narrows to that venue's sessions when no park or
+    # program carries the name.
+    stages=[p for p in items.values() if isinstance(p,facts.Place) and p.place_type=='stage' and facts.planning_visible(p)
+            and not p.superseded_by and len(t)>=2 and any(len(n)>=2 and (t in n or n in t) for n in names(p))] if t and not progs and not places else []
+    if t and not progs and not places and not stages:
         return {'status':'needs_data','reply':'没有对应的景区或节目资料，请核对名称。'}
     if t and not progs and len(places)>1:
         return {'status':'needs_clarification','reply':'名称对应多个景区，请说明是哪一个。'}
@@ -50,7 +54,7 @@ def query(action, snapshot):
     ids={p.fact_id for p in (progs or ([] if places else named)) if isinstance(p,facts.Program)}
     def matches(session):
         program=programs.get(session.program_id)
-        return program and (not ids or program.fact_id in ids) and (
+        return program and (not ids or program.fact_id in ids) and (not stages or session.stage_place_id in {p.fact_id for p in stages}) and (
             not parks or any(park in snapshot.planning.parks(session.stage_place_id)
                              or park in snapshot.planning.parks(program.place_id) for park in parks))
     sessions=[s for s in items.values() if isinstance(s,facts.ShowSession) and matches(s)
