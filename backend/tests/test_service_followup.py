@@ -227,7 +227,8 @@ def test_service_query_itself_still_needs_current_evidence(env,monkeypatch):
     monkeypatch.setattr(hotels,'search',lambda q:pytest.fail('invalid query must not reach provider'))
     task=run({'client':client,'trip':client.get(path).json()},message)
     assert task['status']=='needs_clarification' and task['metrics']['tools']==0
-    assert task['interpretation']['validation_failure']['check']=='ungrounded evidence quote'
+    assert any(d['path']=='service_query' and d['category']=='A' and d['reason']=='current query evidence missing' for d in task['interpretation']['dropped'])
+    assert '没完全理解' in task['result']['reply'] and not task['interpretation'].get('validation_failure')
     assert client.get(path+'/services').json()==before
     with pytest.raises(ValueError,match='current query evidence missing'):
         services.semantic_requirements(ServiceIntent(quote='不在原话里的查询',fields=[field('clean',True,'干净')]),message,{},datetime.now(TZ).date())

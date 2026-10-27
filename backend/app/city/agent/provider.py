@@ -45,6 +45,26 @@ def retry_after(value):
     except (ValueError,TypeError,OverflowError):return raw,None
 
 
+def output_object(content):
+    """Accept exactly one complete object, never a parseable fragment of two outputs."""
+    try:result=json.loads(content)
+    except ValueError:
+        decoder=json.JSONDecoder();objects=[];cursor=0
+        while cursor<len(content):
+            at=content.find('{',cursor)
+            if at<0:
+                if any(c in content[cursor:] for c in '}[]'):raise ValueError('incomplete object')
+                break
+            if any(c in content[cursor:at] for c in '}[]'):raise ValueError('incomplete object')
+            result,end=decoder.raw_decode(content,at)
+            if not isinstance(result,dict):raise ValueError('object required')
+            objects.append(result);cursor=end
+        if len(objects)!=1:raise ValueError('unique object required')
+        return objects[0]
+    if not isinstance(result,dict):raise ValueError('object required')
+    return result
+
+
 def generate(system, payload, *, timeout=12.0, max_tokens=1400):
     if not language.available():raise HTTPException(503,detail='模型未配置，使用确定性流程。')
     if len(system)+len(json.dumps(payload,ensure_ascii=False)) > MODEL_INPUT_CHARACTERS:raise HTTPException(422,detail='模型输入超过预算。')
@@ -96,8 +116,7 @@ def generate(system, payload, *, timeout=12.0, max_tokens=1400):
             if choice.get('finish_reason')!='stop' or message.get('tool_calls'):raise ValueError('incomplete or unsupported native calls')
             content=message['content']
             if not isinstance(content,str) or len(content)>14000:raise ValueError('oversize')
-            result=json.loads(content)
-            if not isinstance(result,dict):raise ValueError('object required')
+            result=output_object(content)
             return result,{**meta,'elapsed_ms':round((time.monotonic()-started)*1000,2)}
     except httpx.HTTPStatusError:fail('MODEL_HTTP_ERROR')
     except httpx.TimeoutException:fail('MODEL_TRANSPORT_ERROR',transport_error='timeout')

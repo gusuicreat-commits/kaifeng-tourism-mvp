@@ -37,7 +37,8 @@ def query(action, snapshot):
         return {'status':'needs_data','reply':'没有对应的景区或节目资料，请核对名称。'}
     if t and not progs and len(places)>1:
         return {'status':'needs_clarification','reply':'名称对应多个景区，请说明是哪一个。'}
-    days={resolve_date(e,moment.date()) for e in find_date_expressions(action.quote)}-{None}
+    try:days={resolve_date(e,moment.date()) for e in find_date_expressions(action.quote)}-{None}
+    except ValueError:return {'status':'needs_clarification','reply':'演出日期没核对上，请说明要查哪一天（YYYY-MM-DD）。'}
     if len(days)>1:
         return {'status':'needs_clarification','reply':'请明确要查哪一天的演出。'}
     day=days.pop() if days else moment.date()

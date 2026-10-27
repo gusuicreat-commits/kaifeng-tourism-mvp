@@ -157,7 +157,7 @@ def test_compound_turn_answers_queries_searches_services_and_previews_planning(e
     assert c.get(p).json()['route_version']==0
 
 
-def test_compound_invalid_subrequest_does_not_execute_other_branch(env,monkeypatch):
+def test_compound_invalid_subrequest_preserves_the_other_branch(env,monkeypatch):
     from app import language
     from app.city.agent import provider
     c,p=env;text='请回答早餐是否包含，并查询明天住宿。'
@@ -165,9 +165,11 @@ def test_compound_invalid_subrequest_does_not_execute_other_branch(env,monkeypat
     monkeypatch.setattr(provider,'generate',lambda *args,**kwargs:({'conversation':{'reply':'可以'},'service_query':{'quote':'不存在的原文','fields':[]},'actions':[{'kind':'query','quote':'请回答早餐是否包含'} ,{'kind':'search_services','quote':'不存在的原文'}]},{'source':'mock_model'}))
     t=c.post(p+'/agent/tasks',json={'request_id':rid(),'text':text,'expected_version':1,'expected_route_version':0}).json()
     t=c.post(p+'/agent/tasks/'+t['task_id']+'/step',json={'request_id':rid(),'expected_step':t['step']}).json()
-    assert t['status']=='needs_clarification'
+    assert t['status']=='running' and t['mode']=='compound'
     t=c.post(p+'/agent/tasks/'+t['task_id']+'/step',json={'request_id':rid(),'expected_step':t['step']}).json()
     assert t['status']=='needs_clarification' and t['metrics']['tools']==0
+    assert [i['kind'] for i in t['result']['compound']['items']]==['conversation','direct_query']
+    assert any(d['path']=='service_query' and d['category']=='A' for d in t['interpretation']['dropped'])
     assert c.get(p+'/services').json()['version']==0
 
 

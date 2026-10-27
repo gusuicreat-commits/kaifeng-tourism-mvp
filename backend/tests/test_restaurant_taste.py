@@ -287,3 +287,10 @@ def test_label_target_needs_close_length(restaurants):
     snap,_=snapshot(restaurants)
     assert dining.label_targets(snap.planning,['合成菜系口','甜口'])==['合成菜系口','甜口']
     assert dining.label_targets(snap.planning,['开封当地合成菜系'])==[]
+
+
+def test_invented_price_drops_only_that_condition():
+    text='不辣的，人均五十以内';meta={}
+    result=understand.grounded(intent(text,{'max_fen':8000,'spicy':'none'}),text,meta)
+    assert result.actions[0].dining=={'spicy':'none'}
+    assert [d['path'] for d in meta['dropped']]==['actions[0].dining.max_fen'] and meta['dropped'][0]['category']=='A'

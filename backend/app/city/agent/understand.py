@@ -10,7 +10,9 @@ from .. import facts
 from ..assistant import interpret
 from . import provider
 from .evidence import request_evidence, query_evidence, effective_clock, preference_evidence
-from .models import Action, Constraint, Correction, Understanding
+from .models import (Action, Constraint, Correction, Understanding, PlanningIntent,
+                     PlanningField, MaterialChoice, Conversation, ReferenceRouteIntent,
+                     WeatherIntent, ServiceIntent, ServiceField, StateIntent)
 from . import planning_intent
 from .prompt_schema import prompt_schema
 
@@ -208,29 +210,53 @@ def rules(text, snapshot):
     return Understanding(actions=tuple(actions),constraints=tuple(constraints),corrections=tuple(corrections),unresolved=tuple(dict.fromkeys(unresolved)))
 
 
-def grounded(result,text):
-    for item in (*result.actions,*result.constraints,*result.corrections):
-        if item.quote not in text:raise ValueError('ungrounded evidence quote')
-        kind=getattr(item,'kind',None)
-        if kind in ('query','search_services','search_dining'):query_evidence(text,item.quote)
-        elif kind is not None:request_evidence(text,item.quote)
-        if getattr(item,'dining',{}).get('max_fen') is not None:
-            from .planning_intent import _money_amounts
-            if item.dining['max_fen'] not in _money_amounts(item.quote):raise ValueError('invented dining price')
-    for c in result.constraints:
-        if c.field in ('return_by','meal_at','visit_at') and c.value:
-            if not clock_grounded(c.value,c.quote,text):raise ValueError('invented clock')
-        if c.field=='walking_seconds' and c.value:
-            m=re.search(r'(\d+|[一二两三四五六七八九十]{1,3})\s*分钟',c.quote)
-            if not m or number(m[1])*60!=c.value:raise ValueError('invented walking limit')
-        if c.field=='food' and c.value and str(c.value) not in c.quote:raise ValueError('invented food')
-    for c in result.constraints:
-        if c.field in ('pace','objective'):
-            preference_evidence(c.field,c.value,c.quote)
+def grounded(result,text,meta=None):
+    """Apply evidence gates independently; a bad item cannot erase good siblings."""
+    def reject(path,item,exc):
+        if meta is None:raise exc
+        reason=str(exc) or 'ungrounded evidence quote';_drop(meta,path,_drop_category(reason),reason,getattr(item,'quote',None))
+
+    actions=[]
+    for index,item in enumerate(result.actions):
+        try:
+            if item.quote not in text:raise ValueError('ungrounded evidence quote')
+            if item.kind in ('query','search_services','search_dining'):query_evidence(text,item.quote)
+            else:request_evidence(text,item.quote)
+        except ValueError as exc:reject(f'actions[{index}]',item,exc);continue
+        try:
+            # A price cap is one condition: one the visitor never said drops alone.
+            if item.dining.get('max_fen') is not None:
+                from .planning_intent import _money_amounts
+                if item.dining['max_fen'] not in _money_amounts(item.quote):raise ValueError('invented dining price')
+        except ValueError as exc:
+            reject(f'actions[{index}].dining.max_fen',item,exc)
+            item=item.model_copy(update={'dining':{k:v for k,v in item.dining.items() if k!='max_fen'}})
+        actions.append(item)
+
+    constraints=[]
+    for index,c in enumerate(result.constraints):
+        try:
+            if c.quote not in text:raise ValueError('ungrounded evidence quote')
             request_evidence(text,c.quote)
-        if c.field=='preserve_shows' and (c.value not in ('referenced','all_pending') or not re.search(r'演出|节目|那场',c.quote) or not re.search(r'保留|别动|别取消|必须|一定|不能错过',c.quote)):
-            raise ValueError('invented show preservation')
-    return result
+            if c.field in ('return_by','meal_at','visit_at') and c.value and not clock_grounded(c.value,c.quote,text):
+                raise ValueError('invented clock')
+            if c.field=='walking_seconds' and c.value:
+                m=re.search(r'(\d+|[一二两三四五六七八九十]{1,3})\s*分钟',c.quote)
+                if not m or number(m[1])*60!=c.value:raise ValueError('invented walking limit')
+            if c.field=='food' and c.value and str(c.value) not in c.quote:raise ValueError('invented food')
+            if c.field in ('pace','objective'):preference_evidence(c.field,c.value,c.quote)
+            if c.field=='preserve_shows' and (c.value not in ('referenced','all_pending') or not re.search(r'演出|节目|那场',c.quote) or not re.search(r'保留|别动|别取消|必须|一定|不能错过',c.quote)):
+                raise ValueError('invented show preservation')
+            constraints.append(c)
+        except ValueError as exc:reject(f'constraints[{index}]',c,exc)
+
+    corrections=[]
+    for index,item in enumerate(result.corrections):
+        try:
+            if item.quote not in text:raise ValueError('ungrounded evidence quote')
+            request_evidence(text,item.quote);corrections.append(item)
+        except ValueError as exc:reject(f'corrections[{index}]',item,exc)
+    return result.model_copy(update={'actions':tuple(actions),'constraints':tuple(constraints),'corrections':tuple(corrections)})
 
 
 _PIECES=re.compile(r'[，,。；;！!？?、\s]+|\.{2,}|…+')
@@ -297,7 +323,8 @@ def _canonical_preferences(raw):
     """Map synonym values ("slow") to the enum ("relaxed"); the quote is still checked against cues."""
     def fix(item):
         if not isinstance(item,dict):return item
-        value=_PREFERENCE_SYNONYMS.get(item.get('field'),{}).get(item.get('value'))
+        field=item.get('field');original=item.get('value')
+        value=_PREFERENCE_SYNONYMS.get(field,{}).get(original) if isinstance(field,str) and isinstance(original,str) else None
         return dict(item,value=value) if value else item
     if isinstance(raw.get('constraints'),list):raw=dict(raw,constraints=[fix(c) for c in raw['constraints']])
     planning=raw.get('planning')
@@ -325,7 +352,7 @@ def _legacy_trip_days(text):
     return max((v for v in values if v),default=1)
 
 
-def _relocate_misplaced_fields(raw):
+def _relocate_misplaced_fields(raw,meta=None,text=None):
     """Move fields the model wrote into the wrong object to their one home.
 
     On long multi-part turns the live model sometimes nests the hotel request in
@@ -343,21 +370,294 @@ def _relocate_misplaced_fields(raw):
             if isinstance(action,dict) and action.get('kind')=='search_services':
                 extra={k:v for k,v in action.items() if k not in Action.model_fields and k in ServiceIntent.model_fields}
                 if extra:
-                    if not raw.get('service_query') and action.get('quote'):
-                        raw=dict(raw,service_query={'quote':action['quote'],**extra})
+                    if action.get('quote'):
+                        existing=raw.get('service_query')
+                        if not existing:raw=dict(raw,service_query={'quote':action['quote'],**extra})
+                        elif isinstance(existing,dict) and (existing.get('quote')==action['quote'] or isinstance(text,str) and isinstance(existing.get('quote'),str) and existing['quote'] in text and action['quote'] in text):
+                            left=existing.get('fields',[]);right=extra.get('fields',[])
+                            if isinstance(left,(list,tuple)) and isinstance(right,(list,tuple)) and extra.get('category',existing.get('category'))==existing.get('category',extra.get('category')):
+                                quote=existing['quote']
+                                if quote!=action['quote']:
+                                    start=min(text.index(quote),text.index(action['quote']))
+                                    end=max(text.index(quote)+len(quote),text.index(action['quote'])+len(action['quote']))
+                                    quote=text[start:end]
+                                raw=dict(raw,service_query={**extra,**existing,'quote':quote,'fields':_dedupe([*left,*right])})
+                            elif meta is not None:_drop(meta,'actions.service_query','C','conflicting_location',action.get('quote'))
+                        elif meta is not None:
+                            for key in extra:_drop(meta,'actions.service_query.'+key,'C','conflicting_location',action.get('quote'))
+                        if meta is not None:meta.setdefault('relocated',[]).append({'from':'actions.search_services','to':'service_query'})
                     action={k:v for k,v in action.items() if k not in extra}
             moved.append(action)
         raw=dict(raw,actions=moved)
-    planning=raw.get('planning')
-    if isinstance(planning,dict) and isinstance(planning.get('fields'),list):
-        fields=[{k:v for k,v in f.items() if k!='budget_basis'}
-                if isinstance(f,dict) and f.get('field')!='budget_fen' and f.get('budget_basis') is not None else f
-                for f in planning['fields']]
-        raw=dict(raw,planning=dict(planning,fields=fields))
     return raw
 
 
-def _normalize_model_output(raw,text=None):
+_MODEL_BRANCHES=('planning','conversation','route_query','weather_query','service_query','state_request')
+_MODEL_ROOT_FIELDS={'schema_version','actions','constraints','corrections','unresolved',*_MODEL_BRANCHES}
+_SCHEMAS={'travel-intent/3.1','travel-intent/3.2','travel-intent/3.3','travel-intent/3.4','travel-intent/3.5','travel-intent/3.6'}
+
+
+def _drop(meta,path,category,reason,quote=None,*,field=None):
+    """Keep a full audit entry while retaining the old compact dropped_fields API."""
+    entry={'path':path,'category':category,'reason':reason}
+    if quote:entry['quote']=quote
+    meta.setdefault('dropped',[]).append(entry)
+    field=field or (path.removeprefix('planning.') if path.startswith('planning.') and '[' not in path else path)
+    compact={'field':field,'check':reason}
+    if compact not in meta.setdefault('dropped_fields',[]):meta['dropped_fields'].append(compact)
+
+
+def _drop_category(reason):
+    reason=str(reason)
+    if any(token in reason for token in ('negated','hypothetical','quoted','authorization','consent')):return 'B'
+    if any(token in reason for token in ('quote','evidence','not_in_quote','invented','absent','value_not','duration_')):return 'A'
+    return 'C'
+
+
+def _validation_reason(exc):
+    if isinstance(exc,ValidationError):
+        errors=exc.errors(include_input=False,include_context=False)
+        if errors:
+            message=str(errors[0].get('msg','')).removeprefix('Value error, ')
+            return message if message else errors[0].get('type','invalid_shape')
+    return str(exc) or 'invalid_shape'
+
+
+def _dedupe(values):
+    result=[];seen=set()
+    for value in values:
+        try:key=json.dumps(value,ensure_ascii=False,sort_keys=True,separators=(',',':'))
+        except (TypeError,ValueError):key=repr(value)
+        if key not in seen:seen.add(key);result.append(value)
+    return result
+
+
+def _bounded_list(raw,field,limit,meta):
+    if raw is None:return []
+    if not isinstance(raw,(list,tuple)):
+        _drop(meta,field,'C','invalid_container');return []
+    values=_dedupe(raw)
+    for index,item in enumerate(raw):
+        if item in raw[:index]:_drop(meta,f'{field}[{index}]','C','duplicate_item')
+    if limit is not None and len(values)>limit:
+        _drop(meta,field,'C','capacity_exceeded')
+        raise ValueError('intent capacity exceeded')
+    return values
+
+
+def _sanitize_understanding(raw,meta):
+    """Validate model output per branch/item before constructing Understanding.
+
+    This is deliberately structural. It strips unknown wrapper keys, keeps every
+    independently valid item, and never invents a value for an invalid enum/type.
+    Evidence and authorization gates run afterwards on the surviving typed values.
+    """
+    if not isinstance(raw,dict):
+        _drop(meta,'$','C','object_required');return raw,False
+    value={}
+    schema=raw.get('schema_version','travel-intent/3.6')
+    if not isinstance(schema,str) or schema not in _SCHEMAS:
+        _drop(meta,'schema_version','C','unknown_schema');schema='travel-intent/3.6'
+    value['schema_version']=schema
+    for key in raw:
+        if key not in _MODEL_ROOT_FIELDS:_drop(meta,key,'C','extra_field')
+
+    def entries(source,key,model,limit):
+        values=_bounded_list(source.get(key),key,None,meta)
+        kept=[]
+        for index,item in enumerate(values):
+            if not isinstance(item,dict):
+                _drop(meta,f'{key}[{index}]','C','invalid_item');continue
+            allowed=set(model.model_fields)
+            extras=set(item)-allowed
+            for extra in extras:_drop(meta,f'{key}[{index}].{extra}','C','extra_field')
+            candidate={k:v for k,v in item.items() if k in allowed}
+            if model is Action and candidate.get('purpose') is not None:
+                if candidate['purpose'] not in ('trip','next','shows','dining','travel','history','reference'):
+                    _drop(meta,f'{key}[{index}].purpose','C','invalid_purpose');candidate.pop('purpose',None)
+            try:kept.append(model.model_validate(candidate).model_dump(mode='json'))
+            except (ValidationError,TypeError,ValueError) as exc:
+                _drop(meta,f'{key}[{index}]',_drop_category(_validation_reason(exc)),_validation_reason(exc),item.get('quote'))
+        return _bounded_list(kept,key,limit,meta)
+
+    # Branches whose entries can stand alone.
+    value['actions']=entries(raw,'actions',Action,8) if 'actions' in raw else []
+    value['constraints']=entries(raw,'constraints',Constraint,16) if 'constraints' in raw else []
+    value['corrections']=entries(raw,'corrections',Correction,4) if 'corrections' in raw else []
+    unresolved=_bounded_list(raw.get('unresolved'), 'unresolved', None, meta)
+    value['unresolved']=[u for i,u in enumerate(unresolved) if isinstance(u,str) and u.strip()]
+    for i,u in enumerate(unresolved):
+        if not isinstance(u,str) or not u.strip():_drop(meta,f'unresolved[{i}]','C','empty_item')
+    value['unresolved']=_bounded_list(value['unresolved'],'unresolved',8,meta)
+
+    planning=raw.get('planning')
+    if planning is not None:
+        if not isinstance(planning,dict):
+            _drop(meta,'planning','C','invalid_container')
+        else:
+            fields=_bounded_list(planning.get('fields'),'planning.fields',None,meta)
+            choices=_bounded_list(planning.get('choices'),'planning.choices',None,meta)
+            kept_fields=[]
+            for index,item in enumerate(fields):
+                if not isinstance(item,dict):_drop(meta,f'planning.fields[{index}]','C','invalid_item');continue
+                if item.get('field')!='budget_fen' and item.get('budget_basis') is not None:
+                    _drop(meta,f'planning.fields[{index}].budget_basis','C','not_applicable',item.get('quote'))
+                    item={k:v for k,v in item.items() if k!='budget_basis'}
+                extras=set(item)-set(PlanningField.model_fields)
+                for extra in extras:_drop(meta,f'planning.fields[{index}].{extra}','C','extra_field',item.get('quote'))
+                try:
+                    if item.get('field') in ('budget_fen','trip_days') and type(item.get('value')) is bool:raise ValueError('invalid numeric type')
+                    kept_fields.append(PlanningField.model_validate({k:v for k,v in item.items() if k in PlanningField.model_fields}).model_dump(mode='json'))
+                except (ValidationError,TypeError,ValueError) as exc:
+                    _drop(meta,f'planning.fields[{index}]',_drop_category(_validation_reason(exc)),_validation_reason(exc),item.get('quote'))
+            kept_choices=[]
+            for index,item in enumerate(choices):
+                if not isinstance(item,dict):_drop(meta,f'planning.choices[{index}]','C','invalid_item');continue
+                extras=set(item)-set(MaterialChoice.model_fields)
+                for extra in extras:_drop(meta,f'planning.choices[{index}].{extra}','C','extra_field',item.get('quote'))
+                try:kept_choices.append(MaterialChoice.model_validate({k:v for k,v in item.items() if k in MaterialChoice.model_fields}).model_dump(mode='json'))
+                except (ValidationError,TypeError,ValueError) as exc:
+                    _drop(meta,f'planning.choices[{index}]',_drop_category(_validation_reason(exc)),_validation_reason(exc),item.get('quote'))
+            allowed=set(PlanningIntent.model_fields)
+            for extra in set(planning)-allowed:_drop(meta,f'planning.{extra}','C','extra_field')
+            candidate={k:v for k,v in planning.items() if k in allowed and k not in ('fields','choices')}
+            candidate['fields']=_bounded_list(kept_fields,'planning.fields',12,meta)
+            candidate['choices']=_bounded_list(kept_choices,'planning.choices',12,meta)
+            if (kept_fields or kept_choices) and candidate.get('operation')=='continue':
+                candidate['operation']='update';_drop(meta,'planning.operation','C','continue_with_conditions')
+            try:
+                value['planning']=PlanningIntent.model_validate(candidate).model_dump(mode='json')
+                if (fields or choices) and not (kept_fields or kept_choices) and candidate.get('operation','update')=='update':value.pop('planning',None)
+            except (ValidationError,TypeError,ValueError) as exc:
+                _drop(meta,'planning',_drop_category(_validation_reason(exc)),_validation_reason(exc),planning.get('quote'))
+
+    def branch(name,model):
+        item=raw.get(name)
+        if item is None:return
+        if not isinstance(item,dict):_drop(meta,name,'C','invalid_container');return
+        extras=set(item)-set(model.model_fields)
+        for extra in extras:_drop(meta,f'{name}.{extra}','C','extra_field',item.get('quote'))
+        candidate={k:v for k,v in item.items() if k in model.model_fields}
+        try:value[name]=model.model_validate(candidate).model_dump(mode='json')
+        except (ValidationError,TypeError,ValueError) as exc:
+            _drop(meta,name,_drop_category(_validation_reason(exc)),_validation_reason(exc),item.get('quote'))
+
+    branch('route_query',ReferenceRouteIntent);branch('weather_query',WeatherIntent)
+    service=raw.get('service_query')
+    if service is not None:
+        if not isinstance(service,dict):_drop(meta,'service_query','C','invalid_container')
+        else:
+            fields=_bounded_list(service.get('fields'),'service_query.fields',None,meta);kept=[]
+            for index,item in enumerate(fields):
+                if not isinstance(item,dict):_drop(meta,f'service_query.fields[{index}]','C','invalid_item');continue
+                extras=set(item)-set(ServiceField.model_fields)
+                for extra in extras:_drop(meta,f'service_query.fields[{index}].{extra}','C','extra_field',item.get('quote'))
+                try:kept.append(ServiceField.model_validate({k:v for k,v in item.items() if k in ServiceField.model_fields}).model_dump(mode='json'))
+                except (ValidationError,TypeError,ValueError) as exc:
+                    _drop(meta,f'service_query.fields[{index}]',_drop_category(_validation_reason(exc)),_validation_reason(exc),item.get('quote'))
+            extras=set(service)-set(ServiceIntent.model_fields)
+            for extra in extras:_drop(meta,f'service_query.{extra}','C','extra_field',service.get('quote'))
+            candidate={k:v for k,v in service.items() if k in ServiceIntent.model_fields and k!='fields'}
+            candidate['fields']=_bounded_list(kept,'service_query.fields',16,meta)
+            try:value['service_query']=ServiceIntent.model_validate(candidate).model_dump(mode='json')
+            except (ValidationError,TypeError,ValueError) as exc:
+                _drop(meta,'service_query',_drop_category(_validation_reason(exc)),_validation_reason(exc),service.get('quote'))
+    state=raw.get('state_request')
+    if isinstance(state,dict):
+        operation=state.get('operation')
+        if operation not in ('delay','extend','rest') and state.get('minutes') is not None:
+            _drop(meta,'state_request.minutes','C','not_applicable',state.get('quote'));state=dict(state);state.pop('minutes',None)
+        if operation!='restore' and state.get('restore_version') is not None:
+            _drop(meta,'state_request.restore_version','C','not_applicable',state.get('quote'));state=dict(state);state.pop('restore_version',None)
+        extras=set(state)-set(StateIntent.model_fields)
+        for extra in extras:_drop(meta,f'state_request.{extra}','C','extra_field',state.get('quote'))
+        candidate={k:v for k,v in state.items() if k in StateIntent.model_fields}
+        try:
+            if any(type(candidate.get(k)) is bool for k in ('minutes','restore_version')):raise ValueError('invalid numeric type')
+            value['state_request']=StateIntent.model_validate(candidate).model_dump(mode='json')
+        except (ValidationError,TypeError,ValueError) as exc:
+            _drop(meta,'state_request',_drop_category(_validation_reason(exc)),_validation_reason(exc),state.get('quote'))
+    elif state is not None:_drop(meta,'state_request','C','invalid_container')
+
+    conversation=raw.get('conversation')
+    if conversation is not None:
+        if not isinstance(conversation,dict):_drop(meta,'conversation','C','invalid_container')
+        else:
+            for extra in set(conversation)-set(Conversation.model_fields):_drop(meta,f'conversation.{extra}','C','extra_field')
+            reply=conversation.get('reply')
+            if not isinstance(reply,str) or not reply.strip():_drop(meta,'conversation.reply','C','empty_chat')
+            else:
+                if len(reply)>1200:
+                    cut=reply[:1200];boundary=max(cut.rfind(x) for x in '。！？!?\n')
+                    cut=cut[:boundary+1] if boundary>=0 else ''
+                    _drop(meta,'conversation.reply','C','chat_truncated');reply=cut
+                if reply.strip():value['conversation']={'reply':reply}
+    for name,kind in (('planning','modify'),('service_query','search_services'),('weather_query','query'),('route_query','query'),('state_request',None)):
+        if raw.get(name) is not None and not value.get(name):
+            quote=raw[name].get('quote') if isinstance(raw[name],dict) else None
+            value['actions']=[a for a in value['actions'] if not ((a.get('quote')==quote and (kind is None or a.get('kind')==kind) or name=='service_query' and a.get('kind')=='search_services'))]
+    before=value['actions']
+    value=Understanding.canonical_action_index(value)
+    for index,action in enumerate(before):
+        if action not in value['actions']:_drop(meta,f'actions[{index}]','C','duplicate_index')
+    value['actions']=_bounded_list(value.get('actions'),'actions',8,meta)
+    return value,bool(value.get('actions') or value.get('constraints') or value.get('corrections') or value.get('unresolved') or any(value.get(k) for k in _MODEL_BRANCHES))
+
+
+def _validate_tolerant(value,meta):
+    """Construct the cross-branch model without turning one incompatible branch fatal."""
+    try:return Understanding.model_validate(value)
+    except (ValidationError,TypeError,ValueError) as first:
+        base={k:value[k] for k in ('schema_version','actions','constraints','corrections','unresolved') if k in value}
+        try:result=Understanding.model_validate(base)
+        except (ValidationError,TypeError,ValueError):
+            _drop(meta,'understanding','C',_validation_reason(first));return Understanding()
+        for name in _MODEL_BRANCHES:
+            if name not in value:continue
+            trial=dict(result.model_dump(mode='json'),**{name:value[name]})
+            try:result=Understanding.model_validate(trial)
+            except (ValidationError,TypeError,ValueError) as exc:
+                _drop(meta,name,_drop_category(_validation_reason(exc)),_validation_reason(exc),(value[name] or {}).get('quote') if isinstance(value[name],dict) else None)
+        return result
+
+
+def _without_branch(result,name):
+    branch=getattr(result,name)
+    kind={'planning':'modify','service_query':'search_services','weather_query':'query','route_query':'query'}.get(name)
+    quote=branch.quote if branch else None
+    actions=tuple(a for a in result.actions if not (a.quote==quote and (kind is None or a.kind==kind)))
+    return result.model_copy(update={name:None,'actions':actions})
+
+
+def _has_content(result):
+    return bool(result.actions or result.constraints or result.corrections or result.unresolved or any(getattr(result,k) for k in _MODEL_BRANCHES))
+
+
+def dropped_reply(intent,meta,text):
+    """Only uncovered original evidence merits a visitor-facing omission notice."""
+    quotes=[c.quote for c in (*intent.constraints,*intent.corrections)]
+    for branch in (intent.planning,intent.service_query):
+        if branch:quotes.extend(f.quote for f in branch.fields)
+    if intent.planning:quotes.extend(c.quote for c in intent.planning.choices)
+    typed={b.quote for b in (intent.planning,intent.service_query,intent.state_request,intent.weather_query,intent.route_query) if b}
+    quotes.extend(a.quote for a in intent.actions if a.quote not in typed)
+    quotes.extend(b.quote for b in (intent.state_request,intent.weather_query,intent.route_query) if b)
+    noise={'extra_field','duplicate_item','duplicate_index','duplicate_constraint','not_applicable','empty_chat','chat_truncated','continue_with_conditions','invalid_purpose','multiple_writes'}
+    reasons={'A':'原话与提取的内容对不上','B':'这段话未明确授权执行','C':'这项内容格式无法核对'}
+    seen=set();notices=[]
+    for item in meta.get('dropped',()):
+        quote=item.get('quote')
+        if not isinstance(quote,str) or not quote or quote not in text or item['reason'] in noise or quote in seen:continue
+        if item['category']=='C' and item['path'].startswith('actions[') and quote in typed:continue
+        coverage=quotes
+        if item['path']=='state_request.start_time' and intent.state_request:
+            coverage=[q for q in quotes if q!=intent.state_request.quote]
+        if any(quote in kept for kept in coverage):continue
+        seen.add(quote);notices.append('这部分我没采用：『'+quote+'』（'+reasons[item['category']]+'）。')
+    return ''.join(notices)
+
+
+def _normalize_model_output(raw,text=None,meta=None):
     """Drop only constraints that cannot be valid for their field.
 
     A model may redundantly copy planning targets into constraints with
@@ -371,10 +671,10 @@ def _normalize_model_output(raw,text=None):
     if not isinstance(raw,dict):
         return raw
     legacy_schema=raw.get('schema_version') in ('travel-intent/3.1','travel-intent/3.2','travel-intent/3.3')
-    raw=_relocate_misplaced_fields(_canonical_preferences(raw))
+    raw=_relocate_misplaced_fields(_canonical_preferences(raw),meta,text)
     planning=raw.get('planning')
     if legacy_schema and isinstance(planning,dict) and isinstance(text,str):
-        fields=list(planning.get('fields') or [])
+        fields=list(planning.get('fields') or []) if isinstance(planning.get('fields',[]),(list,tuple)) else []
         if not any(isinstance(f,dict) and f.get('field')=='trip_days' for f in fields) and _legacy_trip_days(text)>1:
             fields.append({'field':'trip_days','value':_legacy_trip_days(text),'quote':next((m.group(0) for m in re.finditer(r'(?:\d+|[零一二两三四五六七八九十百千万]+)\s*天',text)),''), 'budget_basis':None})
         if any(isinstance(f,dict) and f.get('field')=='budget_fen' and f.get('budget_basis') is None for f in fields):
@@ -387,49 +687,58 @@ def _normalize_model_output(raw,text=None):
     # Date, time, endpoints, mode and budget have one home: planning.fields.
     moved=[c for c in raw_constraints if isinstance(c,dict) and c.get('field') in PLANNING_FIELDS and c.get('value') is not None and c.get('quote')]
     if moved:
-        planning=dict(raw.get('planning') or {'operation':'update','quote':moved[0]['quote']})
-        present={f.get('field') for f in planning.get('fields') or [] if isinstance(f,dict)}
+        planning=dict(raw['planning']) if isinstance(raw.get('planning'),dict) else {'operation':'update','quote':moved[0]['quote']}
+        existing=planning.get('fields',[])
+        existing=existing if isinstance(existing,(list,tuple)) else []
         def basis(c):
             if c.get('budget_basis'):return {'budget_basis':c['budget_basis']}
             if legacy_schema and c.get('field')=='budget_fen' and isinstance(text,str):return {'budget_basis':'per_person' if re.search(r'每人|人均|一人|每个人',text) else 'total'}
             return {}
-        planning['fields']=[*(planning.get('fields') or []),*({'field':c['field'],'value':c['value'],'quote':c['quote'],**basis(c)} for c in moved if c['field'] not in present)]
+        planning['fields']=[*existing,*({'field':c['field'],'value':c['value'],'quote':c['quote'],**basis(c)} for c in moved)]
+        if meta is not None:meta.setdefault('relocated',[]).extend({'from':f'constraints[{raw_constraints.index(c)}]','to':'planning.fields'} for c in moved)
         raw=dict(raw,planning=planning,constraints=[c for c in raw_constraints if c not in moved])
         raw_constraints=raw['constraints']
     planning=raw.get('planning')
     planning_fields={}
     if isinstance(planning,dict):
-        for f in planning.get('fields') or []:
-            if isinstance(f,dict) and 'field' in f and 'value' in f:
+        for f in planning.get('fields') if isinstance(planning.get('fields'),(list,tuple)) else []:
+            if isinstance(f,dict) and isinstance(f.get('field'),str) and 'value' in f:
+                if text is not None:
+                    try:
+                        request_evidence(text,planning.get('quote'));request_evidence(text,f.get('quote'))
+                        if not clock_grounded(f['value'],f['quote'],text):continue
+                    except (TypeError,ValueError):continue
                 planning_fields[f['field']]=f['value']
     kept=[]
-    for c in raw_constraints:
+    for index,c in enumerate(raw_constraints):
+        def discarded(reason):
+            if meta is not None:_drop(meta,f'constraints[{index}]','C',reason,c.get('quote'))
         if not isinstance(c,dict):
             kept.append(c);continue
         field=c.get('field');val=c.get('value')
         if field not in ('food','preserve_shows','walking_seconds','return_by','meal_at','visit_at','objective','pace'):
-            continue
+            discarded('invalid_constraint');continue
         if field in ('meal_at','return_by','visit_at') and val is not None:
             if not isinstance(val,str) or not re.fullmatch(r'(?:[01]\d|2[0-3]):[0-5]\d',val):
-                continue
+                discarded('invalid_constraint');continue
             # A clock copied from the planning window (e.g. return_by=end_time,
             # visit_at=start_time) duplicates a field already present and is not
             # a distinct, actionable per-activity time.
             if field=='return_by' and planning_fields.get('end_time')==val:
-                continue
+                discarded('duplicate_constraint');continue
             if field in ('meal_at','visit_at') and planning_fields.get('start_time')==val:
-                continue
+                discarded('duplicate_constraint');continue
         if field=='walking_seconds' and val is not None:
             if type(val) is not int or not 1 <= val <= 43200:
-                continue
+                discarded('invalid_constraint');continue
         if field=='walking_seconds' and val is None:
             # A walking bound without a value is never actionable; a real limit
             # always carries an integer number of seconds.
-            continue
+            discarded('invalid_constraint');continue
         if field=='objective' and val not in ('balanced','less_walking','less_waiting','lower_cost'):
-            continue
+            discarded('invalid_constraint');continue
         if field=='pace' and val not in ('relaxed','standard','compact'):
-            continue
+            discarded('invalid_constraint');continue
         # A spurious default objective/pace next to an explicit planning turn is
         # redundant and rejected by preference_evidence anyway. But on a pure
         # conversation a smuggled preference must still fail closed, so only
@@ -438,7 +747,7 @@ def _normalize_model_output(raw,text=None):
             try:
                 preference_evidence(field,val,c.get('quote',''))
             except ValueError:
-                continue
+                discarded('invalid_constraint');continue
         kept.append(c)
     if len(kept)!=len(raw_constraints):
         raw=dict(raw,constraints=kept)
@@ -537,8 +846,13 @@ def parse(text,snapshot,*,allow_model=True):
         # more than the provider's 12 s default to generate; the task budget is 45 s and
         # tools/engine after understanding finish well within the remaining 20 s.
         raw,usage=provider.generate(system,payload,timeout=UNDERSTAND_TIMEOUT_SECONDS);meta['usage'].append(usage)
-        raw=_normalize_model_output(_repair_quotes(raw,text),text)
-        result=grounded(Understanding.model_validate(raw),text)
+        raw=_normalize_model_output(_repair_quotes(raw,text),text,meta)
+        raw,has_valid=_sanitize_understanding(raw,meta)
+        if not isinstance(raw,dict) or not has_valid:
+            meta['tolerant_empty']=True;meta['basis']='rule_fallback';meta['source']='deterministic_fallback'
+            return Understanding(unresolved=('这句话我没完全理解，换个说法再试试？',)),meta
+        result=grounded(_validate_tolerant(raw,meta),text,meta)
+        if result.planning and result.planning.operation=='weather_replan':planning_intent.weather_replan(result.planning.quote)
         # A pure salutation authorizes nothing. Preferences are semantic fields
         # taken from the model, so a greeting cannot carry one either (rt05).
         if greeting_only(text):
@@ -564,7 +878,7 @@ def parse(text,snapshot,*,allow_model=True):
                 normalized_actions.append(action.model_copy(update={'near':True}))
             else:
                 normalized_actions.append(action)
-        if near_dropped:meta.setdefault('dropped_fields',[]).extend(near_dropped)
+        for d in near_dropped:_drop(meta,d['field'],'C',d['check'])
         if tuple(normalized_actions)!=result.actions:
             result=result.model_copy(update={'actions':tuple(normalized_actions)})
         if not result.service_query and any(a.kind=='search_services' for a in result.actions):
@@ -574,15 +888,31 @@ def parse(text,snapshot,*,allow_model=True):
         if result.service_query:
             from ..travel_services import validate_intent
             dropped=[]
-            validate_intent(result.service_query,text,snapshot,dropped)
-            if dropped:meta.setdefault('dropped_fields',[]).extend({'field':'service.'+d['field'],'check':d['check']} for d in dropped)
+            try:validate_intent(result.service_query,text,snapshot,dropped)
+            except ValueError as exc:
+                _drop(meta,'service_query','A',str(exc),result.service_query.quote)
+                result=_without_branch(result,'service_query')
+            for d in dropped:
+                _drop(meta,'service.'+d['field'],'B' if d['check']=='invalid_evidence' else _drop_category(d['check']),d['check'],d.get('quote'))
+            if result.service_query and dropped:
+                rejected={(d['field'],d.get('quote')) for d in dropped}
+                result=result.model_copy(update={'service_query':result.service_query.model_copy(update={
+                    'fields':tuple(f for f in result.service_query.fields if (f.field,f.quote) not in rejected)})})
         if result.weather_query:
             # Semantic routing is the model's job; read-only weather requests
             # need grounded text, not a second keyword-based intent parser.
-            if result.weather_query.quote not in text:
-                raise ValueError('weather evidence absent')
+            try:query_evidence(text,result.weather_query.quote)
+            except ValueError as exc:
+                _drop(meta,'weather_query',_drop_category(str(exc)),str(exc),result.weather_query.quote)
+                result=_without_branch(result,'weather_query')
         if result.route_query:
-            reference_routes.grounded(result.route_query,text)
+            try:
+                query_evidence(text,result.route_query.quote)
+                reference_routes.grounded(result.route_query,text)
+            except ValueError as exc:
+                if str(exc)=='unrequested visitor position':raise
+                _drop(meta,'route_query',_drop_category(str(exc)),str(exc),result.route_query.quote)
+                result=_without_branch(result,'route_query')
         if result.conversation:
             # Conversation is an answer part and may coexist with typed requests.
             if not result.conversation.reply.strip():raise ValueError('empty conversation reply')
@@ -600,10 +930,16 @@ def parse(text,snapshot,*,allow_model=True):
                     'fields':(*result.planning.fields,PlanningField(field='date',value=found[0],quote=found[0]))})})
                 meta.setdefault('recovered_fields',[]).append({'field':'date','source':'date_grammar'})
         if result.planning:
-            dropped=[]
-            result=result.model_copy(update={'planning':planning_intent.grounded(result.planning,text,snapshot,dropped,meta)})
-            if dropped:meta.setdefault('dropped_fields',[]).extend(dropped)
-            if result.planning.operation=='weather_replan':
+            dropped=[];original_planning=result.planning
+            try:planning_checked=planning_intent.grounded(result.planning,text,snapshot,dropped,meta)
+            except ValueError as exc:
+                if str(exc)=='continue needs an explicit planning request':raise
+                _drop(meta,'planning',_drop_category(str(exc)),str(exc),result.planning.quote)
+                planning_checked=None
+            result=result.model_copy(update={'planning':planning_checked}) if planning_checked else _without_branch(result,'planning')
+            if result.planning and (original_planning.fields or original_planning.choices) and not (result.planning.fields or result.planning.choices) and not meta.get('planning_conflicts') and not any(d['check'] in ('per_person_budget','budget_basis_missing') for d in dropped):
+                result=_without_branch(result,'planning')
+            if result.planning and result.planning.operation=='weather_replan':
                 planning_intent.weather_replan(result.planning.quote)
         if not result.state_request and not result.planning and result.actions \
                 and all(a.kind in ('cancel','modify') and a.target_name for a in result.actions):
@@ -641,11 +977,40 @@ def parse(text,snapshot,*,allow_model=True):
                 # against the quote; downstream keeps the full name and its exact matching.
                 short=state.operation in ('skip','skip_replan') and state.target_name and state.target_name not in state.quote \
                       and today_stop_evidence(state.target_name,state.quote,snapshot)
-                grounded_state(state.model_copy(update={'target_name':short}) if short else state,text)
-                if result.state_request.operation in ('delay','extend','rest','skip_replan'):
-                    # The typed branch already owns this turn; legacy numeric cues must
-                    # not turn its duration into a second walking/meal constraint.
-                    meta['basis']='kimi_validated';meta['source']=usage.get('source','mock_model');return result,meta
+                if state.start_time:
+                    try:
+                        if not state.start_quote or state.start_quote not in state.quote:raise ValueError('state time evidence absent')
+                        request_evidence(text,state.start_quote)
+                        if effective_clock(text,state.start_quote,clock)!=state.start_time:raise ValueError('invented state start')
+                    except ValueError as exc:
+                        _drop(meta,'state_request.start_time',_drop_category(str(exc)),str(exc),state.start_quote or state.quote)
+                        state=state.model_copy(update={'start_time':None,'start_quote':None})
+                        result=result.model_copy(update={'state_request':state})
+                try:grounded_state(state.model_copy(update={'target_name':short}) if short else state,text)
+                except ValueError as exc:
+                    reason=str(exc)
+                    _drop(meta,'state_request',_drop_category(reason),reason,state.quote)
+                    if reason in ('duration_required','duration_not_in_quote'):
+                        meta['state_duration_question']=True
+                    result=result.model_copy(update={'state_request':None,'actions':tuple(a for a in result.actions if a.quote!=state.quote)})
+                    state=None
+        if result.state_request:
+            state=result.state_request
+            expected={'complete':'progress','skip':'progress','skip_replan':'modify','delay':'modify','extend':'modify','rest':'modify','position':'position','cancel':'cancel','restore':'modify'}[state.operation]
+            writes=[a for a in result.actions if a.kind in ('modify','preference','cancel','progress','position') and not (a.kind==expected and a.quote==state.quote)]
+            if result.planning or result.constraints or writes:
+                _drop(meta,'state_request','B','multiple_writes',state.quote)
+                result=result.model_copy(update={'state_request':None,'planning':None,'constraints':(),
+                    'actions':tuple(a for a in result.actions if a.kind in ('query','search_services')),
+                    'unresolved':(*result.unresolved,'这轮包含不同的修改，请先告诉我要做哪一个？')})
+                meta['basis']='kimi_validated';meta['source']=usage.get('source','mock_model');return result,meta
+            else:
+                meta['basis']='kimi_validated';meta['source']=usage.get('source','mock_model');return result,meta
+        if meta.get('state_duration_question'):
+            result=result.model_copy(update={'unresolved':(*result.unresolved,'具体是多长时间？请告诉我分钟数或小时数，再生成剩余行程预览。')})
+        if not _has_content(result):
+            meta['basis']='kimi_validated';meta['source']=usage.get('source','mock_model')
+            return Understanding(unresolved=('这句话我没完全理解，换个说法再试试？',)),meta
         if local.corrections and not clock(text):
             # A cancelled clause cannot survive through a model-generated action list.
             result=result.model_copy(update={'actions':local.actions,'constraints':local.constraints})
@@ -674,7 +1039,7 @@ def parse(text,snapshot,*,allow_model=True):
             keyed={k:c for k,c in keyed.items() if c.field not in corrected or c in local.constraints}
         service_branch=bool(result.service_query or any(a.kind=='search_services' for a in result.actions))
         semantic_branch=bool(result.conversation or result.route_query or result.weather_query or result.service_query or result.planning or result.state_request or service_branch)
-        merged_actions=result.actions if semantic_branch else result.actions or local.actions
+        merged_actions=result.actions
         # The question-or-change placeholder only stands in for a rule parse that failed its
         # evidence check; a grounded model action has already answered that question.
         local_unresolved=tuple(u for u in local.unresolved if u!=ASK_QUESTION_OR_CHANGE or not result.actions)
@@ -688,14 +1053,15 @@ def parse(text,snapshot,*,allow_model=True):
         explicit_planning=bool(result.planning or any(a.kind in ('modify','preference','progress','position','cancel') for a in result.actions))
         planning_constraints=[c for c in local.constraints if not service_branch or explicit_planning or not any(c.quote in q for q in service_quotes)]
         if service_branch:keyed={(c.field,c.quote):c for c in (*result.constraints,*planning_constraints)}
-        merged_constraints=tuple(keyed.values())
+        merged_constraints=tuple(Constraint.model_validate(c) for c in _dedupe([c.model_dump(mode='json') for c in keyed.values()]))
+        if len(merged_constraints)>16:raise ValueError('intent capacity exceeded')
         merged_corrections=result.corrections if service_branch else local.corrections or result.corrections
         result=Understanding(actions=merged_actions,constraints=merged_constraints,
                              corrections=merged_corrections,unresolved=merged_unresolved,
                              planning=result.planning,conversation=result.conversation,route_query=result.route_query,
                              weather_query=result.weather_query,service_query=result.service_query,state_request=result.state_request)
         meta['basis']='kimi_validated';meta['source']=usage.get('source','mock_model');return result,meta
-    except (HTTPException,ValidationError,ValueError) as exc:
+    except (HTTPException,ValidationError,ValueError,TypeError) as exc:
         # Record which check failed and where, never raw model output or visitor text.
         meta['validation_failure']=failure(exc)
         if isinstance(exc,HTTPException) and isinstance(exc.detail,dict):
@@ -706,6 +1072,7 @@ def parse(text,snapshot,*,allow_model=True):
         # A connection failure is not the visitor's fault; say so instead of asking them to rephrase.
         reply='小汴梁暂时连不上，稍后再试一次，行程没有变动。' if isinstance(exc,HTTPException) else '这句话我没完全理解，换个说法再试试？'
         if str(exc) in ('duration_required','duration_not_in_quote'):reply='具体是多长时间？请告诉我分钟数或小时数，再生成剩余行程预览。'
+        if str(exc)=='intent capacity exceeded':reply='要求太多，请分几次说；未截断或放宽你的约束。'
         local=Understanding(unresolved=(reply,))
         meta['basis']='rule_fallback';meta['source']='deterministic_fallback';return local,meta
 
@@ -740,7 +1107,9 @@ def wants_find(intent,snapshot):
 def route(intent,snapshot):
     clarification=questions(intent,snapshot)
     components=[]
-    if intent.state_request:return ('clarify',clarification) if clarification else ('workflow',[])
+    if intent.state_request:
+        readonly=bool(intent.conversation or intent.weather_query or intent.route_query or intent.service_query or any(a.kind=='query' for a in intent.actions))
+        return ('compound',clarification) if readonly else ('clarify',clarification) if clarification else ('workflow',[])
     if intent.conversation:components.append('conversation')
     if intent.service_query:components.append('travel_services')
     if intent.weather_query:components.append('weather')
@@ -755,8 +1124,10 @@ def route(intent,snapshot):
     typed_quotes={branch.quote for branch in (intent.weather_query,intent.route_query) if branch}
     if any(a.kind=='query' and a.quote not in typed_quotes for a in intent.actions):
         components.append('direct')
+    if sum(a.kind=='query' and a.quote not in typed_quotes for a in intent.actions)>1:
+        components.append('compound')
     if clarification:
-        if len(components)>1 or any(c in ('conversation','travel_services','weather','reference_route') for c in components):components.append('clarify')
+        if len(components)>1 or any(c in ('conversation','travel_services','weather','reference_route','direct') for c in components):components.append('clarify')
         else:return 'clarify',clarification
     components=list(dict.fromkeys(components))
     if len(components)>1:return 'compound',clarification

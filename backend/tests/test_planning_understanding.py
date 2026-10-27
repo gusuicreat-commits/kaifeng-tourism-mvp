@@ -655,10 +655,12 @@ def test_failures_name_the_check_and_log_one_line_without_visitor_text(city,monk
     line=json.loads(caplog.records[-1].getMessage())
     assert line['dropped']==[{'field':'origin','check':'place_not_in_quote'}] and line['steps'][0][0]=='understand'
     assert '开封府' not in caplog.text and '编造' not in caplog.text
-    # A whole-turn rejection names the failed check and where it ran.
+    # An unsupported item is now audited locally; no valid content still clarifies.
     monkeypatch.setattr(provider,'generate',lambda s,p,**k:({'actions':[{'kind':'modify','quote':'不在原话里'}]},{'source':'mock_model'}))
     t=run(city,'换个出发地点')
-    assert t['interpretation']['validation_failure']=={'kind':'evidence','at':'understand.grounded','check':'ungrounded evidence quote'}
+    assert {'path':'actions[0]','category':'A','reason':'ungrounded evidence quote','quote':'不在原话里'} in t['interpretation']['dropped']
+    assert t['status']=='needs_clarification' and '没完全理解' in t['result']['reply']
+    assert not t['interpretation'].get('validation_failure')
 
 
 def dining(monkeypatch,text,**action):
@@ -1341,7 +1343,8 @@ def test_pending_skip_without_two_character_name_evidence_keeps_strict_gate(city
     monkeypatch.setattr(provider,'generate',lambda *a,**k:({'state_request':{
         'operation':'skip','quote':text,'target_name':'[合成测试]museum'}},{'source':'mock_model'}))
     task=run(city,text)
-    assert task['interpretation']['validation_failure']['check']=='state target absent'
+    assert any(d['path']=='state_request' and d['category']=='A' and d['reason']=='state target absent' for d in task['interpretation']['dropped'])
+    assert task['status']=='needs_clarification' and '这部分我没采用' in task['result']['reply']
     assert 'basket_proposal' not in task['result']
 
 

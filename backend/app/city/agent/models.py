@@ -251,16 +251,15 @@ class Understanding(Strict):
             quote=(value.get(branch) or {}).get('quote') if isinstance(value.get(branch),dict) else None
             if quote and not has(kind,quote):actions.append({'kind':kind,'quote':quote})
         state=value.get('state_request')
-        if isinstance(state,dict) and state.get('quote') and state.get('operation') in IN_TRIP_CHANGES|{'skip'}:
-            # An in-trip change owns its turn. The live model sometimes restates it as a chat
-            # reply or a second index entry over the same words, and writes "skip the next
-            # stop" as the progress mark skip; neither adds a request, so both are folded in.
+        if isinstance(state,dict) and isinstance(state.get('quote'),str):
             if state.get('operation')=='skip' and state.get('next_stop'):state=dict(state,operation='skip_replan')
-            if state.get('next_stop') and state.get('target_name') and state['target_name'] not in state['quote']:
-                state=dict(state,target_name=None)  # "下一站" is the reference; a copied full name adds nothing
-            if state['operation']!='skip':
-                q=state['quote'];value=dict(value,state_request=state,conversation=None)
-                actions=[a for a in actions if not (isinstance(a,dict) and a.get('quote') and (a['quote'] in q or q in a['quote']))]
+            if state.get('operation') in IN_TRIP_CHANGES and state.get('next_stop') and state.get('target_name') and state['target_name'] not in state['quote']:
+                state=dict(state,target_name=None)
+            value=dict(value,state_request=state)
+            q=state['quote']
+            actions=[a for a in actions if not (isinstance(a,dict) and a.get('kind') in ('modify','progress','position','cancel')
+                and isinstance(a.get('quote'),str) and a['quote'] in q
+                and (not a.get('target_name') or a.get('target_name')==state.get('target_name')))]
         if isinstance(state,dict) and state.get('quote'):
             kind={'complete':'progress','skip':'progress','skip_replan':'modify','delay':'modify','extend':'modify','rest':'modify','position':'position','cancel':'cancel','restore':'modify'}.get(state.get('operation'))
             if kind and not has(kind,state['quote']):actions.append({'kind':kind,'quote':state['quote']})
@@ -272,8 +271,6 @@ class Understanding(Strict):
             expected={'complete':'progress','skip':'progress','skip_replan':'modify','delay':'modify','extend':'modify','rest':'modify','position':'position','cancel':'cancel','restore':'modify'}[self.state_request.operation]
             if not any(a.kind==expected and a.quote==self.state_request.quote for a in self.actions):
                 raise ValueError('state request needs matching action')
-            if self.planning or self.service_query or self.weather_query or self.route_query or self.conversation or self.constraints:
-                raise ValueError('state operation needs its own turn')
         if self.route_query and self.route_query.use_current_position and self.route_query.origin:
             raise ValueError('route query cannot carry both origin and current position')
         if self.weather_query and not any(a.kind=='query' and a.quote==self.weather_query.quote for a in self.actions):

@@ -120,37 +120,61 @@ def grounded(planning, text, snapshot, dropped=None, meta=None):
     if planning.quote not in text:raise ValueError('planning quote absent')
     request_evidence(text,planning.quote)
     if planning.operation=='continue':
-        if planning.fields or planning.choices:raise ValueError('continue cannot update')
+        if planning.fields or planning.choices:
+            planning=planning.model_copy(update={'operation':'update'})
+            return grounded(planning,text,snapshot,dropped,meta)
         control=planning.quote.strip().rstrip('。！!')
         if control not in ('好','好的','可以','就这样','就这样吧','就按这个安排','生成安排','开始安排','帮我安排','安排','规划') and not re.search(r'(?:开始|生成|继续|帮我|请).{0,20}(?:安排|规划)',control):
             raise ValueError('continue needs an explicit planning request')
-    seen={};kept=[]
+    seen={};conflicts=set();kept=[]
+    def drop(item,field,check,part):
+        dropped.append({'field':field,'check':check})
+        if meta is not None:
+            from .understand import _drop, _drop_category
+            sequence=planning.fields if part=='fields' else planning.choices
+            _drop(meta,f'planning.{part}[{sequence.index(item)}]',_drop_category(check),check,item.quote,field=field)
     for f in planning.fields:
         # A quote the model did not copy from the request only loses that field;
         # negation/hypothetical checks still protect the whole turn.
         if f.quote not in text:
             if dropped is None:raise ValueError('planning evidence absent')
-            dropped.append({'field':f.field,'check':'quote_not_in_request'});continue
-        request_evidence(text,f.quote)
-        if f.field in seen and seen[f.field]!=f.value:raise ValueError('conflicting planning values')
-        seen[f.field]=f.value
+            drop(f,f.field,'quote_not_in_request','fields');continue
+        try:request_evidence(text,f.quote)
+        except ValueError as exc:
+            if dropped is None:raise
+            drop(f,f.field,str(exc),'fields');continue
         check=_field_check(f,text,today)
         if check is None:
+            value=resolve_date(str(f.value),today) if f.field=='date' else f.value
+            if f.field in seen and seen[f.field]!=value:conflicts.add(f.field)
+            seen[f.field]=value
             kept.append(f)
         elif dropped is None:
             raise ValueError(check)
         else:
-            dropped.append({'field':f.field,'check':check})
+            drop(f,f.field,check,'fields')
+    if conflicts and meta is not None:
+        for field in sorted(conflicts):
+            values=tuple(dict.fromkeys(str(f.value) for f in kept if f.field==field))
+            meta.setdefault('planning_conflicts',[]).append({'field':field,'question':'你说的是“'+'”还是“'.join(values)+'”？'})
+    for f in kept:
+        if f.field in conflicts:
+            if dropped is None:raise ValueError('conflicting planning values')
+            drop(f,f.field,'conflicting_values','fields')
+    kept=[f for f in kept if f.field not in conflicts]
     kept_choices=[]
     for choice in planning.choices:
         if choice.quote not in text:
             if dropped is None:raise ValueError('material evidence absent')
-            dropped.append({'field':'choice','check':'choice_not_in_quote'});continue
+            drop(choice,'choice','choice_not_in_quote','choices');continue
         matches=_short_choice_matches(choice,snapshot)
         if matches==[]:
             if dropped is None:raise ValueError('material evidence absent')
-            dropped.append({'field':'choice','check':'choice_not_in_quote'});continue
-        request_evidence(text,choice.quote)
+            drop(choice,'choice','choice_not_in_quote','choices');continue
+        try:request_evidence(text,choice.quote)
+        except ValueError as exc:
+            if dropped is None:raise
+            drop(choice,'choice',str(exc),'choices');continue
         if matches and meta is not None:
             meta.setdefault('short_name_matches',[]).append({'name':choice.name,'method':'common_substring',
                 'material_keys':[item['key'] for item in matches]})

@@ -23,8 +23,11 @@ def _ready_reply(result):
 
 def _execute(session,t,intent):
     proposed=proposal(session,t.trip_id,t.snapshot,intent,t.text,today=t.interpretation_date)
+    conflicts=t.interpretation.get('planning_conflicts',())
     action=proposed.get('planning_action')
-    if not action:return proposed
+    if not action:
+        if conflicts:proposed.update(status='needs_clarification',reply=''.join(c['question'] for c in conflicts))
+        return proposed
     planning_version=action['planning_version'];basket_version=action['basket_version']
     service_version=t.snapshot.services.get('version',0)
     def guard(db):
@@ -36,7 +39,7 @@ def _execute(session,t,intent):
         if travel_services.read(db,t.trip_id)['version']!=service_version:
             raise HTTPException(409,detail={'code':'SERVICE_CONDITIONS_CHANGED'})
     constraints=action['constraints']
-    if proposed.get('basket_proposal') or proposed.get('basket_choices'):
+    if proposed.get('basket_proposal') or proposed.get('basket_choices') or conflicts:
         from ...db import connect
         # Save only the understood conditions; no basket write or route is authorized yet.
         with connect() as db:
@@ -45,10 +48,13 @@ def _execute(session,t,intent):
         t.snapshot.workspace=saved
         t.snapshot.envelope=t.snapshot.envelope.model_copy(update={'planning_constraints':{
             'version':saved['version'],'constraints':constraints,'rounds':saved['rounds']}})
-        result=exploration.unknown('确认素材篮变更后接着安排。',code='BASKET_CONFIRMATION_REQUIRED')
+        result=exploration.unknown(''.join(c['question'] for c in conflicts) if conflicts else '确认素材篮变更后接着安排。',
+            code='PLANNING_FIELD_CONFLICT' if conflicts else 'BASKET_CONFIRMATION_REQUIRED')
         result.update(constraints=constraints,planning_version=saved['version'],rounds=saved['rounds'],
                       basket_version=basket_version,trip_version=action['trip_version'])
-        pending_basket=proposed.get('basket_proposal')
+        # Confirming a basket card resumes planning in the UI; an unresolved field
+        # must not silently resume using its previously saved value.
+        pending_basket=proposed.get('basket_proposal') if not conflicts else None
         reply=''
         if pending_basket:
             existing={(i['kind'],i['id']) for i in t.snapshot.materials}
@@ -61,8 +67,9 @@ def _execute(session,t,intent):
             reply+='确认后我接着排。'
         if action['date_changed']:reply='日期已记为 '+constraints['business_date']+'。'+reply
         reply+=''.join(proposed.get('notes',[]))
+        reply+=''.join(c['question'] for c in conflicts)
         return {'status':'needs_confirmation' if pending_basket else 'needs_clarification','reply':reply,'formal_state_changed':False,
-                **{key:proposed[key] for key in ('basket_proposal','basket_choices') if key in proposed},
+                **{key:proposed[key] for key in ('basket_proposal','basket_choices') if key in proposed and not conflicts},
                 'planning_workflow':{'trip_id':t.trip_id,'execution':'completed_backend','operation':action['operation'],
                     'date_changed':action['date_changed'],'result':result}}
     result=exploration.preview_plan(UUID(t.trip_id),exploration.Plan(

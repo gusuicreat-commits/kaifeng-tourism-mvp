@@ -26,7 +26,7 @@ from ..assistant.models import CityChat
 from . import provider, understand, toolbelt, reference_routes
 from .prompt_schema import prompt_schema
 from .. import weather
-from .models import Budget, Decision, Understanding
+from .models import Budget, Decision, Understanding, Constraint
 
 LOCK=threading.RLock()
 TASKS={}
@@ -252,7 +252,10 @@ def _finish(session,t,status,result):
     if not t.cancelled and t.snapshot is not None and t.intent and t.mode in ('workflow','react'):
         queries=[a for a in t.intent.actions if a.kind=='query']
         if queries:
-            result['answers']=[_read_query(t,a,t.snapshot) for a in queries[:4]]
+            result['answers']=[_read_query(t,a,t.snapshot) for a in queries]
+    if t.intent and not t.cancelled:
+        note=understand.dropped_reply(t.intent,t.interpretation or {},t.text)
+        if note:result['reply']=result.get('reply','')+note
     t.status=status;t.result=result;t.terminal_at=time.monotonic()
     LOG.info(json.dumps(trace(t),ensure_ascii=False,default=str))
     if t.snapshot is not None:
@@ -295,6 +298,7 @@ def _merge(intent,snapshot):
     # A soft follow-up is an additional preference, not permission to remove a
     # previously explicit hard bound from this unconfirmed multi-turn request.
     merged=[c for c in previous.constraints if c.field not in replaces or c.strength=='hard' and c.field not in new_hard]+list(intent.constraints)
+    merged=[Constraint.model_validate(c) for c in understand._dedupe([c.model_dump(mode='json') for c in merged])]
     if len(merged)>16:
         return Understanding(unresolved=('待补充要求太多，请分开确认；未丢弃或放宽原有约束。',))
     return Understanding(actions=tuple({a.kind:a for a in (*previous.actions,*intent.actions)}.values()),
@@ -428,7 +432,7 @@ def _compound_step(session,t):
              and not (getattr(a,'purpose',None)=='dining' and any(a.quote in q or q in a.quote for q in food_quotes))]
     if queries:
         answers=[]
-        for action in queries[:4]:
+        for action in queries:
             answer=_read_query(t,action,snapshot);answers.append(answer)
         query_status='answered' if all(a.get('status')=='answered' for a in answers) else 'needs_data'
         parts.append({'kind':'direct_query','status':query_status,'answers':answers});statuses.append(query_status)
@@ -447,6 +451,12 @@ def _compound_step(session,t):
     if has_planning:
         if questions:
             planning_result={'status':'needs_clarification','reply':''.join(questions)}
+        elif intent.state_request:
+            t.tools+=1;t.events.append({'tool':'preview_plan','status':'running','parameters':{}})
+            planning_result,calls=_workflow(session,t)
+            if not _fresh(session,t):
+                _discard_result(session,t,planning_result);return public(t)
+            t.events[-1].update(status=planning_result['status'],calls=calls)
         elif any(a.kind in ('progress','position','cancel') for a in intent.actions):
             planning_result={'status':'needs_clarification','reply':'进度、当前位置与取消操作请单独确认；本轮未执行这些状态修改。'}
         elif intent.planning:
@@ -650,7 +660,7 @@ def _advance(session,trip_id,identity,body):
             if meta.get('provider_failure'):
                 t.events[-1]['status']='failed'
                 _finish(session,t,'unavailable',{'state':'model_unavailable','code':meta['provider_failure'].get('code'),
-                    'model_status':meta['provider_failure'],'reply':'刚才连接中断了，请再试一次。'})
+                    'model_status':meta['provider_failure'],'reply':'刚才模型输出格式有问题，请再试一次。' if meta['provider_failure'].get('code')=='MODEL_OUTPUT_INVALID' else '刚才连接中断了，请再试一次。'})
             elif t.mode=='clarify' and t.intent.unresolved and meta.get('model_availability',{}).get('available') is False:
                 _finish(session,t,'unavailable',{'state':'model_unavailable','code':'MODEL_NOT_CONFIGURED','model_status':meta['model_availability'],
                     'reply':'聊天模型尚未配置，暂不能理解这段追问。明确起点和终点的问路仍可直接查参考路线。'})
