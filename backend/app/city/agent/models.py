@@ -10,7 +10,7 @@ class Action(Strict):
         description='query查;search_dining餐饮;search_services服务;modify改已排路线;preference偏好;cancel只撤销待确认修改;progress进度;position位置。出发前不去/候补/改优先级不是action，填planning.choices。')
     quote: str = Field(min_length=1, max_length=500)
     target_name: str | None = Field(default=None, max_length=120,
-                                    description='具体菜/店/地名；泛指null。')
+                                    description='具体菜/店/地名/节目；泛指null。')
     purpose: Literal['trip','next','shows','dining','travel','history','reference'] | None = Field(
         default=None, description='普通query给purpose=trip/next/shows/dining/travel/history/reference。trip=行程;next=下一站;shows=演出;dining=餐饮;travel=交通;history=历史;reference=引用。')
     # search_dining only: the visitor limited the search to where they are now.

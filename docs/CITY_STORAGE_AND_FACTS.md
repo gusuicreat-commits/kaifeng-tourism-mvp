@@ -77,6 +77,17 @@ cd /Users/mac/Desktop/大挑/kaifeng-tourism-mvp
 
 应用前再次验证数据库最新版本，事务内保存当前值和修订。维护 CLI 不启动应用、不调用网络、不读取收费密钥；只授权本机维护者使用，没有游客 HTTP 导入接口。单包最多 10MB、2000 条记录。
 
+队员采集的带日期场次使用 [show_sessions.csv](data_templates/show_sessions.csv)（UTF-8 BOM，可用 Excel 打开）。列依次为景区、节目名称、舞台、演出日期、开演、结束、停止入场、来源说明、来源链接或截图文件名、采集人、采集日期；日期用 `YYYY-MM-DD`，时刻用北京时间 `HH:MM`，停止入场可留空，其余必填。来源说明为“示例，导入时跳过”的行不会导入。景区/节目/舞台须以名称或已有别名唯一匹配同一景区内的既有实体，不自动创建节目或地点。
+
+```bash
+.venv/bin/python scripts/import_show_sessions.py /absolute/path/to/show_sessions.csv --database /absolute/path/to/catalog.sqlite3 --dry-run
+# 核对无误后去掉 --dry-run，整批写入已有目标库
+```
+
+格式、日历日期、结束晚于开演、停止入场不晚于开演、采集日期不在未来、同节目同开演时刻去重均通过才原子写入；错误逐行列出，任一行错误整批不写。重复导入不新增事实/修订，已有同时间场次内容冲突须另走升版流程。来源记录保留采集人、采集日期、说明及链接/截图文件名；场次和来源均为 `reference/unverified/internal_only`，不是人工核实。不会读取 `schedule_text` 推断日期。舞台等依赖的坐标、营业和交通仍由既有引擎另行检查。
+
+小汴梁复用 `actions[].kind=query,purpose=shows,target_name` 查询原话点名景区/节目（含别名）的当天场次；明确钟点复用现有时间语法作为查询下限，否则以服务器当前北京时间为准，按开演排序，仅列尚未开演的记录。没有日期场次如实提示节目介绍时间仅供参考；不会替换日期，也不会修改行程。指代已排行程中“那场”仍走原有引用查询。此链路由 `backend/tests/test_show_sessions.py` 的临时库、模型替身及原引擎节目目标测试覆盖，真实场次采集和现场验收另行完成。
+
 契约更新后重新生成：
 
 ```bash

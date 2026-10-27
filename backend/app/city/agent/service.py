@@ -309,6 +309,10 @@ def _defer(session,t):
 
 
 def _read_query(t,action,snapshot):
+    if action.purpose=='shows':
+        from .shows import query
+        answer=query(action,snapshot)
+        if answer is not None:return answer
     if action.purpose=='dining':
         if action.near and snapshot.envelope.position['status']!='fresh':
             return {'status':'needs_data','code':'FRESH_POSITION_REQUIRED','reply':'你现在在哪？在地图上点一下位置，我再帮你找附近的。'}

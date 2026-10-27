@@ -35,7 +35,7 @@
             }
           ],
           "default": null,
-          "description": "具体菜/店/地名；泛指null。",
+          "description": "具体菜/店/地名/节目；泛指null。",
           "title": "Target Name"
         },
         "purpose": {

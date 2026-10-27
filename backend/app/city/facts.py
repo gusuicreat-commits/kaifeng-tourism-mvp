@@ -121,6 +121,7 @@ class OpenRule(Fact):
 class Program(Fact):
     kind: Literal['program']
     name: str = Field(min_length=1, max_length=120)
+    aliases: tuple[str, ...] = Field(default=(), max_length=20)
     place_id: EntityId | None = None
     stage_name: str | None = Field(default=None, max_length=200)
     description: str | None = Field(default=None, max_length=2000)

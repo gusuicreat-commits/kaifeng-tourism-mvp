@@ -40,10 +40,14 @@ def explicit_references(text, snapshot):
     return tuple({(r.kind,r.id):r for r in selected}.values())[:6]
 
 
+def refers_back(text):
+    return any(w in text for w in ('刚才','那家','那场','那个','这场','这个','之前'))
+
+
 def resolve_reference(text, snapshot, kind):
     explicit = [r for r in explicit_references(text,snapshot) if r.kind == kind]
     if explicit: return explicit
-    if any(w in text for w in ('刚才','那家','那场','那个','这场','这个','之前')):
+    if refers_back(text):
         recent = [Reference.model_validate(r) for r in snapshot.envelope.references if r['kind'] == kind]
         if recent: return recent
     if kind == 'show_session':

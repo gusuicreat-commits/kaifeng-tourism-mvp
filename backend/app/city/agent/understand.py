@@ -46,6 +46,7 @@ def food_covered_by_material(constraint, planning, snapshot):
 
 
 UNDERSTAND_TIMEOUT_SECONDS = 25.0
+ASK_QUESTION_OR_CHANGE = '你是想调整行程，还是先问问？'
 
 
 UNDERSTANDING_PROMPT_SECTIONS = (
@@ -430,7 +431,7 @@ def parse(text,snapshot,*,allow_model=True):
         # invalid. Discard that proposed mutation, then let the semantic model
         # distinguish a question from a request. Model actions still pass the
         # same grounded() gate below; offline fallback stays non-executable.
-        local=Understanding(unresolved=('你是想调整行程，还是先问问？',))
+        local=Understanding(unresolved=(ASK_QUESTION_OR_CHANGE,))
     meta={'basis':'rule','source':'deterministic_fallback','model_calls':0,'usage':[]}
     state_read=all(a.kind=='query' for a in local.actions) and bool(re.fullmatch(
         r'\s*(?:(?:我)?下一站(?:去哪里|去哪儿|去哪|是什么|是哪里)|(?:今天)?(?:还有|还剩)(?:几个|多少)(?:景点|活动)|(?:我)?(?:今天)?都安排了什么)[？?。]?\s*',text))
@@ -607,7 +608,10 @@ def parse(text,snapshot,*,allow_model=True):
         service_branch=bool(result.service_query or any(a.kind=='search_services' for a in result.actions))
         semantic_branch=bool(result.conversation or result.route_query or result.weather_query or result.service_query or result.planning or result.state_request or service_branch)
         merged_actions=result.actions if semantic_branch else result.actions or local.actions
-        merged_unresolved=result.unresolved if semantic_branch else tuple(dict.fromkeys((*local.unresolved,*result.unresolved)))
+        # The question-or-change placeholder only stands in for a rule parse that failed its
+        # evidence check; a grounded model action has already answered that question.
+        local_unresolved=tuple(u for u in local.unresolved if u!=ASK_QUESTION_OR_CHANGE or not result.actions)
+        merged_unresolved=result.unresolved if semantic_branch else tuple(dict.fromkeys((*local_unresolved,*result.unresolved)))
         service_quotes=[a.quote for a in result.actions if a.kind=='search_services']
         if result.service_query:service_quotes.append(result.service_query.quote)
         explicit_planning=bool(result.planning or any(a.kind in ('modify','preference','progress','position','cancel') for a in result.actions))
