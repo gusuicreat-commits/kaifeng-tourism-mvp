@@ -86,6 +86,25 @@ def preview(trip_id:UUID,body:PlanBody,s:Session=Depends(current)):
 
 
 def preview_plan(trip_id,body,s,*,execution_guard=None):
+    if isinstance(body,PlanV2):
+        from .engine.models import PreviewRequestV2,MultiDayRequirements,DayRequirements
+        limit('exploration:'+s.id,20)
+        with connect() as db:
+            row=state.owned(db,s,trip_id);state.check_version(row,body.expected_version);basket.guard(db,trip_id,body.basket_version)
+            workspace=exploration_state.read(db,trip_id)
+            if body.planning_version is not None:exploration_state.guard(db,trip_id,body.planning_version)
+        req_data=body.constraints.model_dump(mode='json')
+        req_data['days']=[{k:v for k,v in d.items() if k in DayRequirements.model_fields} for d in req_data['days']]
+        for key in ('trip_days','trip_nights','pending_fields','clarifications','range_impacts'):req_data.pop(key,None)
+        req_data['schema_version']='city-engine/2'
+        try:requirements=MultiDayRequirements.model_validate(req_data)
+        except ValidationError:raise HTTPException(422,detail='请补齐多天每日时段、端点和过夜条件。') from None
+        result=engine.preview(s,trip_id,PreviewRequestV2(request_id=body.request_id,expected_version=body.expected_version,
+            requirements=requirements),planning_version=workspace['version'])
+        with connect() as db:
+            saved=exploration_state.save(db,trip_id,body.constraints.model_dump(mode='json'),result,workspace['rounds'])
+        return result|{'constraints':body.constraints.model_dump(mode='json'),'planning_version':saved['version'],
+                       'basket_version':body.basket_version,'trip_version':body.expected_version}
     single_day(body.constraints)
     limit('exploration:'+s.id,20)
     data=body.model_dump(mode='json');scope='exploration:'+str(trip_id)
@@ -241,12 +260,18 @@ def answer_choice(trip_id,body,s,*,execution_guard=None):
     with connect() as db:
         db.execute('BEGIN IMMEDIATE')
         if execution_guard:execution_guard(db)
-        row=state.owned(db,s,trip_id);guard_single_day(db,row);state.check_version(row,body.expected_version)
+        row=state.owned(db,s,trip_id);state.check_version(row,body.expected_version)
         cached=state.receipt(db,s,body.request_id,scope,data)
         if cached is not None:return cached
         basket.guard(db,trip_id,body.basket_version);exploration_state.guard(db,trip_id,body.planning_version)
         workspace=exploration_state.read(db,trip_id);collected=basket.snapshot(db,s,trip_id)
         if not workspace['constraints']:raise HTTPException(422,detail='请先核验规划条件，再提交取舍。')
+        multi=workspace['constraints'] and workspace['constraints'].get('schema_version')=='city-constraints/2'
+        if multi:
+            saved=exploration_state.save(db,trip_id,workspace['constraints'],workspace.get('result'),workspace['rounds']+1)
+            response=saved|{'formal_state_changed':False}
+            state.remember(db,s,body.request_id,trip_id,scope,data,response)
+            return response
         constraints=Constraints.model_validate(workspace['constraints']);priorities={}
         if body.option_id:
             result=workspace['result'] or {}
@@ -279,7 +304,7 @@ def answer_choice(trip_id,body,s,*,execution_guard=None):
 def cancel(trip_id:UUID,body:Answer,s:Session=Depends(current)):
     data=body.model_dump(mode='json');scope='exploration_cancel:'+str(trip_id)
     with connect() as db:
-        db.execute('BEGIN IMMEDIATE');guard_single_day(db,state.owned(db,s,trip_id))
+        db.execute('BEGIN IMMEDIATE');state.owned(db,s,trip_id)
         cached=state.receipt(db,s,body.request_id,scope,data)
         if cached is not None:return cached
         exploration_state.guard(db,trip_id,body.planning_version)

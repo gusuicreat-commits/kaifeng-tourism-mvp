@@ -21,6 +21,17 @@ def _ready_reply(result):
     return '方案已准备好。'+(f"时间不够，这版没排进：{'、'.join(left)}。" if left else '')+'请点“确认方案”保存。'
 
 
+def _basket_reply(pending,snapshot):
+    if not pending:return ''
+    existing={(i['kind'],i['id']) for i in snapshot.materials}
+    adding=[i['name'] for i in pending['items'] if i['operation']=='put' and (i['kind'],i['object_id']) not in existing]
+    updating=[i['name'] for i in pending['items'] if i['operation']=='put' and (i['kind'],i['object_id']) in existing]
+    standby=[i['name'] for i in pending['items'] if i['operation']=='standby']
+    return (('要把'+'、'.join(adding)+'加入素材篮吗？' if adding else '')+
+            ('要调整'+'、'.join(updating)+'的优先级吗？' if updating else '')+
+            ('要把'+'、'.join(standby)+'改为候补吗？' if standby else '')+'确认后我接着排。')
+
+
 def _execute(session,t,intent):
     proposed=proposal(session,t.trip_id,t.snapshot,intent,t.text,today=t.interpretation_date)
     conflicts=t.interpretation.get('planning_conflicts',())
@@ -38,6 +49,52 @@ def _execute(session,t,intent):
         exploration_state.guard(db,t.trip_id,planning_version)
         if travel_services.read(db,t.trip_id)['version']!=service_version:
             raise HTTPException(409,detail={'code':'SERVICE_CONDITIONS_CHANGED'})
+    if action['constraints'].get('schema_version')=='city-constraints/2':
+        from ..engine.models import MultiDayConstraints,MultiDayRequirements,PreviewRequestV2
+        from .multi_day_intent import _questions
+        constraints=MultiDayConstraints.model_validate(action['constraints'])
+        missing=_questions(action['constraints'])
+        if missing or conflicts or proposed.get('basket_proposal') or proposed.get('basket_choices'):
+            from ...db import connect
+            with connect() as db:
+                db.execute('BEGIN IMMEDIATE');guard(db)
+                saved=exploration_state.save(db,t.trip_id,constraints.model_dump(mode='json'),None,t.snapshot.workspace.get('rounds',0))
+            pending=proposed.get('basket_proposal') if not conflicts else None
+            reply=''.join(c['question'] for c in conflicts) if conflicts else (
+                ''.join(missing[:1])+_basket_reply(pending,t.snapshot))
+            reply+=''.join(proposed.get('notes',[]))
+            from ..assistant import context as assistant_context
+            t.snapshot=assistant_context.load(session,t.trip_id,'modify',t.text)
+            return {'status':'needs_clarification' if missing or conflicts or not pending else 'needs_confirmation',
+                'reply':reply,'formal_state_changed':False,
+                **{key:proposed[key] for key in ('basket_proposal','basket_choices') if key in proposed and not conflicts},
+                'planning_workflow':{'trip_id':t.trip_id,'execution':'completed_backend','operation':action['operation'],
+                    'date_changed':action['date_changed'],'result':{'status':'needs_clarification' if missing or conflicts else 'unknown',
+                        'issues':[{'code':'PLANNING_FIELD_CONFLICT' if conflicts else 'BASKET_CONFIRMATION_REQUIRED'}] if conflicts or pending else [],
+                        'constraints':constraints.model_dump(mode='json')}}}
+        from ..engine.models import DayRequirements
+        req_data=constraints.model_dump(mode='json')
+        req_data['days']=[{k:v for k,v in d.items() if k in DayRequirements.model_fields} for d in req_data['days']]
+        req_data.pop('trip_days',None);req_data.pop('trip_nights',None)
+        req_data.pop('pending_fields',None);req_data.pop('clarifications',None);req_data.pop('range_impacts',None)
+        req_data['schema_version']='city-engine/2'
+        requirements=MultiDayRequirements.model_validate(req_data)
+        from ...db import connect
+        with connect() as db:
+            db.execute('BEGIN IMMEDIATE');guard(db)
+            saved=exploration_state.save(db,t.trip_id,constraints.model_dump(mode='json'),None,t.snapshot.workspace.get('rounds',0))
+        planning_version=saved['version']
+        result=exploration.engine.preview(session,t.trip_id,PreviewRequestV2(request_id=uuid5(UUID(t.id),'planning-preview'),
+            expected_version=action['trip_version'],requirements=requirements),planning_version=planning_version)
+        t.snapshot.workspace={'version':result.get('planning_version',planning_version),'constraints':constraints.model_dump(mode='json'),
+            'result':result,'rounds':result.get('rounds',0)}
+        from ..assistant import context as assistant_context
+        t.snapshot=assistant_context.load(session,t.trip_id,'modify',t.text)
+        return {'status':'needs_confirmation' if result.get('status') in ('preview','feasible') else 'needs_data',
+            'reply':('多天方案已准备好，请核对整套行程后确认保存。' if result.get('status') in ('preview','feasible') else
+                     result.get('reply') or '当前条件未产生可确认的多天路线，请核对缺项或约束冲突。')+''.join(proposed.get('notes',[])),
+            'formal_state_changed':False,'planning_workflow':{'trip_id':t.trip_id,'execution':'completed_backend',
+                'operation':action['operation'],'date_changed':action['date_changed'],'result':result}}
     constraints=action['constraints']
     if proposed.get('basket_proposal') or proposed.get('basket_choices') or conflicts:
         from ...db import connect
@@ -55,16 +112,7 @@ def _execute(session,t,intent):
         # Confirming a basket card resumes planning in the UI; an unresolved field
         # must not silently resume using its previously saved value.
         pending_basket=proposed.get('basket_proposal') if not conflicts else None
-        reply=''
-        if pending_basket:
-            existing={(i['kind'],i['id']) for i in t.snapshot.materials}
-            adding=[i['name'] for i in pending_basket['items'] if i['operation']=='put' and (i['kind'],i['object_id']) not in existing]
-            updating=[i['name'] for i in pending_basket['items'] if i['operation']=='put' and (i['kind'],i['object_id']) in existing]
-            standby=[i['name'] for i in pending_basket['items'] if i['operation']=='standby']
-            if adding:reply+='要把'+ '、'.join(adding)+'加入素材篮吗？'
-            if updating:reply+='要调整'+ '、'.join(updating)+'的优先级吗？'
-            if standby:reply+='要把'+ '、'.join(standby)+'改为候补吗？'
-            reply+='确认后我接着排。'
+        reply=_basket_reply(pending_basket,t.snapshot)
         if action['date_changed']:reply='日期已记为 '+constraints['business_date']+'。'+reply
         reply+=''.join(proposed.get('notes',[]))
         reply+=''.join(c['question'] for c in conflicts)
@@ -111,13 +159,6 @@ def _execute(session,t,intent):
 
 def execute(session,t,intent):
     result=_execute(session,t,intent)
-    days_field=next((f for f in intent.planning.fields if f.field=='trip_days'),None) if intent.planning else None
-    if days_field and intent.planning.operation!='weather_replan' and days_field.value>1:
-        from .requirement_context import planning_values
-        day=planning_values(t.snapshot).get('business_date')
-        field=next((f for f in intent.planning.fields if f.field=='date'),None)
-        if field:day=resolve_date(field.value,t.interpretation_date or t.snapshot.envelope.identity.generated_at.astimezone(TZ).date()).isoformat()
-        result['reply']=f"已按“{days_field.quote}”理解为{days_field.value}天；目前只能先排第一天（{day or '日期待补充'}），多天行程还在开发中。"+result['reply'].removeprefix(f'日期已记为 {day}。')
     if any(d['check']=='per_person_budget' for d in t.interpretation.get('dropped_fields',())):
         from .requirement_context import planning_values
         result['reply']+=('按人预算暂时不能用于规划，这笔金额未作为总预算保存；仍沿用已保存的总预算。'

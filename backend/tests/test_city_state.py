@@ -106,10 +106,9 @@ def test_unknown_draft_tags_do_not_fall_back_on_missing_or_default_tags(city,tag
     assert r.status_code==422 and r.json()['detail']['code']=='SCHEMA_UNSUPPORTED'
 
 
-def test_multi_day_workspace_read_keeps_null_and_missing_without_rewriting_and_refuses_write(city):
+def test_multi_day_workspace_read_keeps_null_and_missing_and_allows_workspace_write(city):
     from app.city import exploration_state
     from multi_day_helpers import requirements
-    from fastapi import HTTPException
     t=create(city);req=requirements()
     constraints={'schema_version':'city-constraints/2','start_date':req['start_date'],'end_date':req['end_date'],
         'days':[{'business_date':req['start_date'],'origin_place_id':None},{'business_date':req['end_date']}]}
@@ -117,13 +116,14 @@ def test_multi_day_workspace_read_keeps_null_and_missing_without_rewriting_and_r
     with connect() as db:
         db.execute('INSERT INTO city_exploration_states VALUES (?,?,?,?,?,?)',(t['id'],4,raw,None,0,storage.stamp()))
         assert exploration_state.read(db,t['id'])['constraints']==constraints
-        with pytest.raises(HTTPException) as exc:exploration_state.save(db,t['id'],constraints,None,0)
-        assert exc.value.status_code==503
-        assert db.execute('SELECT constraints_json FROM city_exploration_states').fetchone()[0]==raw
+        saved=exploration_state.save(db,t['id'],constraints,None,0)
+        assert saved['version']==5
     assert city.get('/api/city/v1/trips/'+t['id']+'/exploration/constraints').json()['constraints']==constraints
     response=city.post('/api/city/v1/trips/'+t['id']+'/exploration/preview',json={
         'request_id':rid(),'expected_version':1,'basket_version':0,'constraints':constraints})
-    assert response.status_code==503 and response.json()['detail']['status']=='unavailable'
+    # The workspace accepts partial conditions; a preview requires complete daily endpoints and times.
+    assert response.status_code==422
+    assert response.json()['detail']=='请补齐多天每日时段、端点和过夜条件。'
 
 
 def test_multi_day_old_state_proposal_cannot_confirm_a_v2_draft(city):

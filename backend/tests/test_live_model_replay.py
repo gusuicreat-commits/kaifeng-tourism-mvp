@@ -50,7 +50,7 @@ def test_recorded_model_reply_passes_the_pipeline(kaifeng, monkeypatch, case):
     assert not problems, f"{case['text']}: {problems}"
 
 
-def test_pitch_reply_lists_recorded_dish_suppliers_and_single_day_scope(kaifeng,monkeypatch):
+def test_pitch_reply_keeps_dish_suppliers_basket_and_hotels_while_asking_daily_time(kaifeng,monkeypatch):
     from datetime import timedelta
     from app.db import connect
     from app.city import facts
@@ -60,6 +60,7 @@ def test_pitch_reply_lists_recorded_dish_suppliers_and_single_day_scope(kaifeng,
     monkeypatch.setattr(provider,'generate',lambda *a,**k:(next(replies),{'source':'recorded_model'}))
     trip=model_replay.new_trip(kaifeng);before=kaifeng.get('/api/city/v1/trips/'+trip['id']).json()
     task=model_replay.run(kaifeng,trip,case['text']);reply=task['result']['reply']
+    assert task['status']=='needs_clarification'
     proposal=task['result']['basket_proposal']
     assert [(i['name'],i['kind'],i['priority']) for i in proposal['items']]==[
         ('万岁山武侠城','place','want'),('清明上河园','place','want')]
@@ -67,10 +68,19 @@ def test_pitch_reply_lists_recorded_dish_suppliers_and_single_day_scope(kaifeng,
     recorded=datetime.fromisoformat(case['recorded_at']).date()
     saturday=(recorded+timedelta(days=5-recorded.weekday())).isoformat()
     saved=model_replay.saved(kaifeng,trip)
-    assert saved['business_date']==saturday and saved.get('budget_fen') is None
-    assert f'只能先排第一天（{saturday}）' in reply and '按人预算暂时不能用于规划，先不按预算筛选' in reply
+    assert saved['start_date']==saturday and saved['end_date']==(recorded+timedelta(days=6-recorded.weekday())).isoformat()
+    assert saved['trip_days']==2 and saved.get('budget_fen') is None and saved['pace']=='relaxed'
+    assert saved['days'][0]['starts_at'] is None and saved['days'][1]['starts_at'] is None
+    assert '只能先排第一天' not in reply and '多天行程还在开发中' not in reply
+    assert '几点开始' in reply and '过夜' not in reply and '按人预算暂时不能用于规划，先不按预算筛选' in reply
     assert [line.split('：',1)[0] for line in reply.splitlines()]==['住宿','美食','行程']
     assert '。；' not in reply and '你想问哪一场演出' not in reply
+    hotels=task['result']['services']
+    assert hotels['requirements']['category']=='hotels'
+    assert hotels['requirements']['attributes']['window']['strength']=='hard'
+    assert hotels['requirements']['attributes']['free_parking']['strength']=='soft'
+    assert hotels['result']['status']=='needs_clarification'
+    assert '请提供入住日期' in reply and '请提供退房日期或住几晚' in reply
     dining=next(item for item in task['result']['compound']['items'] if item['kind']=='direct_query')['answers'][0]
     assert dining['items'] and len({i['food_id'] for i in dining['items']})<=5
     with connect() as db:catalog=facts.records(db)

@@ -1023,6 +1023,61 @@
           "default": null,
           "title": "End Date"
         },
+        "trip_days": {
+          "anyOf": [
+            {
+              "maximum": 30,
+              "minimum": 1,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Trip Days"
+        },
+        "trip_nights": {
+          "anyOf": [
+            {
+              "maximum": 30,
+              "minimum": 0,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Trip Nights"
+        },
+        "pending_fields": {
+          "default": [],
+          "items": {
+            "$ref": "#/$defs/PendingDayField"
+          },
+          "maxItems": 30,
+          "title": "Pending Fields",
+          "type": "array"
+        },
+        "clarifications": {
+          "default": [],
+          "items": {
+            "type": "string"
+          },
+          "maxItems": 12,
+          "title": "Clarifications",
+          "type": "array"
+        },
+        "range_impacts": {
+          "default": [],
+          "items": {
+            "type": "string"
+          },
+          "maxItems": 60,
+          "title": "Range Impacts",
+          "type": "array"
+        },
         "timezone": {
           "const": "Asia/Shanghai",
           "default": "Asia/Shanghai",
@@ -1570,6 +1625,65 @@
         "source_kind"
       ],
       "title": "Overnight",
+      "type": "object"
+    },
+    "PendingDayField": {
+      "additionalProperties": false,
+      "properties": {
+        "field": {
+          "enum": [
+            "start_time",
+            "end_time",
+            "origin",
+            "destination"
+          ],
+          "title": "Field",
+          "type": "string"
+        },
+        "value": {
+          "anyOf": [
+            {
+              "maxLength": 120,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Value"
+        },
+        "day_ref": {
+          "anyOf": [
+            {
+              "maxLength": 120,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Day Ref"
+        },
+        "scope": {
+          "anyOf": [
+            {
+              "const": "every_day",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Scope"
+        }
+      },
+      "required": [
+        "field",
+        "value"
+      ],
+      "title": "PendingDayField",
       "type": "object"
     },
     "PlanV2": {

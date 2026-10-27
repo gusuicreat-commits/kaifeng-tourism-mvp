@@ -530,6 +530,19 @@
           "description": "明确优先级才true；仅true改已有项；不去/候补用choices。",
           "title": "Priority Stated",
           "type": "boolean"
+        },
+        "day_ref": {
+          "anyOf": [
+            {
+              "maxLength": 120,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Day Ref"
         }
       },
       "required": [
@@ -575,10 +588,12 @@
       "additionalProperties": false,
       "properties": {
         "field": {
-          "description": "city城市;date日期;start_time/end_time起止;origin/destination出发/返回;pace节奏;objective目标;mode交通;budget_fen预算分;trip_days天。",
+          "description": "city城市;date日期;start_time/end_time起止;origin/destination出发/返回;pace节奏;objective目标;mode交通;budget_fen预算分;trip_days天。start_date起日;end_date末日(含);trip_nights晚数。",
           "enum": [
             "city",
             "date",
+            "start_date",
+            "end_date",
             "start_time",
             "end_time",
             "origin",
@@ -587,7 +602,8 @@
             "objective",
             "mode",
             "budget_fen",
-            "trip_days"
+            "trip_days",
+            "trip_nights"
           ],
           "title": "Field",
           "type": "string"
@@ -599,9 +615,12 @@
             },
             {
               "type": "integer"
+            },
+            {
+              "type": "null"
             }
           ],
-          "description": "日期抄原文；晚间沿用到后续钟点（今晚五点半…十点回→17:30、22:00），无钟点不猜，几点前回来用end_time。pace=relaxed放松/standard标准/compact紧凑;objective=balanced均衡/less_walking少走路/less_waiting少等待/lower_cost省钱;少走路/走不动/腿脚不便=less_walking;无分钟不填walking_seconds。",
+          "description": "日期抄原文；晚间沿用到后续钟点（今晚五点半…十点回→17:30、22:00），无钟点不猜，几点前回来用end_time。pace=relaxed/standard/compact;objective=balanced均衡/less_walking少走路/less_waiting/lower_cost;少走路/走不动/腿脚不便=less_walking；无分钟不填walking_seconds。",
           "title": "Value"
         },
         "quote": {
@@ -627,6 +646,33 @@
           "default": null,
           "description": "trip_days填整数，“两三天”取上限；budget_fen同时给budget_basis（total总预算/per_person每人预算），由你判断口径，系统会把理解结果告诉游客。分：300元=30000；每人金额不乘人数。",
           "title": "Budget Basis"
+        },
+        "day_ref": {
+          "anyOf": [
+            {
+              "maxLength": 120,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Day Ref"
+        },
+        "scope": {
+          "anyOf": [
+            {
+              "const": "every_day",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "every_day=每天。",
+          "title": "Scope"
         }
       },
       "required": [
@@ -662,7 +708,7 @@
           "items": {
             "$ref": "#/$defs/PlanningField"
           },
-          "maxItems": 12,
+          "maxItems": 30,
           "title": "Fields",
           "type": "array"
         },
@@ -1026,6 +1072,31 @@
           ],
           "default": null,
           "title": "Restore Version"
+        },
+        "scope": {
+          "default": "current_day",
+          "description": "current_day今天剩余;current_and_future含后续天;selected_future_day未来单日。",
+          "enum": [
+            "current_day",
+            "current_and_future",
+            "selected_future_day"
+          ],
+          "title": "Scope",
+          "type": "string"
+        },
+        "scope_quote": {
+          "anyOf": [
+            {
+              "maxLength": 200,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "范围自己的连续原话。",
+          "title": "Scope Quote"
         }
       },
       "required": [

@@ -28,7 +28,7 @@ def guard(db, trip_id, expected):
 
 
 def save(db, trip_id, constraints, result, rounds):
-    if constraints is not None:single_day(read_constraints(constraints))
+    if constraints is not None:read_constraints(constraints)
     version = read(db, trip_id)['version'] + 1
     if result is not None:
         result.update(planning_version=version, rounds=rounds)

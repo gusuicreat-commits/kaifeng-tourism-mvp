@@ -512,6 +512,7 @@ def _compound_step(session,t):
             result['planning']=item['result']
             if 'planning_workflow' in item['result']:result['planning_workflow']=item['result']['planning_workflow']
             if 'basket_choices' in item['result']:result['basket_choices']=item['result']['basket_choices']
+            if 'basket_proposal' in item['result']:result['basket_proposal']=item['result']['basket_proposal']
             if item['status']=='needs_confirmation':
                 result.update({key:value for key,value in item['result'].items() if key not in ('reply','status','formal_state_changed')})
     _finish(session,t,status,result)
@@ -634,6 +635,10 @@ def _advance(session,trip_id,identity,body):
         if str(body.request_id) in t.step_requests:
             if t.step_requests[str(body.request_id)]!=body.expected_step:raise HTTPException(409,detail='步骤请求编号与内容冲突。')
             return public(t)
+        if t.intent and t.intent.state_request and t.intent.state_request.scope in ('current_and_future','selected_future_day'):
+            _finish(session,t,'unavailable',{'reply':'暂不支持调整后续天；今天的剩余行程仍保持不变，请单独说明今天要改什么。',
+                'code':'MULTI_DAY_SCOPE_UNAVAILABLE','formal_state_changed':False})
+            return public(t)
         if t.status!='running':return public(t)
         if t.busy:raise HTTPException(409,detail='当前步骤仍在处理。')
         if body.expected_step!=t.step:raise HTTPException(409,detail='任务步骤已变化，请刷新。')
@@ -657,6 +662,8 @@ def _advance(session,trip_id,identity,body):
             t.intent=_merge(intent,t.snapshot)
             if not _fresh(session,t):return public(t)
             t.mode,questions=understand.route(t.intent,t.snapshot)
+            if t.intent.state_request and t.intent.state_request.scope in ('current_and_future','selected_future_day'):
+                t.mode='scope_unavailable'
             t.events[-1].update(status='ok',source=meta.get('source','mock_model'),fallback=meta['basis']=='rule_fallback',
                 request_sequence=1 if meta['model_calls'] else None,provider_failure=meta.get('provider_failure'))
             if meta.get('context_budget'):t.events[-1]['context_budget']=meta['context_budget']
@@ -669,6 +676,9 @@ def _advance(session,trip_id,identity,body):
             elif t.mode=='clarify' and t.intent.unresolved and meta.get('model_availability',{}).get('available') is False:
                 _finish(session,t,'unavailable',{'state':'model_unavailable','code':'MODEL_NOT_CONFIGURED','model_status':meta['model_availability'],
                     'reply':'聊天模型尚未配置，暂不能理解这段追问。明确起点和终点的问路仍可直接查参考路线。'})
+            elif t.mode=='scope_unavailable':
+                _finish(session,t,'unavailable',{'reply':'暂不支持调整后续天；今天的剩余行程仍保持不变，请单独说明今天要改什么。',
+                    'code':'MULTI_DAY_SCOPE_UNAVAILABLE','formal_state_changed':False})
             elif t.mode=='clarify':
                 _defer(session,t);_finish(session,t,'needs_clarification',{'reply':' '.join(questions),'questions':questions})
             elif t.mode=='conversation':
@@ -727,7 +737,6 @@ def _advance(session,trip_id,identity,body):
             _finish(session,t,result['status'],result)
             return public(t)
         if t.mode=='planning':
-            v2tools.require_single_day(t.snapshot)
             from .orchestration import execute
             t.tools+=1;t.events.append({'tool':'planning_workflow','status':'running','parameters':{},'source':'backend_orchestrator'})
             result=execute(session,t,t.intent)

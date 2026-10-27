@@ -124,6 +124,7 @@ def test_schema_compaction_preserves_single_shared_and_recursive_definitions():
             'three': {'$ref': '#/$defs/Shared'}, 'tree': {'$ref': '#/$defs/Recursive'},
             'value': {'anyOf': [{'type': 'string'}, {'type': 'integer'}, {'type': 'null'}]},
             'choice': {'anyOf': [{'type': 'string', 'enum': ['x', 'y']}, {'type': 'null'}]},
+            'scope': {'anyOf': [{'type': 'string', 'const': 'every_day'}, {'type': 'null'}]},
         },
     }
     original = copy.deepcopy(source)
@@ -133,6 +134,7 @@ def test_schema_compaction_preserves_single_shared_and_recursive_definitions():
     assert result['$defs'] == {k: v for k, v in source['$defs'].items() if k != 'Single'}
     assert result['properties']['value'] == {'type': ['string', 'integer', 'null']}
     assert result['properties']['choice'] == {'enum': ['x', 'y', None]}
+    assert result['properties']['scope'] == {'enum': ['every_day', None]}
     assert result['additionalProperties'] is False and result['required'] == ['one']
     assert prompt_schema(result) == result
 

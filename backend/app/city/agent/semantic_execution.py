@@ -16,6 +16,9 @@ def read_action(action,snapshot):
 def grounded_state(value,text):
     from .understand import clock, duration_values
     request_evidence(text,value.quote)
+    if value.scope != 'current_day':
+        if not value.scope_quote or value.scope_quote not in value.quote or value.scope_quote not in text:
+            raise ValueError('state scope evidence absent')
     if value.target_name and (value.target_name not in value.quote):raise ValueError('state target absent')
     if value.operation in ('delay','extend','rest'):
         if value.minutes is None:raise ValueError('duration_required')

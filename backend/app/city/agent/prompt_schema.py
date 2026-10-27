@@ -30,6 +30,8 @@ def _compact(value):
                 result['enum'] = [*result['enum'], None]
         elif union and len(union) == 2 and union[-1] == {'type': 'null'} and set(union[0]) == {'enum'}:
             result = {k: v for k, v in result.items() if k != 'anyOf'} | {'enum': [*union[0]['enum'], None]}
+        elif union and len(union) == 2 and union[-1] == {'type': 'null'} and set(union[0]) == {'const'}:
+            result = {k: v for k, v in result.items() if k != 'anyOf'} | {'enum': [union[0]['const'], None]}
         # String literal choices already exclude every other type.
         if result.get('type') == 'string' and (
                 'enum' in result and all(isinstance(v, str) for v in result['enum']) or

@@ -285,10 +285,22 @@ class DayConstraints(DayIdentity):
         return self
 
 
+class PendingDayField(Strict):
+    field: Literal['start_time','end_time','origin','destination']
+    value: str | None = Field(max_length=120)
+    day_ref: str | None = Field(default=None,max_length=120)
+    scope: Literal['every_day'] | None = None
+
+
 class MultiDayConstraints(Strict):
     schema_version: Literal['city-constraints/2']
     start_date: date | None = None
     end_date: date | None = None
+    trip_days: int | None = Field(default=None,ge=1,le=30)
+    trip_nights: int | None = Field(default=None,ge=0,le=30)
+    pending_fields: tuple[PendingDayField,...] = Field(default=(),max_length=30)
+    clarifications: tuple[str,...] = Field(default=(),max_length=12)
+    range_impacts: tuple[str,...] = Field(default=(),max_length=60)
     timezone: Literal['Asia/Shanghai'] = 'Asia/Shanghai'
     days: tuple[DayConstraints,...] = Field(default=(),max_length=3)
     goals: tuple[TripGoal,...] = Field(default=(),max_length=30)

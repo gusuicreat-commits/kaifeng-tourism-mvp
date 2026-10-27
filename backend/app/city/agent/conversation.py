@@ -52,6 +52,18 @@ def model_payload(text, snapshot, system):
     def size():return len(system)+len(json.dumps(payload,ensure_ascii=False))
     def record(section):
         if section not in budget['trimmed']:budget['trimmed'].append(section)
+    # Keep compatibility with the historical 12k understanding fixture while the
+    # provider budget remains MODEL_INPUT_CHARACTERS. Authoritative requirements stay.
+    if size()>12000:
+        ctx['planning_readiness'].update(assessment={},issues=[]);record('previous_assessment')
+    while size()>12000 and ctx.get('recent_messages'):
+        ctx['recent_messages'].pop(0);record('oldest_messages')
+    if size()>12000:
+        ctx['references']=[];ctx['page_focus']=None;record('reference_details')
+    if size()>12000:
+        ctx['official_plan']={};record('official_plan')
+    if size()>12000:
+        ctx['progress']={};record('progress')
     while size()>provider.MODEL_INPUT_CHARACTERS and ctx['recent_messages']:
         ctx['recent_messages'].pop(0);record('oldest_messages')
     if size()>provider.MODEL_INPUT_CHARACTERS:

@@ -18,6 +18,10 @@ def _field_check(f, text, today):
     """Name of the check this field's value fails against its own quote, or None."""
     from .understand import clock_grounded
     try:
+        if f.value is None:return None
+        if f.field in ('start_date','end_date'):
+            from .date_range import field_date
+            field_date(f,today);return None
         if f.field=='date':
             if f.value in f.quote:
                 resolve_date(f.value,today);return None
@@ -30,28 +34,20 @@ def _field_check(f, text, today):
         if f.field in ('city','origin','destination'):return None if f.value in f.quote else 'place_not_in_quote'
         if f.field in ('pace','objective','mode'):
             preference_evidence(f.field,f.value,f.quote);return None
-        if f.field=='trip_days':
-            if type(f.value) is not int or not 1<=f.value<=30:return 'invalid_trip_days'
-            if '周末' in f.quote:return None if f.value==2 else 'trip_days_not_in_quote'
-            numbers=[]
-            for match in re.finditer(r'(\d+|[零一二两三四五六七八九十百千万]+)\s*(?:到|至|或)?\s*(\d+|[零一二两三四五六七八九十百千万]+)?\s*天',f.quote):
-                values=[]
-                for token in match.groups():
-                    if token:
-                        try:
-                            if not token.isdigit() and not any(c in token for c in '十百千万') and len(token)>1:
-                                values.extend(_CHINESE_DIGITS[c] for c in token)
-                            else:values.append(_chinese_number(token))
-                        except ValueError:continue
-                numbers.extend(values)
-            return None if not numbers or f.value==max(numbers) else 'trip_days_not_in_quote'
+        if f.field in ('trip_days','trip_nights'):
+            from .date_range import counts
+            if f.field=='trip_days' and '周末' in f.quote:
+                return None if f.value==2 else 'trip_days_not_in_quote'
+            numbers=counts(f.quote,'天' if f.field=='trip_days' else '(?:晚|夜)')
+            return None if numbers and f.value==max(numbers) else f.field+'_not_in_quote'
         if f.field=='budget_fen':
             if f.budget_basis=='per_person':return 'per_person_budget'
             # The model selects the amount; other numbers in its quote are not conflicting budgets.
             amounts=_money_amounts(f.quote)
             if f.value not in amounts:return 'budget_not_in_quote'
             if f.budget_basis is None:return 'budget_basis_missing'
-    except ValueError:
+    except ValueError as exc:
+        if f.field in ('start_date','end_date'):return str(exc)
         return 'date_unresolved' if f.field=='date' else 'preference_not_in_quote'
     return None
 
@@ -109,7 +105,7 @@ def _short_choice_matches(choice,snapshot,items=None):
     return [item for item in (snapshot.materials if items is None else items) if best and score[item['key']]==best]
 
 
-def grounded(planning, text, snapshot, dropped=None, meta=None):
+def grounded(planning, text, snapshot, dropped=None, meta=None, corrections=()):
     """Check evidence for every planning field.
 
     With ``dropped`` (a list), a field whose value is not supported by its quote is
@@ -122,11 +118,12 @@ def grounded(planning, text, snapshot, dropped=None, meta=None):
     if planning.operation=='continue':
         if planning.fields or planning.choices:
             planning=planning.model_copy(update={'operation':'update'})
-            return grounded(planning,text,snapshot,dropped,meta)
+            return grounded(planning,text,snapshot,dropped,meta,corrections)
         control=planning.quote.strip().rstrip('。！!')
         if control not in ('好','好的','可以','就这样','就这样吧','就按这个安排','生成安排','开始安排','帮我安排','安排','规划') and not re.search(r'(?:开始|生成|继续|帮我|请).{0,20}(?:安排|规划)',control):
             raise ValueError('continue needs an explicit planning request')
-    seen={};conflicts=set();kept=[]
+    from .date_range import day_key,day_reference,scope_check
+    seen={};kept=[]
     def drop(item,field,check,part):
         dropped.append({'field':field,'check':check})
         if meta is not None:
@@ -139,29 +136,37 @@ def grounded(planning, text, snapshot, dropped=None, meta=None):
         if f.quote not in text:
             if dropped is None:raise ValueError('planning evidence absent')
             drop(f,f.field,'quote_not_in_request','fields');continue
-        try:request_evidence(text,f.quote)
-        except ValueError as exc:
-            if dropped is None:raise
-            drop(f,f.field,str(exc),'fields');continue
-        check=_field_check(f,text,today)
-        if check is None:
-            value=resolve_date(str(f.value),today) if f.field=='date' else f.value
-            if f.field in seen and seen[f.field]!=value:conflicts.add(f.field)
-            seen[f.field]=value
-            kept.append(f)
-        elif dropped is None:
-            raise ValueError(check)
-        else:
-            drop(f,f.field,check,'fields')
-    if conflicts and meta is not None:
-        for field in sorted(conflicts):
-            values=tuple(dict.fromkeys(str(f.value) for f in kept if f.field==field))
-            meta.setdefault('planning_conflicts',[]).append({'field':field,'question':'你说的是“'+'”还是“'.join(values)+'”？'})
-    for f in kept:
-        if f.field in conflicts:
-            if dropped is None:raise ValueError('conflicting planning values')
-            drop(f,f.field,'conflicting_values','fields')
-    kept=[f for f in kept if f.field not in conflicts]
+        try:
+            request_evidence(text,f.quote)
+            scope_check(f,text)
+            if f.day_ref:day_reference(f.day_ref or f.quote,text,today)
+            key=(f.field,day_key(f,today))
+            check=_field_check(f,text,today)
+        except ValueError as exc:check=str(exc)
+        if check is not None:
+            if dropped is None:raise ValueError(check)
+            drop(f,f.field,check,'fields');continue
+        value=f.value
+        if value is not None and f.field in ('date','start_date','end_date'):
+            from .date_range import resolve
+            value=resolve(str(value),today)
+        previous=seen.get(key,[])
+        if previous:
+            if any(f.quote in c.after and all(item.quote in c.before for item,_ in previous) for c in corrections):
+                previous=[]
+            elif any(old==value for _,old in previous):continue
+        seen[key]=[*previous,(f,value)]
+    for (field,_),entries in seen.items():
+        if len(entries)==1:
+            kept.append(entries[0][0]);continue
+        if dropped is None:raise ValueError('conflicting planning values')
+        items=[item for item,_ in entries]
+        unique=[str(item.value) for item in items]
+        if meta is not None:
+            ref=items[0].day_ref or ('每天' if items[0].scope else '')
+            meta.setdefault('planning_conflicts',[]).append({'field':field,**({'day_ref':ref} if ref else {}),
+                'question':ref+'你说的是“'+'”还是“'.join(unique)+'”？'})
+        for item in items:drop(item,field,'conflicting_values','fields')
     kept_choices=[]
     for choice in planning.choices:
         if choice.quote not in text:
@@ -171,7 +176,9 @@ def grounded(planning, text, snapshot, dropped=None, meta=None):
         if matches==[]:
             if dropped is None:raise ValueError('material evidence absent')
             drop(choice,'choice','choice_not_in_quote','choices');continue
-        try:request_evidence(text,choice.quote)
+        try:
+            request_evidence(text,choice.quote)
+            if choice.day_ref:day_reference(choice.day_ref,text,today)
         except ValueError as exc:
             if dropped is None:raise
             drop(choice,'choice',str(exc),'choices');continue
@@ -310,6 +317,9 @@ def proposal(session, trip_id, snapshot, intent, text, *, today=None):
     saved=snapshot.envelope.planning_constraints
     from .requirement_context import planning_values
     base=planning_values(snapshot)
+    from .multi_day_intent import is_multi,prepare
+    if is_multi(base,p):
+        return prepare(session,trip_id,snapshot,intent,text,today=today,notes=notes)
     c=Constraints.model_validate(base);values=c.model_dump(mode='json');today=today or snapshot.envelope.identity.generated_at.astimezone(TZ).date()
     fields={f.field:f.value for f in p.fields}
     # The application's city scope is not a navigable waypoint. Require an endpoint role

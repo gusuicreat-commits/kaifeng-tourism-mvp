@@ -50,6 +50,9 @@ class StateIntent(Strict):
     start_time: str | None = Field(default=None,pattern=r'^(?:[01]\d|2[0-3]):[0-5]\d$',description='实际开始时间给HH:MM及start_quote；恢复给明确restore_version。HH:MM为24小时制，小时00–23、分钟00–59。')
     start_quote: str | None = Field(default=None,max_length=200)
     restore_version: int | None = Field(default=None,ge=1)
+    scope: Literal['current_day','current_and_future','selected_future_day'] = Field(default='current_day',
+        description='current_day今天剩余;current_and_future含后续天;selected_future_day未来单日。')
+    scope_quote: str | None = Field(default=None,max_length=200,description='范围自己的连续原话。')
 
 
 class Constraint(Strict):
@@ -83,22 +86,25 @@ class Correction(Strict):
 
 
 class PlanningField(Strict):
-    field: Literal['city','date','start_time','end_time','origin','destination','pace','objective','mode','budget_fen','trip_days'] = Field(
-        description='city城市;date日期;start_time/end_time起止;origin/destination出发/返回;pace节奏;objective目标;mode交通;budget_fen预算分;trip_days天。')
-    value: str | int = Field(description='日期抄原文；晚间沿用到后续钟点（今晚五点半…十点回→17:30、22:00），无钟点不猜，几点前回来用end_time。pace=relaxed放松/standard标准/compact紧凑;objective=balanced均衡/less_walking少走路/less_waiting少等待/lower_cost省钱;少走路/走不动/腿脚不便=less_walking;无分钟不填walking_seconds。')
+    field: Literal['city','date','start_date','end_date','start_time','end_time','origin','destination','pace','objective','mode','budget_fen','trip_days','trip_nights'] = Field(
+        description='city城市;date日期;start_time/end_time起止;origin/destination出发/返回;pace节奏;objective目标;mode交通;budget_fen预算分;trip_days天。start_date起日;end_date末日(含);trip_nights晚数。')
+    value: str | int | None = Field(description='日期抄原文；晚间沿用到后续钟点（今晚五点半…十点回→17:30、22:00），无钟点不猜，几点前回来用end_time。pace=relaxed/standard/compact;objective=balanced均衡/less_walking少走路/less_waiting/lower_cost;少走路/走不动/腿脚不便=less_walking；无分钟不填walking_seconds。')
     quote: str = Field(min_length=1, max_length=500, description='quote连续摘本轮，field.quote含value；往返复用origin.quote。')
     budget_basis: Literal['total','per_person'] | None = Field(
         default=None, description='trip_days填整数，“两三天”取上限；budget_fen同时给budget_basis（total总预算/per_person每人预算），由你判断口径，系统会把理解结果告诉游客。分：300元=30000；每人金额不乘人数。')
+    day_ref: str | None = Field(default=None,max_length=120)
+    scope: Literal['every_day'] | None = Field(default=None,description='every_day=每天。')
 
     @model_validator(mode='after')
     def typed_value(self):
         allowed={'pace':('relaxed','standard','compact'),
                  'objective':('balanced','less_walking','less_waiting','lower_cost'),
                  'mode':('walking','driving','transit')}
+        if self.value is None:return self
         if self.field=='budget_fen':
             if type(self.value) is not int or not 0<=self.value<=100000000:raise ValueError('invalid budget')
-        elif self.field=='trip_days':
-            if type(self.value) is not int or not 1<=self.value<=30:raise ValueError('invalid trip days')
+        elif self.field in ('trip_days','trip_nights'):
+            if type(self.value) is not int or not (1 if self.field=='trip_days' else 0)<=self.value<=30:raise ValueError('invalid trip duration')
         elif self.budget_basis is not None:
             raise ValueError('budget basis only applies to budget')
         elif not isinstance(self.value,str) or not self.value.strip() or len(self.value)>120:
@@ -116,6 +122,7 @@ class MaterialChoice(Strict):
     quote: str = Field(min_length=1,max_length=500, description='choices含素材全名/priority/status；quote含整段意愿/优先级/不去，仅地名不填。')
     priority_stated: bool = Field(default=False,
         description='明确优先级才true；仅true改已有项；不去/候补用choices。')
+    day_ref: str | None = Field(default=None,max_length=120)
 
 
 class BasketProposalItem(ObjectRef):
@@ -154,7 +161,7 @@ class PlanningIntent(Strict):
     operation: Literal['update','continue','weather_replan'] = Field(
         default='update', description='update=改条件;weather_replan=天气调整。“就这样/开始安排”用continue，fields/choices空。')
     quote: str = Field(min_length=1,max_length=500)
-    fields: tuple[PlanningField,...] = Field(default=(),max_length=12)
+    fields: tuple[PlanningField,...] = Field(default=(),max_length=30)
     choices: tuple[MaterialChoice,...] = Field(default=(),max_length=12)
 
 

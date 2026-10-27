@@ -949,15 +949,17 @@ def test_weekend_dates_share_planning_and_hotel_resolution(today,weekend,next_we
 
 
 @pytest.mark.parametrize('duration',['玩两天','三天两晚','2天','游玩 3 天'])
-def test_multiday_request_only_saves_first_day_and_explains_limit(city,monkeypatch,duration):
+def test_multiday_request_asks_for_daily_time_and_overnight_before_preview(city,monkeypatch,duration):
     text='2030-05-03去开封'+duration
     days=3 if '三天' in duration or '3' in duration else 2
     quote='三天' if '三天' in duration else '3 天' if '3 天' in duration else '2天' if '2天' in duration else '两天'
     model(monkeypatch,text,[field('date','2030-05-03','2030-05-03'),field('trip_days',days,quote)])
     before=get(city);task=run(city,text)
-    assert f'理解为{days}天；目前只能先排第一天（2030-05-03），多天行程还在开发中' in task['result']['reply']
+    assert task['status']=='needs_clarification'
+    assert '多天行程还在开发中' not in task['result']['reply']
+    assert any(word in task['result']['reply'] for word in ('开始','结束','过夜','返回'))
     saved=city['client'].get(path(city,'/exploration/constraints')).json()['constraints']
-    assert saved['business_date']=='2030-05-03' and not {'days','nights','end_date'} & saved.keys()
+    assert saved is None or saved.get('schema_version')=='city-constraints/2'
     assert get(city)==before
 
 
