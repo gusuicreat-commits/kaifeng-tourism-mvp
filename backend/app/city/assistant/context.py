@@ -12,9 +12,9 @@ from ...memory.session import recheck
 from ...memory.storage import now, stamp
 from .. import facts, state
 from ..engine import service as engine
-from ..engine.models import Requirements
-from ..state_schema import CityDraft
-from ..versions import read_requirements, guard_single_day, read_result, single_day
+from ..engine.models import Requirements, MultiDayRequirements, MultiDayItinerary
+from ..state_schema import CityDraft, CityDraftV2
+from ..versions import read_requirements, read_draft, read_result, read_itinerary
 from .models import CityContext, Identity
 
 
@@ -31,6 +31,10 @@ class Snapshot:
     workspace: dict
     materials: list
     services: dict = field(default_factory=dict)
+    multi_requirements: MultiDayRequirements | None = None
+    multi_draft: CityDraftV2 | None = None
+    multi_itinerary: MultiDayItinerary | None = None
+    day_id: str | None = None
 
 
 def label(items, place_id):
@@ -84,34 +88,48 @@ def load(session, trip_id=None, purpose='trip', text='', page_focus=None):
             trip_id = owner['active_city_trip_id']
             if not trip_id: return None
         row = dict(state.owned(db, session, trip_id))
-        draft = guard_single_day(db,row)
+        draft = read_draft(row['draft_json'])
         planning = engine.context(db)
         moment = now()
         route = engine.read_snapshot(db, session, trip_id)
         saved = engine.route_row(db, trip_id)
         req = read_requirements(saved['requirements_json']) if saved else None
+        multi_draft=draft if isinstance(draft,CityDraftV2) else None
+        multi_req=req if isinstance(req,MultiDayRequirements) else None
+        multi_plan=read_itinerary(route['itinerary']) if route['itinerary'] and isinstance(req,MultiDayRequirements) else None
+        day_id=None;today=moment.astimezone(__import__('zoneinfo').ZoneInfo('Asia/Shanghai')).date()
+        if multi_draft:
+            day=next((d for d in draft.days if d.business_date==today),None)
+            day=day or (draft.days[0] if today<draft.start_date else draft.days[-1])
+            day_id=day.day_id;draft=day
+            plan_day=next((d for d in multi_plan.days if d.day_id==day_id),None) if multi_plan else None
+            req=plan_day.requirements if plan_day else None
+            route=route|{'itinerary':plan_day.itinerary.model_dump(mode='json') if plan_day else None}
         pending = []
         from .. import basket, exploration_state, travel_services
         workspace=exploration_state.read(db,trip_id)
         services=travel_services.read(db,trip_id)
         basket_version=basket.version(db,trip_id)
         for r in db.execute('SELECT * FROM city_engine_candidates WHERE trip_id=? AND consumed=0 ORDER BY expires_at DESC LIMIT 8', (str(trip_id),)):
-            parsed=read_result(r['result_json']);single_day(parsed,read_requirements(r['requirements_json']))
+            parsed=read_result(r['result_json'])
             result = parsed.model_dump(mode='json')
             first = (result.get('itineraries') or [None])[0]
-            expired = datetime.fromisoformat(r['expires_at']) <= moment or bool(first and datetime.fromisoformat(first['legs'][0]['departs_at']) < moment)
+            first_day=next((d for d in first['days'] if d['day_id']==day_id),first['days'][0]) if first and 'days' in first else None
+            projected=first_day['itinerary'] if first_day else first
+            legs=(projected or {}).get('legs',[])
+            expired = datetime.fromisoformat(r['expires_at']) <= moment or bool(legs and datetime.fromisoformat(legs[0]['departs_at']) < moment)
             status = 'expired' if expired else 'stale' if r['base_version'] != row['version'] or r['fingerprint'] != planning.fingerprint() else 'valid'
             extra=json.loads(r['progress_json'])
             if extra.get('basket_version',basket_version)!=basket_version or extra.get('planning_version',workspace['version'])!=workspace['version']:status='stale'
             from ..engine.validation import compare_itineraries
             from ..engine.models import Itinerary
             diff = compare_itineraries(Itinerary.model_validate(route['itinerary']) if route['itinerary'] else None,
-                                       Itinerary.model_validate(first)) if first else None
+                                       Itinerary.model_validate(projected)) if projected else None
             if diff:
                 from .tools import changes_for_remaining
                 diff = changes_for_remaining(diff,draft)
             pending.append({'candidate_id':r['id'],'target_kind':'route','base_version':r['base_version'],
-                            'expires_at':r['expires_at'],'status':status,'changes':diff})
+                            'expires_at':r['expires_at'],'status':status,'changes':diff,**({'day_id':day_id,'scope':'current_day'} if first_day else {})})
         revision = state.catalog_revision(planning.facts)
         for r in db.execute('SELECT * FROM city_proposals WHERE trip_id=? AND consumed=0 ORDER BY expires_at DESC LIMIT 8', (str(trip_id),)):
             action = json.loads(r['action_json'])
@@ -148,6 +166,9 @@ def load(session, trip_id=None, purpose='trip', text='', page_focus=None):
                      planned={k:activity[k] for k in ('arrives_at','starts_at','departs_at')})
         if value['stop_id'] not in {s['stop_id'] for s in official_stops}: official_stops.append(value)
     remaining = [s for s in (official_stops if route['itinerary'] else stops) if s['progress'] == 'pending']
+    if multi_draft:
+        for stop in stops+official_stops:stop.update(day_id=day_id,business_date=draft.business_date.isoformat())
+        if draft.business_date!=today or draft.status=='closed':remaining=[]
     anchor = json.loads(row['anchor_json']) if row['anchor_json'] else None
     age = (moment - datetime.fromisoformat(anchor['confirmed_at'])).total_seconds() if anchor else None
     fresh = bool(anchor and 0 <= age <= 900 and planning.ready(items.get(('place',anchor['place_id'])),moment))
@@ -178,6 +199,14 @@ def load(session, trip_id=None, purpose='trip', text='', page_focus=None):
         'pace':draft.pace,'objective':draft.objective,'budget_fen':req.budget_fen if req else None,
         'locked_stop_ids':[s.stop_id for s in draft.stops if s.locked and s.progress == 'pending'],
         'targets':[{'stop_id':s.stop_id,'kind':s.kind,'place_id':s.place_id,'session_id':s.session_id} for s in draft.stops]}
+    if multi_draft:
+        preferences.update(schema_version='city-engine/2',start_date=multi_draft.start_date.isoformat(),
+            end_date=multi_draft.end_date.isoformat(),day_id=day_id,scope='current_day',
+            days=[{'day_id':d.day_id,'business_date':d.business_date.isoformat(),'status':d.status,
+                   'frozen':d.business_date<today or d.status=='closed','locked':d.business_date>today,
+                   'historical_pending':[s.stop_id for s in d.stops if s.progress=='pending'] if d.business_date<today else []}
+                  for d in multi_draft.days])
+        official.update(day_id=day_id,scope='current_day',start_date=multi_draft.start_date.isoformat(),end_date=multi_draft.end_date.isoformat())
     relevant = set()
     if purpose in ('shows','reference','modify','history'):
         relevant |= {('show_session',s.session_id) for s in draft.stops if s.session_id and s.progress == 'pending'}
@@ -205,7 +234,7 @@ def load(session, trip_id=None, purpose='trip', text='', page_focus=None):
     progress = {'completed':[s for s in stops if s['progress'] == 'completed'],
                 'skipped':[s for s in stops if s['progress'] == 'skipped'], 'ongoing':ongoing,
                 'remaining':remaining,'next':remaining[0] if remaining and route['itinerary'] else None,
-                'ended':row['status'] in state.TERMINAL}
+                'ended':row['status'] in state.TERMINAL,**({'day_id':day_id,'business_date':draft.business_date.isoformat(),'scope':'current_day'} if multi_draft else {})}
     if purpose == 'next':
         # Keep identity/locks/progress, omit unrelated vendor/show catalogs and old dialogue.
         selected = []; messages = []; summary = {'text':'','source_message_ids':[],'authoritative':False}
@@ -221,7 +250,7 @@ def load(session, trip_id=None, purpose='trip', text='', page_focus=None):
                             characters=0,fact_records=len(envelope.facts))
     for _ in range(3): envelope.metrics['characters'] = len(envelope.model_dump_json())
     if len(envelope.model_dump_json()) > 12000: raise HTTPException(422,detail='当前状态超出上下文预算，请缩小目标范围。')
-    return Snapshot(row,draft,planning,route,req,pending,envelope,bool(owner['history_enabled']),workspace,intentions['items'],services)
+    return Snapshot(row,draft,planning,route,req,pending,envelope,bool(owner['history_enabled']),workspace,intentions['items'],services,multi_req,multi_draft,multi_plan,day_id)
 
 
 def trim(envelope):

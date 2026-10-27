@@ -33,7 +33,10 @@ def route_row(db,trip_id,version=None):
 
 
 def progress(row):
-    draft=read_draft(row['draft_json']);single_day(draft)
+    draft=read_draft(row['draft_json'])
+    from ..state_schema import CityDraftV2
+    if isinstance(draft,CityDraftV2):
+        return {'draft':draft.model_dump(mode='json'),'anchor':json.loads(row['anchor_json']) if row['anchor_json'] else None}
     return {'prefix':[s.model_dump(mode='json') for s in draft.stops if s.progress!='pending'],
             'anchor':json.loads(row['anchor_json']) if row['anchor_json'] else None}
 
@@ -131,6 +134,9 @@ def protect_requirements(row,req,replanning,previous,body,ctx):
 
 
 def preview(session,trip_id,body,replanning=False,planning_version=None):
+    if isinstance(body.requirements,MultiDayRequirements):
+        from .multi_day_service import preview_multi_day
+        return preview_multi_day(session,trip_id,body,replanning,planning_version)
     single_day(body.requirements)
     data=body.model_dump(mode='json');scope=('engine_replan:' if replanning else 'engine_preview:')+str(trip_id)
     with connect() as db:
@@ -226,13 +232,16 @@ def confirm_itinerary(session,trip_id,body):
     data=body.model_dump(mode='json');scope='engine_confirm:'+str(trip_id)
     with connect() as db:
         db.execute('BEGIN IMMEDIATE')
-        guard_single_day(db,state.owned(db,session,trip_id))
         cached=state.receipt(db,session,body.request_id,scope,data)
         if cached is not None:return cached
         row=state.owned(db,session,trip_id);state.check_version(row,body.expected_version);check_open(row)
         c=db.execute('SELECT * FROM city_engine_candidates WHERE id=? AND trip_id=?',(str(body.candidate_id),str(trip_id))).fetchone()
         if not c or c['consumed'] or c['expires_at']<=stamp(now()):raise HTTPException(409,detail='候选已过期、清除或被确认。')
-        req=read_requirements(c['requirements_json']);result=read_result(c['result_json']);single_day(req,result)
+        req=read_requirements(c['requirements_json']);result=read_result(c['result_json'])
+        if isinstance(req,MultiDayRequirements):
+            from .multi_day_service import confirm_multi_day
+            return confirm_multi_day(db,session,trip_id,body,row,c,req,result,data,scope)
+        guard_single_day(db,row);single_day(req,result)
         if c['base_version']!=row['version']:raise HTTPException(409,detail='候选基线版本已变化。')
         ctx=context(db)
         if ctx.fingerprint()!=c['fingerprint']:raise HTTPException(409,detail='关键事实已变化，请重新计算。')
@@ -307,10 +316,8 @@ def read_snapshot(db,session,trip_id,version=None):
     if isinstance(itinerary,MultiDayItinerary):
         if (req.start_date,req.end_date)!=(itinerary.start_date,itinerary.end_date):
             raise HTTPException(422,detail={'code':'SCHEMA_MISMATCH','message':'正式需求与路线日范围不一致。'})
-        return {'trip_id':str(trip_id),'version':row['version'],'route_version':saved['route_version'],
-                'itinerary':itinerary.model_dump(mode='json'),'stale':True,
-                'issues':[{'code':'MULTI_DAY_VALIDATION_UNAVAILABLE','message':'多天事实复核与写入尚未接通，保留完整快照供只读查看。'}],
-                'traffic_refresh_recommended':False,'notice':'多天历史快照；尚未按当前事实复核，不代表当前路线可执行。'}
+        from .multi_day_service import read_multi_snapshot
+        return read_multi_snapshot(db,row,saved,req,itinerary)
     ctx=context(db)
     fingerprint=ctx.fingerprint()
     ctx=live_travel.restore_snapshot(ctx,itinerary)

@@ -263,6 +263,7 @@ def verify_travel(snapshot,intent,restaurant,shows):
 
 
 def preview(session,trip_id,snapshot,intent,request_id,restaurant=None):
+    v2tools.require_single_day(snapshot)
     req,preserved=apply_constraints(snapshot,intent,restaurant)
     if restaurant:
         # Keep the meal before the protected show, not just somewhere in the same day.
@@ -280,9 +281,10 @@ def preview(session,trip_id,snapshot,intent,request_id,restaurant=None):
     return result
 
 
-def preview_adjustment(session,trip_id,snapshot,value,request_id):
+def preview_adjustment(session,trip_id,snapshot,value,request_id,text=None):
     """Project an evidenced in-trip request onto the existing replan/confirm gate."""
     from ..engine.models import OngoingInput
+    v2tools.current_day_scope(snapshot,text if text is not None else value.quote)
     if snapshot.row['status'] not in ('ACTIVE','PAUSED') or not snapshot.route.get('itinerary'):
         return {'status':'needs_clarification','reply':'请先开始今天已确认的行程，再修改剩余安排。'}
     if snapshot.envelope.position['status']!='fresh':
@@ -309,7 +311,7 @@ def preview_adjustment(session,trip_id,snapshot,value,request_id):
             program=snapshot.planning.facts.get(('program',show.program_id)) if show else None
             if any(value.target_name in (getattr(f,'name',None),*getattr(f,'aliases',())) for f in (place,program) if f):matches.append(stop)
         if len(matches)!=1:return {'status':'needs_clarification','reply':'请明确今天剩余行程中的哪一站；不会替你选择或改动已完成记录。'}
-    extra={};notes=[];seconds=(value.minutes or 0)*60
+    extra={};notes=([f'本次仅调整{snapshot.draft.business_date.isoformat()}今天剩余，其余日期保持原计划。'] if getattr(snapshot,'multi_requirements',None) else []);seconds=(value.minutes or 0)*60
     if value.operation=='skip_replan':
         stop=matches[0];extra['skipped_goal_ids']=(stop.stop_id,)
         req=req.model_copy(update={'goals':tuple(g for g in req.goals if g.goal_id!=stop.stop_id)})
@@ -342,12 +344,14 @@ def preview_adjustment(session,trip_id,snapshot,value,request_id):
         req=req.model_copy(update={'goals':(*req.goals,goal)})
         notes.append(f'在{context.label(snapshot.planning.facts,position)}之后休息{value.minutes}分钟；未指定或核实座椅设施。')
     if value.operation=='delay':notes.append(f'按你报告已延误{value.minutes}分钟，从当前实际时刻{moment.astimezone(TZ):%H:%M}重排，已过去的时间不会重复累加。')
-    body=ReplanRequest(request_id=uuid5(UUID(str(request_id)),'adjustment'),expected_version=snapshot.row['version'],requirements=req,**extra)
+    body=v2tools.adjustment_request(snapshot,req,uuid5(UUID(str(request_id)),'adjustment'),**extra)
     result=engine.preview(session,trip_id,body,replanning=True)
     departure=moment+timedelta(seconds=extra['ongoing'].remaining_seconds if extra.get('ongoing') else 120)
     if value.operation=='rest':departure=max(departure,goal.window_end)
     travel=TravelTimeService(snapshot.planning)
     plans=result.get('result',{}).get('itineraries',())
+    if getattr(snapshot,'multi_requirements',None):
+        plans=[next(d['itinerary'] for d in p['days'] if d['day_id']==snapshot.day_id) for p in plans]
     selected={a['goal_id'] for a in plans[0]['activities']} if plans else set()
     if plans and plans[0].get('ongoing'):selected.add(plans[0]['ongoing']['stop_id'])
     for stop in pending:

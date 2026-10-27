@@ -63,13 +63,16 @@ def confirm(client,t,proposal,request_id=None):
 
 
 @pytest.mark.parametrize('operation',['create','save','propose'])
-def test_multi_day_draft_writes_are_unavailable_without_mutating_old_trip(city,operation):
+def test_multi_day_create_checks_all_refs_and_old_draft_writes_stay_unavailable(city,operation):
     from multi_day_helpers import draft
     t=create(city);before=t
     if operation=='create':response=city.post('/api/city/v1/trips',json={'request_id':rid(),'draft':draft()})
     else:response=update(city,t,{'operation':'save_draft','draft':draft()},proposal=operation=='propose')
-    assert response.status_code==503,response.text
-    assert response.json()['detail']['status']=='unavailable'
+    if operation=='create':
+        assert response.status_code==422 and 'origin' in response.json()['detail'],response.text
+    else:
+        assert response.status_code==503,response.text
+        assert response.json()['detail']['status']=='unavailable'
     assert city.get('/api/city/v1/trips/'+t['id']).json()==before
     with connect() as db:
         assert db.execute('SELECT count(*) FROM city_trip_states').fetchone()[0]==1
@@ -140,7 +143,7 @@ def test_multi_day_old_state_proposal_cannot_confirm_a_v2_draft(city):
     {'operation':'mark_completed','day_id':'day:2030-05-01','stop_id':'future',
      'actual_start':'2030-05-01T09:00:00+08:00','actual_end':'2030-05-01T09:15:00+08:00'},
     {'operation':'skip_stop','day_id':'day:2030-05-02','stop_id':'future'}])
-def test_explicit_v2_daily_progress_requests_require_day_id_and_remain_unavailable(city,action):
+def test_explicit_v2_daily_progress_requires_day_id_and_cannot_target_legacy_state(city,action):
     from app.city.state_schema import MutateCityTripV2
     from pydantic import ValidationError
     t=create(city);body={'schema_version':'city-state/2','request_id':rid(),'expected_version':1,'action':action}
@@ -149,7 +152,7 @@ def test_explicit_v2_daily_progress_requests_require_day_id_and_remain_unavailab
     with pytest.raises(ValidationError):MutateCityTripV2.model_validate(missing)
     for suffix,method in (('','PATCH'),('/changes','POST')):
         r=city.request(method,'/api/city/v1/trips/'+t['id']+suffix,json=body)
-        assert r.status_code==503 and r.json()['detail']['status']=='unavailable'
+        assert r.status_code==409 and r.json()['detail']['code']=='SCHEMA_MISMATCH'
     assert city.get('/api/city/v1/trips/'+t['id']).json()==t
 
 

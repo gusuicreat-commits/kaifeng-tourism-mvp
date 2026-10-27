@@ -9,9 +9,11 @@ from ..db import connect
 from ..memory.session import recheck
 from ..memory.storage import digest, encoded, now, stamp
 from . import facts
-from .state_schema import CityDraft, MutateCityTrip
+from .state_schema import (CityDraft, MutateCityTrip, CityDraftV2, CreateCityTripV2,
+                            MutateCityTripV2, SaveDraftV2, MarkCompletedV2, SkipStopV2,
+                            SetAnchorV2, CloseDay)
+from .schema import TZ
 from .versions import read_draft, single_day, guard_single_day
-from .state_schema import CityDraftV2
 
 TERMINAL = {'COMPLETED', 'CANCELLED', 'ARCHIVED'}
 TRANSITIONS = {'DRAFT': {'ACTIVE', 'CANCELLED'}, 'ACTIVE': {'PAUSED', 'COMPLETED', 'CANCELLED'},
@@ -50,10 +52,109 @@ def validate_refs(draft, items):
         if stop.evidence_refs: raise HTTPException(422,detail='游客操作不能提供核验事实引用。')
 
 
+def validate_refs_v2(draft, items):
+    """Validate every day independently; V2 has no top-level place/stop fields."""
+    for day in draft.days:
+        validate_refs(day,items)
+    for overnight in draft.overnights:
+        if overnight.place_id: facts.require(items, 'place', overnight.place_id)
+        if overnight.source_kind != 'user_place':
+            raise HTTPException(503,detail={'status':'unavailable','code':'MULTI_DAY_HOTEL_UNAVAILABLE',
+                                             'message':'酒店过夜绑定尚未接通，请手选已有地点作为过夜点。'})
+
+
+def _v2_day(draft, day_id):
+    return next((d for d in draft.days if d.day_id == day_id), None)
+
+
+def _v2_today(draft, day):
+    today = now().astimezone(TZ).date()
+    if day.business_date < today or day.status == 'closed':
+        raise HTTPException(409, detail={'code': 'DAY_FROZEN', 'message': '历史日期已冻结，首轮不支持历史补录。', 'day_id': day.day_id})
+    if day.business_date > today:
+        raise HTTPException(409, detail={'code': 'FUTURE_DAY_LOCKED', 'message': '后续日期已锁定，只能查看，不能直接修改。', 'day_id': day.day_id})
+    return day
+
+
+def _v2_mutate(row, action, items):
+    if isinstance(action, SaveDraftV2):
+        raise HTTPException(503, detail={'status': 'unavailable', 'code': 'MULTI_DAY_DRAFT_WRITE_UNAVAILABLE',
+                                         'message': '多天草稿整体写入尚未接通；请使用多天预览、整套确认流程。'})
+    draft = read_draft(row['draft_json'])
+    if not isinstance(draft, CityDraftV2):
+        raise HTTPException(409, detail={'code': 'SCHEMA_MISMATCH', 'message': '请求为多天状态，但当前行程不是多天草稿。'})
+    status, ended, anchor = row['status'], row['ended_at'], json.loads(row['anchor_json']) if row['anchor_json'] else None
+    if status in TERMINAL and action.operation != 'transition':
+        raise HTTPException(422, detail='已结束行程不能继续修改。')
+    if isinstance(action, (SetAnchorV2, MarkCompletedV2, SkipStopV2, CloseDay)):
+        day = _v2_day(draft, action.day_id)
+        if day is None:
+            raise HTTPException(404, detail={'code': 'DAY_NOT_FOUND', 'day_id': action.day_id})
+        day = _v2_today(draft, day)
+    else:
+        day = None
+    important = False
+    if isinstance(action, SetAnchorV2):
+        place = facts.require(items, 'place', action.anchor.place_id)
+        if not facts.status(place, items)['ready']:
+            raise HTTPException(422, detail='当前位置需选择当前有效、已核验的真实地点。')
+        age = (now() - action.anchor.confirmed_at).total_seconds()
+        if not 0 <= age <= 900:
+            raise HTTPException(422, detail='当前位置时刻过期或来自未来，请重新确认。')
+        if not day.starts_at or not day.ends_at or not day.starts_at <= action.anchor.confirmed_at <= day.ends_at:
+            raise HTTPException(422, detail='当前位置时刻不在当日行程范围。')
+        completed = [s for s in day.stops if s.progress == 'completed']
+        if completed and action.anchor.confirmed_at < completed[-1].actual_end:
+            raise HTTPException(422, detail='当前位置不能早于完成记录。')
+        anchor = action.anchor.model_dump(mode='json')
+    elif isinstance(action, (MarkCompletedV2, SkipStopV2)):
+        if status != 'ACTIVE':
+            raise HTTPException(422, detail='仅记录游玩中的行程可以更新进度。')
+        next_stop = next((s for s in day.stops if s.progress == 'pending'), None)
+        if not next_stop or next_stop.stop_id != action.stop_id:
+            raise HTTPException(422, detail='请按当日顺序处理下一活动，不能越过前缀改历史。')
+        if isinstance(action, MarkCompletedV2):
+            if action.actual_end > now():
+                raise HTTPException(422, detail='实际完成时间不能来自未来。')
+            if not day.starts_at or not day.ends_at or action.actual_start < day.starts_at or action.actual_end > day.ends_at or action.actual_end <= action.actual_start:
+                raise HTTPException(422, detail='实际活动时间必须在当日时间窗内。')
+            if anchor and datetime.fromisoformat(anchor['confirmed_at'])>action.actual_start:
+                raise HTTPException(422, detail='实际活动开始不能早于最后确认的当前位置。')
+            patch = {'progress': 'completed', 'actual_start': action.actual_start,
+                     'actual_end': action.actual_end, 'progress_source': 'user_reported'}
+        else:
+            patch = {'progress': 'skipped', 'locked': False, 'progress_source': 'user_reported'}
+            important = next_stop.locked
+        changed = type(next_stop).model_validate(next_stop.model_dump() | patch)
+        new_day = day.model_copy(update={'stops': tuple(changed if s.stop_id == changed.stop_id else s for s in day.stops)})
+        draft = draft.model_copy(update={'days': tuple(new_day if d.day_id == day.day_id else d for d in draft.days)})
+    elif isinstance(action, CloseDay):
+        if status not in ('ACTIVE', 'PAUSED'):
+            raise HTTPException(422, detail='仅游玩中或暂停的行程可以关闭当天。')
+        if any(s.progress == 'pending' for s in day.stops):
+            raise HTTPException(409, detail={'code': 'DAY_HAS_PENDING', 'message': '当天仍有未核对活动，不能直接关闭。', 'day_id': day.day_id})
+        new_day = day.model_copy(update={'status': 'closed'})
+        draft = draft.model_copy(update={'days': tuple(new_day if d.day_id == day.day_id else d for d in draft.days)})
+        important = True
+    else:
+        if action.status not in TRANSITIONS[status]:
+            raise HTTPException(422, detail='不允许该城市行程状态转换。')
+        if action.status == 'ACTIVE' and any(not d.origin_place_id or not d.destination_place_id for d in draft.days):
+            raise HTTPException(422, detail='请先补齐每一天的起终点。')
+        status = action.status
+        important = status in ('COMPLETED', 'CANCELLED') and any(s.locked and s.progress == 'pending' for d in draft.days for s in d.stops)
+        ended = ended or (stamp() if status in TERMINAL else None)
+    draft = CityDraftV2.model_validate(draft.model_dump())
+    return draft, anchor, status, ended, important
+
+
 def readiness(draft, items):
     if isinstance(draft,CityDraftV2):
-        return {'days':[{'day_id':d.day_id,**readiness(d,items)} for d in draft.days],
-                'planning_available':False,'status':'unavailable','notice':'多天写入和规划尚未接通；这里只读保存的完整多天状态。'}
+        today=now().astimezone(TZ).date()
+        return {'days':[{'day_id':d.day_id,**readiness(d,items),
+                         'frozen':d.business_date<today or d.status=='closed',
+                         'future_locked':d.business_date>today} for d in draft.days],
+                'planning_available':False,'notice':'多天需求与进度按日保存；路线须经整套预览、确认后读取。'}
     missing = [key for key in ('business_date','starts_at','ends_at','origin_place_id','destination_place_id')
                if getattr(draft,key) is None]
     if not draft.stops: missing.append('stops')
@@ -117,6 +218,8 @@ def event(db,identity,request_id,operation,before,after):
 
 
 def create(session,body):
+    if isinstance(body, CreateCityTripV2):
+        return create_v2(session, body)
     single_day(body.draft)
     data=body.model_dump(mode='json');scope='create'
     with connect() as db:
@@ -132,6 +235,28 @@ def create(session,body):
         result=describe(owned(db,session,identity),items)
         event(db,identity,body.request_id,'created',0,1)
         remember(db,session,body.request_id,identity,scope,data,result)
+        return result
+
+
+def create_v2(session, body):
+    draft = body.draft
+    data = body.model_dump(mode='json'); scope = 'create'
+    with connect() as db:
+        db.execute('BEGIN IMMEDIATE')
+        cached = receipt(db, session, body.request_id, scope, data)
+        if cached is not None: return cached
+        items = facts.records(db); validate_refs_v2(draft, items)
+        if any(s.progress != 'pending' for d in draft.days for s in d.stops):
+            raise HTTPException(422, detail='新行程不能伪造完成或跳过记录。')
+        if any(d.status != 'pending' for d in draft.days):
+            raise HTTPException(422, detail='新行程不能伪造活动日或闭日状态。')
+        identity = str(uuid4())
+        db.execute('INSERT INTO city_trip_states(id,session_id,status,draft_json,updated_at) VALUES (?,?,?,?,?)',
+                   (identity, session.id, 'DRAFT', encoded(data['draft']), stamp()))
+        db.execute('UPDATE conversation_sessions SET active_city_trip_id=? WHERE id=?', (identity, session.id))
+        result = describe(owned(db, session, identity), items)
+        event(db, identity, body.request_id, 'created', 0, 1)
+        remember(db, session, body.request_id, identity, scope, data, result)
         return result
 
 
@@ -192,6 +317,8 @@ def prepare(row,action,items):
 
 
 def mutate(session,identity,body,propose=False):
+    if isinstance(body, MutateCityTripV2):
+        return mutate_v2(session, identity, body, propose)
     single_day(body,getattr(body.action,'draft',None))
     data=body.model_dump(mode='json');scope=('propose:' if propose else 'update:')+str(identity)
     with connect() as db:
@@ -229,6 +356,34 @@ def mutate(session,identity,body,propose=False):
         return commit(db,session,row,body.request_id,scope,data,body.action.operation,prepared,items)
 
 
+def mutate_v2(session, identity, body, propose=False):
+    data = body.model_dump(mode='json'); scope = ('propose:' if propose else 'update:') + str(identity)
+    with connect() as db:
+        db.execute('BEGIN IMMEDIATE')
+        cached = receipt(db, session, body.request_id, scope, data)
+        if cached is not None: return cached
+        row = owned(db, session, identity); check_version(row, body.expected_version)
+        items = facts.records(db)
+        try:
+            prepared = _v2_mutate(row, body.action, items)
+        except ValidationError as e:
+            raise HTTPException(422, detail='修改后的行程不合法：' + e.errors()[0]['msg']) from None
+        if propose:
+            pid = str(uuid4()); expiry = stamp(now() + timedelta(minutes=15))
+            db.execute('INSERT INTO city_proposals VALUES (?,?,?,?,?,?,?,0)',
+                       (pid,session.id,str(identity),row['version'],encoded(data['action']),catalog_revision(items),expiry))
+            result = {'status':'needs_confirmation','proposal_id':pid,'base_version':row['version'],
+                      'expires_at':expiry,'important_change':prepared[-1],
+                      'impacts':['仅修改今天的状态；历史日期冻结，后续日期锁定。'],
+                      'preview':{'draft':prepared[0].model_dump(mode='json'),'anchor':prepared[1],'status':prepared[2]},
+                      'notice':'这是状态修改候选，尚未保存，也未重新计算路线。'}
+            remember(db,session,body.request_id,identity,scope,data,result)
+            return result
+        if prepared[-1]:
+            raise HTTPException(409, detail={'code':'CONFIRMATION_REQUIRED','message':'修改影响锁定目标或重要安排，请先生成候选并确认。'})
+        return commit(db, session, row, body.request_id, scope, data, body.action.operation, prepared, items)
+
+
 def commit(db,session,row,request_id,scope,data,operation,prepared,items):
     draft,anchor,status,ended,_=prepared
     db.execute('UPDATE city_trip_states SET draft_json=?,anchor_json=?,status=?,ended_at=?,version=version+1,updated_at=? WHERE id=? AND version=?',
@@ -243,7 +398,9 @@ def confirm(session,identity,body):
     data=body.model_dump(mode='json');scope='confirm:'+str(identity)
     with connect() as db:
         db.execute('BEGIN IMMEDIATE')
-        guard_single_day(db,owned(db,session,identity))
+        row_for_guard = owned(db,session,identity)
+        multi = isinstance(read_draft(row_for_guard['draft_json']), CityDraftV2)
+        if not multi: guard_single_day(db,row_for_guard)
         cached=receipt(db,session,body.request_id,scope,data)
         if cached is not None:return cached
         row=owned(db,session,identity);check_version(row,body.expected_version)
@@ -257,9 +414,11 @@ def confirm(session,identity,body):
             raise HTTPException(409,detail='待补充的聊天意愿不是可确认的状态修改，请先生成正式候选。')
         action_data=json.loads(candidate['action_json'])
         if 'draft' in action_data:single_day(read_draft(action_data['draft']))
-        action=MutateCityTrip.model_validate({'request_id':body.request_id,'expected_version':body.expected_version,
-                                            'action':json.loads(candidate['action_json'])}).action
-        try:prepared=prepare(row,action,items)
+        model = MutateCityTripV2 if multi else MutateCityTrip
+        values = {'request_id':body.request_id,'expected_version':body.expected_version,'action':action_data}
+        if multi: values['schema_version'] = 'city-state/2'
+        action=model.model_validate(values).action
+        try:prepared=_v2_mutate(row,action,items) if multi else prepare(row,action,items)
         except ValidationError as e:raise HTTPException(422,detail=e.errors()[0]['msg']) from None
         result=commit(db,session,row,body.request_id,scope,data,action.operation,prepared,items)
         db.execute('UPDATE city_proposals SET consumed=1 WHERE id=?',(str(body.proposal_id),))

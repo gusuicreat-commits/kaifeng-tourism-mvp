@@ -10,7 +10,52 @@ from ...memory.storage import now, stamp
 from .. import state
 from ..state_schema import MutateCityTrip, ConfirmCityChange
 from ..engine import service as engine
-from ..engine.models import Goal, Requirements, PreviewRequest, ReplanRequest, ConfirmRequest
+from ..engine.models import Goal, Requirements, PreviewRequest, ReplanRequest, ReplanRequestV2, TripGoal, ConfirmRequest
+
+
+def require_single_day(snapshot):
+    if getattr(snapshot,'multi_draft',None) or getattr(snapshot,'multi_requirements',None):
+        raise HTTPException(503,detail={'status':'unavailable','code':'MULTI_DAY_UNAVAILABLE',
+            'message':'此多天写入工具尚未接通；可查看整套行程，途中延误、多待、休息和跳站仅支持今天剩余，不会降为第一天。'})
+
+
+def current_day_scope(snapshot,quote=''):
+    if not getattr(snapshot,'multi_draft',None):return
+    from ..schema import TZ
+    from ..agent.dates import find_date_expressions, resolve_date, _number
+    import re
+    today=snapshot.planning.assessed_at.astimezone(TZ).date()
+    try:
+        dates=[resolve_date(e,today) for e in find_date_expressions(quote)]
+        spans=re.findall(r'(?<![第0-9一二三四五六七八九十两])([0-9一二三四五六七八九十两]+)\s*天',quote)
+        if any(_number(number)>1 for number in spans):dates.append(None)
+        for number in re.findall(r'第([0-9一二三四五六七八九十两]+)天',quote):
+            from datetime import timedelta
+            dates.append(snapshot.multi_draft.start_date+timedelta(days=_number(number)-1))
+    except ValueError:
+        dates=[None]
+    if snapshot.draft.business_date!=today or snapshot.draft.status=='closed' or len(dates)>1 or any(d!=today for d in dates):
+        raise HTTPException(503,detail={'status':'unavailable','code':'MULTI_DAY_SCOPE_UNAVAILABLE',
+            'message':'仅支持今天剩余的重排；未来单日、连后续天和历史补录尚未接通，整套正式路线保持不变。'})
+
+
+def adjustment_request(snapshot,req,request_id,**extra):
+    full=getattr(snapshot,'multi_requirements',None)
+    if full is None:return ReplanRequest(request_id=request_id,expected_version=snapshot.row['version'],requirements=req,**extra)
+    from ..schema import TZ
+    today=snapshot.planning.assessed_at.astimezone(TZ).date()
+    current_day_scope(snapshot)
+    pending={s.stop_id for s in snapshot.draft.stops if s.progress=='pending'}
+    original={g.goal_id:g for g in full.goals}
+    goals=[g for g in full.goals if g.goal_id not in pending]
+    for g in req.goals:
+        old=original.get(g.goal_id)
+        goals.append(TripGoal.model_validate(g.model_dump()|{
+            'allowed_dates':old.allowed_dates if old else (today,),
+            'fixed_date':old.fixed_date if old else today}))
+    full=type(full).model_validate(full.model_dump()|{'goals':goals})
+    return ReplanRequestV2(request_id=request_id,expected_version=snapshot.row['version'],requirements=full,
+        scope='current_day',day_id=snapshot.day_id,**extra)
 
 
 def requirements(snapshot):
@@ -43,6 +88,7 @@ def requirements(snapshot):
 
 
 def preview(session, trip_id, snapshot, intent, request_id):
+    require_single_day(snapshot)
     req = requirements(snapshot)
     pending = {s.stop_id:s for s in snapshot.draft.stops if s.progress == 'pending'}
     for identity in intent.preserve_stop_ids:
@@ -101,12 +147,18 @@ def preview(session, trip_id, snapshot, intent, request_id):
 
 
 def changes_for_remaining(changes, draft):
+    if 'days' in changes:
+        days=[d|changes_for_remaining({k:v for k,v in d.items() if k not in ('day_id','business_date')},draft)
+              if d['day_id']==getattr(draft,'day_id',None) else d for d in changes['days']]
+        current=next((d for d in days if d['day_id']==getattr(draft,'day_id',None)),{})
+        return changes|{k:v for k,v in current.items() if k not in ('day_id','business_date')}|{'days':days}
     history = [s.stop_id for s in draft.stops if s.progress != 'pending']
     return changes | {'removed':[identity for identity in changes['removed'] if identity not in history],
                       'history_preserved':history}
 
 
 def propose_state(session, trip_id, snapshot, intent, request_id):
+    require_single_day(snapshot)
     if intent.operation == 'position':
         if not intent.place_id: raise HTTPException(422,detail='请明确你手动报告的当前位置。')
         action = {'operation':'set_anchor','anchor':{'place_id':intent.place_id,'confirmed_at':stamp(),'source':'manual_known_place'}}
@@ -146,18 +198,19 @@ def discard(session, trip_id, body):
     data = body.model_dump(mode='json'); scope = 'assistant_discard:' + str(trip_id)
     with connect() as db:
         db.execute('BEGIN IMMEDIATE')
-        from ..versions import guard_single_day, read_result, read_requirements, single_day, read_draft
-        guard_single_day(db,state.owned(db,session,trip_id))
+        from ..versions import read_result, read_requirements, read_draft
+        state.owned(db,session,trip_id)
         cached = state.receipt(db,session,body.request_id,scope,data)
         if cached is not None: return cached
         row = state.owned(db,session,trip_id); state.check_version(row,body.expected_version)
         table = 'city_engine_candidates' if body.target_kind == 'route' else 'city_proposals'
         found = db.execute(f'SELECT * FROM {table} WHERE id=? AND trip_id=?', (str(body.candidate_id),str(trip_id))).fetchone()
         if not found: raise HTTPException(404,detail='找不到本行程的候选。')
-        if body.target_kind=='route':single_day(read_requirements(found['requirements_json']),read_result(found['result_json']))
+        if body.target_kind=='route':
+            read_requirements(found['requirements_json']);read_result(found['result_json'])
         else:
             action=json.loads(found['action_json'])
-            if 'draft' in action:single_day(read_draft(action['draft']))
+            if 'draft' in action:read_draft(action['draft'])
         db.execute(f'UPDATE {table} SET consumed=1 WHERE id=?', (str(body.candidate_id),))
         result = {'status':'discarded','candidate_id':str(body.candidate_id),'trip_id':str(trip_id),
                   'version':row['version'],'route_version':row['route_version'],'formal_state_changed':False}

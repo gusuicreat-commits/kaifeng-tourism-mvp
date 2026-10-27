@@ -335,26 +335,29 @@ def assess(snapshot, data):
 
 
 def _report(snapshot, data, impacts, unknown):
+    multi=bool(getattr(snapshot,'multi_draft',None))
     report = {'location_name': data['hourly']['location_name'], 'source': 'QWeather',
               'evidence_status': 'provider_estimate', 'queried_at': data['hourly']['queried_at'],
               'attributions': data['hourly']['attributions'], 'current': data.get('current'),
               'hourly': data['hourly'], 'daily': data['daily'], 'impacts': impacts,
-              'coverage_unknown': unknown, 'adjustment_offered': bool(impacts and snapshot.route.get('itinerary')),
+              'coverage_unknown': unknown, 'adjustment_offered': bool(impacts and snapshot.route.get('itinerary') and not multi),
               'trip_version': snapshot.row['version'], 'route_version': snapshot.row['route_version'],
               'formal_state_changed': False, 'automatic_route_change': False,
               'advice_basis': 'forecast_only_not_cancellation_or_indoor_venue_fact'}
     if impacts:
         first = impacts[0]
         start, end = datetime.fromisoformat(first['starts_at']), datetime.fromisoformat(first['departs_at'])
-        reply = (f'开封参考点预报显示，{first["name"]}在{start:%H:%M}—{end:%H:%M}时段'
+        period=f'{start:%m月%d日 %H:%M}—{end:%H:%M}' if multi else f'{start:%H:%M}—{end:%H:%M}'
+        reply = (f'开封参考点预报显示，{first["name"]}在{period}时段'
                  f'降水概率最高{first["max_precipitation_probability_percent"]}%，累计预报降水量约{first["precipitation_mm"]:g}毫米。'
-                 '这是天气风险，不代表景区或演出取消。需要我重新核算现有行程吗？')
+                 '这是天气风险，不代表景区或演出取消。'+('' if multi else '需要我重新核算现有行程吗？'))
         if first['basis'] == 'daily_period_forecast':
             reply += '这段只有白天/晚间时段预报，不能推断具体小时。'
     elif unknown:
         reply = '有些时段还没有天气预报，暂时判断不了。'
     else:
         reply = '已查询开封天气，当前有完整预报覆盖的行程时段未触发降水提醒；预报会变化，出行前可再次查询。'
+    if multi:report.update(scope='current_day',day_id=snapshot.day_id)
     return {'status': 'answered', 'reply': reply, 'weather': report,
             'history_reply': reply, 'formal_state_changed': False}
 
@@ -385,13 +388,14 @@ def answer(snapshot, *, include_current=True, provider=None):
 
 
 def adjustment_preview(session, trip_id, snapshot):
+    from .assistant import tools
+    tools.require_single_day(snapshot)
     result = answer(snapshot, include_current=False)
     result.pop('provider_events', None)
     if result['status'] != 'answered' or not result['weather']['impacts']:
         return result
     if not snapshot.route.get('itinerary'):
         return {'status': 'needs_data', 'reply': '还没有正式行程，不能按天气重算；请先形成并确认一份行程。', 'weather': result['weather']}
-    from .assistant import tools
     from .assistant.models import Intent
     from .agent.service import _preview_result
     preview = tools.preview(session, trip_id, snapshot,

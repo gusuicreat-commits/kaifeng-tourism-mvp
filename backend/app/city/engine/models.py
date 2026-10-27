@@ -390,7 +390,8 @@ class MultiDayItinerary(DateRange):
             sessions.extend(s.session_id for s in p.completed_prefix if s.session_id)
             sessions.extend(a.session_id for a in p.activities if a.session_id)
             if p.ongoing:
-                ongoing+=1;goals.append(p.ongoing['stop_id'])
+                if d.status!='closed':ongoing+=1
+                goals.append(p.ongoing['stop_id'])
                 session=p.ongoing.get('original_activity',{}).get('session_id')
                 if session:sessions.append(session)
         if len(goals)!=len(set(goals)) or len(sessions)!=len(set(sessions)):raise ValueError('全程目标或场次重复')

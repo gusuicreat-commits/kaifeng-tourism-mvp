@@ -18,6 +18,7 @@ def model_payload(text, snapshot, system):
         # The saved planning workspace supersedes the original blank draft during requirement collection.
         **view,
         'progress':env.progress,'references':env.references,
+        **({'trip_scope':{k:env.requirements[k] for k in ('schema_version','start_date','end_date','day_id','scope','days')}} if getattr(snapshot,'multi_draft',None) else {}),
         'page_focus':env.page_focus,'basket':env.basket,
         'recent_messages':[{'role':m['role'],'text':m['text']} for m in env.recent_messages] if snapshot.history_enabled else [],
         'official_plan':{k:env.official_plan[k] for k in ('status','route_version','stale_reasons')},
@@ -68,7 +69,7 @@ def model_payload(text, snapshot, system):
         for key in ('completed','skipped','remaining'):
             progress[key]=[{k:v for k,v in stop.items() if k not in ('progress_source','actual_start','actual_end','planned')}
                            for stop in progress.get(key,[])]
-        if progress.get('next'):progress['next']={k:progress['next'][k] for k in ('stop_id','name','place_id','session_id') if k in progress['next']}
+        if progress.get('next'):progress['next']={k:progress['next'][k] for k in ('stop_id','name','place_id','session_id','day_id','business_date') if k in progress['next']}
         record('progress_timing_details')
     if size()>provider.MODEL_INPUT_CHARACTERS:
         # Provider status and field inventory are useful for ordinary turns but

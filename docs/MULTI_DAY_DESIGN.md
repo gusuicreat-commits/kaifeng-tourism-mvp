@@ -336,3 +336,31 @@ B4 再加入 `budget_basis/party_size` 与金额字段；金额和“每人”�
 2. **首轮收窄**：B2 首轮只要求出发前的"多天预览 → 确认 → 查看"闭环和"今天剩余"的途中重排；`current_and_future`、`selected_future_day` 两种重排范围和历史补录放到 B2 之后，未接通时明确拒绝（不降为第一天）。
 3. **验收方式**：每个子任务除 Codex 自测外，Claude 用不提供给 Codex 的多种说法做真实模型验收，并重跑单天主流程稳定性（演示句 10 次）；单天任一回退即不合并。
 4. **需要用户/队员决定的事项**（预算覆盖范围、匿名会话 24 小时过期对多天的影响、酒店绑定数据）在 B3/B4 开工前由 Claude 汇总提问，不阻塞 B2。
+
+## 13. B2.3 实现边界（2026-10-27，待 Claude 验收）
+
+后端已接通显式 `city-engine/2` 的出发前整套预览、一次确认、完整读取，以及 `current_day` 的今天剩余重排。预览只保存整套候选及幂等回执，不改正式路线、草稿或版本；确认在 `BEGIN IMMEDIATE` 中复核聚合版本、路线版本、进度/锚点、素材篮、规划工作区、事实指纹、TTL 和交通报价，再独立校验、写整套路线、更新草稿及事件/回执、消费候选。任何失败由原 SQLite 连接上下文回滚。确认一次全程路线版本加一，相同请求回放原回执，并发不同请求只有一个可提交。
+
+今天由服务端上海日期和当日日内时窗确定，不依赖页面选日。历史必选仍 pending 或历史 ongoing 尚未报告完成/跳过时，保留原路线并提示历史待核对；历史补录入口未开放。今天重排保留已处理前缀和当前 ongoing，后续天逐字段锁定，原始每日需求及过夜边界不变。已报告处理的昨日 ongoing 仅在新候选中将其 `DayItinerary.status` 标为 `closed`，使它成为封存的历史预约快照；其中原计划、ongoing 内容及来源不变，原正式版本和历史 `DayDraft` 不改写，也不把历史 pending 自动改为完成。当前态 ongoing 数量只统计未封存日。普通历史日仍保留原快照；读取响应另外给出按日期推导的 frozen/locked/active 状态。
+
+`restore_route_version` 仅在引擎 API 支持恢复今天的未处理目标，按当前事实和锚点重新求解、生成整套新候选，确认产生新版本。不会恢复历史进度、回拨版本或挪动后续日目标；日期范围不符、目标现已归属其他锁定日、未处理历史必选等仍拒绝。旧助手的自然语言恢复工具尚未接通。
+
+B2 只接受 `user_place` 已有地点；过夜地点证据由服务端事实计算，住宿条件保持 unknown，客户端不能声明已核验住宿或提供酒店绑定。交通派生身份含日期、时间窗和报价时点，按日筛选使用；多天查询共享同一 provider 请求限额和截止时间，快照恢复遍历所有天。多天对象嵌入原路线/草稿/候选 JSON，导出与删除沿用原所有权及外键级联，新增测试覆盖完整三天和全部候选。
+
+| 写入或消费入口 | B2.3 状态 |
+| --- | --- |
+| 引擎 `preview / replan-preview / confirm / current / versions` | 已接通整套路线；重排只支持今天剩余 |
+| 状态 `create`、显式 V2 `set_anchor / mark_completed / skip_stop / close_day / transition`、状态候选与确认 | 已接通；历史冻结、未来锁定，重要变更仍需确认，闭日不结束整趟 |
+| 状态整体 `save_draft`、旧单天请求写多天草稿 | unavailable；不能有损写回第一天 |
+| 素材篮 `put/remove` 及按日 arranged 投影 | 沿用已接通的旅行工作区；不改正式路线；变动使旧路线候选失效 |
+| `exploration.preview / answer / cancel`、V2 `exploration_state.save` | unavailable；日期范围语义与工作区接线留给 B2.4 |
+| 小汴梁 V3 D4 延误、多待、休息、跳站 | 已接通今天切片→整套候选→统一确认；其他天保留 |
+| V3 普通规划、偏好、位置/完成/旧跳过、取消旅行、意愿暂存 `_defer`、自然语言恢复 | unavailable；需用已接通的显式 V2 状态或引擎 API |
+| 旧助手 `preview / propose_state` 与旧状态确认适配器 | unavailable；路线确认和候选丢弃已接通 |
+| `assistant.context`、`semantic_execution`、`conversation` | 明确今日切片及日 ID，保留完整多天快照、范围及各日冻结/锁定；无今日剩余时不指向明天首站 |
+| 天气查询 / 天气重排 | 查询只说明今天切片并带日期；多天天气重排 unavailable，调用 Provider 前拒绝 |
+| 旅行服务工作区 | 仍仅为候选意向；不建立 B3 酒店绑定、不改正式路线 |
+
+仍拒绝 `current_and_future`、`selected_future_day`、历史补录、多天整体草稿覆盖、酒店绑定及全程费用报告。D4 请求中显式日期、数字日序和数值天数范围会被确定性核对；现有 `StateIntent` 没有范围字段，且本任务禁止改提示词/字段说明，因此“后几天一起”等没有日期或数值范围的说法尚不能可靠结构化，需 B2.4 补齐，不能把当前 Mock 验收说成这类真实语义已通过。
+
+软件验证入口：[整套事务/API](../backend/tests/test_multi_day_api.py)、[日级状态](../backend/tests/test_multi_day_state.py)、[助手与 D4](../backend/tests/test_multi_day_assistant.py)、[按日交通](../backend/tests/test_multi_day_travel.py)。这些测试使用隔离库、合成事实及替身，不代表真实模型、交通、住宿、现场或游客验收；前端属于 B2.5，本轮未修改。

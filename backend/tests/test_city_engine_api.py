@@ -82,7 +82,7 @@ def seed_multi_route(e,route_version=1):
 
 
 @pytest.mark.parametrize('endpoint',['preview','replan-preview'])
-def test_multi_day_engine_requests_are_explicitly_unavailable_and_never_solved(engine,monkeypatch,endpoint):
+def test_multi_day_engine_requests_use_whole_trip_or_explicitly_reject_scope(engine,monkeypatch,endpoint):
     from multi_day_helpers import requirements
     from app.city.engine.models import MultiDayRequirements
     from app.city.engine.tools import replan_trip
@@ -92,10 +92,14 @@ def test_multi_day_engine_requests_are_explicitly_unavailable_and_never_solved(e
     body={'request_id':rid(),'expected_version':1,'requirements':requirements()}
     if endpoint=='replan-preview':body.update(scope='current_and_future',day_id='day:2030-05-01')
     response=c.post(f"/api/city/v1/trips/{t['id']}/engine/{endpoint}",json=body)
-    assert response.status_code==503 and response.json()['detail']['status']=='unavailable'
+    if endpoint=='preview':
+        assert response.status_code==200 and response.json()['status']=='preview'
+        assert all(len(p['days'])==2 for p in response.json()['result']['itineraries'])
+    else:
+        assert response.status_code==503 and response.json()['detail']['status']=='unavailable'
     assert c.get('/api/city/v1/trips/'+t['id']).json()==before
     with connect() as db:
-        assert db.execute('SELECT count(*) FROM city_engine_candidates').fetchone()[0]==0
+        assert db.execute('SELECT count(*) FROM city_engine_candidates').fetchone()[0]==(1 if endpoint=='preview' else 0)
         ctx=service.context(db)
     result=replan_trip(MultiDayRequirements.model_validate(requirements()),ctx)
     assert result.status=='unavailable' and not result.itineraries
@@ -109,7 +113,7 @@ def test_multi_day_current_history_export_preserve_whole_snapshot_and_ownership(
         r=c.get(f"/api/city/v1/trips/{t['id']}/engine/{suffix}")
         assert r.status_code==200,r.text
         assert r.json()['itinerary']==plan and len(r.json()['itinerary']['days'])==2
-        assert r.json()['stale'] and r.json()['issues'][0]['code']=='MULTI_DAY_VALIDATION_UNAVAILABLE'
+        assert r.json()['stale'] and r.json()['issues'][0]['code']=='LEG_COUNT'
     snapshot=c.get('/api/city/v1/trips/'+t['id']).json()
     assert snapshot['schema_version']=='city-state/2' and len(snapshot['draft']['days'])==2
     assert c.get('/api/city/v1/trips').json()['items'][0]==snapshot
@@ -134,7 +138,7 @@ def test_multi_day_engine_candidate_cannot_be_confirmed_through_single_day_trip(
         db.execute('INSERT INTO city_engine_candidates VALUES (?,?,?,?,?,?,?,?,0)',
             (candidate,t['id'],1,'synthetic',json.dumps(requirements()),json.dumps(result()),'{}',stamp(now()+timedelta(minutes=15))))
     r=confirm(engine,{'candidate_id':candidate,'base_version':1})
-    assert r.status_code==503 and r.json()['detail']['code']=='MULTI_DAY_UNAVAILABLE'
+    assert r.status_code==409
     with connect() as db:
         assert db.execute('SELECT consumed FROM city_engine_candidates').fetchone()[0]==0
         assert db.execute('SELECT count(*) FROM city_engine_routes').fetchone()[0]==0
@@ -153,8 +157,13 @@ def test_old_write_and_context_consumers_reject_stored_multi_day_without_project
         body={'request_id':rid(),'expected_version':1}
         body.update({'candidate_id':candidate} if endpoint=='confirm' else {'requirements':d['requirements']})
         response=c.post(path+'/engine/'+endpoint,json=body)
-    assert response.status_code==503,response.text
-    assert response.json()['detail']['code']=='MULTI_DAY_UNAVAILABLE'
+    if endpoint=='assistant/context':
+        assert response.status_code==200,response.text
+    elif endpoint=='confirm':
+        assert response.status_code==409,response.text
+    else:
+        assert response.status_code==503,response.text
+        assert response.json()['detail']['code']=='MULTI_DAY_UNAVAILABLE'
     with connect() as db:assert db.execute('SELECT route_version FROM city_trip_states').fetchone()[0]==1
 
 

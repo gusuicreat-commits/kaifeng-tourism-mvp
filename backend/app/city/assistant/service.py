@@ -160,6 +160,7 @@ def _dispatch(session, trip_id, body, snapshot, intent):
         result = tools.discard(session,trip_id,DiscardAssistant(request_id=_child(body.request_id,'discard'),
                                expected_version=snapshot.row['version'],target_kind=p['target_kind'],candidate_id=p['candidate_id']))
         return result | {'reply':'已放弃这份待确认修改，正式行程和路线版本保持不变。'}, ['discard_candidate']
+    tools.require_single_day(snapshot)
     if snapshot.row['status'] in state.TERMINAL:
         return {'status':'needs_data','reply':'这趟旅行已经结束，不能继续修改；请新建旅行。'}, []
     if intent.operation in ('complete','skip','position'):
@@ -226,7 +227,7 @@ def chat(session, trip_id, body):
     except HTTPException as exc:
         if exc.status_code in (401,403,404,409): raise
         result = {'status':'needs_data' if exc.status_code == 422 else 'unavailable',
-                  'reply':'当前条件不足或工具暂不可用，正式行程没有被这条消息修改。','issues':exc.detail}
+                  'reply':exc.detail['message'] if isinstance(exc.detail,dict) and str(exc.detail.get('code','')).startswith('MULTI_DAY_') else '当前条件不足或工具暂不可用，正式行程没有被这条消息修改。','issues':exc.detail}
         calls = ['tool_failed']
     except (TimeoutError,RuntimeError):
         result = {'status':'unavailable','reply':'工具暂时失败或超时，正式行程保持不变；这不代表规划数学上不可行。'}

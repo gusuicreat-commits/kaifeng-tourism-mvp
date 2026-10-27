@@ -19,6 +19,9 @@ class TravelTimeService:
             self.index.setdefault((t.origin_place_id,t.destination_place_id,t.mode),[]).append(j)
 
     def usable(self,j,req):
+        from .live_travel import applies_to_day
+        if not applies_to_day(j,req):
+            return False
         t=j.travel;c=self.ctx
         provider = j.time_basis == 'provider_estimate'
         if provider:

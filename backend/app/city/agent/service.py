@@ -306,6 +306,7 @@ def _merge(intent,snapshot):
 
 
 def _defer(session,t):
+    v2tools.require_single_day(t.snapshot)
     if not t.snapshot.history_enabled:return
     with connect() as db:
         db.execute('BEGIN IMMEDIATE');row=state.owned(db,session,t.trip_id);state.check_version(row,t.body.expected_version)
@@ -347,7 +348,7 @@ def _workflow(session,t):
     # Typed semantic state operations reuse the existing guarded V2 executor.
     if not t.intent.constraints:
         if t.intent.state_request and t.intent.state_request.operation in ('skip_replan','delay','extend','rest'):
-            result=toolbelt.preview_adjustment(session,t.trip_id,t.snapshot,t.intent.state_request,t.id)
+            result=toolbelt.preview_adjustment(session,t.trip_id,t.snapshot,t.intent.state_request,t.id,t.text)
             return _preview_result(result,t.snapshot,t.intent),['replan_trip']
         if t.interpretation.get('basis')=='kimi_validated':
             if not t.intent.state_request:
@@ -367,14 +368,17 @@ def _workflow(session,t):
 
 def _preview_result(result,snapshot,intent=None):
     if result['status']!='preview':return {'status':result['status'],'reply':result.get('reply') or ''.join(result.get('adjustment_notes',()))+'当前条件未产生可确认路线，请核对缺项或约束冲突。','planning':result}
-    names={s['goal_id']:context.label(snapshot.planning.facts,s['place_id']) for i in result['result']['itineraries'] for s in i['activities']}
+    plans=result['result']['itineraries']
+    slices=[d['itinerary'] for i in plans for d in i['days']] if plans and 'days' in plans[0] else plans
+    names={s['goal_id']:context.label(snapshot.planning.facts,s['place_id']) for i in slices for s in i['activities']}
     names.update({s.stop_id:context.label(snapshot.planning.facts,s.place_id) for s in snapshot.draft.stops if s.stop_id not in names})
     from .planning_intent import preference_notes
     echo=''.join(preference_notes(intent)) if intent else ''
     detail=''.join(result.get('adjustment_notes',()))
     if result.get('adjustment_notes'):
         changes=result.get('changes') or {};first=result['result']['itineraries'][0]
-        detail+=''.join(f"{names.get(c['goal_id'],c['goal_id'])}：{c['before'][11:16]}→{c['after'][11:16]}。" for c in changes.get('start_changes',()))
+        if 'days' in first:first=next(d['itinerary'] for d in first['days'] if d['day_id']==snapshot.day_id)
+        detail+=''.join(f"{names.get(c['goal_id'],c['goal_id'])}：{c['before'][5:16] if getattr(snapshot,'multi_requirements',None) else c['before'][11:16]}→{c['after'][5:16] if getattr(snapshot,'multi_requirements',None) else c['after'][11:16]}。" for c in changes.get('start_changes',()))
         removed=changes.get('removed',())
         if removed:detail+='这版不再安排：'+'、'.join(names.get(g,g) for g in removed)+'。'
         detail+=f"预计{first['returns_at'][11:16]}到达结束地点。"
@@ -460,6 +464,7 @@ def _compound_step(session,t):
         elif any(a.kind in ('progress','position','cancel') for a in intent.actions):
             planning_result={'status':'needs_clarification','reply':'进度、当前位置与取消操作请单独确认；本轮未执行这些状态修改。'}
         elif intent.planning:
+            v2tools.require_single_day(snapshot)
             from .orchestration import execute
             t.tools+=1;t.events.append({'tool':'planning_workflow','status':'running','parameters':{},'source':'backend_orchestrator'})
             planning_intent=intent.model_copy(update={
@@ -722,6 +727,7 @@ def _advance(session,trip_id,identity,body):
             _finish(session,t,result['status'],result)
             return public(t)
         if t.mode=='planning':
+            v2tools.require_single_day(t.snapshot)
             from .orchestration import execute
             t.tools+=1;t.events.append({'tool':'planning_workflow','status':'running','parameters':{},'source':'backend_orchestrator'})
             result=execute(session,t,t.intent)
@@ -803,6 +809,8 @@ def _advance(session,trip_id,identity,body):
             if t.events:t.events[-1].update(status='failed' if attempts else 'blocked_before_request',
                 source=exc.detail.get('source','scheduler'),provider_failure=exc.detail)
         status='stale' if exc.status_code==409 else 'budget_exhausted' if exc.status_code==429 else 'needs_data' if exc.status_code==422 else 'unavailable'
+        if isinstance(exc.detail,dict) and exc.detail.get('code') in ('MULTI_DAY_UNAVAILABLE','MULTI_DAY_SCOPE_UNAVAILABLE'):
+            _finish(session,t,'unavailable',{'reply':exc.detail['message'],'issues':[exc.detail]});return public(t)
         safe=exc.detail if isinstance(exc.detail,dict) and exc.detail.get('code') in ('MODEL_HTTP_ERROR','MODEL_TRANSPORT_ERROR','MODEL_OUTPUT_INVALID','MODEL_SCHEDULE_STOPPED','MODEL_REQUEST_BUDGET','MODEL_TOKEN_BUDGET') else {'code':'BUSINESS_OR_PROVIDER_FAILURE'}
         _finish(session,t,status,{'reply':'已停止。','issues':[{'status':exc.status_code,**safe}],
             **({'state':'model_unavailable','code':safe['code'],'model_status':safe} if str(safe.get('code','')).startswith('MODEL_') else {})})

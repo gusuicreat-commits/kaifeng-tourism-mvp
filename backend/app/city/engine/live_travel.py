@@ -9,7 +9,7 @@ from datetime import timedelta
 from .. import facts
 from ..schema import Evidence, TravelEstimate
 from .amap import AmapProvider
-from .models import Boundary, Journey
+from .models import Boundary, Journey, MultiDayRequirements, MultiDayItinerary
 
 SOURCE_ID = 'src_mvp_amap'
 
@@ -75,7 +75,30 @@ def gate(ctx, park, direction, req):
     return ctx.facts['place', matches[0].entrance_place_id] if len(matches) == 1 else None
 
 
-def enrich(ctx, req, *, provider=None):
+def applies_to_day(journey, req):
+    identity=journey.journey_id
+    return not identity.startswith('amap:day:') or identity.split(':',3)[2]==str(req.business_date)
+
+
+def enrich(ctx, req, *, provider=None, deadline=None, clock=None):
+    if not isinstance(req,MultiDayRequirements):
+        return _enrich_day(ctx,req,provider=provider,deadline=deadline,clock=clock)
+    if ctx.synthetic or not enabled():return ctx
+    from .multi_day import applicable,day_requirements
+    clock=clock or time.monotonic;deadline=clock()+15 if deadline is None else deadline
+    own=provider is None;provider=provider or provider_from_environment()
+    try:
+        for day in req.days:
+            if clock()>=deadline:break
+            daily=day_requirements(req,day,[g for g in req.goals if applicable(g,day)],
+                                   day.objective or req.objective,req.solve_seconds)
+            ctx=_enrich_day(ctx,daily,provider=provider,deadline=deadline,clock=clock,dated=True)
+        return ctx
+    finally:
+        if own:provider.close()
+
+
+def _enrich_day(ctx, req, *, provider=None, deadline=None, clock=None, dated=False):
     if ctx.synthetic or not enabled():
         return ctx
     source = ctx.facts.get(('source', SOURCE_ID))
@@ -90,6 +113,7 @@ def enrich(ctx, req, *, provider=None):
         if own: provider.close()
         return ctx
     checked = ctx.assessed_at
+    clock=clock or time.monotonic
     evidence = Evidence(evidence_id='amap:planning', revision='1', kind='estimate',
                         source='AMap Web Service v5', checked_at=checked, valid_from=checked,
                         valid_until=max(req.ends_at + timedelta(seconds=1), checked + timedelta(minutes=15)))
@@ -114,17 +138,25 @@ def enrich(ctx, req, *, provider=None):
                 if unresolved:
                     origin, destination, boundaries = to_gcj02(ctx.facts['place', a]), to_gcj02(ctx.facts['place', b]), []
                 for mode in req.modes:
+                    if deadline is not None and clock()>=deadline:
+                        return replace(ctx,operations=ctx.operations.model_copy(update={'journeys':tuple(journeys)}))
                     if (origin.longitude, origin.latitude) == (destination.longitude, destination.latitude):
                         seconds, metres, buffer = 0, 0, 0
                     else:
                         if provider.request_count:
                             time.sleep(provider.interval)
+                        if (deadline is not None and clock()>=deadline
+                                or provider.request_count>=getattr(provider,'max_requests',60)):
+                            return replace(ctx,operations=ctx.operations.model_copy(update={'journeys':tuple(journeys)}))
                         quote = provider.estimate(origin, destination, mode, req.starts_at, checked)
                         if quote.status != 'estimated' or quote.duration_seconds is None or not quote.geometry_available:
                             continue
                         seconds, metres = quote.duration_seconds, quote.distance_m
                         buffer = max(120, math.ceil(seconds * .15))
-                    identity = hashlib.sha256(f'{a}|{b}|{mode}'.encode()).hexdigest()[:20]
+                    key=f'{a}|{b}|{mode}'
+                    if dated:key+=f'|{req.business_date}|{req.starts_at.isoformat()}|{req.ends_at.isoformat()}|{checked.isoformat()}'
+                    identity=hashlib.sha256(key.encode()).hexdigest()[:20]
+                    if dated:identity=f'day:{req.business_date}:'+identity
                     travel = TravelEstimate(origin_place_id=a, destination_place_id=b, mode=mode,
                         evidence=evidence, path_status='estimated', path_ref='amap:' + identity, coordinate_system='GCJ02')
                     journeys.append(Journey(journey_id='amap:' + identity, travel=travel, distance_m=metres,
@@ -139,7 +171,8 @@ def enrich(ctx, req, *, provider=None):
 
 def restore_snapshot(ctx, itinerary):
     """Called only with an owned candidate/route loaded from server storage."""
-    saved = [leg.journey for leg in itinerary.legs if leg.journey.time_basis == 'provider_estimate']
+    days=tuple(d.itinerary for d in itinerary.days) if isinstance(itinerary,MultiDayItinerary) else (itinerary,)
+    saved = [leg.journey for day in days for leg in day.legs if leg.journey.time_basis == 'provider_estimate']
     existing = {j.journey_id: j for j in ctx.operations.journeys}
     existing.update({j.journey_id:j for j in saved})
     return replace(ctx, operations=ctx.operations.model_copy(update={'journeys':tuple(existing.values())}))
