@@ -6,7 +6,8 @@ import pytest
 from fastapi import HTTPException
 from app import language
 from app.city.agent import provider, understand, service, orchestration
-from app.city.agent.models import PlanningField, ServiceField, Constraint
+from app.city.agent.models import PlanningField, ServiceField, Constraint, Understanding
+from app.city.agent.prompt_schema import prompt_schema
 from test_city_assistant import city, path, get, rid
 from test_city_agent import run, snapshot, empty_tasks
 
@@ -77,8 +78,11 @@ def test_material_priority_prompt_defines_default_and_all_three_levels(city,monk
     name='[合成测试]museum';text='去趟'+name
     choices(monkeypatch,text,(name,'want','pending',text));generate=provider.generate
     def check_prompt(system,payload,**kwargs):
+        schema=json.dumps(prompt_schema(Understanding.model_json_schema()),ensure_ascii=False)
+        prompt_body=system[:system.find('{')]
         for definition in ('must=游客明确表示非去不可','want=一般想去（默认）','optional=有空/顺路再去','没有明确表态时用want'):
-            assert definition in system
+            assert definition in schema
+            assert definition not in prompt_body
         return generate(system,payload,**kwargs)
     monkeypatch.setattr(provider,'generate',check_prompt)
     task=run(city,text)

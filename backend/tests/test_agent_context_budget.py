@@ -48,8 +48,8 @@ def test_task_budget_failure_is_not_business_or_semantic_failure(city,monkeypatc
     assert get(city)==before
 
 
-@pytest.mark.parametrize('repeats,over_budget',[(100,False),(285,True)])
-def test_real_schema_and_maximum_turn_count_in_the_same_budget(city,monkeypatch,repeats,over_budget):
+@pytest.mark.parametrize('repeats,over_budget',[(100,False),(285,False)])
+def test_real_schema_and_maximum_turn_count_in_the_same_budget(city,monkeypatch,capsys,repeats,over_budget):
     planned(city)
     monkeypatch.setattr(language,'available',lambda:True)
     calls=[]
@@ -67,3 +67,6 @@ def test_real_schema_and_maximum_turn_count_in_the_same_budget(city,monkeypatch,
         return
     assert calls and task['status']=='answered',json.dumps(task,ensure_ascii=False)
     assert task['events'][0]['context_budget']['characters']==calls[0]
+    if repeats==285:
+        with capsys.disabled():
+            print(f'A7 285 repeats: total={calls[0]}, remaining={12000-calls[0]}')

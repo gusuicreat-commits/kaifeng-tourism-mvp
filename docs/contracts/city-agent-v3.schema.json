@@ -4,6 +4,7 @@
       "additionalProperties": false,
       "properties": {
         "kind": {
+          "description": "query=查;search_dining=餐饮;search_services=服务;modify=改行程;preference=偏好;cancel=取消;progress=进度;position=位置。",
           "enum": [
             "query",
             "search_dining",
@@ -55,10 +56,12 @@
             }
           ],
           "default": null,
+          "description": "普通query给purpose=trip/next/shows/dining/travel/history/reference。trip=行程;next=下一站;shows=演出;dining=餐饮;travel=交通;history=历史;reference=引用。",
           "title": "Purpose"
         },
         "near": {
           "default": false,
+          "description": "true=附近；false=不限。",
           "title": "Near",
           "type": "boolean"
         }
@@ -96,6 +99,7 @@
       "additionalProperties": false,
       "properties": {
         "kind": {
+          "description": "对象类型：scenic=景区;food=菜品;place=地点;poi=兴趣点;show=演出;vendor=商家;program=节目。",
           "enum": [
             "scenic",
             "food",
@@ -159,6 +163,7 @@
           "type": "string"
         },
         "priority": {
+          "description": "优先级：must=明确非去不可；want=一般想去，未表态默认；optional=有空或顺路再去。",
           "enum": [
             "must",
             "want",
@@ -215,6 +220,7 @@
       "additionalProperties": false,
       "properties": {
         "kind": {
+          "description": "对象类型：scenic=景区;food=菜品;place=地点;poi=兴趣点;show=演出;vendor=商家;program=节目。",
           "enum": [
             "scenic",
             "food",
@@ -235,6 +241,7 @@
           "type": "string"
         },
         "operation": {
+          "description": "put=加入;standby=候补。",
           "enum": [
             "put",
             "standby"
@@ -249,6 +256,7 @@
           "type": "string"
         },
         "priority": {
+          "description": "优先级：must=明确非去不可；want=一般想去，未表态默认；optional=有空或顺路再去。",
           "enum": [
             "must",
             "want",
@@ -314,6 +322,7 @@
       "additionalProperties": false,
       "properties": {
         "field": {
+          "description": "food=菜;preserve_shows=保演出;walking_seconds=步行上限;return_by=返回;meal_at=用餐;visit_at=活动;objective=目标;pace=节奏。",
           "enum": [
             "food",
             "preserve_shows",
@@ -328,6 +337,7 @@
           "type": "string"
         },
         "strength": {
+          "description": "hard=必须;soft=尽量;optional=可放弃;unknown=不明。",
           "enum": [
             "hard",
             "soft",
@@ -392,6 +402,7 @@
           "type": "string"
         },
         "after": {
+          "description": "口语纠正取最后有效值。",
           "maxLength": 200,
           "title": "After",
           "type": "string"
@@ -415,6 +426,7 @@
       "additionalProperties": false,
       "properties": {
         "tool": {
+          "description": "下一步工具：search_dining=查餐饮；query_shows=查演出；verify_travel=核交通衔接；preview_plan=预览行程；search_locations=查地点；query_reference_route=查参考路线；finish=结束；clarify=请求澄清。",
           "enum": [
             "search_dining",
             "query_shows",
@@ -439,10 +451,12 @@
             }
           ],
           "default": null,
+          "description": "其他动作留空。",
           "title": "Place Id"
         },
         "relax_optional_food": {
           "default": false,
+          "description": "仅当餐饮要求全为可放弃条件且服务器允许时设为 true。",
           "title": "Relax Optional Food",
           "type": "boolean"
         }
@@ -463,6 +477,7 @@
           "type": "string"
         },
         "priority": {
+          "description": "priority：must=游客明确表示非去不可，want=一般想去（默认），optional=有空/顺路再去，没有明确表态时用want，不放宽必选。",
           "enum": [
             "must",
             "want",
@@ -473,6 +488,7 @@
         },
         "status": {
           "default": "pending",
+          "description": "pending=候选;standby=候补。",
           "enum": [
             "pending",
             "standby"
@@ -481,6 +497,7 @@
           "type": "string"
         },
         "quote": {
+          "description": "choices含素材全名/priority/status；quote含整段意愿/优先级/不去，仅地名不填。",
           "maxLength": 500,
           "minLength": 1,
           "title": "Quote",
@@ -530,6 +547,7 @@
       "additionalProperties": false,
       "properties": {
         "field": {
+          "description": "city=城市;date=日期;start_time/end_time=起止;origin/destination=出发/返回;pace=节奏;objective=目标;mode=交通;budget_fen=预算分;trip_days=天。",
           "enum": [
             "city",
             "date",
@@ -555,9 +573,11 @@
               "type": "integer"
             }
           ],
+          "description": "日期抄原文；晚间沿用到后续钟点（今晚五点半…十点回→17:30、22:00），无钟点不猜，几点前回来用end_time。",
           "title": "Value"
         },
         "quote": {
+          "description": "quote连续摘本轮，field.quote含value；往返复用origin.quote。",
           "maxLength": 500,
           "minLength": 1,
           "title": "Quote",
@@ -577,6 +597,7 @@
             }
           ],
           "default": null,
+          "description": "trip_days填整数，“两三天”取上限；budget_fen同时给budget_basis（total总预算/per_person每人预算），由你判断口径，系统会把理解结果告诉游客。",
           "title": "Budget Basis"
         }
       },
@@ -593,6 +614,7 @@
       "properties": {
         "operation": {
           "default": "update",
+          "description": "update=改条件;weather_replan=天气调整。“就这样/开始安排”用continue，fields/choices空。",
           "enum": [
             "update",
             "continue",
@@ -668,6 +690,7 @@
         },
         "mode": {
           "default": "walking",
+          "description": "walking=步行;driving=驾车;transit=公交。",
           "enum": [
             "walking",
             "driving",
@@ -699,6 +722,7 @@
           "type": "integer"
         },
         "role": {
+          "description": "origin=起点;destination=终点。",
           "enum": [
             "origin",
             "destination"
@@ -732,6 +756,7 @@
       "additionalProperties": false,
       "properties": {
         "field": {
+          "description": "check_in=入住;check_out=退房;nights=晚;guests=人;rooms=房;max_price=每晚上限;stay_budget_fen=住宿总分;location_text=位置;room_type=房型;window=窗;external_window=外窗;dry_wet=干湿;breakfast=早餐;free_parking=停车;clean=干净;quiet=安静。",
           "enum": [
             "check_in",
             "check_out",
@@ -765,6 +790,7 @@
               "type": "boolean"
             }
           ],
+          "description": "入住/退房date value抄原文；nights按晚数独立保存；room_type、location_text抄原词，标间不能推人数/间数。max_price为每晚元；stay_budget_fen为住宿合计分，不能混成整趟预算或报价；金额口径由你判断。",
           "title": "Value"
         },
         "quote": {
@@ -775,6 +801,7 @@
         },
         "strength": {
           "default": "hard",
+          "description": "设施/房间条件、真假与强弱由你判断，strength填hard/soft/optional；系统会把理解结果告诉游客。hard=必须；soft=尽量；optional=可放弃。",
           "enum": [
             "hard",
             "soft",
@@ -803,6 +830,7 @@
         },
         "category": {
           "default": "hotels",
+          "description": "hotels=酒店；parking=停车；merchants=商家。",
           "enum": [
             "hotels",
             "parking",
@@ -876,6 +904,7 @@
       "additionalProperties": false,
       "properties": {
         "operation": {
+          "description": "状态操作用state_request：complete/skip/position/cancel/restore；目标用原文完整名称，缺对象不猜。complete=完成;skip=跳过;position=位置;cancel=取消;restore=恢复。",
           "enum": [
             "complete",
             "skip",
@@ -916,6 +945,7 @@
             }
           ],
           "default": null,
+          "description": "实际开始时间给HH:MM及start_quote；恢复给明确restore_version。HH:MM为24小时制，小时00–23、分钟00–59。",
           "title": "Start Time"
         },
         "start_quote": {
@@ -954,11 +984,11 @@
     },
     "Understanding": {
       "additionalProperties": false,
-      "description": "A turn can contain conversation plus read-only queries and/or one planning patch. Each branch is independent; formal itinerary submission is never part of this object.",
       "properties": {
         "schema_version": {
-          "const": "travel-intent/3.4",
-          "default": "travel-intent/3.4",
+          "const": "travel-intent/3.5",
+          "default": "travel-intent/3.5",
+          "description": "travel-intent/3.5=当前契约版本。",
           "title": "Schema Version",
           "type": "string"
         },

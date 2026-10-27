@@ -16,6 +16,7 @@
         },
         "channel": {
           "default": "text",
+          "description": "输入渠道：text=文字；voice=语音转写文本。",
           "enum": [
             "text",
             "voice"
@@ -63,10 +64,12 @@
         "schema_version": {
           "const": "city-context/2",
           "default": "city-context/2",
+          "description": "city-context/2=上下文契约版本。",
           "title": "Schema Version",
           "type": "string"
         },
         "purpose": {
+          "description": "上下文用途：trip=行程；next=下一站；shows=演出；dining=餐饮；travel=交通；modify=修改；progress=进度；reference=引用；history=历史。",
           "enum": [
             "trip",
             "next",
@@ -361,6 +364,7 @@
           "type": "integer"
         },
         "target_kind": {
+          "description": "确认对象：route=路线预览；state=状态变更。",
           "enum": [
             "route",
             "state"
@@ -375,6 +379,7 @@
         },
         "confirmed": {
           "const": true,
+          "description": "只能输出 True=true，确认动作由服务端再次校验。",
           "title": "Confirmed",
           "type": "boolean"
         },
@@ -410,6 +415,7 @@
           "type": "integer"
         },
         "target_kind": {
+          "description": "取消对象：route=路线预览；state=状态变更；intent=待执行意图。",
           "enum": [
             "route",
             "state",
@@ -444,6 +450,7 @@
         "authorization": {
           "const": "current_session_only",
           "default": "current_session_only",
+          "description": "授权范围：current_session_only=仅当前会话。",
           "title": "Authorization",
           "type": "string"
         },
@@ -492,6 +499,7 @@
       "properties": {
         "operation": {
           "default": "unknown",
+          "description": "意图操作：query=只读查询；preference=表达偏好；preview=请求预览修改；complete=报告完成；skip=跳过；position=报告位置；cancel=取消修改；restore=恢复版本；unknown=无法判断。",
           "enum": [
             "query",
             "preference",
@@ -508,6 +516,7 @@
         },
         "purpose": {
           "default": "trip",
+          "description": "目的：trip=行程；next=下一站；shows=演出；dining=餐饮；travel=交通；modify=修改；progress=进度；reference=引用；history=历史。",
           "enum": [
             "trip",
             "next",
@@ -524,6 +533,7 @@
         },
         "execute": {
           "default": false,
+          "description": "true=执行；false=不执行。",
           "title": "Execute",
           "type": "boolean"
         },
@@ -543,6 +553,7 @@
             }
           ],
           "default": null,
+          "description": "规划目标：balanced=均衡；less_walking=少走路；less_waiting=少等待；lower_cost=较省钱；未提不填。",
           "title": "Objective"
         },
         "pace": {
@@ -560,6 +571,7 @@
             }
           ],
           "default": null,
+          "description": "节奏：relaxed=轻松；standard=标准；compact=紧凑；未提不填。",
           "title": "Pace"
         },
         "interests": {
@@ -582,6 +594,7 @@
             }
           ],
           "default": null,
+          "description": "兴趣：show=演出；photo=拍照；food=美食；culture=文化；只填用户明确提到的。",
           "title": "Interests"
         },
         "meal_timing": {
@@ -598,15 +611,18 @@
             }
           ],
           "default": null,
+          "description": "用餐时机：before_shows=演出前；after_shows=演出后；只有原话明确时填写。",
           "title": "Meal Timing"
         },
         "preserve_shows": {
           "default": false,
+          "description": "明确要求保留已有演出时为 true；否则 false。",
           "title": "Preserve Shows",
           "type": "boolean"
         },
         "preserve_stop_ids": {
           "default": [],
+          "description": "ID格式：ASCII字母或数字开头，后续仅ASCII字母、数字、_、.、:、-。",
           "items": {
             "maxLength": 120,
             "minLength": 1,
@@ -630,6 +646,7 @@
             }
           ],
           "default": null,
+          "description": "ID格式：ASCII字母或数字开头，后续仅ASCII字母、数字、_、.、:、-。",
           "title": "Remove Stop Id"
         },
         "stop_id": {
@@ -645,6 +662,7 @@
             }
           ],
           "default": null,
+          "description": "ID格式：ASCII字母或数字开头，后续仅ASCII字母、数字、_、.、:、-。",
           "title": "Stop Id"
         },
         "place_id": {
@@ -660,6 +678,7 @@
             }
           ],
           "default": null,
+          "description": "ID格式：ASCII字母或数字开头，后续仅ASCII字母、数字、_、.、:、-。",
           "title": "Place Id"
         },
         "add_place_id": {
@@ -675,6 +694,7 @@
             }
           ],
           "default": null,
+          "description": "ID格式：ASCII字母或数字开头，后续仅ASCII字母、数字、_、.、:、-。",
           "title": "Add Place Id"
         },
         "add_food_id": {
@@ -690,6 +710,7 @@
             }
           ],
           "default": null,
+          "description": "ID格式：ASCII字母或数字开头，后续仅ASCII字母、数字、_、.、:、-。",
           "title": "Add Food Id"
         },
         "ends_at": {
@@ -703,6 +724,7 @@
             }
           ],
           "default": null,
+          "description": "带时区的截止时刻。",
           "title": "Ends At"
         },
         "actual_start": {
@@ -716,6 +738,7 @@
             }
           ],
           "default": null,
+          "description": "带时区的实际开始时刻。",
           "title": "Actual Start"
         },
         "actual_end": {
@@ -729,6 +752,7 @@
             }
           ],
           "default": null,
+          "description": "用户明确报告的实际结束时间；未说具体时刻留空。",
           "title": "Actual End"
         },
         "restore_route_version": {
@@ -761,6 +785,7 @@
       "additionalProperties": false,
       "properties": {
         "kind": {
+          "description": "引用类型：place=地点；show_session=演出场次；food=菜品。",
           "enum": [
             "place",
             "show_session",
@@ -770,6 +795,7 @@
           "type": "string"
         },
         "id": {
+          "description": "ID格式：ASCII字母或数字开头，后续仅ASCII字母、数字、_、.、:、-。",
           "maxLength": 120,
           "minLength": 1,
           "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]*$",

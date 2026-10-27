@@ -6,27 +6,32 @@ from ..basket import ObjectRef
 
 
 class Action(Strict):
-    kind: Literal['query','search_dining','search_services','modify','preference','cancel','progress','position']
+    kind: Literal['query','search_dining','search_services','modify','preference','cancel','progress','position'] = Field(
+        description='query=查;search_dining=餐饮;search_services=服务;modify=改行程;preference=偏好;cancel=取消;progress=进度;position=位置。')
     quote: str = Field(min_length=1, max_length=500)
     target_name: str | None = Field(default=None, max_length=120)
-    purpose: Literal['trip','next','shows','dining','travel','history','reference'] | None = None
+    purpose: Literal['trip','next','shows','dining','travel','history','reference'] | None = Field(
+        default=None, description='普通query给purpose=trip/next/shows/dining/travel/history/reference。trip=行程;next=下一站;shows=演出;dining=餐饮;travel=交通;history=历史;reference=引用。')
     # search_dining only: the visitor limited the search to where they are now.
-    near: bool = False
+    near: bool = Field(default=False, description='true=附近；false=不限。')
 
 
 class StateIntent(Strict):
-    operation: Literal['complete','skip','position','cancel','restore']
+    operation: Literal['complete','skip','position','cancel','restore'] = Field(
+        description='状态操作用state_request：complete/skip/position/cancel/restore；目标用原文完整名称，缺对象不猜。complete=完成;skip=跳过;position=位置;cancel=取消;restore=恢复。')
     quote: str = Field(min_length=1,max_length=500)
     target_name: str | None = Field(default=None,max_length=120)
-    start_time: str | None = Field(default=None,pattern=r'^(?:[01]\d|2[0-3]):[0-5]\d$')
+    start_time: str | None = Field(default=None,pattern=r'^(?:[01]\d|2[0-3]):[0-5]\d$',description='实际开始时间给HH:MM及start_quote；恢复给明确restore_version。HH:MM为24小时制，小时00–23、分钟00–59。')
     start_quote: str | None = Field(default=None,max_length=200)
     restore_version: int | None = Field(default=None,ge=1)
 
 
 class Constraint(Strict):
-    field: Literal['food','preserve_shows','walking_seconds','return_by','meal_at','visit_at','objective','pace']
-    strength: Literal['hard','soft','optional','unknown']
-    value: str | int | None = None
+    field: Literal['food','preserve_shows','walking_seconds','return_by','meal_at','visit_at','objective','pace'] = Field(
+        description='food=菜;preserve_shows=保演出;walking_seconds=步行上限;return_by=返回;meal_at=用餐;visit_at=活动;objective=目标;pace=节奏。')
+    strength: Literal['hard','soft','optional','unknown'] = Field(
+        description='hard=必须;soft=尽量;optional=可放弃;unknown=不明。')
+    value: str | int | None = Field(default=None)
     quote: str = Field(min_length=1, max_length=500)
 
     @model_validator(mode='after')
@@ -47,15 +52,17 @@ class Constraint(Strict):
 
 class Correction(Strict):
     before: str = Field(max_length=200)
-    after: str = Field(max_length=200)
+    after: str = Field(max_length=200, description='口语纠正取最后有效值。')
     quote: str = Field(min_length=1, max_length=500)
 
 
 class PlanningField(Strict):
-    field: Literal['city','date','start_time','end_time','origin','destination','pace','objective','mode','budget_fen','trip_days']
-    value: str | int
-    quote: str = Field(min_length=1, max_length=500)
-    budget_basis: Literal['total','per_person'] | None = None
+    field: Literal['city','date','start_time','end_time','origin','destination','pace','objective','mode','budget_fen','trip_days'] = Field(
+        description='city=城市;date=日期;start_time/end_time=起止;origin/destination=出发/返回;pace=节奏;objective=目标;mode=交通;budget_fen=预算分;trip_days=天。')
+    value: str | int = Field(description='日期抄原文；晚间沿用到后续钟点（今晚五点半…十点回→17:30、22:00），无钟点不猜，几点前回来用end_time。')
+    quote: str = Field(min_length=1, max_length=500, description='quote连续摘本轮，field.quote含value；往返复用origin.quote。')
+    budget_basis: Literal['total','per_person'] | None = Field(
+        default=None, description='trip_days填整数，“两三天”取上限；budget_fen同时给budget_basis（total总预算/per_person每人预算），由你判断口径，系统会把理解结果告诉游客。')
 
     @model_validator(mode='after')
     def typed_value(self):
@@ -76,15 +83,20 @@ class PlanningField(Strict):
 
 class MaterialChoice(Strict):
     name: str = Field(min_length=1,max_length=120)
-    priority: Literal['must','want','optional']
-    status: Literal['pending','standby']='pending'
-    quote: str = Field(min_length=1,max_length=500)
+    priority: Literal['must','want','optional'] = Field(
+        description='priority：must=游客明确表示非去不可，want=一般想去（默认），optional=有空/顺路再去，没有明确表态时用want，不放宽必选。')
+    status: Literal['pending','standby'] = Field(
+        default='pending', description='pending=候选;standby=候补。')
+    quote: str = Field(min_length=1,max_length=500, description='choices含素材全名/priority/status；quote含整段意愿/优先级/不去，仅地名不填。')
 
 
 class BasketProposalItem(ObjectRef):
-    operation: Literal['put','standby']
+    kind: Literal['scenic','food','place','poi','show','vendor','program'] = Field(
+        description='对象类型：scenic=景区;food=菜品;place=地点;poi=兴趣点;show=演出;vendor=商家;program=节目。')
+    operation: Literal['put','standby'] = Field(description='put=加入;standby=候补。')
     name: str = Field(min_length=1,max_length=120)
-    priority: Literal['must','want','optional']
+    priority: Literal['must','want','optional'] = Field(
+        description='优先级：must=明确非去不可；want=一般想去，未表态默认；optional=有空或顺路再去。')
     quote: str = Field(min_length=1,max_length=500)
 
 
@@ -94,6 +106,8 @@ class BasketProposal(Strict):
 
 
 class BasketCandidate(ObjectRef):
+    kind: Literal['scenic','food','place','poi','show','vendor','program'] = Field(
+        description='对象类型：scenic=景区;food=菜品;place=地点;poi=兴趣点;show=演出;vendor=商家;program=节目。')
     name: str = Field(min_length=1,max_length=120)
     address: str | None = Field(default=None,max_length=300)
 
@@ -101,12 +115,14 @@ class BasketCandidate(ObjectRef):
 class BasketChoicePrompt(Strict):
     query: str = Field(min_length=1,max_length=120)
     quote: str = Field(min_length=1,max_length=500)
-    priority: Literal['must','want','optional']
+    priority: Literal['must','want','optional'] = Field(
+        description='优先级：must=明确非去不可；want=一般想去，未表态默认；optional=有空或顺路再去。')
     candidates: tuple[BasketCandidate,...] = Field(min_length=2,max_length=3)
 
 
 class PlanningIntent(Strict):
-    operation: Literal['update','continue','weather_replan']='update'
+    operation: Literal['update','continue','weather_replan'] = Field(
+        default='update', description='update=改条件;weather_replan=天气调整。“就这样/开始安排”用continue，fields/choices空。')
     quote: str = Field(min_length=1,max_length=500)
     fields: tuple[PlanningField,...] = Field(default=(),max_length=12)
     choices: tuple[MaterialChoice,...] = Field(default=(),max_length=12)
@@ -121,7 +137,8 @@ class ReferenceRouteIntent(Strict):
     origin: str | None = Field(default=None,min_length=1,max_length=80)
     destination: str = Field(min_length=1,max_length=80)
     use_current_position: bool = False
-    mode: Literal['walking','driving','transit'] = 'walking'
+    mode: Literal['walking','driving','transit'] = Field(
+        default='walking', description='walking=步行;driving=驾车;transit=公交。')
 
     @model_validator(mode='after')
     def endpoint_roles(self):
@@ -136,22 +153,25 @@ class WeatherIntent(Strict):
 class ServiceField(Strict):
     field: Literal['check_in','check_out','nights','guests','rooms','max_price','stay_budget_fen',
                    'location_text','room_type','window','external_window','dry_wet','breakfast',
-                   'free_parking','clean','quiet']
-    value: str | int | bool
+                   'free_parking','clean','quiet'] = Field(
+        description='check_in=入住;check_out=退房;nights=晚;guests=人;rooms=房;max_price=每晚上限;stay_budget_fen=住宿总分;location_text=位置;room_type=房型;window=窗;external_window=外窗;dry_wet=干湿;breakfast=早餐;free_parking=停车;clean=干净;quiet=安静。')
+    value: str | int | bool = Field(description='入住/退房date value抄原文；nights按晚数独立保存；room_type、location_text抄原词，标间不能推人数/间数。max_price为每晚元；stay_budget_fen为住宿合计分，不能混成整趟预算或报价；金额口径由你判断。')
     quote: str = Field(min_length=1,max_length=500)
-    strength: Literal['hard','soft','optional'] = 'hard'
+    strength: Literal['hard','soft','optional'] = Field(
+        default='hard', description='设施/房间条件、真假与强弱由你判断，strength填hard/soft/optional；系统会把理解结果告诉游客。hard=必须；soft=尽量；optional=可放弃。')
 
 
 class ServiceIntent(Strict):
     quote: str = Field(min_length=1,max_length=500)
-    category: Literal['hotels','parking','merchants'] = 'hotels'
+    category: Literal['hotels','parking','merchants'] = Field(
+        default='hotels', description='hotels=酒店；parking=停车；merchants=商家。')
     fields: tuple[ServiceField,...] = Field(default=(),max_length=16)
 
 
 class ReferenceSelection(Strict):
     request_id: UUID
     expected_step: int = Field(ge=0,le=12)
-    role: Literal['origin','destination']
+    role: Literal['origin','destination'] = Field(description='origin=起点;destination=终点。')
     resolution_id: UUID
     candidate_id: str = Field(min_length=1,max_length=160)
 
@@ -159,10 +179,8 @@ class ReferenceSelection(Strict):
 class Understanding(Strict):
     # A turn may contain several bounded subrequests.  The server still
     # validates each typed branch and executes it through its own whitelist.
-    model_config = {'json_schema_extra':{'description':
-        'A turn can contain conversation plus read-only queries and/or one planning patch. '
-        'Each branch is independent; formal itinerary submission is never part of this object.'}}
-    schema_version: Literal['travel-intent/3.4'] = 'travel-intent/3.4'
+    schema_version: Literal['travel-intent/3.5'] = Field(
+        default='travel-intent/3.5', description='travel-intent/3.5=当前契约版本。')
     actions: tuple[Action, ...] = Field(default=(), max_length=8)
     constraints: tuple[Constraint, ...] = Field(default=(), max_length=16)
     corrections: tuple[Correction, ...] = Field(default=(), max_length=4)
@@ -177,8 +195,8 @@ class Understanding(Strict):
     @model_validator(mode='before')
     @classmethod
     def accept_legacy_schema(cls,value):
-        if isinstance(value,dict) and value.get('schema_version') in ('travel-intent/3.1','travel-intent/3.2','travel-intent/3.3'):
-            return dict(value,schema_version='travel-intent/3.4')
+        if isinstance(value,dict) and value.get('schema_version') in ('travel-intent/3.1','travel-intent/3.2','travel-intent/3.3','travel-intent/3.4'):
+            return dict(value,schema_version='travel-intent/3.5')
         return value
 
     @model_validator(mode='before')
@@ -239,9 +257,10 @@ class AdvanceTask(Strict):
 
 
 class Decision(Strict):
-    tool: Literal['search_dining','query_shows','verify_travel','preview_plan','search_locations','query_reference_route','finish','clarify']
-    place_id: str | None = Field(default=None, max_length=100)
-    relax_optional_food: bool = False
+    tool: Literal['search_dining','query_shows','verify_travel','preview_plan','search_locations','query_reference_route','finish','clarify'] = Field(
+        description='下一步工具：search_dining=查餐饮；query_shows=查演出；verify_travel=核交通衔接；preview_plan=预览行程；search_locations=查地点；query_reference_route=查参考路线；finish=结束；clarify=请求澄清。')
+    place_id: str | None = Field(default=None, max_length=100, description='其他动作留空。')
+    relax_optional_food: bool = Field(default=False, description='仅当餐饮要求全为可放弃条件且服务器允许时设为 true。')
 
 
 class Budget(Strict):

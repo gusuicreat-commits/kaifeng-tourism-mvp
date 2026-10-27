@@ -379,7 +379,7 @@ def test_legacy_pending_intent_survives_compound_schema_upgrade(city):
     followup=Understanding(actions=(Action(kind='preference',quote='最好少走一点'),),
         constraints=(Constraint(field='objective',strength='soft',value='less_walking',quote='最好少走一点'),))
     merged=service._merge(followup,snap)
-    assert merged.schema_version=='travel-intent/3.4'
+    assert merged.schema_version=='travel-intent/3.5'
     assert any(c.field=='walking_seconds' and c.strength=='hard' and c.value==600 for c in merged.constraints)
 
 
