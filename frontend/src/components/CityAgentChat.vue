@@ -156,8 +156,9 @@ function selectBasketChoice(choice:BasketChoicePrompt,item:BasketChoicePrompt['c
  const result=task.value?.result,version=result?.basket_proposal?.basket_version??result?.planning_workflow?.result.basket_version
  if(!result||version===undefined||inputBusy.value)return
  const proposal=result.basket_proposal||{basket_version:version,items:[]}
+ const existing=journey.choices.find(x=>x.kind===item.kind&&x.id===item.object_id)
  if(!proposal.items.some(i=>i.kind===item.kind&&i.object_id===item.object_id))proposal.items.push({kind:item.kind,object_id:item.object_id,
-  name:item.name,operation:'put',priority:choice.priority,quote:choice.quote})
+  name:item.name,operation:choice.operation||'put',priority:choice.priority_stated===false?existing?.priority||choice.priority:choice.priority,quote:choice.quote})
  result.basket_proposal=proposal;result.basket_choices=result.basket_choices?.filter(c=>c!==choice)
 }
 function discardBasket(){if(inputBusy.value)return;task.value=null;messages.value.push({role:'小汴梁',text:'已放弃本次素材篮变更。'})}
@@ -194,7 +195,7 @@ onBeforeUnmount(()=>{disposed=true;epoch++;resizeObserver?.disconnect();if(task.
   <ReferenceRouteCard v-if="task?.result?.reference_route" :route="task.result.reference_route"/>
   <WeatherCard v-if="weather" :report="weather" :busy="inputBusy" @adjust="send('可以，按天气调整行程')"/>
   <section v-if="basketChoices.length" class="route-location-choices" aria-label="素材篮候选选择">
-   <h3>请选择想加入的对象</h3>
+   <h3>请选择对应的对象</h3>
    <div v-for="choice in basketChoices" :key="choice.query"><h4>{{choice.query}}</h4>
     <button v-for="item in choice.candidates" :key="item.kind+':'+item.object_id" type="button" :disabled="inputBusy" @click="selectBasketChoice(choice,item)"><strong>{{item.name}}</strong><small>{{item.address||'地址待补充'}}</small></button>
    </div>

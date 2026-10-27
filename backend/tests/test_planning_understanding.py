@@ -35,6 +35,146 @@ def choices(monkeypatch,text,*items,fields=(),**extra):
         for item in items for name,priority,status,quote in [item[:4]]]},**extra)
 
 
+def named_basket(city,*items):
+    from app.city import facts
+    from app.db import connect
+    with connect() as db:
+        original=facts.records(db)['place','museum']
+        facts.import_bundle(facts.FactBundle(records=tuple(original.model_copy(update={
+            'fact_id':identity,'name':name,'aliases':aliases,'version':1}) for identity,name,aliases in items)),db,apply=True)
+    c=city['client'];version=c.get(path(city,'/basket')).json()['version']
+    for identity,_,_ in items:
+        response=c.patch(path(city,'/basket'),json={'request_id':rid(),'expected_version':version,
+            'item':{'kind':'place','object_id':identity,'priority':'must'}})
+        assert response.status_code==200
+        version=response.json()['version']
+    return c.get(path(city,'/basket')).json()
+
+
+@pytest.mark.parametrize('name,aliases,model_name,text,priority,status,stated',[
+    ('包公祠',(),'包公祠','包公那边就不去了','want','standby',False),
+    ('龙亭公园',(),'龙亭公园','龙亭算了','want','standby',False),
+    ('汴梁民俗博物馆',(),'汴梁民俗博物馆','民俗博物这站先搁着','want','standby',False),
+    ('甲地文化园',('湖畔展馆',),'甲地文化园','湖畔那站暂列候补','want','standby',False),
+    ('甲地文化园',('湖畔展馆',),'湖畔展馆','湖畔那站暂列候补','want','standby',False),
+    ('龙亭公园',(),'龙亭公园','龙亭有空再安排','optional','pending',True),
+    ('汴梁民俗博物馆',(),'汴梁民俗博物馆','民俗博物改成一般想去','want','pending',True),
+])
+def test_basket_short_name_proposes_full_name_and_waits_for_confirmation(city,monkeypatch,name,aliases,model_name,text,priority,status,stated):
+    before=named_basket(city,('short:one',name,aliases));trip=get(city)
+    choices(monkeypatch,text,(model_name,priority,status,text,stated))
+    task=run(city,text)
+    assert task['status']=='needs_confirmation',task
+    proposal=task['result']['basket_proposal'];item=proposal['items'][0]
+    assert len(proposal['items'])==1 and proposal['basket_version']==before['version']
+    assert item=={'kind':'place','object_id':'short:one','name':name,'quote':text,
+        'operation':'standby' if status=='standby' else 'put','priority':priority if stated else 'must'}
+    assert task['interpretation']['short_name_matches']==[{'name':model_name,'method':'common_substring','material_keys':['place:short:one']}]
+    assert not task['interpretation'].get('dropped_fields')
+    assert city['client'].get(path(city,'/basket')).json()==before and get(city)==trip
+
+
+@pytest.mark.parametrize('count',[2,4])
+@pytest.mark.parametrize('aliases',[False,True])
+@pytest.mark.parametrize('status',['standby','pending'])
+def test_basket_short_name_lists_every_match_without_trusting_model_target(city,monkeypatch,count,aliases,status):
+    names=[f'合成地点{i}' if aliases else f'双桥分馆{i}' for i in range(count)]
+    before=named_basket(city,*[(f'short:{i}',name,(f'双桥别馆{i}',) if aliases else ()) for i,name in enumerate(names)])
+    text='双桥这次先不安排' if status=='standby' else '双桥就有时间再去吧'
+    choices(monkeypatch,text,(names[0],'optional',status,text,status=='pending'))
+    trip=get(city);task=run(city,text)
+    assert task['status']=='needs_clarification' and '是哪一个' in task['result']['reply'],task
+    assert 'basket_proposal' not in task['result']
+    prompt=task['result']['basket_choices'][0]
+    assert prompt['operation']==('standby' if status=='standby' else 'put')
+    assert prompt['priority_stated']==(status=='pending') and prompt['quote']==text
+    assert {(i['object_id'],i['name']) for i in prompt['candidates']}=={(f'short:{i}',name) for i,name in enumerate(names)}
+    assert set(task['interpretation']['short_name_matches'][0]['material_keys'])=={f'place:short:{i}' for i in range(count)}
+    assert city['client'].get(path(city,'/basket')).json()==before and get(city)==trip
+
+
+def test_short_name_candidates_come_from_the_chosen_name_not_other_places_in_the_sentence(city,monkeypatch):
+    # Claude review: "夜市不去了，上河园留着" must not make 上河园 a candidate for 夜市.
+    before=named_basket(city,('short:market','双桥夜市',()),('short:park','清风上河园',()),('short:hall','双桥会馆府',()))
+    for text in ('夜市不去了，上河园留着','双桥的夜市这次不去了'):
+        choices(monkeypatch,text,('双桥夜市','want','standby',text,False))
+        task=run(city,text)
+        assert 'basket_proposal' in task['result'],(text,task['result'].get('reply'),task['interpretation'].get('dropped_fields'))
+        items=task['result']['basket_proposal']['items']
+        assert [(i['object_id'],i['operation']) for i in items]==[('short:market','standby')],(text,task['result'])
+        assert city['client'].get(path(city,'/basket')).json()==before
+
+
+@pytest.mark.parametrize('shape',['choices','cancel_actions'])
+def test_short_name_read_as_all_candidates_proposes_them_together(city,monkeypatch,shape):
+    # Claude review: live model output for "夜市不去了" with two night markets named both,
+    # as two choices or two cancel actions. Both go into one confirmation card.
+    before=named_basket(city,('short:a','双桥夜市',()),('short:b','西岸夜市',()))
+    text='夜市不去了'
+    monkeypatch.setattr(language,'available',lambda:True)
+    if shape=='choices':
+        choices(monkeypatch,text,('双桥夜市','want','standby',text,False),('西岸夜市','want','standby',text,False))
+    else:
+        monkeypatch.setattr(provider,'generate',lambda *a,**k:({'actions':[{'kind':'cancel','quote':text,'target_name':n}
+            for n in ('双桥夜市','西岸夜市')]},{'source':'mock_model'}))
+    trip=get(city);task=run(city,text)
+    items=task['result']['basket_proposal']['items']
+    assert sorted((i['object_id'],i['operation']) for i in items)==[('short:a','standby'),('short:b','standby')],task['result']
+    assert city['client'].get(path(city,'/basket')).json()==before and get(city)==trip
+
+
+def test_short_name_with_a_partial_model_choice_asks_once(city,monkeypatch):
+    before=named_basket(city,('short:a','双桥夜市',()),('short:b','西岸夜市',()),('short:c','北门夜市',()))
+    text='夜市不去了'
+    choices(monkeypatch,text,('双桥夜市','want','standby',text,False),('西岸夜市','want','standby',text,False))
+    task=run(city,text)
+    assert 'basket_proposal' not in task['result']
+    assert task['result']['reply'].count('哪一个')==1 and len(task['result']['basket_choices'])==1,task['result']
+    assert city['client'].get(path(city,'/basket')).json()==before
+
+
+@pytest.mark.parametrize('model_target',['双桥夜市','西岸夜市'])
+def test_state_skip_with_short_name_asks_which_basket_item(city,monkeypatch,model_target):
+    # Claude review: a model-chosen full name must not pick one of several basket items
+    # that the visitor's short form fits ("夜市" with two night markets).
+    before=named_basket(city,('short:a','双桥夜市',()),('short:b','西岸夜市',()))
+    text='算了，夜市就不逛了'
+    monkeypatch.setattr(language,'available',lambda:True)
+    monkeypatch.setattr(provider,'generate',lambda *a,**k:({'actions':[{'kind':'progress','quote':text}],
+        'state_request':{'operation':'skip','quote':text,'target_name':model_target}},{'source':'mock_model'}))
+    trip=get(city);task=run(city,text)
+    assert 'basket_proposal' not in task['result'],task['result']
+    assert '双桥夜市' in task['result']['reply'] and '西岸夜市' in task['result']['reply'],task['result']['reply']
+    assert city['client'].get(path(city,'/basket')).json()==before and get(city)==trip
+
+
+@pytest.mark.parametrize('in_basket,model_name,text,status,stated',[
+    (False,'包公祠','包公那边就不去了','standby',False),
+    (False,'包公祠','想去包公那边','pending',True),
+    (True,'包公祠','另外那站先搁置','standby',False),
+    (True,'包公祠','包不去了','standby',False),
+    (True,'包公祠','包然后公那站算了','standby',False),
+    (True,'包公祠','包公挺有意思','pending',False),
+    (True,'包公祠','包公好玩吗','standby',False),
+    (True,'包','包不去了','standby',False),
+])
+def test_short_name_does_not_authorize_additions_questions_or_single_characters(city,monkeypatch,in_basket,model_name,text,status,stated):
+    named_basket(city,('short:one','包公祠',()))
+    c=city['client']
+    if not in_basket:
+        before=c.get(path(city,'/basket')).json()
+        assert c.patch(path(city,'/basket'),json={'request_id':rid(),'expected_version':before['version'],
+            'operation':'remove','item':{'kind':'place','object_id':'short:one'}}).status_code==200
+    before=c.get(path(city,'/basket')).json();trip=get(city)
+    choices(monkeypatch,text,(model_name,'optional',status,text,stated),actions=[])
+    task=run(city,text)
+    assert 'basket_proposal' not in task['result'] and 'basket_choices' not in task['result'],task
+    assert not task['interpretation'].get('short_name_matches')
+    if model_name!='包' and not text.endswith('吗'):
+        assert {'field':'choice','check':'choice_not_in_quote'} in task['interpretation']['dropped_fields']
+    assert c.get(path(city,'/basket')).json()==before and get(city)==trip
+
+
 @pytest.fixture
 def reference_city(city):
     import model_replay
@@ -942,13 +1082,34 @@ def test_echoed_basket_choice_is_dropped_but_date_field_survives(city,monkeypatc
     assert 'choice' not in task['result']['reply'] and '没听准' not in task['result']['reply']
 
 
-def test_pending_state_skip_becomes_standby_proposal_without_route_write(city,monkeypatch):
+@pytest.mark.parametrize('kind',['cancel','modify'])
+@pytest.mark.parametrize('in_basket',[True,False])
+def test_place_labelled_cancel_or_modify_before_departure_becomes_standby_proposal(city,monkeypatch,kind,in_basket):
+    # Claude review: real model output for "XX就算了" was {kind:cancel,target_name:<full name>}.
+    c=city['client']
+    if in_basket:
+        assert c.patch(path(city,'/basket'),json={'request_id':rid(),'expected_version':0,
+            'item':{'kind':'place','object_id':'museum','priority':'want'}}).status_code==200
+    text='[合成测试]museum就算了，不去了'
+    monkeypatch.setattr(language,'available',lambda:True)
+    monkeypatch.setattr(provider,'generate',lambda *a,**k:({'actions':[{'kind':kind,'quote':text,'target_name':'[合成测试]museum'}]},{'source':'mock_model'}))
+    before=c.get(path(city,'/basket')).json();trip=get(city);task=run(city,text)
+    if in_basket:
+        item=task['result']['basket_proposal']['items'][0]
+        assert item['operation']=='standby' and item['object_id']=='museum'
+    else:
+        assert 'basket_proposal' not in task['result']
+    assert c.get(path(city,'/basket')).json()==before and get(city)==trip
+
+
+@pytest.mark.parametrize('operation',['skip','cancel'])
+def test_pending_state_skip_becomes_standby_proposal_without_route_write(city,monkeypatch,operation):
     c=city['client'];assert c.patch(path(city,'/basket'),json={'request_id':rid(),'expected_version':0,
         'item':{'kind':'place','object_id':'museum','priority':'must'}}).status_code==200
     text='先把[合成测试]museum这站放到候补吧'
     monkeypatch.setattr(language,'available',lambda:True)
     monkeypatch.setattr(provider,'generate',lambda *a,**k:({'actions':[{'kind':'progress','quote':text}],
-        'state_request':{'operation':'skip','quote':text,'target_name':'[合成测试]museum'}},{'source':'mock_model'}))
+        'state_request':{'operation':operation,'quote':text,'target_name':'[合成测试]museum'}},{'source':'mock_model'}))
     before=get(city);task=run(city,text)
     proposal=task['result']['basket_proposal']['items'][0]
     assert proposal['operation']=='standby' and proposal['priority']=='must'

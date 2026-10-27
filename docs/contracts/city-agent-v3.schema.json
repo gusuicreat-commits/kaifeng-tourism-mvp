@@ -4,7 +4,7 @@
       "additionalProperties": false,
       "properties": {
         "kind": {
-          "description": "query=查;search_dining=餐饮;search_services=服务;modify=改行程;preference=偏好;cancel=取消;progress=进度;position=位置。modify改已排路线；出发前不去/候补/改优先级用planning.choices。",
+          "description": "query查;search_dining餐饮;search_services服务;modify改已排路线;preference偏好;cancel只撤销待确认修改;progress进度;position位置。出发前不去/候补/改优先级不是action，填planning.choices。",
           "enum": [
             "query",
             "search_dining",
@@ -173,11 +173,26 @@
           "title": "Priority",
           "type": "string"
         },
+        "operation": {
+          "default": "put",
+          "description": "put=加入或改优先级;standby=候补。",
+          "enum": [
+            "put",
+            "standby"
+          ],
+          "title": "Operation",
+          "type": "string"
+        },
+        "priority_stated": {
+          "default": true,
+          "title": "Priority Stated",
+          "type": "boolean"
+        },
         "candidates": {
           "items": {
             "$ref": "#/$defs/BasketCandidate"
           },
-          "maxItems": 3,
+          "maxItems": 40,
           "minItems": 2,
           "title": "Candidates",
           "type": "array"

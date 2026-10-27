@@ -7,7 +7,7 @@ from ..basket import ObjectRef
 
 class Action(Strict):
     kind: Literal['query','search_dining','search_services','modify','preference','cancel','progress','position'] = Field(
-        description='query=查;search_dining=餐饮;search_services=服务;modify=改行程;preference=偏好;cancel=取消;progress=进度;position=位置。modify改已排路线；出发前不去/候补/改优先级用planning.choices。')
+        description='query查;search_dining餐饮;search_services服务;modify改已排路线;preference偏好;cancel只撤销待确认修改;progress进度;position位置。出发前不去/候补/改优先级不是action，填planning.choices。')
     quote: str = Field(min_length=1, max_length=500)
     target_name: str | None = Field(default=None, max_length=120,
                                     description='具体菜/店/地名；泛指null。')
@@ -120,7 +120,9 @@ class BasketChoicePrompt(Strict):
     quote: str = Field(min_length=1,max_length=500)
     priority: Literal['must','want','optional'] = Field(
         description='优先级：must=明确非去不可；want=一般想去，未表态默认；optional=有空或顺路再去。')
-    candidates: tuple[BasketCandidate,...] = Field(min_length=2,max_length=3)
+    operation: Literal['put','standby'] = Field(default='put',description='put=加入或改优先级;standby=候补。')
+    priority_stated: bool = True
+    candidates: tuple[BasketCandidate,...] = Field(min_length=2,max_length=40)
 
 
 class PlanningIntent(Strict):

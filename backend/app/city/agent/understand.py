@@ -495,10 +495,31 @@ def parse(text,snapshot,*,allow_model=True):
             if not result.conversation.reply.strip():raise ValueError('empty conversation reply')
         if result.planning:
             dropped=[]
-            result=result.model_copy(update={'planning':planning_intent.grounded(result.planning,text,snapshot,dropped)})
+            result=result.model_copy(update={'planning':planning_intent.grounded(result.planning,text,snapshot,dropped,meta)})
             if dropped:meta.setdefault('dropped_fields',[]).extend(dropped)
             if result.planning.operation=='weather_replan':
                 planning_intent.weather_replan(result.planning.quote)
+        if not result.state_request and not result.planning and result.actions \
+                and all(a.kind in ('cancel','modify') and a.target_name for a in result.actions):
+            # The model sometimes labels "XX就算了" as cancel/modify of a place. When that
+            # place is a pending basket item, it is the same pre-departure skip: a standby
+            # proposal the visitor confirms. Any other target keeps the strict path.
+            from .models import StateIntent
+            if len(result.actions)==1:
+                action=result.actions[0]
+                pending=planning_intent.pending_skip(result.model_copy(update={'state_request':StateIntent(
+                    operation='skip',quote=action.quote,target_name=action.target_name)}),snapshot,text)
+                if pending:result=pending
+            elif all(planning_intent.pending_skip(result.model_copy(update={'state_request':StateIntent(
+                    operation='skip',quote=a.quote,target_name=a.target_name)}),snapshot,text) for a in result.actions):
+                # Several targets (one per candidate): the basket proposal decides between
+                # confirming all of them and asking which one, with the evidence checks.
+                from .models import MaterialChoice,PlanningIntent
+                quote=result.actions[0].quote
+                choices=tuple(MaterialChoice(name=a.target_name,priority='want',status='standby',quote=a.quote) for a in result.actions)
+                planning=planning_intent.grounded(PlanningIntent(quote=quote,choices=choices),text,snapshot,[],meta)
+                if planning.choices:
+                    result=Understanding(actions=(Action(kind='modify',quote=quote),),planning=planning)
         if result.state_request:
             # Pending materials allow evidenced short names; formal stops keep the strict state gate.
             pending=planning_intent.pending_skip(result,snapshot,text)

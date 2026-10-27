@@ -102,6 +102,15 @@ def test_shared_prompt_schema_keeps_descriptions_and_removes_presentation_keys()
     assert 'must=游客明确表示非去不可' in dumped and 'want=一般想去' in dumped
 
 
+def test_cancel_is_only_for_pending_changes_and_place_rejections_use_standby():
+    description=prompt_schema(Understanding.model_json_schema())['properties']['actions']['items']['properties']['kind']['description']
+    # Claude review: phrasing it as "用planning.choices(status=standby)" made the live model
+    # emit actions[].kind="planning.choices"; say plainly that it is not an action.
+    assert 'cancel只撤销待确认修改' in description
+    assert '出发前不去/候补/改优先级不是action，填planning.choices' in description
+    assert description in _system_texts()['understanding']
+
+
 def test_schema_compaction_preserves_single_shared_and_recursive_definitions():
     source = {
         '$defs': {

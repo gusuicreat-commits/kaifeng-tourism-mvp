@@ -28,6 +28,7 @@ export interface BasketProposal {
 }
 export interface BasketChoicePrompt {
  query:string;quote:string;priority:'must'|'want'|'optional'
+ operation?:'put'|'standby';priority_stated?:boolean
  candidates:(ObjectRef&{name:string;address:string|null})[]
 }
 export interface WeatherReport {

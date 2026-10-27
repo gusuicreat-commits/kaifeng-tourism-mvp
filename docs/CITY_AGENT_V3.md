@@ -41,6 +41,8 @@ V3.3 已补充限流诊断、真实执行来源和受控请求预算；本轮重
 
 `planning.choices` 中尚未入篮的名称先调用 `facts.place_by_name`，能唯一确定规范地点时直接采用；否则匹配地点、Food 的名称/别名，无精确匹配时地点可按唯一短名匹配。仍有歧义时返回 `basket_choices`，最多3项，查不到不补造事实。前端显示名称、已知地址及选择按钮，游客选定后仍需确认加入。菜品提案的 `kind='food'`，由现有引擎按供应关系选择用餐地点。
 
+A8b 仅放宽已有素材的候补或明确优先级变更：choice 的全名/事实别名不在 quote 时，对 quote 与篮中每项名称、别名扫描两字连续窗口（等价于公共子串长度至少 2），按素材项目计数；唯一命中以篮中全名提案，多项命中返回全部候选（素材篮最多40项），零命中仍丢弃为 `choice_not_in_quote`。原话必须来自本轮，问句等证据门保持；新增地点不使用此回退。`interpretation.short_name_matches` 记录 `common_substring` 和素材 key。篮中歧义卡携带 `operation` 与 `priority_stated`，前端选定后保留候补操作及未明确变更的原优先级，再等待确认；资料中新对象歧义仍最多3项。Action.kind 的 cancel 只取消待确认修改/方案，地点“不去了/算了”用 `planning.choices(status=standby)`。回归入口为 `test_planning_understanding.py` 的 `short_name` 用例、`test_agent_prompt_schema.py` 和 `test_agent_context_budget.py`；均用隔离数据/模型替身，真实模型与浏览器由 Claude 验收。
+
 A3-fix2 按证据范围核对优先级/状态：从 choice.quote 去掉对象名、别名及素材篮名称后没有表态文字，或整个 quote 被同轮 planning field.quote 包含时，已有素材视为回显，不提案、不阻断日期时间规划；新素材只提议以 `want/pending` 加入。有表态文字且原话核对通过时采用模型 priority/status，仍由确认卡决定是否生效。提示词要求 choices.quote 包含意愿、优先级或不去的整段原话；没有增加语义关键词表。
 
 任务结果的 `basket_proposal={items:[{operation,kind,object_id,name,priority,quote}],basket_version}` 是待确认意向，`operation` 为 `put` 或 `standby`。模型输出 state_request.skip 时，在严格状态名称核对之前，先匹配素材篮名称/事实名/别名；目标唯一且不在已确认正式路线中、quote 含该对象名称的至少两字连续片段时，转为候补提案并保留原优先级；多项匹配则列名澄清。正式路线目标仍走原 grounded_state 与跳过预览/确认流程，不放宽名称核对。A3-fix3 将事实名称/别名读取统一为安全函数，Vendor 取关联 Place 的名称/别名，关联缺失时保留篮中名称。已有项的优先级变更也可与日期时间同行：先保存条件，确认卡显示可编辑的优先级，确认后接着规划；改回原优先级也使用游客确认值继续。无证据回显和无变化的 choice 不提案。

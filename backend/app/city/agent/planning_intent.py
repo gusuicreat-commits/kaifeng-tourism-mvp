@@ -85,7 +85,31 @@ def _money_amounts(quote):
     return values
 
 
-def grounded(planning, text, snapshot, dropped=None):
+def _choice_in_quote(choice,snapshot):
+    return choice.name in choice.quote or any(
+        choice.name in _fact_names(item,snapshot)
+        and any(len(alias)>1 and alias in choice.quote for alias in _fact_names(item,snapshot))
+        for item in snapshot.planning.facts.values())
+
+
+def _short_choice_matches(choice,snapshot,items=None):
+    if _choice_in_quote(choice,snapshot):return None
+    if choice.status!='standby' and not choice.priority_stated:return []
+    # The visitor's short form is a common substring (>= 2 characters, so it contains a
+    # two-character window) of the quote and the name the model chose. Basket items
+    # containing that short form are the candidates: one is used, several are asked.
+    # Windows come from the chosen name only, so another place mentioned in the same
+    # sentence ("夜市不去了，上河园留着") is not a candidate.
+    chosen={choice.name,*(name for fact in _choice_facts(choice.name,snapshot) for name in _fact_names(fact,snapshot))}
+    windows={name[i:i+2] for name in chosen for i in range(len(name)-1) if name[i:i+2] in choice.quote}
+    # Items covering more of the visitor's fragments win ("双桥的夜市": 双桥夜市 over 双桥会馆).
+    score={item['key']:sum(any(w in name for name in _material_names(item,snapshot)) for w in windows)
+           for item in (snapshot.materials if items is None else items)}
+    best=max(score.values(),default=0)
+    return [item for item in (snapshot.materials if items is None else items) if best and score[item['key']]==best]
+
+
+def grounded(planning, text, snapshot, dropped=None, meta=None):
     """Check evidence for every planning field.
 
     With ``dropped`` (a list), a field whose value is not supported by its quote is
@@ -122,14 +146,14 @@ def grounded(planning, text, snapshot, dropped=None):
         if choice.quote not in text:
             if dropped is None:raise ValueError('material evidence absent')
             dropped.append({'field':'choice','check':'choice_not_in_quote'});continue
-        if choice.name not in choice.quote and not any(
-                choice.name in _fact_names(item,snapshot)
-                and any(alias and len(alias)>1 and alias in choice.quote
-                        for alias in _fact_names(item,snapshot))
-                for item in snapshot.planning.facts.values()):
+        matches=_short_choice_matches(choice,snapshot)
+        if matches==[]:
             if dropped is None:raise ValueError('material evidence absent')
             dropped.append({'field':'choice','check':'choice_not_in_quote'});continue
         request_evidence(text,choice.quote)
+        if matches and meta is not None:
+            meta.setdefault('short_name_matches',[]).append({'name':choice.name,'method':'common_substring',
+                'material_keys':[item['key'] for item in matches]})
         kept_choices.append(choice)
     if len(kept)!=len(planning.fields) or len(kept_choices)!=len(planning.choices):
         return planning.model_copy(update={'fields':tuple(kept),'choices':tuple(kept_choices)})
@@ -302,21 +326,24 @@ def proposal(session, trip_id, snapshot, intent, text, *, today=None):
         if field in fields:values[field]=fields[field]
     if 'mode' in fields:values['modes']=[fields['mode']]
     validated=Constraints.model_validate(values)
-    changes=[];ambiguities=[]
+    changes=[];ambiguities=[];asked=set()
     if p.choices:
         with connect() as db:items=basket.snapshot(db,session,trip_id)['items']
         used=set()
         for choice in p.choices:
             resolved=_choice_facts(choice.name,snapshot)
+            short_matches=_short_choice_matches(choice,snapshot,items)
             # A dish (exact Food name/alias) is matched only as that dish: "灌汤包" must not
             # pick a shop whose name happens to contain it ("第一楼灌汤包总店"), or a wish to
             # eat it would become a change to that shop's priority.
-            if any(isinstance(f,facts.Food) for f in resolved):
+            if short_matches is not None:
+                matches=short_matches
+            elif any(isinstance(f,facts.Food) for f in resolved):
                 foods={(f.kind,f.fact_id) for f in resolved if isinstance(f,facts.Food)}
                 matches=[i for i in items if (i['fact_kind'],i['fact_id']) in foods]
                 if not matches and _dish_served_by_basket(choice.name,snapshot):continue
             # A short name ("第一楼") may stand for one basket item's full name.
-            else:matches=[i for i in items if choice.name in _material_names(i,snapshot)] or [i for i in items if any(i['fact_kind']==f.kind and i['fact_id']==f.fact_id for f in resolved)] or [i for i in items if any(choice.name in name for name in _material_names(i,snapshot))]
+            else:matches=[i for i in items if choice.name in _material_names(i,snapshot)] or [i for i in items if any(i['fact_kind']==f.kind and i['fact_id']==f.fact_id for f in resolved)] or [i for i in items if len(choice.name)>1 and any(choice.name in name for name in _material_names(i,snapshot))]
             if choice.name in used:continue
             used.add(choice.name)
             if not _choice_attitude(choice,p,resolved,matches,snapshot):
@@ -340,8 +367,25 @@ def proposal(session, trip_id, snapshot, intent, text, *, today=None):
                 changes.append(BasketProposalItem(operation='put',kind=f.kind,object_id=f.fact_id,name=_fact_names(f,snapshot)[0],
                     priority=choice.priority,quote=choice.quote))
                 continue
+            if len(matches)>1:
+                # The model read the visitor's short form as all of its candidates
+                # ("夜市不去了" with two night markets, one choice each): each choice keeps
+                # its own exact item and the visitor confirms them together. A model
+                # that picked only some of them is not trusted to choose: ask once.
+                exact=[i for i in matches if choice.name in _material_names(i,snapshot)]
+                if len(exact)==1 and all(any(c.name in _material_names(i,snapshot) for c in p.choices) for i in matches):
+                    matches=exact
             if len(matches)!=1:
-                notes.append(f'“{choice.name}”在素材篮里有好几项，是哪一个？')
+                key=(choice.quote,frozenset(i['key'] for i in matches))
+                if key in asked:continue
+                asked.add(key)
+                notes.append(f"素材篮里有{'、'.join(i['name'] for i in matches)}，你说的是哪一个？" if short_matches
+                             else f'“{choice.name}”在素材篮里有好几项，是哪一个？')
+                candidates=[{'kind':i['kind'],'object_id':i['id'],'name':i['name'],
+                    'address':getattr(snapshot.planning.facts.get((i['fact_kind'],i['fact_id'])),'address',None)} for i in matches]
+                ambiguities.append(BasketChoicePrompt(query=choice.name,quote=choice.quote,
+                    priority=choice.priority,priority_stated=choice.priority_stated,
+                    operation='standby' if choice.status=='standby' else 'put',candidates=tuple(candidates)).model_dump(mode='json'))
                 continue
             current=matches[0]
             if not choice.priority_stated:
@@ -372,13 +416,18 @@ def proposal(session, trip_id, snapshot, intent, text, *, today=None):
 def pending_skip(intent, snapshot, text):
     """Turn a modelled skip into a basket standby proposal when no formal stop matches."""
     state=intent.state_request
-    if not state or state.operation!='skip' or not state.target_name:return None
+    # Before departure a pending basket item is skipped or cancelled the same way: standby.
+    if not state or state.operation not in ('skip','cancel') or not state.target_name:return None
     request_evidence(text,state.quote)
     query=state.target_name
     matches=[]
     for item in snapshot.materials:
         names=_material_names(item,snapshot)
         if query in names or any(len(query)>1 and query in name for name in names):matches.append(item)
+    # The model may name the full place ("鼓楼夜市") while the visitor said a short form
+    # ("夜市") that fits several basket items; candidates then follow the visitor's words.
+    short=_short_choice_matches(MaterialChoice(name=query,priority='want',status='standby',quote=state.quote),snapshot)
+    if short is not None:matches=short
     unique={item['key']:item for item in matches}
     route_version=snapshot.envelope.identity.route_version
     route_ids={value for s in snapshot.draft.stops for value in (getattr(s,'place_id',None),getattr(s,'session_id',None)) if value}
