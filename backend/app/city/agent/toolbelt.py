@@ -74,6 +74,8 @@ def find_food(snapshot,intent,*,general=False):
     ctx=snapshot.planning;now=ctx.assessed_at;today=now.astimezone(TZ).date()
     basket={(m['fact_kind'],m['fact_id']) for m in snapshot.materials if m['status']!='standby'}
     items=[];lines=[];reference=False
+    # A named dish or shop missing from the data is said so before the general list;
+    # a generic request ("当地特色") carries target_name=null and gets the list alone.
     unknown_targets=[]
     if general:
         for action in intent.actions:

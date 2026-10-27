@@ -68,5 +68,23 @@ def test_real_schema_and_maximum_turn_count_in_the_same_budget(city,monkeypatch,
     assert calls and task['status']=='answered',json.dumps(task,ensure_ascii=False)
     assert task['events'][0]['context_budget']['characters']==calls[0]
     if repeats==285:
+        assert 'travel_service_details' in task['events'][0]['context_budget']['trimmed']
         with capsys.disabled():
             print(f'A7 285 repeats: total={calls[0]}, remaining={12000-calls[0]}')
+
+
+def test_long_turn_trims_capabilities_without_changing_authoritative_requirements(city):
+    planned(city);snap,_=snapshot(city)
+    snap.services.update(version=3,requirements={'category':'hotels','nights':2,
+        'attributes':{'window':{'strength':'hard','value':True}}})
+    from app.city.agent.models import Understanding
+    from app.city.agent.prompt_schema import prompt_schema
+    system=understand.understanding_system_prompt()+json.dumps(
+        prompt_schema(Understanding.model_json_schema()),ensure_ascii=False,separators=(',',':'))
+    before=copy.deepcopy((snap.envelope.model_dump(),snap.services,snap.workspace,snap.materials))
+    text='想聊聊旅行。'*285+'你好'
+    payload=conversation.model_payload(text,snap,system)
+    assert payload['text']==text and len(system)+len(json.dumps(payload,ensure_ascii=False))<=12000
+    assert 'travel_service_details' in payload['context']['input_budget']['trimmed']
+    assert payload['context']['travel_service_workspace']['requirements']['attributes']['window']=={'strength':'hard','value':True}
+    assert (snap.envelope.model_dump(),snap.services,snap.workspace,snap.materials)==before

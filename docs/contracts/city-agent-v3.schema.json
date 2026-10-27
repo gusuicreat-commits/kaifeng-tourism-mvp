@@ -4,7 +4,7 @@
       "additionalProperties": false,
       "properties": {
         "kind": {
-          "description": "query=查;search_dining=餐饮;search_services=服务;modify=改行程;preference=偏好;cancel=取消;progress=进度;position=位置。",
+          "description": "query=查;search_dining=餐饮;search_services=服务;modify=改行程;preference=偏好;cancel=取消;progress=进度;position=位置。modify改已排路线；出发前不去/候补/改优先级用planning.choices。",
           "enum": [
             "query",
             "search_dining",
@@ -35,6 +35,7 @@
             }
           ],
           "default": null,
+          "description": "具体菜/店/地名；泛指null。",
           "title": "Target Name"
         },
         "purpose": {
@@ -477,7 +478,7 @@
           "type": "string"
         },
         "priority": {
-          "description": "priority：must=游客明确表示非去不可，want=一般想去（默认），optional=有空/顺路再去，没有明确表态时用want，不放宽必选。",
+          "description": "priority：must=游客明确表示非去不可，want=一般想去（默认），optional=有空/顺路再去，没有明确表态时用want，不放宽必选。想去/去趟/顺路/看看=want或optional；必须/一定/非去不可=must。",
           "enum": [
             "must",
             "want",
@@ -502,6 +503,12 @@
           "minLength": 1,
           "title": "Quote",
           "type": "string"
+        },
+        "priority_stated": {
+          "default": false,
+          "description": "明确优先级才true；仅true改已有项；不去/候补用choices。",
+          "title": "Priority Stated",
+          "type": "boolean"
         }
       },
       "required": [
@@ -547,7 +554,7 @@
       "additionalProperties": false,
       "properties": {
         "field": {
-          "description": "city=城市;date=日期;start_time/end_time=起止;origin/destination=出发/返回;pace=节奏;objective=目标;mode=交通;budget_fen=预算分;trip_days=天。",
+          "description": "city城市;date日期;start_time/end_time起止;origin/destination出发/返回;pace节奏;objective目标;mode交通;budget_fen预算分;trip_days天。",
           "enum": [
             "city",
             "date",
@@ -573,7 +580,7 @@
               "type": "integer"
             }
           ],
-          "description": "日期抄原文；晚间沿用到后续钟点（今晚五点半…十点回→17:30、22:00），无钟点不猜，几点前回来用end_time。",
+          "description": "日期抄原文；晚间沿用到后续钟点（今晚五点半…十点回→17:30、22:00），无钟点不猜，几点前回来用end_time。pace=relaxed放松/standard标准/compact紧凑;objective=balanced均衡/less_walking少走路/less_waiting少等待/lower_cost省钱;少走路/走不动/腿脚不便=less_walking;无分钟不填walking_seconds。",
           "title": "Value"
         },
         "quote": {
@@ -597,7 +604,7 @@
             }
           ],
           "default": null,
-          "description": "trip_days填整数，“两三天”取上限；budget_fen同时给budget_basis（total总预算/per_person每人预算），由你判断口径，系统会把理解结果告诉游客。",
+          "description": "trip_days填整数，“两三天”取上限；budget_fen同时给budget_basis（total总预算/per_person每人预算），由你判断口径，系统会把理解结果告诉游客。分：300元=30000；每人金额不乘人数。",
           "title": "Budget Basis"
         }
       },
@@ -986,9 +993,9 @@
       "additionalProperties": false,
       "properties": {
         "schema_version": {
-          "const": "travel-intent/3.5",
-          "default": "travel-intent/3.5",
-          "description": "travel-intent/3.5=当前契约版本。",
+          "const": "travel-intent/3.6",
+          "default": "travel-intent/3.6",
+          "description": "travel-intent/3.6=当前契约版本。",
           "title": "Schema Version",
           "type": "string"
         },

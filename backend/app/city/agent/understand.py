@@ -459,8 +459,21 @@ def parse(text,snapshot,*,allow_model=True):
             retained=tuple(a for a in result.actions if not (a.kind=='query' and greeting_only(a.quote)))
             if len(retained)!=len(result.actions):
                 result=result.model_copy(update={'actions':retained})
-        if any((a.kind=='search_dining' or a.kind=='query' and a.purpose=='dining') and not a.near and _NEAR.search(a.quote) for a in result.actions):
-            result=result.model_copy(update={'actions':tuple(a.model_copy(update={'near':True}) if (a.kind=='search_dining' or a.kind=='query' and a.purpose=='dining') and _NEAR.search(a.quote) else a for a in result.actions)})
+        near_dropped=[]
+        normalized_actions=[]
+        for action in result.actions:
+            dining_action=action.kind=='search_dining' or action.kind=='query' and action.purpose=='dining'
+            position_evidence=bool(_NEAR.search(action.quote) or _NEAR.search(text))
+            if dining_action and action.near and not position_evidence:
+                normalized_actions.append(action.model_copy(update={'near':False}))
+                near_dropped.append({'field':'near','check':'near_without_position'})
+            elif dining_action and not action.near and _NEAR.search(action.quote):
+                normalized_actions.append(action.model_copy(update={'near':True}))
+            else:
+                normalized_actions.append(action)
+        if near_dropped:meta.setdefault('dropped_fields',[]).extend(near_dropped)
+        if tuple(normalized_actions)!=result.actions:
+            result=result.model_copy(update={'actions':tuple(normalized_actions)})
         if not result.service_query and any(a.kind=='search_services' for a in result.actions):
             from .models import ServiceIntent
             action=next(a for a in result.actions if a.kind=='search_services')
@@ -469,7 +482,7 @@ def parse(text,snapshot,*,allow_model=True):
             from ..travel_services import validate_intent
             dropped=[]
             validate_intent(result.service_query,text,snapshot,dropped)
-            if dropped:meta['dropped_fields']=[{'field':'service.'+d['field'],'check':d['check']} for d in dropped]
+            if dropped:meta.setdefault('dropped_fields',[]).extend({'field':'service.'+d['field'],'check':d['check']} for d in dropped)
         if result.weather_query:
             # Semantic routing is the model's job; read-only weather requests
             # need grounded text, not a second keyword-based intent parser.

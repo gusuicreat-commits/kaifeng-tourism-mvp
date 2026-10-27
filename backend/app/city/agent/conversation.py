@@ -69,6 +69,12 @@ def model_payload(text, snapshot, system):
                            for stop in progress.get(key,[])]
         if progress.get('next'):progress['next']={k:progress['next'][k] for k in ('stop_id','name','place_id','session_id') if k in progress['next']}
         record('progress_timing_details')
+    if size()>12000:
+        # Provider status and field inventory are useful for ordinary turns but
+        # expendable after the authoritative requirements and user text remain.
+        capability=ctx.get('travel_service_capability',{})
+        ctx['travel_service_capability']={k:capability[k] for k in ('scope','search_request') if k in capability}
+        record('travel_service_details')
     # Include budget metadata in its own measurement; no raw text in errors.
     for _ in range(3):budget['characters']=size()
     if size()>12000:

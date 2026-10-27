@@ -7,9 +7,10 @@ from ..basket import ObjectRef
 
 class Action(Strict):
     kind: Literal['query','search_dining','search_services','modify','preference','cancel','progress','position'] = Field(
-        description='query=查;search_dining=餐饮;search_services=服务;modify=改行程;preference=偏好;cancel=取消;progress=进度;position=位置。')
+        description='query=查;search_dining=餐饮;search_services=服务;modify=改行程;preference=偏好;cancel=取消;progress=进度;position=位置。modify改已排路线；出发前不去/候补/改优先级用planning.choices。')
     quote: str = Field(min_length=1, max_length=500)
-    target_name: str | None = Field(default=None, max_length=120)
+    target_name: str | None = Field(default=None, max_length=120,
+                                    description='具体菜/店/地名；泛指null。')
     purpose: Literal['trip','next','shows','dining','travel','history','reference'] | None = Field(
         default=None, description='普通query给purpose=trip/next/shows/dining/travel/history/reference。trip=行程;next=下一站;shows=演出;dining=餐饮;travel=交通;history=历史;reference=引用。')
     # search_dining only: the visitor limited the search to where they are now.
@@ -58,11 +59,11 @@ class Correction(Strict):
 
 class PlanningField(Strict):
     field: Literal['city','date','start_time','end_time','origin','destination','pace','objective','mode','budget_fen','trip_days'] = Field(
-        description='city=城市;date=日期;start_time/end_time=起止;origin/destination=出发/返回;pace=节奏;objective=目标;mode=交通;budget_fen=预算分;trip_days=天。')
-    value: str | int = Field(description='日期抄原文；晚间沿用到后续钟点（今晚五点半…十点回→17:30、22:00），无钟点不猜，几点前回来用end_time。')
+        description='city城市;date日期;start_time/end_time起止;origin/destination出发/返回;pace节奏;objective目标;mode交通;budget_fen预算分;trip_days天。')
+    value: str | int = Field(description='日期抄原文；晚间沿用到后续钟点（今晚五点半…十点回→17:30、22:00），无钟点不猜，几点前回来用end_time。pace=relaxed放松/standard标准/compact紧凑;objective=balanced均衡/less_walking少走路/less_waiting少等待/lower_cost省钱;少走路/走不动/腿脚不便=less_walking;无分钟不填walking_seconds。')
     quote: str = Field(min_length=1, max_length=500, description='quote连续摘本轮，field.quote含value；往返复用origin.quote。')
     budget_basis: Literal['total','per_person'] | None = Field(
-        default=None, description='trip_days填整数，“两三天”取上限；budget_fen同时给budget_basis（total总预算/per_person每人预算），由你判断口径，系统会把理解结果告诉游客。')
+        default=None, description='trip_days填整数，“两三天”取上限；budget_fen同时给budget_basis（total总预算/per_person每人预算），由你判断口径，系统会把理解结果告诉游客。分：300元=30000；每人金额不乘人数。')
 
     @model_validator(mode='after')
     def typed_value(self):
@@ -84,10 +85,12 @@ class PlanningField(Strict):
 class MaterialChoice(Strict):
     name: str = Field(min_length=1,max_length=120)
     priority: Literal['must','want','optional'] = Field(
-        description='priority：must=游客明确表示非去不可，want=一般想去（默认），optional=有空/顺路再去，没有明确表态时用want，不放宽必选。')
+        description='priority：must=游客明确表示非去不可，want=一般想去（默认），optional=有空/顺路再去，没有明确表态时用want，不放宽必选。想去/去趟/顺路/看看=want或optional；必须/一定/非去不可=must。')
     status: Literal['pending','standby'] = Field(
         default='pending', description='pending=候选;standby=候补。')
     quote: str = Field(min_length=1,max_length=500, description='choices含素材全名/priority/status；quote含整段意愿/优先级/不去，仅地名不填。')
+    priority_stated: bool = Field(default=False,
+        description='明确优先级才true；仅true改已有项；不去/候补用choices。')
 
 
 class BasketProposalItem(ObjectRef):
@@ -179,8 +182,8 @@ class ReferenceSelection(Strict):
 class Understanding(Strict):
     # A turn may contain several bounded subrequests.  The server still
     # validates each typed branch and executes it through its own whitelist.
-    schema_version: Literal['travel-intent/3.5'] = Field(
-        default='travel-intent/3.5', description='travel-intent/3.5=当前契约版本。')
+    schema_version: Literal['travel-intent/3.6'] = Field(
+        default='travel-intent/3.6', description='travel-intent/3.6=当前契约版本。')
     actions: tuple[Action, ...] = Field(default=(), max_length=8)
     constraints: tuple[Constraint, ...] = Field(default=(), max_length=16)
     corrections: tuple[Correction, ...] = Field(default=(), max_length=4)
@@ -195,8 +198,12 @@ class Understanding(Strict):
     @model_validator(mode='before')
     @classmethod
     def accept_legacy_schema(cls,value):
-        if isinstance(value,dict) and value.get('schema_version') in ('travel-intent/3.1','travel-intent/3.2','travel-intent/3.3','travel-intent/3.4'):
-            return dict(value,schema_version='travel-intent/3.5')
+        if isinstance(value,dict) and value.get('schema_version') in ('travel-intent/3.1','travel-intent/3.2','travel-intent/3.3','travel-intent/3.4','travel-intent/3.5'):
+            planning=value.get('planning')
+            if isinstance(planning,dict):
+                planning=dict(planning,choices=[dict(c,priority_stated=False) if isinstance(c,dict) else c for c in planning.get('choices') or []])
+                value=dict(value,planning=planning)
+            return dict(value,schema_version='travel-intent/3.6')
         return value
 
     @model_validator(mode='before')

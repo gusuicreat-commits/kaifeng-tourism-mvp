@@ -8,7 +8,14 @@ import re
 _CLAUSE = re.compile(r'[^，,。；;！!？?\n]+')
 _DATA = re.compile(r'网页原文|商家原文|日志原文|以下是.{0,10}(?:原文|内容|引用)|只是(?:引用|举例|示例)|不是我的要求|仅供参考|例如|举个例子')
 _QUESTION = re.compile(r'如果|假如|假设|请解释|什么意思|怎么样|怎么(?:修改|改|恢复|调整|设置|取消)|如何(?:修改|改|恢复|调整|设置|取消)|是否(?:要|可以|能)|能不能|是几号|是什么(?:日期|时候|时间)|星期几|吗$')
-_DENY = re.compile(r'(?:不要|不用|不必|别|禁止|不想|不是要|并非要).{0,12}(?:修改|改成|改为|改动|调整|更新|保存|确认|安排|规划|取消|恢复|设置|设为)')
+_DEGREE_COMPLEMENT = r'(?:\s*得?\s*(?:太|那么|这么|过于)\s*[\u4e00-\u9fff])'
+# A denial governs a verb in its own clause only: "不要太贵，帮我排个行程" asks
+# for a plan. A degree complement ("别安排得太紧") negates the degree, not the act.
+_DENY = re.compile(
+    r'(?:不要|不用|不必|别|禁止|不想|不是要|并非要)[^，,。；;！？!?\n]{0,12}'
+    r'(?>修改|改成|改为|改动|调整|更新|保存|确认|安排|规划|取消|恢复|设置|设为|改)'
+    rf'(?!{_DEGREE_COMPLEMENT})'
+)
 _QUOTED = re.compile(r'“[^”]*”|「[^」]*」|『[^』]*』|【[^】]*】|"[^"\n]*"|```[\s\S]*?```')
 
 
@@ -38,10 +45,16 @@ def request_evidence(text, quote):
 
 # Read requests do not need mutation wording. Their evidence must still be a
 # current, unquoted request rather than a denial, example or hypothetical.
-_READ_DENY = re.compile(r'(?:不要|不用|不必|别|禁止|不想|不是要|并非要|暂不|无需)[^，,。；;！？!?\n]{0,10}(?:查|搜|找|推荐|检索|调用)')
+_READ_DENY = re.compile(
+    r'(?:不要|不用|不必|别|禁止|不想|不是要|并非要|暂不|无需)'
+    rf'[^，,。；;！？!?\n]{{0,10}}(?:查|搜|找|推荐|检索|调用)(?!{_DEGREE_COMPLEMENT})'
+)
 _READ_META = re.compile(r'如果|假如|假设|请解释|什么意思|怎么(?:查询|搜索|检索|调用)|如何(?:查询|搜索|检索|调用)')
 _READ_REQUEST = re.compile(r'(?:请|帮我|现在|实际)[^，,。；;！？!?\n]{0,12}(?:查|搜|找|推荐|检索)')
-_STAY_DENY = re.compile(r'(?:不要|不用|不必|别|不想|不是要|并非要)[^，,。；;！？!?\n]{0,12}(?:入住|住|退房)|不(?:入住|住|退房)')
+_STAY_DENY = re.compile(
+    rf'(?:不要|不用|不必|别|不想|不是要|并非要)[^，,。；;！？!?\n]{{0,12}}(?:入住|住|退房)(?!{_DEGREE_COMPLEMENT})'
+    rf'|不(?:入住|住|退房)(?!{_DEGREE_COMPLEMENT})'
+)
 
 
 def query_evidence(text, quote):

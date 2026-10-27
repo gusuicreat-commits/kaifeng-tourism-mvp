@@ -46,11 +46,11 @@ def _field_check(f, text, today):
                 numbers.extend(values)
             return None if not numbers or f.value==max(numbers) else 'trip_days_not_in_quote'
         if f.field=='budget_fen':
-            amounts=_money_amounts(f.quote)
+            if f.budget_basis=='per_person':return 'per_person_budget'
             # The model selects the amount; other numbers in its quote are not conflicting budgets.
+            amounts=_money_amounts(f.quote)
             if f.value not in amounts:return 'budget_not_in_quote'
             if f.budget_basis is None:return 'budget_basis_missing'
-            return 'per_person_budget' if f.budget_basis=='per_person' else None
     except ValueError:
         return 'date_unresolved' if f.field=='date' else 'preference_not_in_quote'
     return None
@@ -197,6 +197,19 @@ def _choice_facts(name,snapshot):
     return result
 
 
+_ENTRY_SUFFIX = re.compile(r'(?:大门口|门口|门前|大门|正门|入口)\s*$')
+
+
+def _resolve_endpoint(catalog, name):
+    """Resolve an endpoint literally, with one bounded entrance suffix fallback."""
+    resolved=facts.place_by_name(catalog,name)
+    if resolved:return resolved,False
+    stripped=_ENTRY_SUFFIX.sub('',name).strip()
+    if not stripped or stripped==name:return None,False
+    resolved=facts.place_by_name(catalog,stripped)
+    return (resolved,True) if resolved else (None,False)
+
+
 def _material_names(item,snapshot):
     fact=snapshot.planning.facts.get((item['fact_kind'],item['fact_id']))
     return {item['name'],*_fact_names(fact,snapshot)}
@@ -281,9 +294,10 @@ def proposal(session, trip_id, snapshot, intent, text, *, today=None):
         return {'status':'needs_clarification','reply':'结束时间要晚于出发时间，再确认一下？'}
     for field,key in (('origin','origin_place_id'),('destination','destination_place_id')):
         if field not in fields:continue
-        resolved=facts.place_by_name(snapshot.planning.facts, fields[field])
+        resolved,normalized=_resolve_endpoint(snapshot.planning.facts,fields[field])
         values[key]=resolved.fact_id if resolved else None
         values[field+'_text']=None if resolved else fields[field]
+        if normalized:notes.append(f"{'起点' if field=='origin' else '终点'}按{resolved.name}处理。")
     for field in ('pace','objective','budget_fen'):
         if field in fields:values[field]=fields[field]
     if 'mode' in fields:values['modes']=[fields['mode']]
@@ -330,6 +344,8 @@ def proposal(session, trip_id, snapshot, intent, text, *, today=None):
                 notes.append(f'“{choice.name}”在素材篮里有好几项，是哪一个？')
                 continue
             current=matches[0]
+            if not choice.priority_stated:
+                choice=choice.model_copy(update={'priority':current['priority']})
             if choice.status=='standby':
                 if current['status']=='arranged':
                     notes.append(f"{current['name']}已在正式行程里，途中想跳过可以说'跳过{current['name']}'。");continue

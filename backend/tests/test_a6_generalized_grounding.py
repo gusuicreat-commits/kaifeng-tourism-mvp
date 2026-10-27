@@ -3,7 +3,7 @@ from datetime import date
 import pytest
 
 from app.city import travel_services
-from app.city.agent.evidence import preference_evidence, request_evidence
+from app.city.agent.evidence import preference_evidence, request_evidence, query_evidence, service_condition_evidence
 from app.city.agent.models import PlanningField, ServiceField, ServiceIntent
 from app.city.agent.planning_intent import _field_check
 
@@ -38,6 +38,46 @@ def test_preference_negative_or_invalid_values_still_fail(field,value,quote):
 ])
 def test_quoted_hypothetical_or_external_sentence_is_still_rejected(text,quote):
     with pytest.raises(ValueError):request_evidence(text,quote)
+
+
+@pytest.mark.parametrize('text', ['别把一天排得太满', '行程不要安排得那么紧', '不用把路线排得过于密集', '别改动得这么频繁'])
+def test_degree_negation_is_not_operation_denial(text):
+    request_evidence(text, text)
+
+
+@pytest.mark.parametrize('text', ['别安排了', '先不要调整', '不用改了', '别改了', '不要修改行程', '先别调整了'])
+def test_operation_negation_stays_blocked(text):
+    with pytest.raises(ValueError):request_evidence(text, text)
+
+
+# A denial governs its own clause; a later positive clause is a request (Claude review).
+@pytest.mark.parametrize('text', ['不要太贵，帮我排个晚上的行程', '别走太远，改成步行吧', '别去太远的地方，重新安排一下',
+                                  '演出别动，九点前回来', '别忘了把夜市排进去，九点回来'])
+def test_denial_does_not_reach_across_clauses(text):
+    request_evidence(text, text.split('，')[-1])
+
+
+@pytest.mark.parametrize('text', ['别找得太远的店', '不要推荐得那么贵的房间', '不用搜得过于细'])
+def test_degree_negation_is_not_read_denial(text):
+    query_evidence(text, text)
+
+
+@pytest.mark.parametrize('text', ['别找了', '先不要推荐', '不用搜了'])
+def test_read_operation_negation_stays_blocked(text):
+    with pytest.raises(ValueError):query_evidence(text, text)
+
+
+@pytest.mark.parametrize('condition', ['别住得太贵', '不要入住得那么晚', '不用退房得过于匆忙'])
+def test_degree_negation_is_not_stay_denial(condition):
+    text='帮我找酒店，'+condition
+    service_condition_evidence(text, condition, text)
+
+
+@pytest.mark.parametrize('condition', ['别住了', '不要入住', '不用退房'])
+def test_stay_operation_negation_stays_blocked(condition):
+    text='帮我找酒店，'+condition
+    with pytest.raises(ValueError):
+        service_condition_evidence(text, condition, text)
 
 
 @pytest.mark.parametrize('quote,value,basis', [
@@ -113,6 +153,17 @@ def test_budget_amount_is_selected_by_model_among_grounded_numbers(quote,value,b
 
 
 @pytest.mark.parametrize('basis',['total','per_person',None])
-def test_budget_amount_must_match_quote_before_basis_is_handled(basis):
+def test_only_per_person_budget_bypasses_amount_matching(basis):
     field=PlanningField(field='budget_fen',value=50000,quote='两个人600元',budget_basis=basis)
-    assert _field_check(field,field.quote,date(2026,10,26))=='budget_not_in_quote'
+    expected='per_person_budget' if basis=='per_person' else 'budget_not_in_quote'
+    assert _field_check(field,field.quote,date(2026,10,26))==expected
+
+
+@pytest.mark.parametrize('quote,value', [
+    ('每人300元，两个人一共900元', 80000),
+    ('人均五百，合计1200元', 70000),
+    ('一人预算800块，共三人', 60000),
+])
+def test_per_person_budget_explains_scope_before_amount_mismatch(quote,value):
+    field=PlanningField(field='budget_fen',value=value,quote=quote,budget_basis='per_person')
+    assert _field_check(field,quote,date(2026,10,26))=='per_person_budget'

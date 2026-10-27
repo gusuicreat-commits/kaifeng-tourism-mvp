@@ -19,7 +19,7 @@ def install():
         '2030-05-01，上午9点到下午6点，轻松一点':{'fields':[day,morning,evening,field('pace','relaxed','轻松一点')]},
         '2030-05-01，下午6点到上午9点':{'fields':[day,field('start_time','18:00','下午6点'),field('end_time','09:00','上午9点')]},
         '改成2030-05-02':{'fields':[field('date','2030-05-02','2030-05-02')]},
-        '[合成测试]museum改为想去':{'choices':[{'name':'[合成测试]museum','priority':'want','quote':'[合成测试]museum改为想去'}]},
+        '[合成测试]museum改为想去':{'choices':[{'name':'[合成测试]museum','priority':'want','priority_stated':True,'quote':'[合成测试]museum改为想去'}]},
         '想去[合成测试]museum':{'choices':[{'name':'[合成测试]museum','priority':'want','quote':'想去[合成测试]museum'}]},
     }
     for text in ('我想明天去开封玩','我明天想去开封玩','明天我想去开封玩','我们打算明天去开封旅游'):
