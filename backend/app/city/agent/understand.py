@@ -47,6 +47,7 @@ def food_covered_by_material(constraint, planning, snapshot):
 
 UNDERSTAND_TIMEOUT_SECONDS = 25.0
 ASK_QUESTION_OR_CHANGE = '你是想调整行程，还是先问问？'
+ASK_EXCLUDED_FOOD = '请明确需要避开的食物；当前不能把忌口当作想吃的菜品来安排。'
 
 
 UNDERSTANDING_PROMPT_SECTIONS = (
@@ -180,7 +181,7 @@ def rules(text, snapshot):
                 actions.append(Action(kind='search_dining' if dining else 'modify',quote=clause,near=dining and bool(_NEAR.search(clause))))
         food_named='灌汤包' in clause or any(item.kind=='food' and facts.planning_visible(item) and facts.name_matches(item, clause) for item in snapshot.planning.facts.values())
         excluded_food=bool(re.search(r'不吃|不想吃|不能吃|不要吃|忌口|过敏',clause) or food_named and re.search(r'不要',clause))
-        if excluded_food:unresolved.append('请明确需要避开的食物；当前不能把忌口当作想吃的菜品来安排。')
+        if excluded_food:unresolved.append(ASK_EXCLUDED_FOOD)
         for (_,identity),item in snapshot.planning.facts.items():
             if not excluded_food and item.kind=='food' and facts.planning_visible(item) and facts.name_matches(item, clause):
                 add('food',item.name,strength,clause)
@@ -213,6 +214,9 @@ def grounded(result,text):
         kind=getattr(item,'kind',None)
         if kind in ('query','search_services','search_dining'):query_evidence(text,item.quote)
         elif kind is not None:request_evidence(text,item.quote)
+        if getattr(item,'dining',{}).get('max_fen') is not None:
+            from .planning_intent import _money_amounts
+            if item.dining['max_fen'] not in _money_amounts(item.quote):raise ValueError('invented dining price')
     for c in result.constraints:
         if c.field in ('return_by','meal_at','visit_at') and c.value:
             if not clock_grounded(c.value,c.quote,text):raise ValueError('invented clock')
@@ -674,6 +678,10 @@ def parse(text,snapshot,*,allow_model=True):
         # The question-or-change placeholder only stands in for a rule parse that failed its
         # evidence check; a grounded model action has already answered that question.
         local_unresolved=tuple(u for u in local.unresolved if u!=ASK_QUESTION_OR_CHANGE or not result.actions)
+        # Likewise the avoided-food question: "不吃辣" the model already wrote as a not-spicy
+        # dining filter needs no question. Other avoidances (不吃香菜) have no filter and still ask.
+        if any(a.dining.get('spicy')=='none' for a in result.actions):
+            local_unresolved=tuple(u for u in local_unresolved if u!=ASK_EXCLUDED_FOOD)
         merged_unresolved=result.unresolved if semantic_branch else tuple(dict.fromkeys((*local_unresolved,*result.unresolved)))
         service_quotes=[a.quote for a in result.actions if a.kind=='search_services']
         if result.service_query:service_quotes.append(result.service_query.quote)
@@ -724,8 +732,9 @@ def wants_find(intent,snapshot):
     (react), which is the handler that needs a fresh position.
     """
     from .toolbelt import requested_foods,general_dining
+    from .dining import restaurant_query
     dining=[a for a in intent.actions if a.kind=='search_dining']
-    return bool(dining) and not any(a.near for a in dining) and (not intent.planning and bool(requested_foods(snapshot,intent)) or any(general_dining(snapshot,a) for a in dining))
+    return bool(dining) and not any(a.near for a in dining) and (not intent.planning and bool(requested_foods(snapshot,intent)) or any(general_dining(snapshot,a) for a in dining) or restaurant_query(snapshot,intent))
 
 
 def route(intent,snapshot):

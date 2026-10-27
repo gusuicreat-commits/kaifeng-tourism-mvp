@@ -241,6 +241,12 @@ def _finish(session,t,status,result):
     if t.wait_started is not None:
         t.waited_seconds+=time.monotonic()-t.wait_started;t.wait_started=None
     t.waiting=None
+    filters,missing=toolbelt.dining.usable(t.snapshot.planning,toolbelt.dining.conditions(t.intent)) if t.intent and t.snapshot is not None else ([],[])
+    if t.mode=='react' and (filters or missing):
+        dining_result=t.observations.get('search_dining',{})
+        note=dining_result.get('reply') or toolbelt.dining.interpretation(filters)+toolbelt.dining.unapplied(missing)
+        result['reply']=note+result.get('reply','')
+        if not dining_result.get('items') and dining_result.get('excluded'):result['excluded']=dining_result['excluded']
     if t.cancelled and status not in ('cancelled','history_cleared','budget_exhausted'):
         status='cancelled';result={'reply':'已取消。'}
     if not t.cancelled and t.snapshot is not None and t.intent and t.mode in ('workflow','react'):
@@ -316,6 +322,7 @@ def _read_query(t,action,snapshot):
     if action.purpose=='dining':
         if action.near and snapshot.envelope.position['status']!='fresh':
             return {'status':'needs_data','code':'FRESH_POSITION_REQUIRED','reply':'你现在在哪？在地图上点一下位置，我再帮你找附近的。'}
+        if toolbelt.dining.restaurant_query(snapshot,t.intent):return toolbelt.dining.recommend(snapshot,t.intent)
         if toolbelt.general_dining(snapshot,action):return toolbelt.find_food(snapshot,t.intent,general=True)
     if t.interpretation.get('basis')=='kimi_validated':
         from .semantic_execution import read_action

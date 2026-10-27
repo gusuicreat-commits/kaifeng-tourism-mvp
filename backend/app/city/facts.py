@@ -179,6 +179,11 @@ class Vendor(Fact):
     external_poi_id: str | None = Field(default=None, max_length=120)
     business_hours: str | None = Field(default=None, max_length=300)
     price_band: str | None = Field(default=None, max_length=100)
+    cuisine: str | None = Field(default=None, min_length=1, max_length=100)
+    taste_tags: tuple[str, ...] = Field(default=(), max_length=20)
+    spiciness: Literal['none', 'mild', 'hot'] | None = None
+    signature_dishes: tuple[str, ...] = Field(default=(), max_length=30)
+    meal_periods: tuple[Literal['早餐', '午餐', '晚餐', '夜宵'], ...] = Field(default=(), max_length=4)
 
 
 class Supply(Fact):

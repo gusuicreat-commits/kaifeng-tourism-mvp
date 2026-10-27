@@ -10,6 +10,7 @@ from ..engine.models import Goal, PreviewRequest, ReplanRequest, Requirements
 from ..engine.travel import TravelTimeService, travel_seconds, entry_deadline
 from ..schema import TZ
 from .models import BasketProposal, BasketProposalItem
+from . import dining
 
 
 def values(intent,field):return [c for c in intent.constraints if c.field==field]
@@ -71,6 +72,14 @@ def _supply_readable(ctx,record,seen=None):
 
 def find_food(snapshot,intent,*,general=False):
     """Read-only dish-to-shop references, without requiring a position or route."""
+    if dining.restaurant_query(snapshot,intent):return dining.recommend(snapshot,intent)
+    result=_find_food(snapshot,intent,general=general)
+    missing=dining.usable(snapshot.planning,dining.conditions(intent))[1]
+    if missing:result['reply']=dining.unapplied(missing)+result['reply']
+    return result
+
+
+def _find_food(snapshot,intent,*,general=False):
     ctx=snapshot.planning;now=ctx.assessed_at;today=now.astimezone(TZ).date()
     basket={(m['fact_kind'],m['fact_id']) for m in snapshot.materials if m['status']!='standby'}
     items=[];lines=[];reference=False
@@ -137,11 +146,20 @@ def search_dining(snapshot,intent,relax=False):
                    and facts.planning_visible(r) and (r.name in target_names or any(alias in target_names for alias in r.aliases))}
     foods=[r for r in ctx.facts.values() if isinstance(r,facts.Food) and r.name in names and ctx.ready(r,req.starts_at,req.ends_at)]
     if names and len({r.name for r in foods})!=len(names):return {'status':'no_candidates','code':'FOOD_NOT_VERIFIED','items':[]}
-    output=[]
+    if not relax:
+        for food in requested_foods(snapshot,intent):
+            if not ctx.ready(food,req.starts_at,req.ends_at):return {'status':'no_candidates','code':'FOOD_NOT_VERIFIED','items':[]}
+            if food not in foods:foods.append(food)
+    output=[];(filters,missing),rejected=dining.usable(ctx,dining.conditions(intent)),{}
     for p in sorted(ctx.facts.values(),key=lambda r:r.fact_id):
         if not isinstance(p,facts.Place) or p.place_type!='restaurant' or not ctx.ready(p,req.starts_at,req.ends_at):continue
         if target_places and p.fact_id not in target_places:continue
         vendors=[v for v in ctx.facts.values() if isinstance(v,facts.Vendor) and v.place_id==p.fact_id and ctx.ready(v,req.starts_at,req.ends_at)]
+        if filters:
+            for v in vendors:
+                for problem in dining.failures(v,filters):rejected[problem]=rejected.get(problem,0)+1
+            vendors=[v for v in vendors if not dining.failures(v,filters)]
+            if not vendors:continue
         supplies=[s for s in ctx.facts.values() if isinstance(s,facts.Supply) and s.vendor_id in {v.fact_id for v in vendors}
                   and ctx.ready(s,req.starts_at,req.ends_at)]
         if foods and any(f.fact_id not in {s.food_id for s in supplies} for f in foods):continue
@@ -150,8 +168,13 @@ def search_dining(snapshot,intent,relax=False):
         evidence=[p,*vendors,*supplies,*rules,*foods]
         output.append({'place_id':p.fact_id,'name':context.label(ctx.facts,p.fact_id),'food_ids':[f.fact_id for f in foods],
                        'relaxed_optional_food':relax,'facts':[context.fact_view(x,ctx.facts,ctx.assessed_at) for x in evidence[:12]]})
-        if len(output)==6:break
-    return {'status':'ok' if output else 'no_candidates','code':None if output else 'NO_VERIFIED_SUPPLY_OR_OPENING','items':output}
+        if filters:output[-1]['restaurants']=[dining.details(v,ctx) for v in vendors]
+    if any('max_fen' in f for f in filters):
+        from ..restaurant import price_range
+        output.sort(key=lambda i:min(price_range(v['price_band'])[1] for v in i['restaurants']))
+    return {'status':'ok' if output else 'no_candidates','code':None if output else 'NO_VERIFIED_SUPPLY_OR_OPENING','items':output[:6],
+            'reply':dining.interpretation(filters)+dining.unapplied(missing)+('没有商家满足全部条件。'+('；'.join(rejected) if rejected else '商家来源或营业资料不足，未确认')+'。' if filters and not output else ''),
+            'excluded':rejected}
 
 
 def apply_constraints(snapshot,intent,restaurant=None):

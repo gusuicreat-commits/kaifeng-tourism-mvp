@@ -15,6 +15,26 @@ class Action(Strict):
         default=None, description='普通query给purpose=trip/next/shows/dining/travel/history/reference。trip=行程;next=下一站;shows=演出;dining=餐饮;travel=交通;history=历史;reference=引用。')
     # search_dining only: the visitor limited the search to where they are now.
     near: bool = Field(default=False, description='true=附近；false=不限。')
+    dining: dict = Field(default_factory=dict, description='taste口味顿号隔;spicy=none不辣/mild微辣/hot辣;max_fen人均上限分;period早餐/午餐/晚餐/夜宵;dish=true招牌')
+
+    @model_validator(mode='before')
+    @classmethod
+    def dining_conditions(cls,value):
+        # Conditions are a filter, not a request: one the model wrote off-format is dropped
+        # (the reply echoes the conditions actually applied) instead of failing the turn.
+        if not isinstance(value,dict) or 'dining' not in value:return value
+        if not value['dining']:return dict(value,dining={})
+        dining=value['dining'] if isinstance(value['dining'],dict) else {}
+        if not (value.get('kind')=='search_dining' or value.get('kind')=='query' and value.get('purpose')=='dining'):dining={}
+        spicy={'不辣':'none','微辣':'mild','辣':'hot'}
+        kept={}
+        for key,item in dining.items():
+            if key=='spicy':item=spicy.get(item,item)
+            if key=='dish' and type(item) is bool or key=='max_fen' and type(item) is int and 0<=item<=100000000 \
+               or key=='spicy' and item in ('none','mild','hot') or key=='period' and item in ('早餐','午餐','晚餐','夜宵') \
+               or key=='taste' and isinstance(item,str) and item.strip() and len(item)<=100:
+                kept[key]=item
+        return dict(value,dining=kept)
 
 
 IN_TRIP_CHANGES=frozenset({'skip_replan','delay','extend','rest'})

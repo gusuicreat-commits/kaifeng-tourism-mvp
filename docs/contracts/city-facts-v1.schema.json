@@ -2669,6 +2669,70 @@
           ],
           "default": null,
           "title": "Price Band"
+        },
+        "cuisine": {
+          "anyOf": [
+            {
+              "maxLength": 100,
+              "minLength": 1,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Cuisine"
+        },
+        "taste_tags": {
+          "default": [],
+          "items": {
+            "type": "string"
+          },
+          "maxItems": 20,
+          "title": "Taste Tags",
+          "type": "array"
+        },
+        "spiciness": {
+          "anyOf": [
+            {
+              "enum": [
+                "none",
+                "mild",
+                "hot"
+              ],
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Spiciness"
+        },
+        "signature_dishes": {
+          "default": [],
+          "items": {
+            "type": "string"
+          },
+          "maxItems": 30,
+          "title": "Signature Dishes",
+          "type": "array"
+        },
+        "meal_periods": {
+          "default": [],
+          "items": {
+            "enum": [
+              "早餐",
+              "午餐",
+              "晚餐",
+              "夜宵"
+            ],
+            "type": "string"
+          },
+          "maxItems": 4,
+          "title": "Meal Periods",
+          "type": "array"
         }
       },
       "required": [

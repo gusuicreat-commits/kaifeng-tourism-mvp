@@ -96,6 +96,12 @@ cd /Users/mac/Desktop/大挑/kaifeng-tourism-mvp
 
 ## 城市状态接口与门禁
 
+餐厅口味参考资料可用 `.venv/bin/python scripts/import_restaurant_taste.py /path/to/restaurant_taste.csv --database /path/to/target.sqlite3 --dry-run` 校验，去掉 `--dry-run` 才写入；未指定数据库时使用应用默认库。列名和顺序沿用 `data_templates/restaurant_taste.csv`，多值以顿号分隔。店名必须精确匹配唯一已有商家地点名称或别名，整批校验通过才事务写入；空格子保留旧值，相同文件重导不增加版本。
+
+`vendor` 增加 `cuisine`、`taste_tags`、`spiciness`（none/mild/hot）、`signature_dishes`、`meal_periods`。填写人均时更新 `price_band`（单金额或区间、最多两位小数），原值和来源保留在修订表；有新资料须填写来源说明、链接或截图、采集人及非未来日期，按 `unverified + reference` 导入，不声称人工核实，不新增商家或 supply。
+
+餐饮动作的 `dining` 条件为 `taste`（规范口味标签，多项顿号分隔）、`spicy`（none/mild/hot）、`max_fen`（每人人均上限，分）、`period`（早餐/午餐/晚餐/夜宵），`dish=true` 表示问招牌菜；语义交给模型，金额复用原话金额核对。回复回显条件，只列全部符合且资料可查询的店；缺少任一条件资料的店不列出，无结果说明筛除原因；按人均筛选时使用区间上界并优先较低人均。招牌菜仅为商家参考资料，以店内为准；能精确对应已有菜品名称/别名时可关联 food_id，但不能据此形成供应关系或代替营业、交通校验。
+
 | 方法与路径（前缀 `/api/city/v1`） | 行为 |
 | --- | --- |
 | `GET /capabilities` | 当前工程能力，含参考规划的实际接线状态 |

@@ -65,6 +65,12 @@
           "description": "true=附近；false=不限。",
           "title": "Near",
           "type": "boolean"
+        },
+        "dining": {
+          "additionalProperties": true,
+          "description": "taste口味顿号隔;spicy=none不辣/mild微辣/hot辣;max_fen人均上限分;period早餐/午餐/晚餐/夜宵;dish=true招牌",
+          "title": "Dining",
+          "type": "object"
         }
       },
       "required": [
