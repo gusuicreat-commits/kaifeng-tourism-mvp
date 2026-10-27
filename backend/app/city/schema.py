@@ -3,12 +3,12 @@
 Facts must be loaded by server adapters. A valid shape is not proof of a real place,
 walkable road, opening time, consent, ownership, or a feasible itinerary.
 """
-from datetime import date
+from datetime import date, timedelta
 from typing import Annotated, Literal
 from uuid import UUID
 from zoneinfo import ZoneInfo
 
-from pydantic import AwareDatetime, BaseModel, ConfigDict, Field, model_validator
+from pydantic import AwareDatetime, BaseModel, ConfigDict, Field, TypeAdapter, model_validator
 
 TZ = ZoneInfo('Asia/Shanghai')
 EntityId = Annotated[str, Field(min_length=1, max_length=120, pattern=r'^[A-Za-z0-9][A-Za-z0-9_.:-]*$')]
@@ -235,3 +235,144 @@ class CityContracts(Strict):
     leg: Leg
     mutation: CityChangeRequest
     preview: CityPlanPreview
+
+
+class DayIdentity(Strict):
+    business_date: date
+    day_id: EntityId = Field(default_factory=lambda data:'day:'+data['business_date'].isoformat())
+
+    @model_validator(mode='before')
+    @classmethod
+    def identity(cls,value):
+        if isinstance(value,dict) and value.get('business_date') is not None:
+            value=dict(value)
+            day=TypeAdapter(date).validate_python(value['business_date'])
+            expected='day:'+day.isoformat()
+            if 'day_id' in value and value['day_id']!=expected:raise ValueError('day_id 必须与业务日期一致：'+expected)
+            value['day_id']=expected
+        return value
+
+
+def validate_days(start,end,days):
+    count=(end-start).days+1
+    if not 1<=count<=3:raise ValueError('日范围必须为连续 1–3 天')
+    if len({d.day_id for d in days})!=len(days):raise ValueError('day_id 重复')
+    expected=tuple(start+timedelta(days=i) for i in range(count))
+    if tuple(d.business_date for d in days)!=expected:raise ValueError('每日日期必须按日范围连续排列，无遗漏或重复')
+
+
+class DateRange(Strict):
+    start_date: date
+    end_date: date
+    timezone: Literal['Asia/Shanghai'] = 'Asia/Shanghai'
+    day_count: int = Field(default_factory=lambda data:(data['end_date']-data['start_date']).days+1,ge=1,le=3,strict=True)
+
+    @model_validator(mode='after')
+    def range_valid(self):
+        count=(self.end_date-self.start_date).days+1
+        if not 1<=count<=3:raise ValueError('日范围必须为连续 1–3 天')
+        if self.day_count!=count:raise ValueError('day_count 必须与日范围一致')
+        return self
+
+
+class DayWindow(DayIdentity):
+    starts_at: AwareDatetime
+    ends_at: AwareDatetime
+    origin_place_id: EntityId
+    destination_place_id: EntityId
+
+    @model_validator(mode='after')
+    def window_valid(self):
+        if self.ends_at<=self.starts_at:raise ValueError('每日结束须晚于开始')
+        if any(t.astimezone(TZ).date()!=self.business_date for t in (self.starts_at,self.ends_at)):
+            raise ValueError('每日时间窗必须属于上海时区同一业务日')
+        return self
+
+
+class Overnight(Strict):
+    overnight_id: EntityId
+    from_day_id: EntityId
+    to_day_id: EntityId
+    night_date: date
+    place_id: EntityId | None = None
+    source_kind: Literal['selected_hotel','user_place']
+    service_selection_id: str | None = Field(default=None,max_length=120)
+    service_version: int | None = Field(default=None,ge=0)
+    binding_revision: int | None = Field(default=None,ge=1)
+    check_in: AwareDatetime | None = None
+    check_out: AwareDatetime | None = None
+    place_evidence: Literal['verified','reference','synthetic','unknown'] = 'unknown'
+    stay_evidence: Literal['verified','reference','synthetic','unknown'] = 'unknown'
+    evidence_refs: tuple[EntityId,...] = Field(default=(),max_length=20)
+
+    @model_validator(mode='after')
+    def valid(self):
+        if self.from_day_id!='day:'+self.night_date.isoformat() or self.to_day_id!='day:'+(self.night_date+timedelta(days=1)).isoformat():
+            raise ValueError('过夜边界必须连接相邻日期的 day_id')
+        if self.check_in and self.check_out and self.check_out<=self.check_in:raise ValueError('入住退房时刻无效')
+        return self
+
+
+def validate_overnights(days,overnights,complete=False):
+    if len({o.overnight_id for o in overnights})!=len(overnights):raise ValueError('过夜 ID 重复')
+    pairs={(a.day_id,b.day_id):(a,b) for a,b in zip(days,days[1:])}
+    seen=set()
+    for o in overnights:
+        pair=(o.from_day_id,o.to_day_id)
+        if pair not in pairs or pair in seen:raise ValueError('过夜边界不存在或重复')
+        seen.add(pair);a,b=pairs[pair]
+        if o.place_id and any(p is not None and p!=o.place_id for p in (a.destination_place_id,b.origin_place_id)):
+            raise ValueError('过夜地点必须与前日终点、次日起点一致')
+        if complete and (not o.place_id or a.destination_place_id!=o.place_id or b.origin_place_id!=o.place_id):
+            raise ValueError('正式路线过夜边界必须连接两个已知端点')
+    if complete and seen!=set(pairs):raise ValueError('每对相邻日必须有一个过夜边界')
+
+
+def validate_day_stops(day):
+    pending=False;previous=day.starts_at
+    for s in day.stops:
+        for t in (s.window_start,s.window_end,s.actual_start,s.actual_end):
+            if t and t.astimezone(TZ).date()!=day.business_date:raise ValueError('活动时刻必须属于所在业务日')
+        if s.progress=='pending':pending=True
+        elif pending:raise ValueError('已完成或跳过的记录必须组成每日已执行前缀')
+        if s.progress=='completed':
+            if (previous and s.actual_start<previous) or (day.ends_at and s.actual_end>day.ends_at):
+                raise ValueError('完成记录必须组成不重叠的每日已执行前缀')
+            previous=s.actual_end
+
+
+def validate_trip_stops(days):
+    stops=[s for d in days for s in d.stops]
+    ids=[s.stop_id for s in stops];sessions=[s.session_id for s in stops if s.session_id]
+    if len(set(ids))!=len(ids) or len(set(sessions))!=len(sessions):raise ValueError('全程活动或场次重复')
+    if sum(d.status=='active' for d in days)>1:raise ValueError('全程最多一个 active 日')
+
+
+class CityTripDay(DayWindow):
+    stops: tuple[Stop,...] = Field(default=(),max_length=24)
+    status: Literal['pending','active','closed'] = 'pending'
+
+    @model_validator(mode='after')
+    def valid(self):
+        validate_day_stops(self)
+        return self
+
+
+class CityTripV2(DateRange):
+    schema_version: Literal['city-trip/2']
+    trip_id: UUID
+    version: int = Field(ge=1)
+    route_version: int = Field(default=0,ge=0)
+    city_id: Literal['kaifeng'] = 'kaifeng'
+    status: Literal['DRAFT','PLANNED','ACTIVE','PAUSED','COMPLETED','CANCELLED','ARCHIVED'] = 'DRAFT'
+    days: tuple[CityTripDay,...] = Field(min_length=1,max_length=3)
+    overnights: tuple[Overnight,...] = Field(default=(),max_length=2)
+    anchor: PositionAnchor | None = None
+    legacy_trip_id: UUID | None = None
+
+    @model_validator(mode='after')
+    def valid(self):
+        validate_days(self.start_date,self.end_date,self.days)
+        validate_trip_stops(self.days)
+        validate_overnights(self.days,self.overnights,complete=self.route_version>0)
+        return self

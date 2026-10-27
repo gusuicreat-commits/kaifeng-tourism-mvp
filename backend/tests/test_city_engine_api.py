@@ -63,6 +63,185 @@ def replan(e,req=None,**extra):
             'expected_version':t['version'],'requirements':req or d['requirements'],**extra})
 
 
+def seed_multi_route(e,route_version=1):
+    from multi_day_helpers import requirements,itinerary,result,draft
+    from app.city.engine.models import MultiDayRequirements,MultiDayItinerary,SolveResultV2
+    from app.city.state_schema import CityDraftV2
+    from app.memory.storage import stamp,now
+    req=MultiDayRequirements.model_validate(requirements()).model_dump_json()
+    plan=MultiDayItinerary.model_validate(itinerary()).model_dump_json()
+    candidate=rid();trip_id=e[1]['id']
+    with connect() as db:
+        db.execute('UPDATE city_trip_states SET draft_json=?,route_version=? WHERE id=?',
+                   (CityDraftV2.model_validate(draft()).model_dump_json(),route_version,trip_id))
+        db.execute('INSERT INTO city_engine_routes VALUES (?,?,?,?,?,?,?)',(trip_id,route_version,1,req,plan,'synthetic-snapshot',stamp()))
+        db.execute('INSERT INTO city_engine_candidates VALUES (?,?,?,?,?,?,?,?,0)',
+            (candidate,trip_id,1,'synthetic-snapshot',req,SolveResultV2.model_validate(result()).model_dump_json(),
+             json.dumps({'days':{'day:2030-05-01':{'frozen':False}}}),stamp(now()+timedelta(minutes=15))))
+    return candidate,json.loads(req),json.loads(plan)
+
+
+@pytest.mark.parametrize('endpoint',['preview','replan-preview'])
+def test_multi_day_engine_requests_are_explicitly_unavailable_and_never_solved(engine,monkeypatch,endpoint):
+    from multi_day_helpers import requirements
+    from app.city.engine.models import MultiDayRequirements
+    from app.city.engine.tools import plan_trip,replan_trip
+    c,t,_=engine
+    monkeypatch.setattr(service,'plan_trip',lambda *a,**kw:pytest.fail('must not run single-day solver'))
+    before=c.get('/api/city/v1/trips/'+t['id']).json()
+    body={'request_id':rid(),'expected_version':1,'requirements':requirements()}
+    if endpoint=='replan-preview':body.update(scope='current_and_future',day_id='day:2030-05-01')
+    response=c.post(f"/api/city/v1/trips/{t['id']}/engine/{endpoint}",json=body)
+    assert response.status_code==503 and response.json()['detail']['status']=='unavailable'
+    assert c.get('/api/city/v1/trips/'+t['id']).json()==before
+    with connect() as db:
+        assert db.execute('SELECT count(*) FROM city_engine_candidates').fetchone()[0]==0
+        ctx=service.context(db)
+    for tool in (plan_trip,replan_trip):
+        result=tool(MultiDayRequirements.model_validate(requirements()),ctx)
+        assert result.status=='unavailable' and not result.itineraries
+
+
+def test_multi_day_current_history_export_preserve_whole_snapshot_and_ownership(engine):
+    c,t,_=engine;_,req,plan=seed_multi_route(engine)
+    with connect() as db:
+        before=[dict(r) for r in db.execute('SELECT * FROM city_engine_routes')]
+    for suffix in ('current','versions/1'):
+        r=c.get(f"/api/city/v1/trips/{t['id']}/engine/{suffix}")
+        assert r.status_code==200,r.text
+        assert r.json()['itinerary']==plan and len(r.json()['itinerary']['days'])==2
+        assert r.json()['stale'] and r.json()['issues'][0]['code']=='MULTI_DAY_VALIDATION_UNAVAILABLE'
+    snapshot=c.get('/api/city/v1/trips/'+t['id']).json()
+    assert snapshot['schema_version']=='city-state/2' and len(snapshot['draft']['days'])==2
+    assert c.get('/api/city/v1/trips').json()['items'][0]==snapshot
+    assert c.get('/api/city/v1/trips/current').json()['trip']==snapshot
+    export=c.get('/api/v1/memory/export').json()['city_trips'][0]
+    assert export['draft']==snapshot['draft']
+    assert json.loads(export['planning_engine']['versions'][0]['requirements_json'])==req
+    assert json.loads(export['planning_engine']['versions'][0]['itinerary_json'])==plan
+    assert len(json.loads(export['planning_engine']['candidates'][0]['result_json'])['itineraries'][0]['days'])==2
+    with connect() as db:assert [dict(r) for r in db.execute('SELECT * FROM city_engine_routes')]==before
+    with TestClient(app) as other:
+        other.post('/api/v1/sessions')
+        assert other.get(f"/api/city/v1/trips/{t['id']}/engine/current").status_code==404
+        assert other.get('/api/v1/memory/export').json()['city_trips']==[]
+
+
+def test_multi_day_engine_candidate_cannot_be_confirmed_through_single_day_trip(engine):
+    from app.memory.storage import stamp,now
+    from multi_day_helpers import requirements,result
+    c,t,_=engine;candidate=rid()
+    with connect() as db:
+        db.execute('INSERT INTO city_engine_candidates VALUES (?,?,?,?,?,?,?,?,0)',
+            (candidate,t['id'],1,'synthetic',json.dumps(requirements()),json.dumps(result()),'{}',stamp(now()+timedelta(minutes=15))))
+    r=confirm(engine,{'candidate_id':candidate,'base_version':1})
+    assert r.status_code==503 and r.json()['detail']['code']=='MULTI_DAY_UNAVAILABLE'
+    with connect() as db:
+        assert db.execute('SELECT consumed FROM city_engine_candidates').fetchone()[0]==0
+        assert db.execute('SELECT count(*) FROM city_engine_routes').fetchone()[0]==0
+
+
+@pytest.mark.parametrize('endpoint',['preview','replan-preview','confirm','assistant/context','exploration/preview'])
+def test_old_write_and_context_consumers_reject_stored_multi_day_without_projection(engine,monkeypatch,endpoint):
+    c,t,d=engine;candidate,_,_=seed_multi_route(engine)
+    monkeypatch.setattr(service,'plan_trip',lambda *a,**kw:pytest.fail('must not solve first day'))
+    path='/api/city/v1/trips/'+t['id']
+    if endpoint=='assistant/context':response=c.get(path+'/'+endpoint)
+    elif endpoint=='exploration/preview':
+        response=c.post(path+'/'+endpoint,json={'request_id':rid(),'expected_version':1,'basket_version':0,
+            'constraints':{k:v for k,v in d['requirements'].items() if k!='goals'}})
+    else:
+        body={'request_id':rid(),'expected_version':1}
+        body.update({'candidate_id':candidate} if endpoint=='confirm' else {'requirements':d['requirements']})
+        response=c.post(path+'/engine/'+endpoint,json=body)
+    assert response.status_code==503,response.text
+    assert response.json()['detail']['code']=='MULTI_DAY_UNAVAILABLE'
+    with connect() as db:assert db.execute('SELECT route_version FROM city_trip_states').fetchone()[0]==1
+
+
+def test_legacy_schema_reads_and_hashes_are_unchanged_through_full_closed_loop(engine,monkeypatch):
+    from app.city import versions
+    from app.city.state_schema import CityDraft
+    from app.city.engine.models import Requirements,Itinerary,SolveResult
+    from app.memory.storage import digest,encoded
+    e=engine;c,t,d=e
+    raw=json.dumps(d['requirements'],indent=3)
+    assert versions.read_requirements(raw).model_dump(mode='json')==Requirements.model_validate_json(raw).model_dump(mode='json')
+    request={'request_id':rid(),'expected_version':1,'requirements':d['requirements']}
+    p=c.post(f"/api/city/v1/trips/{t['id']}/engine/preview",json=request).json()
+    assert confirm(e,p).status_code==200
+    with connect() as db:
+        route=dict(service.route_row(db,t['id']));state_row=dict(db.execute('SELECT * FROM city_trip_states').fetchone())
+        candidate=dict(db.execute('SELECT * FROM city_engine_candidates').fetchone())
+        hashes=[tuple(r) for r in db.execute('SELECT scope,body_hash,result_json FROM city_receipts ORDER BY scope')]
+        expected=digest(encoded(__import__('app.city.engine.models',fromlist=['PreviewRequest']).PreviewRequest.model_validate(request).model_dump(mode='json')))
+        assert db.execute('SELECT body_hash FROM city_receipts WHERE request_id=?',(request['request_id'],)).fetchone()[0]==expected
+    for reader,model,raw in ((versions.read_draft,CityDraft,state_row['draft_json']),
+                             (versions.read_itinerary,Itinerary,route['itinerary_json']),
+                             (versions.read_requirements,Requirements,route['requirements_json']),
+                             (versions.read_result,SolveResult,candidate['result_json'])):
+        assert reader(raw).model_dump(mode='json')==model.model_validate_json(raw).model_dump(mode='json')
+    assert current(e).json()['itinerary']==Itinerary.model_validate_json(route['itinerary_json']).model_dump(mode='json')
+    c.get('/api/v1/memory/export')
+    with connect() as db:
+        assert dict(service.route_row(db,t['id']))==route
+        assert dict(db.execute('SELECT * FROM city_trip_states').fetchone())==state_row
+        assert [tuple(r) for r in db.execute('SELECT scope,body_hash,result_json FROM city_receipts ORDER BY scope')]==hashes
+    active(e,monkeypatch,'2030-05-01T08:30:00+08:00','origin')
+    p2=replan(e).json();assert p2['status']=='preview'
+    assert confirm(e,p2).json()['route_version']==2
+    assert c.get(f"/api/city/v1/trips/{t['id']}/engine/versions/1").json()['itinerary']==json.loads(route['itinerary_json'])
+
+
+@pytest.mark.parametrize('column,tag',[('requirements_json','city-engine/99'),('itinerary_json','city-itinerary/99')])
+def test_unknown_saved_route_schema_is_rejected_on_current_history_and_export(engine,column,tag):
+    c,t,_=engine;seed_multi_route(engine)
+    with connect() as db:db.execute(f'UPDATE city_engine_routes SET {column}=?',(json.dumps({'schema_version':tag}),))
+    for url in (f"/api/city/v1/trips/{t['id']}/engine/current",f"/api/city/v1/trips/{t['id']}/engine/versions/1",'/api/v1/memory/export'):
+        r=c.get(url);assert r.status_code==422 and r.json()['detail']['code']=='SCHEMA_UNSUPPORTED'
+
+
+def test_multi_day_export_delete_and_backup_restore_cover_all_nested_objects(engine,tmp_path):
+    from app.db import database_path
+    from app.memory import storage
+    from multi_day_helpers import requirements
+    c,t,_=engine;seed_multi_route(engine)
+    req=requirements();constraints={k:req[k] for k in ('start_date','end_date','days','goals','overnights')}
+    constraints['schema_version']='city-constraints/2'
+    with connect() as db:
+        db.execute('INSERT INTO city_exploration_states VALUES (?,?,?,?,?,?)',(t['id'],1,json.dumps(constraints),None,0,storage.stamp()))
+        db.execute('INSERT INTO city_proposals VALUES (?,?,?,?,?,?,?,0)',(rid(),
+            db.execute('SELECT session_id FROM city_trip_states').fetchone()[0],t['id'],1,
+            json.dumps({'operation':'save_draft','draft':json.loads(db.execute('SELECT draft_json FROM city_trip_states').fetchone()[0])}),
+            'synthetic',storage.stamp(storage.now()+timedelta(minutes=15))))
+    export=c.get('/api/v1/memory/export').json()['city_trips'][0]
+    assert export['draft']['overnights'][0]['place_id']=='hotel'
+    assert export['exploration']['constraints']==constraints
+    assert len(export['proposals'][0]['action']['draft']['days'])==2
+    cookies=dict(c.cookies);backup=tmp_path/'before-delete.sqlite3'
+    with sqlite3.connect(database_path()) as src,sqlite3.connect(backup) as dst:src.backup(dst)
+    assert c.post('/api/v1/privacy/delete-request',json={'request_id':rid(),'confirmed':True}).status_code==200
+    tables=('city_trip_states','city_engine_routes','city_engine_candidates','city_exploration_states','city_proposals','city_receipts','city_trip_events')
+    with connect() as db:
+        for table in tables:assert db.execute(f'SELECT count(*) FROM {table}').fetchone()[0]==0
+        assert db.execute('SELECT count(*) FROM city_facts').fetchone()[0]>0
+    with sqlite3.connect(backup) as src,sqlite3.connect(database_path()) as dst:src.backup(dst)
+    c.cookies.update(cookies)
+    assert c.get('/api/city/v1/trips/'+t['id']).status_code==401
+    storage.maintenance()
+    with connect() as db:
+        for table in tables:assert db.execute(f'SELECT count(*) FROM {table}').fetchone()[0]==0
+
+
+@pytest.mark.parametrize('value',[None,[], 'invalid', {'schema_version':'city-engine/99'}])
+def test_engine_schema_dispatch_rejects_invalid_http_shapes(engine,value):
+    c,t,_=engine
+    for endpoint in ('preview','replan-preview'):
+        r=c.post(f"/api/city/v1/trips/{t['id']}/engine/{endpoint}",json={
+            'request_id':rid(),'expected_version':1,'requirements':value})
+        assert r.status_code==422
+
+
 def test_preview_does_not_commit_confirm_is_idempotent_and_history_is_retained(engine):
     e=engine;request_id=rid();p=preview(e,request_id=request_id).json()
     assert p['status']=='preview' and current(e).json()['itinerary'] is None

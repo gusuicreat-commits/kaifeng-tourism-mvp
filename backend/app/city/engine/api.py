@@ -2,20 +2,21 @@
 from uuid import UUID
 from fastapi import APIRouter, Depends, Query
 from ...memory.session import Session, current, limit
-from .models import PreviewRequest, ReplanRequest, ConfirmRequest
+from .models import ConfirmRequest
 from . import service
+from ..versions import PreviewBody, ReplanBody
 
 router=APIRouter(prefix='/api/city/v1/trips/{trip_id}/engine',tags=['City deterministic planning'])
 
 
 @router.post('/preview')
-def preview(trip_id:UUID,body:PreviewRequest,s:Session=Depends(current)):
+def preview(trip_id:UUID,body:PreviewBody,s:Session=Depends(current)):
     limit('engine:'+s.id,20)
     return service.preview(s,trip_id,body)
 
 
 @router.post('/replan-preview')
-def replan(trip_id:UUID,body:ReplanRequest,s:Session=Depends(current)):
+def replan(trip_id:UUID,body:ReplanBody,s:Session=Depends(current)):
     limit('engine:'+s.id,20)
     return service.preview(s,trip_id,body,replanning=True)
 

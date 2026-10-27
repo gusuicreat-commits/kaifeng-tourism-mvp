@@ -3,7 +3,8 @@ from datetime import date
 from typing import Annotated, Literal
 from uuid import UUID
 from pydantic import AwareDatetime, Field, model_validator
-from .schema import EntityId, PositionAnchor, Stop, Strict, TZ
+from .schema import (EntityId, PositionAnchor, Stop, Strict, TZ, DayIdentity, DateRange, Overnight,
+                     validate_days, validate_day_stops, validate_trip_stops, validate_overnights)
 
 
 class CityDraft(Strict):
@@ -84,3 +85,79 @@ class ConfirmCityChange(Strict):
     request_id: UUID
     expected_version: int = Field(ge=1)
     proposal_id: UUID
+
+
+class DayDraft(CityDraft,DayIdentity):
+    business_date: date
+    origin_text: str | None = Field(default=None,max_length=120)
+    destination_text: str | None = Field(default=None,max_length=120)
+    status: Literal['pending','active','closed'] = 'pending'
+
+    @model_validator(mode='after')
+    def day_valid(self):
+        validate_day_stops(self)
+        if len(set(self.modes))!=len(self.modes):raise ValueError('交通方式重复')
+        return self
+
+
+class CityDraftV2(DateRange):
+    schema_version: Literal['city-draft/2']
+    days: tuple[DayDraft,...] = Field(min_length=1,max_length=3)
+    overnights: tuple[Overnight,...] = Field(default=(),max_length=2)
+
+    @model_validator(mode='after')
+    def valid(self):
+        validate_days(self.start_date,self.end_date,self.days)
+        validate_trip_stops(self.days)
+        validate_overnights(self.days,self.overnights)
+        return self
+
+
+class CreateCityTripV2(CreateCityTrip):
+    draft: CityDraftV2
+
+
+class SaveDraftV2(Strict):
+    operation: Literal['save_draft']
+    draft: CityDraftV2
+
+
+class SaveCityDraftV2(MutateCityTrip):
+    action: SaveDraftV2
+
+
+class MarkCompletedV2(MarkCompleted):
+    day_id: EntityId
+
+
+class SkipStopV2(SkipStop):
+    day_id: EntityId
+
+
+class SetAnchorV2(SetAnchor):
+    day_id: EntityId
+
+
+class CloseDay(Strict):
+    operation: Literal['close_day']
+    day_id: EntityId
+
+
+ActionV2=Annotated[SaveDraftV2|MarkCompletedV2|SkipStopV2|SetAnchorV2|CloseDay|Transition,Field(discriminator='operation')]
+
+
+class MutateCityTripV2(MutateCityTrip):
+    schema_version: Literal['city-state/2']
+    action: ActionV2
+
+
+class CityStateV2(Strict):
+    id: UUID
+    schema_version: Literal['city-state/2']
+    status: Literal['DRAFT','ACTIVE','PAUSED','COMPLETED','CANCELLED','ARCHIVED']
+    draft: CityDraftV2
+    anchor: PositionAnchor | None
+    version: int = Field(ge=1)
+    route_version: int = Field(ge=0)
+    updated_at: AwareDatetime
+    readiness: dict

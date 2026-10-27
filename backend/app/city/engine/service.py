@@ -11,12 +11,13 @@ from .. import facts, state
 from ..schema import Stop, PositionAnchor
 from ..state_schema import CityDraft
 from .context import PlanningContext
-from .models import Requirements, Itinerary, SolveResult, OngoingInput
+from .models import Requirements, OngoingInput, MultiDayItinerary, MultiDayRequirements
 from .storage import load_operations
 from .tools import plan_trip, replan_trip
 from .prepare import prepare
 from .validation import validate_itinerary, compare_itineraries
 from . import live_travel
+from ..versions import read_draft, read_requirements, read_itinerary as parse_itinerary, read_result, single_day, guard_single_day
 
 
 def context(db):
@@ -32,7 +33,7 @@ def route_row(db,trip_id,version=None):
 
 
 def progress(row):
-    draft=CityDraft.model_validate_json(row['draft_json'])
+    draft=read_draft(row['draft_json']);single_day(draft)
     return {'prefix':[s.model_dump(mode='json') for s in draft.stops if s.progress!='pending'],
             'anchor':json.loads(row['anchor_json']) if row['anchor_json'] else None}
 
@@ -42,7 +43,7 @@ def check_open(row):
 
 
 def protect_requirements(row,req,replanning,previous,body,ctx):
-    draft=CityDraft.model_validate_json(row['draft_json'])
+    draft=read_draft(row['draft_json']);single_day(draft,req,previous)
     prefix=tuple(s for s in draft.stops if s.progress!='pending')
     if prefix and not replanning:raise HTTPException(422,detail='已有进度，请调用剩余行程重规划。')
     goals={g.goal_id:g for g in req.goals}
@@ -130,18 +131,20 @@ def protect_requirements(row,req,replanning,previous,body,ctx):
 
 
 def preview(session,trip_id,body,replanning=False,planning_version=None):
+    single_day(body.requirements)
     data=body.model_dump(mode='json');scope=('engine_replan:' if replanning else 'engine_preview:')+str(trip_id)
     with connect() as db:
+        guard_single_day(db,state.owned(db,session,trip_id))
         cached=state.receipt(db,session,body.request_id,scope,data)
         if cached is not None:return cached
         row=state.owned(db,session,trip_id);state.check_version(row,body.expected_version);check_open(row)
-        ctx=context(db);oldrow=route_row(db,trip_id);previous=Itinerary.model_validate_json(oldrow['itinerary_json']) if oldrow else None
+        ctx=context(db);oldrow=route_row(db,trip_id);previous=parse_itinerary(oldrow['itinerary_json']) if oldrow else None
         req=body.requirements
         if not replanning and req.starts_at<ctx.assessed_at:raise HTTPException(422,detail='首次规划不能从已过去的时刻出发。')
         if replanning:
             anchor=PositionAnchor.model_validate_json(row['anchor_json']) if row['anchor_json'] else None
             if not anchor:raise HTTPException(422,detail='请先确认当前位置。')
-            done={s.stop_id for s in CityDraft.model_validate_json(row['draft_json']).stops if s.progress!='pending'}
+            done={s.stop_id for s in read_draft(row['draft_json']).stops if s.progress!='pending'}
             if body.ongoing is None and previous:
                 current=next((s for s in previous.activities if s.starts_at<=ctx.assessed_at<s.departs_at
                               and s.goal_id not in done|set(body.skipped_goal_ids) and s.place_id==anchor.place_id),None)
@@ -157,8 +160,8 @@ def preview(session,trip_id,body,replanning=False,planning_version=None):
             if body.restore_route_version:
                 historical=route_row(db,trip_id,body.restore_route_version)
                 if not historical:raise HTTPException(404,detail='历史路线版本不存在。')
-                req=Requirements.model_validate_json(historical['requirements_json'])
-                done={s.stop_id for s in CityDraft.model_validate_json(row['draft_json']).stops if s.progress!='pending'}
+                req=read_requirements(historical['requirements_json']);single_day(req,parse_itinerary(historical['itinerary_json']))
+                done={s.stop_id for s in read_draft(row['draft_json']).stops if s.progress!='pending'}
                 req=req.model_copy(update={'goals':tuple(g for g in req.goals if g.goal_id not in done)})
                 if not req.goals:raise HTTPException(422,detail='历史目标均已处理，无需恢复。')
             if body.ongoing:
@@ -223,11 +226,13 @@ def confirm_itinerary(session,trip_id,body):
     data=body.model_dump(mode='json');scope='engine_confirm:'+str(trip_id)
     with connect() as db:
         db.execute('BEGIN IMMEDIATE')
+        guard_single_day(db,state.owned(db,session,trip_id))
         cached=state.receipt(db,session,body.request_id,scope,data)
         if cached is not None:return cached
         row=state.owned(db,session,trip_id);state.check_version(row,body.expected_version);check_open(row)
         c=db.execute('SELECT * FROM city_engine_candidates WHERE id=? AND trip_id=?',(str(body.candidate_id),str(trip_id))).fetchone()
         if not c or c['consumed'] or c['expires_at']<=stamp(now()):raise HTTPException(409,detail='候选已过期、清除或被确认。')
+        req=read_requirements(c['requirements_json']);result=read_result(c['result_json']);single_day(req,result)
         if c['base_version']!=row['version']:raise HTTPException(409,detail='候选基线版本已变化。')
         ctx=context(db)
         if ctx.fingerprint()!=c['fingerprint']:raise HTTPException(409,detail='关键事实已变化，请重新计算。')
@@ -239,7 +244,6 @@ def confirm_itinerary(session,trip_id,body):
             from ..exploration_state import guard as planning_guard
             planning_guard(db,trip_id,extra['planning_version'])
         if extra['baseline']!=progress(row):raise HTTPException(409,detail='行程进度已变化。')
-        req=Requirements.model_validate_json(c['requirements_json']);result=SolveResult.model_validate_json(c['result_json'])
         if body.alternative_index>=len(result.itineraries):raise HTTPException(422,detail='备选方案编号不存在。')
         itinerary=result.itineraries[body.alternative_index]
         if any(l.journey.time_basis=='provider_estimate' and
@@ -258,7 +262,7 @@ def confirm_itinerary(session,trip_id,body):
         for key,value in extra['spending'].items():setattr(problem,key,value)
         errors=validate_itinerary(problem,itinerary)
         if errors:raise HTTPException(409,detail={'code':'VALIDATION_FAILED','issues':[e.model_dump() for e in errors]})
-        draft=CityDraft.model_validate_json(row['draft_json']);prefix=tuple(s for s in draft.stops if s.progress!='pending')
+        draft=read_draft(row['draft_json']);prefix=tuple(s for s in draft.stops if s.progress!='pending')
         if extra.get('ended_ongoing_id'):
             ended=next((s for s in draft.stops if s.stop_id==extra['ended_ongoing_id']),None)
             if ended:prefix=prefix+(ended.model_copy(update={'locked':False,'progress':'skipped','progress_source':'user_reported'}),)
@@ -297,7 +301,17 @@ def read_snapshot(db,session,trip_id,version=None):
     row=state.owned(db,session,trip_id);saved=route_row(db,trip_id,version)
     if version is not None and not saved:raise HTTPException(404,detail='历史路线版本不存在。')
     if not saved:return {'trip_id':str(trip_id),'itinerary':None,'route_version':0,'version':row['version']}
-    itinerary=Itinerary.model_validate_json(saved['itinerary_json']);req=Requirements.model_validate_json(saved['requirements_json']);ctx=context(db)
+    itinerary=parse_itinerary(saved['itinerary_json']);req=read_requirements(saved['requirements_json'])
+    if isinstance(itinerary,MultiDayItinerary)!=isinstance(req,MultiDayRequirements):
+        raise HTTPException(422,detail={'code':'SCHEMA_MISMATCH','message':'正式需求与路线 schema 版本不一致。'})
+    if isinstance(itinerary,MultiDayItinerary):
+        if (req.start_date,req.end_date)!=(itinerary.start_date,itinerary.end_date):
+            raise HTTPException(422,detail={'code':'SCHEMA_MISMATCH','message':'正式需求与路线日范围不一致。'})
+        return {'trip_id':str(trip_id),'version':row['version'],'route_version':saved['route_version'],
+                'itinerary':itinerary.model_dump(mode='json'),'stale':True,
+                'issues':[{'code':'MULTI_DAY_VALIDATION_UNAVAILABLE','message':'多天事实复核与写入尚未接通，保留完整快照供只读查看。'}],
+                'traffic_refresh_recommended':False,'notice':'多天历史快照；尚未按当前事实复核，不代表当前路线可执行。'}
+    ctx=context(db)
     fingerprint=ctx.fingerprint()
     ctx=live_travel.restore_snapshot(ctx,itinerary)
     problem=prepare(req,ctx)

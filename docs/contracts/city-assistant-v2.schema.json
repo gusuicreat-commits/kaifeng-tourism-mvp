@@ -350,6 +350,64 @@
       "title": "CityDraft",
       "type": "object"
     },
+    "CityDraftV2": {
+      "additionalProperties": false,
+      "properties": {
+        "start_date": {
+          "format": "date",
+          "title": "Start Date",
+          "type": "string"
+        },
+        "end_date": {
+          "format": "date",
+          "title": "End Date",
+          "type": "string"
+        },
+        "timezone": {
+          "const": "Asia/Shanghai",
+          "default": "Asia/Shanghai",
+          "title": "Timezone",
+          "type": "string"
+        },
+        "day_count": {
+          "maximum": 3,
+          "minimum": 1,
+          "title": "Day Count",
+          "type": "integer"
+        },
+        "schema_version": {
+          "const": "city-draft/2",
+          "title": "Schema Version",
+          "type": "string"
+        },
+        "days": {
+          "items": {
+            "$ref": "#/$defs/DayDraft"
+          },
+          "maxItems": 3,
+          "minItems": 1,
+          "title": "Days",
+          "type": "array"
+        },
+        "overnights": {
+          "default": [],
+          "items": {
+            "$ref": "#/$defs/Overnight"
+          },
+          "maxItems": 2,
+          "title": "Overnights",
+          "type": "array"
+        }
+      },
+      "required": [
+        "start_date",
+        "end_date",
+        "schema_version",
+        "days"
+      ],
+      "title": "CityDraftV2",
+      "type": "object"
+    },
     "ConfirmAssistant": {
       "additionalProperties": false,
       "properties": {
@@ -399,6 +457,194 @@
         "confirmed"
       ],
       "title": "ConfirmAssistant",
+      "type": "object"
+    },
+    "DayDraft": {
+      "additionalProperties": false,
+      "properties": {
+        "business_date": {
+          "format": "date",
+          "title": "Business Date",
+          "type": "string"
+        },
+        "day_id": {
+          "maxLength": 120,
+          "minLength": 1,
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]*$",
+          "title": "Day Id",
+          "type": "string"
+        },
+        "starts_at": {
+          "anyOf": [
+            {
+              "format": "date-time",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Starts At"
+        },
+        "ends_at": {
+          "anyOf": [
+            {
+              "format": "date-time",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Ends At"
+        },
+        "origin_place_id": {
+          "anyOf": [
+            {
+              "maxLength": 120,
+              "minLength": 1,
+              "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]*$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Origin Place Id"
+        },
+        "destination_place_id": {
+          "anyOf": [
+            {
+              "maxLength": 120,
+              "minLength": 1,
+              "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]*$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Destination Place Id"
+        },
+        "interests": {
+          "default": [],
+          "items": {
+            "enum": [
+              "show",
+              "photo",
+              "food",
+              "culture"
+            ],
+            "type": "string"
+          },
+          "maxItems": 4,
+          "title": "Interests",
+          "type": "array"
+        },
+        "dish_interest_ids": {
+          "default": [],
+          "items": {
+            "maxLength": 120,
+            "minLength": 1,
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]*$",
+            "type": "string"
+          },
+          "maxItems": 12,
+          "title": "Dish Interest Ids",
+          "type": "array"
+        },
+        "modes": {
+          "default": [
+            "walking"
+          ],
+          "items": {
+            "enum": [
+              "walking",
+              "driving",
+              "transit"
+            ],
+            "type": "string"
+          },
+          "maxItems": 3,
+          "minItems": 1,
+          "title": "Modes",
+          "type": "array"
+        },
+        "pace": {
+          "default": "standard",
+          "enum": [
+            "relaxed",
+            "standard",
+            "compact"
+          ],
+          "title": "Pace",
+          "type": "string"
+        },
+        "objective": {
+          "default": "balanced",
+          "enum": [
+            "balanced",
+            "less_walking",
+            "less_waiting",
+            "lower_cost"
+          ],
+          "title": "Objective",
+          "type": "string"
+        },
+        "stops": {
+          "default": [],
+          "items": {
+            "$ref": "#/$defs/Stop"
+          },
+          "maxItems": 24,
+          "title": "Stops",
+          "type": "array"
+        },
+        "origin_text": {
+          "anyOf": [
+            {
+              "maxLength": 120,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Origin Text"
+        },
+        "destination_text": {
+          "anyOf": [
+            {
+              "maxLength": 120,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Destination Text"
+        },
+        "status": {
+          "default": "pending",
+          "enum": [
+            "pending",
+            "active",
+            "closed"
+          ],
+          "title": "Status",
+          "type": "string"
+        }
+      },
+      "required": [
+        "business_date"
+      ],
+      "title": "DayDraft",
       "type": "object"
     },
     "DiscardAssistant": {
@@ -781,6 +1027,168 @@
       "title": "Intent",
       "type": "object"
     },
+    "Overnight": {
+      "additionalProperties": false,
+      "properties": {
+        "overnight_id": {
+          "maxLength": 120,
+          "minLength": 1,
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]*$",
+          "title": "Overnight Id",
+          "type": "string"
+        },
+        "from_day_id": {
+          "maxLength": 120,
+          "minLength": 1,
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]*$",
+          "title": "From Day Id",
+          "type": "string"
+        },
+        "to_day_id": {
+          "maxLength": 120,
+          "minLength": 1,
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]*$",
+          "title": "To Day Id",
+          "type": "string"
+        },
+        "night_date": {
+          "format": "date",
+          "title": "Night Date",
+          "type": "string"
+        },
+        "place_id": {
+          "anyOf": [
+            {
+              "maxLength": 120,
+              "minLength": 1,
+              "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]*$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Place Id"
+        },
+        "source_kind": {
+          "enum": [
+            "selected_hotel",
+            "user_place"
+          ],
+          "title": "Source Kind",
+          "type": "string"
+        },
+        "service_selection_id": {
+          "anyOf": [
+            {
+              "maxLength": 120,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Service Selection Id"
+        },
+        "service_version": {
+          "anyOf": [
+            {
+              "minimum": 0,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Service Version"
+        },
+        "binding_revision": {
+          "anyOf": [
+            {
+              "minimum": 1,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Binding Revision"
+        },
+        "check_in": {
+          "anyOf": [
+            {
+              "format": "date-time",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Check In"
+        },
+        "check_out": {
+          "anyOf": [
+            {
+              "format": "date-time",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Check Out"
+        },
+        "place_evidence": {
+          "default": "unknown",
+          "enum": [
+            "verified",
+            "reference",
+            "synthetic",
+            "unknown"
+          ],
+          "title": "Place Evidence",
+          "type": "string"
+        },
+        "stay_evidence": {
+          "default": "unknown",
+          "enum": [
+            "verified",
+            "reference",
+            "synthetic",
+            "unknown"
+          ],
+          "title": "Stay Evidence",
+          "type": "string"
+        },
+        "evidence_refs": {
+          "default": [],
+          "items": {
+            "maxLength": 120,
+            "minLength": 1,
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]*$",
+            "type": "string"
+          },
+          "maxItems": 20,
+          "title": "Evidence Refs",
+          "type": "array"
+        }
+      },
+      "required": [
+        "overnight_id",
+        "from_day_id",
+        "to_day_id",
+        "night_date",
+        "source_kind"
+      ],
+      "title": "Overnight",
+      "type": "object"
+    },
     "Reference": {
       "additionalProperties": false,
       "properties": {
@@ -1002,6 +1410,9 @@
     },
     "city_draft": {
       "$ref": "#/$defs/CityDraft"
+    },
+    "city_draft_v2": {
+      "$ref": "#/$defs/CityDraftV2"
     }
   },
   "required": [
@@ -1010,7 +1421,8 @@
     "model_intent_not_a_write_permission",
     "confirm",
     "cancel",
-    "city_draft"
+    "city_draft",
+    "city_draft_v2"
   ],
   "title": "Contracts",
   "type": "object"

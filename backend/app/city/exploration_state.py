@@ -2,18 +2,22 @@
 import json
 from fastapi import HTTPException
 from ..memory.storage import encoded, stamp
+from .versions import read_constraints, single_day
 
 
 def read(db, trip_id):
     row = db.execute('SELECT * FROM city_exploration_states WHERE trip_id=?', (str(trip_id),)).fetchone()
     if row:
-        return {'version':row['version'],'constraints':json.loads(row['constraints_json']),
+        constraints=json.loads(row['constraints_json'])
+        if constraints is not None:read_constraints(constraints)
+        return {'version':row['version'],'constraints':constraints,
                 'result':json.loads(row['result_json']) if row['result_json'] else None,'rounds':row['rounds']}
     # Keep API and Agent reads consistent for pre-workspace planning receipts.
     # This read does not migrate, replay or write any old request.
     legacy=db.execute('SELECT result_json FROM city_receipts WHERE trip_id=? AND scope=? ORDER BY created_at DESC LIMIT 1',
         (str(trip_id),'exploration:'+str(trip_id))).fetchone()
     constraints=json.loads(legacy['result_json']).get('constraints') if legacy else None
+    if constraints is not None:read_constraints(constraints)
     return {'version':0,'constraints':constraints,'result':None,'rounds':0}
 
 
@@ -24,6 +28,7 @@ def guard(db, trip_id, expected):
 
 
 def save(db, trip_id, constraints, result, rounds):
+    if constraints is not None:single_day(read_constraints(constraints))
     version = read(db, trip_id)['version'] + 1
     if result is not None:
         result.update(planning_version=version, rounds=rounds)

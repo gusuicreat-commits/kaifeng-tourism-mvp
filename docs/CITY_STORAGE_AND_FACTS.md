@@ -2,6 +2,14 @@
 
 存储契约基线为2026-10-21，入口与依赖于2026-10-23复核。总范围见 [PRD](PRD.md)，存储阶段证据见 [CITY_STORAGE_ACCEPTANCE.md](archive/stages-20261020-23/CITY_STORAGE_ACCEPTANCE.md)，当前完成度见 [PROJECT_STATUS](PROJECT_STATUS.md)。
 
+## B2.1 多天模型与兼容读取
+
+`CityDraftV2(city-draft/2)`、`DayDraft`、`CityTripV2(city-trip/2)` 与 HTTP `CityStateV2(city-state/2)` 增加日期范围、服务端导出的 day_count、按日期生成的 day_id、每日时窗/端点/停靠/状态及过夜快照。范围为连续 1–3 天；每日前缀单独校验，活动 ID 和场次全程唯一，每日最多 24 站。`MutateCityTripV2` 使用显式 `city-state/2`，完成/跳过/位置/闭日动作带 day_id；目前只定义并拒绝写入，未实现日进度提交。
+
+`city/versions.py` 集中分派旧无 tag 草稿/路线、旧 `city-engine/1` 及显式 V2；未知 schema 返回 `SCHEMA_UNSUPPORTED`，不退回单天。旅行列表、当前旅行、指定旅行及导出调用同一状态读取；工作区和旧规划回执保留原始缺省/null，不写回或补默认值。素材篮只读遍历各日，V2 安排引用包含 day_id/stop_id。新对象嵌入原 trip JSON，继续使用原外键级联删除、72 小时终态留存和删除台账；没有新建旁路表。
+
+V2 创建、保存/提议/确认状态、每日进度，以及旧助手/规划写工具遇 V2 时返回 HTTP 503、`status=unavailable`、`code=MULTI_DAY_UNAVAILABLE`。当前可读取的是完整快照，未接通多天写链路。契约由原 exporter 生成到 [city-trip-v2](contracts/city-trip-v2.schema.json)，实际 V2 草稿也纳入 assistant exporter；V1 文件保持旧模型生成。验收用例位于 `test_city_architecture.py`、`test_city_state.py`、`test_city_engine_api.py`，均使用隔离合成数据。
+
 ## 可以使用的功能
 
 游客从“行程”进入 `/city-trip` 查看旅行；结构化管理入口为 `/city-trip/manage/:id?`，也可从记忆管理打开已保存安排。同一浏览器会话内刷新恢复服务端当前版本，日期、起终点、时间、兴趣、具体活动、餐饮目标和手动进度保持同一城市行程 ID。未录入真实地点时，可以先保存日期和起止时间；缺项明确提示。

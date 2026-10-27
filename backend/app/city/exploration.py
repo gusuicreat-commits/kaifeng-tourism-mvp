@@ -1,10 +1,10 @@
 """UI adapters to the existing planner and agent. No second solver or agent."""
 import json
 from uuid import UUID, uuid5
-from typing import Literal
+from typing import Annotated, Literal
 from datetime import date
 from fastapi import APIRouter, Depends, HTTPException
-from pydantic import AwareDatetime, Field, field_validator, model_validator
+from pydantic import AwareDatetime, Discriminator, Field, Tag, field_validator, model_validator
 from pydantic import ValidationError
 from ..db import connect
 from ..memory.session import current, Session, limit
@@ -12,9 +12,9 @@ from ..memory.storage import stamp
 from . import facts
 from . import basket, state, exploration_state
 from .schema import Strict, EntityId
-from .state_schema import CityDraft
 from .engine import service as engine
-from .engine.models import Goal, Requirements, PreviewRequest, ReplanRequest
+from .engine.models import Goal, Requirements, PreviewRequest, ReplanRequest, MultiDayConstraints
+from .versions import guard_single_day, read_requirements, single_day
 
 router=APIRouter(prefix='/api/city/v1/trips/{trip_id}/exploration',tags=['Travel basket planning'])
 
@@ -56,6 +56,18 @@ class Plan(Strict):
     constraints:Constraints
 
 
+class PlanV2(Plan):
+    constraints:MultiDayConstraints
+
+
+def constraint_schema(value):
+    c=value.get('constraints',{}) if isinstance(value,dict) else getattr(value,'constraints',None)
+    return c.get('schema_version','legacy') if isinstance(c,dict) else 'city-constraints/2' if isinstance(c,MultiDayConstraints) else 'legacy'
+
+
+PlanBody=Annotated[Annotated[Plan,Tag('legacy')]|Annotated[PlanV2,Tag('city-constraints/2')],Discriminator(constraint_schema)]
+
+
 def unknown(message, ids=(), code='DATA_PENDING'):
     return {'status':'unknown','reply':message,'issues':[{'code':code,'message':message,'affected_ids':list(ids)}],
             'options':[],'planning':None,'formal_state_changed':False}
@@ -69,22 +81,23 @@ def saved_constraints(trip_id:UUID,s:Session=Depends(current)):
 
 
 @router.post('/preview')
-def preview(trip_id:UUID,body:Plan,s:Session=Depends(current)):
+def preview(trip_id:UUID,body:PlanBody,s:Session=Depends(current)):
     return preview_plan(trip_id,body,s)
 
 
 def preview_plan(trip_id,body,s,*,execution_guard=None):
+    single_day(body.constraints)
     limit('exploration:'+s.id,20)
     data=body.model_dump(mode='json');scope='exploration:'+str(trip_id)
     with connect() as db:
         if execution_guard:execution_guard(db)
-        row=state.owned(db,s,trip_id);state.check_version(row,body.expected_version);basket.guard(db,trip_id,body.basket_version)
+        row=state.owned(db,s,trip_id);guard_single_day(db,row);state.check_version(row,body.expected_version);basket.guard(db,trip_id,body.basket_version)
         cached=state.receipt(db,s,body.request_id,scope,data)
         if cached is not None:return cached
         workspace=exploration_state.read(db,trip_id)
         planning_version=workspace['version']
         if body.planning_version is not None:exploration_state.guard(db,trip_id,body.planning_version)
-        collected=basket.snapshot(db,s,trip_id);draft=CityDraft.model_validate_json(row['draft_json'])
+        collected=basket.snapshot(db,s,trip_id);draft=guard_single_day(db,row)
         ctx=engine.context(db)
         values=body.constraints.model_dump(exclude={'origin_text','destination_text'})
         for k in ('origin_place_id','destination_place_id'):
@@ -95,7 +108,7 @@ def preview_plan(trip_id,body,s,*,execution_guard=None):
         goals=[];unmapped=[];key_by_goal={};parent_groups={}
         # Retain all formal remaining goals, including locks. Saving intentions never edits these.
         old=engine.route_row(db,trip_id)
-        original=Requirements.model_validate_json(old['requirements_json']) if old else None
+        original=read_requirements(old['requirements_json']) if old else None
         from .assistant.tools import requirements as draft_requirements
         if original:
             from types import SimpleNamespace
@@ -228,7 +241,7 @@ def answer_choice(trip_id,body,s,*,execution_guard=None):
     with connect() as db:
         db.execute('BEGIN IMMEDIATE')
         if execution_guard:execution_guard(db)
-        state.check_version(state.owned(db,s,trip_id),body.expected_version)
+        row=state.owned(db,s,trip_id);guard_single_day(db,row);state.check_version(row,body.expected_version)
         cached=state.receipt(db,s,body.request_id,scope,data)
         if cached is not None:return cached
         basket.guard(db,trip_id,body.basket_version);exploration_state.guard(db,trip_id,body.planning_version)
@@ -266,7 +279,7 @@ def answer_choice(trip_id,body,s,*,execution_guard=None):
 def cancel(trip_id:UUID,body:Answer,s:Session=Depends(current)):
     data=body.model_dump(mode='json');scope='exploration_cancel:'+str(trip_id)
     with connect() as db:
-        db.execute('BEGIN IMMEDIATE');state.owned(db,s,trip_id)
+        db.execute('BEGIN IMMEDIATE');guard_single_day(db,state.owned(db,s,trip_id))
         cached=state.receipt(db,s,body.request_id,scope,data)
         if cached is not None:return cached
         exploration_state.guard(db,trip_id,body.planning_version)

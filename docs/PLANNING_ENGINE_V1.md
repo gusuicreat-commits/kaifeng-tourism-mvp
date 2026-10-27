@@ -4,6 +4,14 @@
 
 2026-10-23状态复核：前端素材篮/协商、V3助手与正式行程确认已接通，真实高德报价和参考问路已有分轮证据；正式交通时段准入、真实业务资料和现场验收仍待完成。完整现状见 [PROJECT_STATUS](PROJECT_STATUS.md)，不能继续把2026-10-21的未接线项当作现状。
 
+## B2.1 多天契约与只读边界
+
+新增 `MultiDayRequirements(city-engine/2)`、`DayRequirements`、`TripGoal(allowed_dates/fixed_date)`、带日期的票务确认、`MultiDayConstraints` 及 `MultiDayItinerary(city-itinerary/2)`。每日结果保存原始需求和当前剩余需求、日内计划/历史/ongoing、日状态与问题；全程包含过夜边界、objectives、active/elapsed/travel/步行指标、费用摘要与最弱证据状态。每日 24 站、全程 30 目标；日内 60 候选上限保留在原 prepare 中。计算预算仍为全程默认 1 秒、上限 3 秒。
+
+仍使用 `city_engine_routes` 原主键存一套多天 JSON，`route_version` 属于整趟旅行。`engine/current`、`engine/versions/{route_version}` 和 `read_snapshot` 按 schema 返回完整版本；V2 当前只读，显式 `stale=true` 与 `MULTI_DAY_VALIDATION_UNAVAILABLE`，不调用单天 validator 认证它。引擎导出保留原 requirements/result/itinerary/progress JSON；未知 schema 拒绝。
+
+HTTP preview/replan-preview 接收显式 `city-engine/2` 分支，但返回 `MULTI_DAY_UNAVAILABLE`；确认遇 V2 候选、历史恢复遇 V2、旧单日请求指向 V2 旅行，同样拒绝。纯 `plan_trip/replan_trip` 返回 unavailable；`current_and_future`、`selected_future_day` 只定义模型，不执行。多天算法、事务写链路、日期语义和前端分别属于 B2.2–B2.5。契约由 `export_engine_contracts.py` 生成 [city-engine-v2](contracts/city-engine-v2.schema.json)；旧 V1 契约无变动。
+
 ## 交付状态
 
 | 能力 | 状态与证据 |

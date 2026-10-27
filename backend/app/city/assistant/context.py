@@ -14,6 +14,7 @@ from .. import facts, state
 from ..engine import service as engine
 from ..engine.models import Requirements
 from ..state_schema import CityDraft
+from ..versions import read_requirements, guard_single_day, read_result, single_day
 from .models import CityContext, Identity
 
 
@@ -83,19 +84,20 @@ def load(session, trip_id=None, purpose='trip', text='', page_focus=None):
             trip_id = owner['active_city_trip_id']
             if not trip_id: return None
         row = dict(state.owned(db, session, trip_id))
-        draft = CityDraft.model_validate_json(row['draft_json'])
+        draft = guard_single_day(db,row)
         planning = engine.context(db)
         moment = now()
         route = engine.read_snapshot(db, session, trip_id)
         saved = engine.route_row(db, trip_id)
-        req = Requirements.model_validate_json(saved['requirements_json']) if saved else None
+        req = read_requirements(saved['requirements_json']) if saved else None
         pending = []
         from .. import basket, exploration_state, travel_services
         workspace=exploration_state.read(db,trip_id)
         services=travel_services.read(db,trip_id)
         basket_version=basket.version(db,trip_id)
         for r in db.execute('SELECT * FROM city_engine_candidates WHERE trip_id=? AND consumed=0 ORDER BY expires_at DESC LIMIT 8', (str(trip_id),)):
-            result = json.loads(r['result_json'])
+            parsed=read_result(r['result_json']);single_day(parsed,read_requirements(r['requirements_json']))
+            result = parsed.model_dump(mode='json')
             first = (result.get('itineraries') or [None])[0]
             expired = datetime.fromisoformat(r['expires_at']) <= moment or bool(first and datetime.fromisoformat(first['legs'][0]['departs_at']) < moment)
             status = 'expired' if expired else 'stale' if r['base_version'] != row['version'] or r['fingerprint'] != planning.fingerprint() else 'valid'

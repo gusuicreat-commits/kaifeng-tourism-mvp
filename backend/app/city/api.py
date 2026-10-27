@@ -4,7 +4,8 @@ from fastapi import APIRouter, Depends, HTTPException, Query
 from ..db import connect
 from ..memory.session import Session, current, recheck, limit
 from . import facts, state
-from .state_schema import CreateCityTrip, MutateCityTrip, ConfirmCityChange
+from .state_schema import ConfirmCityChange
+from .versions import CreateBody, MutationBody
 from .location_resolution import ResolutionConfirm, ResolutionInput, SampleAssessmentInput
 
 router = APIRouter(prefix='/api/city/v1', tags=['City architecture'])
@@ -82,7 +83,7 @@ def catalog(kind: str | None = Query(default=None,pattern='^(source|place|entran
 
 
 @router.post('/trips', status_code=201)
-def create(body:CreateCityTrip,s:Session=Depends(current)):
+def create(body:CreateBody,s:Session=Depends(current)):
     limit('city-write:'+s.id,120)
     return state.create(s,body)
 
@@ -118,13 +119,13 @@ def get_trip(trip_id:UUID,s:Session=Depends(current)):
 
 
 @router.patch('/trips/{trip_id}')
-def update(trip_id:UUID,body:MutateCityTrip,s:Session=Depends(current)):
+def update(trip_id:UUID,body:MutationBody,s:Session=Depends(current)):
     limit('city-write:'+s.id,120)
     return state.mutate(s,trip_id,body)
 
 
 @router.post('/trips/{trip_id}/changes')
-def propose(trip_id:UUID,body:MutateCityTrip,s:Session=Depends(current)):
+def propose(trip_id:UUID,body:MutationBody,s:Session=Depends(current)):
     limit('city-write:'+s.id,120)
     return state.mutate(s,trip_id,body,propose=True)
 

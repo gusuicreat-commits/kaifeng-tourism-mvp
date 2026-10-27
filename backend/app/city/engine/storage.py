@@ -64,5 +64,11 @@ def import_operations(db,bundle,catalog,apply=False):
 
 
 def export_engine(db,trip_id):
-    return {'versions':[dict(r) for r in db.execute('SELECT route_version,state_version,requirements_json,itinerary_json,created_at FROM city_engine_routes WHERE trip_id=? ORDER BY route_version',(trip_id,))],
+    from ..versions import read_requirements, read_itinerary, read_result
+    result={'versions':[dict(r) for r in db.execute('SELECT route_version,state_version,requirements_json,itinerary_json,created_at FROM city_engine_routes WHERE trip_id=? ORDER BY route_version',(trip_id,))],
             'candidates':[dict(r) for r in db.execute('SELECT id,base_version,requirements_json,result_json,progress_json,expires_at,consumed FROM city_engine_candidates WHERE trip_id=? AND expires_at>?',(trip_id,stamp()))]}
+    for r in result['versions']:
+        read_requirements(r['requirements_json']);read_itinerary(r['itinerary_json'])
+    for r in result['candidates']:
+        read_requirements(r['requirements_json']);read_result(r['result_json'])
+    return result

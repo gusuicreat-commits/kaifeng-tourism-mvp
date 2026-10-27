@@ -7,6 +7,9 @@ from app.city.engine.models import PreviewRequest,ReplanRequest,ConfirmRequest,S
 
 from app.city.basket import BasketMutation
 from app.city.exploration import Plan,Answer
+from app.city.engine.models import PreviewRequestV2,ReplanRequestV2,SolveResultV2,MultiDayConstraints
+from app.city.exploration import PlanV2
+from app.city.versions import PreviewBody,ReplanBody
 
 class Contracts(BaseModel):
     basket_mutation: BasketMutation
@@ -18,10 +21,21 @@ class Contracts(BaseModel):
     result: SolveResult
     maintenance_only_operations: OperationalBundle
 
+
+class ContractsV2(BaseModel):
+    preview: PreviewRequestV2
+    replan: ReplanRequestV2
+    result: SolveResultV2
+    constraints: MultiDayConstraints
+    exploration_preview: PlanV2
+    compatible_preview: PreviewBody
+    compatible_replan: ReplanBody
+
 if __name__=='__main__':
     parser=argparse.ArgumentParser();parser.add_argument('--check',action='store_true');args=parser.parse_args()
-    path=ROOT/'docs/contracts/city-engine-v1.schema.json';content=json.dumps(Contracts.model_json_schema(),ensure_ascii=False,indent=2)+'\n'
-    if args.check:
-        if not path.exists() or path.read_text()!=content:raise SystemExit('Engine contracts out of date')
-        print('Engine contracts match source')
-    else:path.write_text(content);print(path)
+    for name,model in (('city-engine-v1.schema.json',Contracts),('city-engine-v2.schema.json',ContractsV2)):
+        path=ROOT/'docs/contracts'/name;content=json.dumps(model.model_json_schema(),ensure_ascii=False,indent=2)+'\n'
+        if args.check:
+            if not path.exists() or path.read_text()!=content:raise SystemExit(name+' out of date')
+            print(name+' matches source')
+        else:path.write_text(content);print(path)

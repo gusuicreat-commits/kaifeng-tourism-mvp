@@ -62,6 +62,97 @@ def confirm(client,t,proposal,request_id=None):
         'request_id':request_id or rid(),'expected_version':t['version'],'proposal_id':proposal['proposal_id']})
 
 
+@pytest.mark.parametrize('operation',['create','save','propose'])
+def test_multi_day_draft_writes_are_unavailable_without_mutating_old_trip(city,operation):
+    from multi_day_helpers import draft
+    t=create(city);before=t
+    if operation=='create':response=city.post('/api/city/v1/trips',json={'request_id':rid(),'draft':draft()})
+    else:response=update(city,t,{'operation':'save_draft','draft':draft()},proposal=operation=='propose')
+    assert response.status_code==503,response.text
+    assert response.json()['detail']['status']=='unavailable'
+    assert city.get('/api/city/v1/trips/'+t['id']).json()==before
+    with connect() as db:
+        assert db.execute('SELECT count(*) FROM city_trip_states').fetchone()[0]==1
+        assert db.execute('SELECT count(*) FROM city_proposals').fetchone()[0]==0
+
+
+@pytest.mark.parametrize('action',[
+    {'operation':'save_draft','draft':{}},{'operation':'transition','status':'ACTIVE'},
+    {'operation':'skip_stop','stop_id':'future'},
+    {'operation':'mark_completed','stop_id':'future','actual_start':'2030-05-01T09:00:00+08:00','actual_end':'2030-05-01T09:10:00+08:00'},
+    {'operation':'set_anchor','anchor':{'place_id':'test:gate','confirmed_at':'2030-05-01T09:00:00+08:00'}}])
+def test_stored_multi_day_cannot_be_overwritten_by_old_state_operations(city,action):
+    from multi_day_helpers import draft
+    t=create(city)
+    with connect() as db:db.execute('UPDATE city_trip_states SET draft_json=?',(json.dumps(draft()),))
+    before=city.get('/api/city/v1/trips/'+t['id']).json()
+    for propose in (False,True):
+        r=update(city,t,action,proposal=propose)
+        assert r.status_code==503 and r.json()['detail']['code']=='MULTI_DAY_UNAVAILABLE'
+    assert city.get('/api/city/v1/trips/'+t['id']).json()==before
+
+
+@pytest.mark.parametrize('tag',['city-draft/999','city-draft/1'])
+def test_unknown_draft_tags_do_not_fall_back_on_missing_or_default_tags(city,tag):
+    from multi_day_helpers import draft
+    response=city.post('/api/city/v1/trips',json={'request_id':rid(),'draft':draft()|{'schema_version':tag}})
+    assert response.status_code==422
+    t=create(city)
+    with connect() as db:db.execute('UPDATE city_trip_states SET draft_json=?',(json.dumps({'schema_version':tag}),))
+    r=city.get('/api/city/v1/trips/'+t['id'])
+    assert r.status_code==422 and r.json()['detail']['code']=='SCHEMA_UNSUPPORTED'
+
+
+def test_multi_day_workspace_read_keeps_null_and_missing_without_rewriting_and_refuses_write(city):
+    from app.city import exploration_state
+    from multi_day_helpers import requirements
+    from fastapi import HTTPException
+    t=create(city);req=requirements()
+    constraints={'schema_version':'city-constraints/2','start_date':req['start_date'],'end_date':req['end_date'],
+        'days':[{'business_date':req['start_date'],'origin_place_id':None},{'business_date':req['end_date']}]}
+    raw=json.dumps(constraints,indent=3)
+    with connect() as db:
+        db.execute('INSERT INTO city_exploration_states VALUES (?,?,?,?,?,?)',(t['id'],4,raw,None,0,storage.stamp()))
+        assert exploration_state.read(db,t['id'])['constraints']==constraints
+        with pytest.raises(HTTPException) as exc:exploration_state.save(db,t['id'],constraints,None,0)
+        assert exc.value.status_code==503
+        assert db.execute('SELECT constraints_json FROM city_exploration_states').fetchone()[0]==raw
+    assert city.get('/api/city/v1/trips/'+t['id']+'/exploration/constraints').json()['constraints']==constraints
+    response=city.post('/api/city/v1/trips/'+t['id']+'/exploration/preview',json={
+        'request_id':rid(),'expected_version':1,'basket_version':0,'constraints':constraints})
+    assert response.status_code==503 and response.json()['detail']['status']=='unavailable'
+
+
+def test_multi_day_old_state_proposal_cannot_confirm_a_v2_draft(city):
+    from multi_day_helpers import draft
+    t=create(city);pid=rid()
+    with connect() as db:
+        db.execute('INSERT INTO city_proposals VALUES (?,?,?,?,?,?,?,0)',(pid,
+            db.execute('SELECT session_id FROM city_trip_states').fetchone()[0],t['id'],1,
+            json.dumps({'operation':'save_draft','draft':draft()}),state.catalog_revision(facts.records(db)),storage.stamp(storage.now()+timedelta(minutes=15))))
+    r=confirm(city,t,{'proposal_id':pid})
+    assert r.status_code==503 and r.json()['detail']['code']=='MULTI_DAY_UNAVAILABLE'
+    with connect() as db:assert db.execute('SELECT consumed FROM city_proposals').fetchone()[0]==0
+
+
+@pytest.mark.parametrize('action',[
+    {'operation':'close_day','day_id':'day:2030-05-01'},
+    {'operation':'mark_completed','day_id':'day:2030-05-01','stop_id':'future',
+     'actual_start':'2030-05-01T09:00:00+08:00','actual_end':'2030-05-01T09:15:00+08:00'},
+    {'operation':'skip_stop','day_id':'day:2030-05-02','stop_id':'future'}])
+def test_explicit_v2_daily_progress_requests_require_day_id_and_remain_unavailable(city,action):
+    from app.city.state_schema import MutateCityTripV2
+    from pydantic import ValidationError
+    t=create(city);body={'schema_version':'city-state/2','request_id':rid(),'expected_version':1,'action':action}
+    assert MutateCityTripV2.model_validate(body).action.day_id==action['day_id']
+    missing=body|{'action':{k:v for k,v in action.items() if k!='day_id'}}
+    with pytest.raises(ValidationError):MutateCityTripV2.model_validate(missing)
+    for suffix,method in (('','PATCH'),('/changes','POST')):
+        r=city.request(method,'/api/city/v1/trips/'+t['id']+suffix,json=body)
+        assert r.status_code==503 and r.json()['detail']['status']=='unavailable'
+    assert city.get('/api/city/v1/trips/'+t['id']).json()==t
+
+
 def test_city_draft_recovers_after_restart_without_changing_legacy(city):
     legacy=city.post('/api/v1/trips',json={'request_id':rid()}).json()
     t=create(city,full_draft())

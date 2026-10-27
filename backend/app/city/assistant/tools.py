@@ -133,7 +133,8 @@ def confirm(session, trip_id, body):
         return engine.confirm_itinerary(session,trip_id,ConfirmRequest(request_id=body.request_id,
             expected_version=body.expected_version,candidate_id=body.candidate_id,alternative_index=body.alternative_index))
     with connect() as db:
-        state.owned(db,session,trip_id)
+        from ..versions import guard_single_day
+        guard_single_day(db,state.owned(db,session,trip_id))
         record = db.execute('SELECT action_json FROM city_proposals WHERE id=? AND trip_id=?', (str(body.candidate_id),str(trip_id))).fetchone()
         if record and json.loads(record['action_json']).get('operation') in ('assistant_intent','assistant_v3_intent'):
             raise HTTPException(409,detail='这只是待补充意愿，不能当作正式修改确认。请先生成可校验候选。')
@@ -145,12 +146,18 @@ def discard(session, trip_id, body):
     data = body.model_dump(mode='json'); scope = 'assistant_discard:' + str(trip_id)
     with connect() as db:
         db.execute('BEGIN IMMEDIATE')
+        from ..versions import guard_single_day, read_result, read_requirements, single_day, read_draft
+        guard_single_day(db,state.owned(db,session,trip_id))
         cached = state.receipt(db,session,body.request_id,scope,data)
         if cached is not None: return cached
         row = state.owned(db,session,trip_id); state.check_version(row,body.expected_version)
         table = 'city_engine_candidates' if body.target_kind == 'route' else 'city_proposals'
         found = db.execute(f'SELECT * FROM {table} WHERE id=? AND trip_id=?', (str(body.candidate_id),str(trip_id))).fetchone()
         if not found: raise HTTPException(404,detail='找不到本行程的候选。')
+        if body.target_kind=='route':single_day(read_requirements(found['requirements_json']),read_result(found['result_json']))
+        else:
+            action=json.loads(found['action_json'])
+            if 'draft' in action:single_day(read_draft(action['draft']))
         db.execute(f'UPDATE {table} SET consumed=1 WHERE id=?', (str(body.candidate_id),))
         result = {'status':'discarded','candidate_id':str(body.candidate_id),'trip_id':str(trip_id),
                   'version':row['version'],'route_version':row['route_version'],'formal_state_changed':False}

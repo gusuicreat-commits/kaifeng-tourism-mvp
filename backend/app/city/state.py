@@ -10,6 +10,8 @@ from ..memory.session import recheck
 from ..memory.storage import digest, encoded, now, stamp
 from . import facts
 from .state_schema import CityDraft, MutateCityTrip
+from .versions import read_draft, single_day, guard_single_day
+from .state_schema import CityDraftV2
 
 TERMINAL = {'COMPLETED', 'CANCELLED', 'ARCHIVED'}
 TRANSITIONS = {'DRAFT': {'ACTIVE', 'CANCELLED'}, 'ACTIVE': {'PAUSED', 'COMPLETED', 'CANCELLED'},
@@ -49,6 +51,9 @@ def validate_refs(draft, items):
 
 
 def readiness(draft, items):
+    if isinstance(draft,CityDraftV2):
+        return {'days':[{'day_id':d.day_id,**readiness(d,items)} for d in draft.days],
+                'planning_available':False,'status':'unavailable','notice':'多天写入和规划尚未接通；这里只读保存的完整多天状态。'}
     missing = [key for key in ('business_date','starts_at','ends_at','origin_place_id','destination_place_id')
                if getattr(draft,key) is None]
     if not draft.stops: missing.append('stops')
@@ -84,8 +89,8 @@ def readiness(draft, items):
 
 
 def describe(row, items):
-    draft = CityDraft.model_validate_json(row['draft_json'])
-    return {'id':row['id'],'schema_version':'city-state/1','status':row['status'],
+    draft = read_draft(row['draft_json'])
+    return {'id':row['id'],'schema_version':'city-state/2' if isinstance(draft,CityDraftV2) else 'city-state/1','status':row['status'],
             'draft':draft.model_dump(mode='json'),'anchor':json.loads(row['anchor_json']) if row['anchor_json'] else None,
             'version':row['version'],'route_version':row['route_version'],'updated_at':row['updated_at'],
             'readiness':readiness(draft,items)|({'notice':'已保存城市规划版本，请通过规划工具读取并核对其时效；此编辑页暂不提供导航。'} if row['route_version'] else {})}
@@ -112,6 +117,7 @@ def event(db,identity,request_id,operation,before,after):
 
 
 def create(session,body):
+    single_day(body.draft)
     data=body.model_dump(mode='json');scope='create'
     with connect() as db:
         db.execute('BEGIN IMMEDIATE')
@@ -131,7 +137,7 @@ def create(session,body):
 
 def prepare(row,action,items):
     if row['status'] in TERMINAL and action.operation!='transition':raise HTTPException(422,detail='已结束行程不能继续修改。')
-    previous=CityDraft.model_validate_json(row['draft_json']);draft=previous
+    previous=read_draft(row['draft_json']);single_day(previous,getattr(action,'draft',None));draft=previous
     anchor=json.loads(row['anchor_json']) if row['anchor_json'] else None
     status=row['status'];ended=row['ended_at'];important=False
     if action.operation=='save_draft':
@@ -186,9 +192,11 @@ def prepare(row,action,items):
 
 
 def mutate(session,identity,body,propose=False):
+    single_day(body,getattr(body.action,'draft',None))
     data=body.model_dump(mode='json');scope=('propose:' if propose else 'update:')+str(identity)
     with connect() as db:
         db.execute('BEGIN IMMEDIATE')
+        guard_single_day(db,owned(db,session,identity))
         cached=receipt(db,session,body.request_id,scope,data)
         if cached is not None:return cached
         row=owned(db,session,identity);check_version(row,body.expected_version)
@@ -199,7 +207,7 @@ def mutate(session,identity,body,propose=False):
             pid=str(uuid4());expiry=stamp(now()+timedelta(minutes=15))
             db.execute('INSERT INTO city_proposals VALUES (?,?,?,?,?,?,?,0)',
                        (pid,session.id,str(identity),row['version'],encoded(data['action']),catalog_revision(items),expiry))
-            previous=CityDraft.model_validate_json(row['draft_json'])
+            previous=read_draft(row['draft_json'])
             updated={s.stop_id:s for s in prepared[0].stops}
             impacts=[]
             for stop in previous.stops:
@@ -235,6 +243,7 @@ def confirm(session,identity,body):
     data=body.model_dump(mode='json');scope='confirm:'+str(identity)
     with connect() as db:
         db.execute('BEGIN IMMEDIATE')
+        guard_single_day(db,owned(db,session,identity))
         cached=receipt(db,session,body.request_id,scope,data)
         if cached is not None:return cached
         row=owned(db,session,identity);check_version(row,body.expected_version)
@@ -246,6 +255,8 @@ def confirm(session,identity,body):
             raise HTTPException(409,detail='行程或事实版本已变化，候选失效。')
         if json.loads(candidate['action_json']).get('operation') in ('assistant_intent','assistant_v3_intent'):
             raise HTTPException(409,detail='待补充的聊天意愿不是可确认的状态修改，请先生成正式候选。')
+        action_data=json.loads(candidate['action_json'])
+        if 'draft' in action_data:single_day(read_draft(action_data['draft']))
         action=MutateCityTrip.model_validate({'request_id':body.request_id,'expected_version':body.expected_version,
                                             'action':json.loads(candidate['action_json'])}).action
         try:prepared=prepare(row,action,items)

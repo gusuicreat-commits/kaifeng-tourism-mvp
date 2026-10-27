@@ -8,7 +8,7 @@ from pydantic import BaseModel
 ROOT=Path(__file__).resolve().parents[1]
 sys.path.insert(0,str(ROOT/'backend'))
 from app.city.assistant.models import CityChat, CityContext, Intent, ConfirmAssistant, DiscardAssistant
-from app.city.state_schema import CityDraft
+from app.city.state_schema import CityDraft, CityDraftV2
 
 
 class Contracts(BaseModel):
@@ -18,6 +18,7 @@ class Contracts(BaseModel):
     confirm: ConfirmAssistant
     cancel: DiscardAssistant
     city_draft: CityDraft
+    city_draft_v2: CityDraftV2
 
 
 if __name__=='__main__':

@@ -1,9 +1,10 @@
 """Stable tool inputs; operational facts are server-only, never HTTP request fields."""
-from datetime import date
+from datetime import date, timedelta
 from typing import Literal
 from uuid import UUID
 from pydantic import AwareDatetime, Field, model_validator
-from ..schema import Strict, EntityId, Mode, Evidence, TravelEstimate, Stop, TZ
+from ..schema import (Strict, EntityId, Mode, Evidence, TravelEstimate, Stop, TZ, DayIdentity, DayWindow,
+                      DateRange, Overnight, validate_days, validate_overnights)
 
 
 class Goal(Strict):
@@ -200,3 +201,230 @@ class ConfirmRequest(Strict):
     expected_version: int = Field(ge=1)
     candidate_id: UUID
     alternative_index: int = Field(default=0, ge=0, le=2)
+
+
+class TripGoal(Goal):
+    allowed_dates: tuple[date,...] = Field(min_length=1,max_length=3)
+    fixed_date: date | None = None
+
+    @model_validator(mode='after')
+    def dates_valid(self):
+        if len(set(self.allowed_dates))!=len(self.allowed_dates):raise ValueError('目标允许日期重复')
+        if self.fixed_date and self.fixed_date not in self.allowed_dates:raise ValueError('目标固定日期必须属于允许日期')
+        return self
+
+
+class DatedAccessConfirmation(Strict):
+    place_id: EntityId
+    allowed_dates: tuple[date,...] = Field(min_length=1,max_length=3)
+
+
+class DayRequirements(DayWindow):
+    modes: tuple[Mode,...] | None = Field(default=None,min_length=1,max_length=3)
+    pace: Literal['relaxed','standard','compact'] | None = None
+    objective: Literal['balanced','less_walking','less_waiting','lower_cost'] | None = None
+    access_confirmations: tuple[EntityId,...] | None = Field(default=None,max_length=60)
+    max_walking_seconds: int | None = Field(default=None,ge=1,le=43200)
+
+    @model_validator(mode='after')
+    def modes_valid(self):
+        if self.modes and len(set(self.modes))!=len(self.modes):raise ValueError('交通方式重复')
+        return self
+
+
+class MultiDayRequirements(DateRange):
+    schema_version: Literal['city-engine/2']
+    days: tuple[DayRequirements,...] = Field(min_length=1,max_length=3)
+    goals: tuple[TripGoal,...] = Field(max_length=30)
+    overnights: tuple[Overnight,...] = Field(default=(),max_length=2)
+    modes: tuple[Mode,...] = Field(default=('walking',),min_length=1,max_length=3)
+    pace: Literal['relaxed','standard','compact'] = 'standard'
+    objective: Literal['balanced','less_walking','less_waiting','lower_cost'] = 'balanced'
+    access_confirmations: tuple[DatedAccessConfirmation,...] = Field(default=(),max_length=60)
+    show_buffer_seconds: int = Field(default=300,ge=0,le=3600)
+    solve_seconds: float = Field(default=1,ge=0.05,le=3)
+    alternatives: int = Field(default=3,ge=1,le=3)
+
+    @model_validator(mode='after')
+    def valid(self):
+        validate_days(self.start_date,self.end_date,self.days)
+        validate_overnights(self.days,self.overnights)
+        dates={d.business_date for d in self.days}
+        if len({g.goal_id for g in self.goals})!=len(self.goals):raise ValueError('全程目标 ID 重复')
+        if len(set(self.modes))!=len(self.modes):raise ValueError('交通方式重复')
+        for g in self.goals:
+            if not set(g.allowed_dates)<=dates:raise ValueError('目标作用域指向不存在的日')
+            allowed={g.fixed_date} if g.fixed_date else set(g.allowed_dates)
+            if not any((not g.window_start or g.window_start<d.ends_at) and (not g.window_end or g.window_end>d.starts_at)
+                       for d in self.days if d.business_date in allowed):raise ValueError('目标绝对时间窗与允许日期没有交集')
+        for a in self.access_confirmations:
+            if len(set(a.allowed_dates))!=len(a.allowed_dates) or not set(a.allowed_dates)<=dates:
+                raise ValueError('票务确认作用域必须属于日范围且不能重复')
+        return self
+
+
+class DayConstraints(DayIdentity):
+    starts_at: AwareDatetime | None = None
+    ends_at: AwareDatetime | None = None
+    origin_place_id: EntityId | None = None
+    destination_place_id: EntityId | None = None
+    origin_text: str | None = Field(default=None,max_length=120)
+    destination_text: str | None = Field(default=None,max_length=120)
+    modes: tuple[Mode,...] | None = Field(default=None,min_length=1,max_length=3)
+    pace: Literal['relaxed','standard','compact'] | None = None
+    objective: Literal['balanced','less_walking','less_waiting','lower_cost'] | None = None
+    max_walking_seconds: int | None = Field(default=None,ge=1,le=43200)
+    access_confirmations: tuple[EntityId,...] | None = Field(default=None,max_length=60)
+
+    @model_validator(mode='after')
+    def valid(self):
+        if self.starts_at and self.ends_at and self.ends_at<=self.starts_at:raise ValueError('每日结束须晚于开始')
+        if any(t and t.astimezone(TZ).date()!=self.business_date for t in (self.starts_at,self.ends_at)):
+            raise ValueError('每日时间窗必须属于上海时区同一业务日')
+        if self.modes and len(set(self.modes))!=len(self.modes):raise ValueError('交通方式重复')
+        return self
+
+
+class MultiDayConstraints(Strict):
+    schema_version: Literal['city-constraints/2']
+    start_date: date | None = None
+    end_date: date | None = None
+    timezone: Literal['Asia/Shanghai'] = 'Asia/Shanghai'
+    days: tuple[DayConstraints,...] = Field(default=(),max_length=3)
+    goals: tuple[TripGoal,...] = Field(default=(),max_length=30)
+    overnights: tuple[Overnight,...] = Field(default=(),max_length=2)
+    modes: tuple[Mode,...] = Field(default=('walking',),min_length=1,max_length=3)
+    pace: Literal['relaxed','standard','compact'] = 'standard'
+    objective: Literal['balanced','less_walking','less_waiting','lower_cost'] = 'balanced'
+    access_confirmations: tuple[DatedAccessConfirmation,...] = Field(default=(),max_length=60)
+
+    @model_validator(mode='after')
+    def valid(self):
+        if len({d.day_id for d in self.days})!=len(self.days):raise ValueError('day_id 重复')
+        if self.start_date and self.end_date:
+            if not 1<=(self.end_date-self.start_date).days+1<=3:raise ValueError('日范围必须为连续 1–3 天')
+            if any(not self.start_date<=d.business_date<=self.end_date for d in self.days):raise ValueError('每日条件不属于日范围')
+            if tuple(d.business_date for d in self.days)!=tuple(sorted(d.business_date for d in self.days)):raise ValueError('每日日期须按顺序排列')
+        elif self.days:raise ValueError('每日条件须先明确完整日范围')
+        dates={self.start_date+timedelta(days=i) for i in range((self.end_date-self.start_date).days+1)} if self.start_date and self.end_date else set()
+        if len({g.goal_id for g in self.goals})!=len(self.goals):raise ValueError('全程目标 ID 重复')
+        if any(not set(g.allowed_dates)<=dates for g in self.goals):raise ValueError('目标作用域指向不存在的日')
+        if len(set(self.modes))!=len(self.modes):raise ValueError('交通方式重复')
+        validate_overnights(self.days,self.overnights)
+        if any(not set(a.allowed_dates)<=dates or len(set(a.allowed_dates))!=len(a.allowed_dates) for a in self.access_confirmations):
+            raise ValueError('票务确认作用域必须属于日范围且不能重复')
+        return self
+
+
+class OngoingActivity(Strict):
+    stop_id: EntityId
+    place_id: EntityId
+    starts_at: AwareDatetime
+    ends_at: AwareDatetime
+    remaining_basis: Literal['user_reported','prior_plan_estimate']
+    original_activity: ScheduledActivity
+
+    @model_validator(mode='after')
+    def valid(self):
+        if self.ends_at<=self.starts_at:raise ValueError('正在进行项的剩余时间无效')
+        if self.stop_id!=self.original_activity.goal_id or self.place_id!=self.original_activity.place_id:
+            raise ValueError('正在进行项与原活动身份不一致')
+        return self
+
+
+class DayItinerary(DayIdentity):
+    original_requirements: DayRequirements
+    requirements: Requirements
+    itinerary: Itinerary
+    status: Literal['pending','active','closed'] = 'pending'
+    issues: tuple[Issue,...] = ()
+
+    @model_validator(mode='after')
+    def valid(self):
+        original=self.original_requirements;req=self.requirements;plan=self.itinerary
+        if original.day_id!=self.day_id or req.business_date!=self.business_date:raise ValueError('每日需求与 day_id 不一致')
+        if req.starts_at<original.starts_at or req.ends_at>original.ends_at:raise ValueError('剩余时窗不能越出原始每日需求')
+        if plan.returns_at.astimezone(TZ).date()!=self.business_date:raise ValueError('返程时刻不属于所在业务日')
+        from ..schema import CityTripDay
+        CityTripDay.model_validate(original.model_dump(include={'day_id','business_date','starts_at','ends_at','origin_place_id','destination_place_id'})|
+            {'stops':plan.completed_prefix,'status':self.status})
+        if len(plan.completed_prefix)+len(plan.activities)+(1 if plan.ongoing else 0)>24:raise ValueError('每日至多 24 站')
+        if any(s.progress=='pending' for s in plan.completed_prefix):raise ValueError('每日历史前缀不能含 pending')
+        for a in plan.activities:
+            if any(t.astimezone(TZ).date()!=self.business_date for t in (a.arrives_at,a.starts_at,a.departs_at)):
+                raise ValueError('活动时刻必须属于所在业务日')
+        for l in plan.legs:
+            if any(t.astimezone(TZ).date()!=self.business_date for t in (l.departs_at,l.arrives_at)):
+                raise ValueError('交通段不能跨日')
+        if plan.ongoing:
+            ongoing=OngoingActivity.model_validate(plan.ongoing)
+            if any(t.astimezone(TZ).date()!=self.business_date for t in (ongoing.starts_at,ongoing.ends_at)):
+                raise ValueError('正在进行项必须属于所在业务日')
+        return self
+
+
+class MultiDayItinerary(DateRange):
+    schema_version: Literal['city-itinerary/2']
+    days: tuple[DayItinerary,...] = Field(min_length=1,max_length=3)
+    overnights: tuple[Overnight,...] = Field(default=(),max_length=2)
+    objectives: tuple[Literal['balanced','less_walking','less_waiting','lower_cost'],...] = Field(default=('balanced',),max_length=3)
+    active_seconds: int = Field(ge=0)
+    elapsed_seconds: int = Field(ge=0)
+    travel_seconds: int = Field(ge=0)
+    walking_distance_m: float = Field(ge=0)
+    known_cost_upper_fen: int = Field(ge=0)
+    cost_unknown: bool
+    evidence_mode: Literal['verified_with_estimates','reference_with_estimates','synthetic','unknown']
+    navigation_certified: Literal[False] = False
+    metrics: dict = Field(default_factory=dict)
+
+    @model_validator(mode='after')
+    def valid(self):
+        validate_days(self.start_date,self.end_date,self.days)
+        validate_overnights(tuple(d.original_requirements for d in self.days),self.overnights,complete=True)
+        goals=[];sessions=[];ongoing=0
+        for d in self.days:
+            p=d.itinerary
+            goals.extend(s.stop_id for s in p.completed_prefix)
+            goals.extend(a.goal_id for a in p.activities)
+            sessions.extend(s.session_id for s in p.completed_prefix if s.session_id)
+            sessions.extend(a.session_id for a in p.activities if a.session_id)
+            if p.ongoing:
+                ongoing+=1;goals.append(p.ongoing['stop_id'])
+                session=p.ongoing.get('original_activity',{}).get('session_id')
+                if session:sessions.append(session)
+        if len(goals)!=len(set(goals)) or len(sessions)!=len(set(sessions)):raise ValueError('全程目标或场次重复')
+        if ongoing>1 or sum(d.status=='active' for d in self.days)>1:raise ValueError('全程最多一个正在进行项或 active 日')
+        if self.active_seconds!=sum(d.itinerary.total_seconds for d in self.days):raise ValueError('全程 active_seconds 汇总不一致')
+        elapsed=int((self.days[-1].itinerary.returns_at-self.days[0].original_requirements.starts_at).total_seconds())
+        if self.elapsed_seconds!=elapsed:raise ValueError('全程 elapsed_seconds 汇总不一致')
+        if self.travel_seconds!=sum(d.itinerary.travel_seconds for d in self.days):raise ValueError('全程 travel_seconds 汇总不一致')
+        if abs(self.walking_distance_m-sum(d.itinerary.walking_distance_m for d in self.days))>0.001:raise ValueError('全程步行汇总不一致')
+        ranks={'verified_with_estimates':0,'reference_with_estimates':1,'synthetic':2,'unknown':3}
+        modes=[d.itinerary.evidence_mode for d in self.days]
+        evidence={'verified':'verified_with_estimates','reference':'reference_with_estimates','synthetic':'synthetic','unknown':'unknown'}
+        modes.extend(evidence[v] for o in self.overnights for v in (o.place_evidence,o.stay_evidence))
+        if self.evidence_mode!=max(modes,key=ranks.get):raise ValueError('全程证据状态必须取每日与过夜的最弱者')
+        if any(d.itinerary.cost_unknown for d in self.days) and not self.cost_unknown:raise ValueError('未知日费用不能被全程汇总覆盖')
+        return self
+
+
+class SolveResultV2(SolveResult):
+    schema_version: Literal['city-engine-result/2']
+    itineraries: tuple[MultiDayItinerary,...] = ()
+
+
+class PreviewRequestV2(PreviewRequest):
+    requirements: MultiDayRequirements
+
+
+class ReplanRequestV2(ReplanRequest):
+    requirements: MultiDayRequirements
+    scope: Literal['current_day','current_and_future','selected_future_day'] = 'current_day'
+    day_id: EntityId | None = None
+
+    @model_validator(mode='after')
+    def scope_valid(self):
+        if self.scope=='selected_future_day' and not self.day_id:raise ValueError('指定未来日修改必须提供 day_id')
+        if self.day_id and self.day_id not in {d.day_id for d in self.requirements.days}:raise ValueError('修改作用域指向不存在的 day_id')
+        return self

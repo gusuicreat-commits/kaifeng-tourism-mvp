@@ -1,5 +1,6 @@
 """Trip-owned intentions, independent of formal stops. Display labels are never facts."""
 import json
+from datetime import datetime, time
 from typing import Literal
 from uuid import UUID
 from fastapi import HTTPException
@@ -9,6 +10,8 @@ from ..memory.context import redact
 from ..memory.storage import encoded, stamp
 from . import facts, state
 from .schema import Strict, EntityId
+from .versions import read_draft
+from .state_schema import CityDraftV2
 
 Kind = Literal['scenic','food','place','poi','show','vendor','program']
 FOODS = dict(zip(('xingrentea','huashenggao','chaoliangfen','xiaolongbao','taosibao','tongziji','yangroukangmo','liyubeimian','siweicai'),
@@ -97,22 +100,27 @@ def resolve(db, ref, items=None):
 
 def snapshot(db, session, trip_id):
     row=state.owned(db,session,trip_id);items=facts.records(db)
-    draft=json.loads(row['draft_json']);result=[]
+    draft=read_draft(row['draft_json']);result=[]
+    days=draft.days if isinstance(draft,CityDraftV2) else (draft,)
     for r in db.execute('SELECT * FROM city_basket_items WHERE trip_id=? ORDER BY added_at,object_key',(str(trip_id),)):
         saved=json.loads(r['data_json']);ref=BasketItem.model_validate(saved)
         try:value=resolve(db,ref,items)
         except HTTPException:value={'key':r['object_key'],'kind':ref.kind,'id':ref.object_id,'name':'资料待添加','fact_kind':None,'fact_id':None,'data_status':'pending_addition'}
-        fid=value['fact_id'];stop_ids=[]
-        for stop in draft['stops']:
+        fid=value['fact_id'];stop_ids=[];arranged=[]
+        for day,stop in ((day,s.model_dump(mode='json')) for day in days for s in day.stops):
             same=stop['session_id']==fid if value['fact_kind']=='show_session' else stop['place_id']==fid if value['fact_kind']=='place' else False
             if value['fact_kind']=='vendor' and fid:same=stop['place_id']==items['vendor',fid].place_id
             # A dish is arranged only when a planned dining stop has a verified supply relationship.
             if value['fact_kind']=='food' and fid and stop['kind']=='dining':
-                same=any(isinstance(s,facts.Supply) and s.food_id==fid and facts.status(s,items,facts.now())['ready']
+                moment=(day.starts_at or datetime.combine(day.business_date,time(),facts.TZ)) if isinstance(draft,CityDraftV2) else facts.now()
+                same=any(isinstance(s,facts.Supply) and s.food_id==fid and facts.status(s,items,moment)['ready']
                     and items.get(('vendor',s.vendor_id)) and items['vendor',s.vendor_id].place_id==stop['place_id'] for s in items.values())
-            if same and row['route_version']>0:stop_ids.append(stop['stop_id'])
+            if same and row['route_version']>0:
+                stop_ids.append(stop['stop_id'])
+                if isinstance(draft,CityDraftV2):arranged.append({'day_id':day.day_id,'stop_id':stop['stop_id']})
         value.update(priority=ref.priority,status='arranged' if stop_ids else ref.status,note=ref.note,source=ref.source,
                      added_at=r['added_at'],updated_at=r['updated_at'],stop_ids=stop_ids)
+        if isinstance(draft,CityDraftV2):value['arranged_stops']=arranged
         result.append(value)
     return {'trip_id':str(trip_id),'version':version(db,trip_id),'items':result}
 

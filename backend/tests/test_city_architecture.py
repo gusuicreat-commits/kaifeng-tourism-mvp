@@ -196,3 +196,160 @@ def test_new_contract_does_not_reinterpret_legacy_trip_and_capabilities_are_hone
     city = client.post('/api/city/v1/trips', json={'request_id': str(uuid4())})
     assert city.status_code == 201 and city.json()['schema_version'] == 'city-state/1'
     assert city.json()['readiness']['planning_available'] is False
+
+
+@pytest.mark.parametrize('count',[1,2,3])
+def test_multi_day_requirements_have_stable_identity_and_trip_scoped_goals(count):
+    from app.city.engine.models import MultiDayRequirements, ReplanRequestV2
+    from multi_day_helpers import requirements
+    req=MultiDayRequirements.model_validate(requirements(count))
+    assert req.day_count==count and req.solve_seconds==1 and len(req.goals)==2
+    assert [d.day_id for d in req.days]==['day:'+d.business_date.isoformat() for d in req.days]
+    assert req.goals[0].required and len(req.goals[0].allowed_dates)==count
+    assert req.goals[1].fixed_date==req.end_date
+    assert MultiDayRequirements.model_validate_json(req.model_dump_json())==req
+    schema=MultiDayRequirements.model_json_schema()
+    assert schema['properties']['day_count']['type']=='integer' and 'day_count' not in schema['required']
+    body=ReplanRequestV2(request_id=uuid4(),expected_version=1,requirements=req,scope='selected_future_day',day_id=req.days[-1].day_id)
+    assert body.day_id==req.days[-1].day_id
+    for patch in ({'day_id':None},{'day_id':'day:2030-05-09'}):
+        with pytest.raises(ValidationError):ReplanRequestV2.model_validate(body.model_dump()|patch)
+
+
+@pytest.mark.parametrize('case,message',[
+    ('zero','1–3'),('four','1–3'),('gap','连续'),('duplicate','day_id'),('wrong_id','day_id'),
+    ('out_of_scope','作用域'),('fixed_outside','固定日期'),('duplicate_goal','目标 ID'),
+    ('too_many_goals','30'),('cross_midnight','同一业务日'),('naive','timezone'),
+    ('forged_count','day_count'),('absolute_window','没有交集'),('access_scope','票务'),('no_tag','schema_version')])
+def test_multi_day_invalid_ranges_scopes_and_daily_windows_are_rejected(case,message):
+    import copy
+    from app.city.engine.models import MultiDayRequirements
+    from multi_day_helpers import requirements
+    data=requirements()
+    if case=='zero':data['end_date']='2030-04-30'
+    elif case=='four':data['end_date']='2030-05-04'
+    elif case=='gap':data['days']=data['days'][:1]
+    elif case=='duplicate':data['days'][1]=copy.deepcopy(data['days'][0])
+    elif case=='wrong_id':data['days'][1]['day_id']='day:2030-05-01'
+    elif case=='out_of_scope':data['goals'][0]['allowed_dates']=['2030-05-09']
+    elif case=='fixed_outside':data['goals'][1]['fixed_date']='2030-05-01'
+    elif case=='duplicate_goal':data['goals'][1]['goal_id']='flexible'
+    elif case=='too_many_goals':data['goals']=[data['goals'][0]|{'goal_id':f'g{i}'} for i in range(31)]
+    elif case=='cross_midnight':data['days'][0]['ends_at']='2030-05-02T00:00:00+08:00'
+    elif case=='naive':data['days'][0]['starts_at']='2030-05-01T09:00:00'
+    elif case=='forged_count':data['day_count']=1
+    elif case=='absolute_window':data['goals'][0]['window_start']='2030-05-03T12:00:00+08:00'
+    elif case=='access_scope':data['access_confirmations']=[{'place_id':'museum','allowed_dates':['2030-05-03']}]
+    elif case=='no_tag':data.pop('schema_version')
+    with pytest.raises(ValidationError,match=message):MultiDayRequirements.model_validate(data)
+
+
+def test_partial_multi_day_constraints_do_not_inherit_first_day_fields():
+    from app.city.engine.models import MultiDayConstraints, MultiDayRequirements
+    from multi_day_helpers import requirements
+    req=requirements();days=req['days']
+    days[1]={k:v for k,v in days[1].items() if k=='business_date'}
+    constraints=MultiDayConstraints.model_validate({'schema_version':'city-constraints/2',
+        'start_date':req['start_date'],'end_date':req['end_date'],'days':days,'modes':['driving']})
+    assert constraints.days[1].starts_at is None and constraints.days[1].origin_place_id is None
+    assert constraints.days[1].modes is None and constraints.modes==('driving',)
+    assert constraints.days[1].model_fields_set=={'business_date','day_id'}
+    assert MultiDayConstraints.model_validate({'schema_version':'city-constraints/2'}).days==()
+    assert MultiDayConstraints.model_validate({'schema_version':'city-constraints/2','start_date':req['start_date'],
+        'end_date':req['end_date'],'goals':req['goals']}).days==()
+    with pytest.raises(ValidationError):MultiDayRequirements.model_validate(req)
+
+
+@pytest.mark.parametrize('model_name',['draft','trip'])
+def test_multi_day_prefix_is_daily_and_ids_and_sessions_are_global(model_name):
+    import copy
+    from app.city.state_schema import CityDraftV2
+    from app.city.schema import CityTripV2
+    from multi_day_helpers import draft
+    data=draft();model=CityDraftV2
+    if model_name=='trip':
+        data.update(schema_version='city-trip/2',trip_id=uuid4(),version=1);model=CityTripV2
+    completed={'stop_id':'done','place_id':'museum','kind':'visit','progress':'completed',
+        'actual_start':'2030-05-02T09:00:00+08:00','actual_end':'2030-05-02T09:10:00+08:00','progress_source':'user_reported'}
+    pending={'stop_id':'pending','place_id':'museum','kind':'visit'}
+    data['days'][0]['stops']=[pending]
+    data['days'][1]['stops']=[completed,pending|{'stop_id':'next'}]
+    assert model.model_validate(data).days[1].stops[0].progress=='completed'
+    broken=copy.deepcopy(data);broken['days'][1]['stops'].reverse()
+    with pytest.raises(ValidationError,match='前缀'):model.model_validate(broken)
+    broken=copy.deepcopy(data);broken['days'][1]['stops'][1]['stop_id']='pending'
+    with pytest.raises(ValidationError,match='重复'):model.model_validate(broken)
+    broken=copy.deepcopy(data);broken['days'][1]['stops'][0]['actual_start']='2030-05-01T09:00:00+08:00'
+    with pytest.raises(ValidationError,match='业务日|前缀'):model.model_validate(broken)
+    for d in data['days']:
+        d['stops']=[{'stop_id':'show:'+d['business_date'],'place_id':'stage','kind':'show','session_id':'same'}]
+    with pytest.raises(ValidationError,match='场次重复'):model.model_validate(data)
+
+
+def test_multi_day_route_keeps_original_day_and_distinguishes_active_elapsed_and_evidence():
+    import copy
+    from app.city.engine.models import MultiDayItinerary
+    from multi_day_helpers import itinerary
+    data=itinerary();plan=MultiDayItinerary.model_validate(data)
+    assert plan.active_seconds==7200 and plan.elapsed_seconds==90000
+    assert plan.days[0].original_requirements.starts_at.hour==9
+    assert MultiDayItinerary.model_validate_json(plan.model_dump_json())==plan
+    for patch in ({'active_seconds':90000},{'elapsed_seconds':7200},{'travel_seconds':1},
+                  {'walking_distance_m':1},{'evidence_mode':'verified_with_estimates'},{'cost_unknown':False}):
+        with pytest.raises(ValidationError):MultiDayItinerary.model_validate(data|patch)
+    for patch in ({'overnights':[]},{'overnights':[data['overnights'][0]|{'place_id':None}]},
+                  {'overnights':[data['overnights'][0]|{'place_id':'other'}]}):
+        with pytest.raises(ValidationError,match='过夜'):MultiDayItinerary.model_validate(data|patch)
+    broken=copy.deepcopy(data);broken['days'][0]['requirements']['starts_at']='2030-05-01T08:30:00+08:00'
+    with pytest.raises(ValidationError,match='原始每日'):MultiDayItinerary.model_validate(broken)
+
+
+@pytest.mark.parametrize('reader,tag',[
+    ('read_draft','city-draft/999'),('read_requirements','city-engine/999'),
+    ('read_itinerary','city-itinerary/999'),('read_result','city-engine-result/999'),('read_constraints','city-constraints/999'),('read_trip','city-trip/999')])
+def test_unknown_schema_is_rejected_without_legacy_fallback(reader,tag):
+    from fastapi import HTTPException
+    from app.city import versions
+    with pytest.raises(HTTPException) as exc:getattr(versions,reader)({'schema_version':tag})
+    assert exc.value.status_code==422 and exc.value.detail['code']=='SCHEMA_UNSUPPORTED'
+
+
+def test_daily_stop_limit_is_not_a_trip_wide_24_stop_limit():
+    from app.city.state_schema import CityDraftV2
+    from app.city.engine.models import MultiDayRequirements
+    from multi_day_helpers import draft,requirements
+    data=draft()
+    for index,d in enumerate(data['days']):
+        d['stops']=[{'stop_id':f'd{index}:g{i}','place_id':'museum','kind':'visit'} for i in range(15)]
+    assert sum(len(d.stops) for d in CityDraftV2.model_validate(data).days)==30
+    data['days'][0]['stops']=[{'stop_id':f'g{i}','place_id':'museum','kind':'visit'} for i in range(25)]
+    with pytest.raises(ValidationError,match='24'):CityDraftV2.model_validate(data)
+    req=requirements();req['goals']=[req['goals'][0]|{'goal_id':f'g{i}'} for i in range(30)]
+    assert len(MultiDayRequirements.model_validate(req).goals)==30
+
+
+def test_multi_day_route_rejects_duplicate_goal_session_and_multiple_ongoing():
+    import copy
+    from app.city.engine.models import MultiDayItinerary
+    from multi_day_helpers import itinerary
+    data=itinerary()
+    for d in data['days']:
+        day=d['business_date']
+        d['itinerary']['activities']=[{'activity_id':'a:'+day,'goal_id':'g:'+day,'place_id':'stage','kind':'show',
+            'session_id':'s:'+day,'arrives_at':day+'T09:00:00+08:00','starts_at':day+'T09:00:00+08:00',
+            'departs_at':day+'T09:15:00+08:00','duration_seconds':900,'wait_seconds':0,'required':True,
+            'adjustable':False,'data_status':'synthetic','evidence_refs':[]}]
+    assert len(MultiDayItinerary.model_validate(data).days)==2
+    for key in ('goal_id','session_id'):
+        broken=copy.deepcopy(data)
+        broken['days'][1]['itinerary']['activities'][0][key]=broken['days'][0]['itinerary']['activities'][0][key]
+        with pytest.raises(ValidationError,match='重复'):MultiDayItinerary.model_validate(broken)
+    for d in data['days']:
+        a=d['itinerary']['activities'].pop()
+        d['itinerary']['ongoing']={'stop_id':a['goal_id'],'place_id':a['place_id'],'starts_at':a['starts_at'],
+            'ends_at':a['departs_at'],'remaining_basis':'user_reported','original_activity':a}
+    with pytest.raises(ValidationError,match='最多一个'):MultiDayItinerary.model_validate(data)
+    data['days'][1]['itinerary']['ongoing']=None
+    assert MultiDayItinerary.model_validate(data).days[0].itinerary.ongoing
+    data['days'][0]['itinerary']['ongoing']={'stop_id':'malformed'}
+    with pytest.raises(ValidationError):MultiDayItinerary.model_validate(data)
