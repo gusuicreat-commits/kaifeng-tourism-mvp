@@ -85,7 +85,7 @@ def seed_multi_route(e,route_version=1):
 def test_multi_day_engine_requests_are_explicitly_unavailable_and_never_solved(engine,monkeypatch,endpoint):
     from multi_day_helpers import requirements
     from app.city.engine.models import MultiDayRequirements
-    from app.city.engine.tools import plan_trip,replan_trip
+    from app.city.engine.tools import replan_trip
     c,t,_=engine
     monkeypatch.setattr(service,'plan_trip',lambda *a,**kw:pytest.fail('must not run single-day solver'))
     before=c.get('/api/city/v1/trips/'+t['id']).json()
@@ -97,9 +97,8 @@ def test_multi_day_engine_requests_are_explicitly_unavailable_and_never_solved(e
     with connect() as db:
         assert db.execute('SELECT count(*) FROM city_engine_candidates').fetchone()[0]==0
         ctx=service.context(db)
-    for tool in (plan_trip,replan_trip):
-        result=tool(MultiDayRequirements.model_validate(requirements()),ctx)
-        assert result.status=='unavailable' and not result.itineraries
+    result=replan_trip(MultiDayRequirements.model_validate(requirements()),ctx)
+    assert result.status=='unavailable' and not result.itineraries
 
 
 def test_multi_day_current_history_export_preserve_whole_snapshot_and_ownership(engine):

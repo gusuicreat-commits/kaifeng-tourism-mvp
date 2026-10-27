@@ -6,7 +6,9 @@ from .validation import compare_itineraries, validate_itinerary
 
 
 def plan_trip(requirements,context):
-    if isinstance(requirements,MultiDayRequirements):return unavailable(context)
+    if isinstance(requirements,MultiDayRequirements):
+        from .multi_day import plan_multi_day
+        return plan_multi_day(requirements,context)
     return solve(prepare(requirements,context))
 
 

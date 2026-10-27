@@ -88,3 +88,29 @@ def test_operational_envelope_must_cover_entire_horizon_and_mode():
     req,ctx=sample()
     ops=ctx.operations.model_copy(update={'journeys':tuple(j.model_copy(update={'travel':j.travel.model_copy(update={'evidence':j.travel.evidence.model_copy(update={'valid_until':req.starts_at+timedelta(minutes=10)})})}) for j in ctx.operations.journeys)})
     assert plan_trip(req,replace(ctx,operations=ops)).status=='needs_data'
+
+
+def test_multi_day_dated_matrix_is_reused_across_objectives_without_provider(monkeypatch):
+    from test_city_engine import multi_sample
+    from app.city.engine import multi_day
+    from app.city.engine.travel import TravelTimeService
+    req,ctx=multi_sample(sample(),goals=[]);seen=[];original=TravelTimeService.matrix
+    def matrix(service,day,activities):
+        seen.append((id(service),day.business_date,day.starts_at,day.ends_at))
+        return original(service,day,activities)
+    monkeypatch.setattr(TravelTimeService,'matrix',matrix)
+    # The independent validator prepares its own candidates; only record assignment preparation here.
+    real_validate=__import__('app.city.engine.multi_day_validation',fromlist=['validate_multi_day']).validate_multi_day
+    def validate(*args):
+        size=len(seen);result=real_validate(*args);del seen[size:];return result
+    monkeypatch.setattr('app.city.engine.multi_day_validation.validate_multi_day',validate)
+    result=multi_day.plan_multi_day(req,ctx)
+    assert result.status=='feasible' and len(seen)==2
+    assert len({row[0] for row in seen})==1
+    assert [row[1] for row in seen]==[d.business_date for d in req.days]
+    assert result.metrics['provider_requests']==0 and result.metrics['travel_elapsed_ms']>=0
+    journeys=tuple(j.model_copy(update={'travel':j.travel.model_copy(update={'evidence':
+        j.travel.evidence.model_copy(update={'valid_until':req.days[0].ends_at+timedelta(seconds=1)})})}) for j in ctx.operations.journeys)
+    result=multi_day.plan_multi_day(req,replace(ctx,operations=ctx.operations.model_copy(update={'journeys':journeys})))
+    assert result.status=='needs_data' and not result.itineraries
+    assert any('day:2030-05-02' in issue.affected_ids for issue in result.issues)

@@ -12,6 +12,14 @@
 
 HTTP preview/replan-preview 接收显式 `city-engine/2` 分支，但返回 `MULTI_DAY_UNAVAILABLE`；确认遇 V2 候选、历史恢复遇 V2、旧单日请求指向 V2 旅行，同样拒绝。纯 `plan_trip/replan_trip` 返回 unavailable；`current_and_future`、`selected_future_day` 只定义模型，不执行。多天算法、事务写链路、日期语义和前端分别属于 B2.2–B2.5。契约由 `export_engine_contracts.py` 生成 [city-engine-v2](contracts/city-engine-v2.schema.json)；旧 V1 契约无变动。
 
+## B2.2 有界分天纯引擎
+
+`engine/multi_day.py` 接通纯 `plan_trip(MultiDayRequirements, context)`；单日请求仍直接走原 `prepare → solve`。按日期准备候选与交通快照，先分配日期受限的必选，再分配灵活必选和可选，保留至多 8 个状态，三种全程偏好累计至多尝试 8 组；日内失败可回退到其他分配，不删除必选。三种偏好用完整路线的收益和汇总指标比较，相同行程合并标签，不相加日内 solver 的内部权重。
+
+准备、分配与日内求解共享一个 monotonic 全程限额（默认 1 秒，上限 3 秒）；剩余不足 0.05 秒不启动子求解。`metrics` 分别记录分配、各日/偏好求解、交通矩阵和独立全程校验耗时，限时或分配裁剪设置 `search_truncated`，未找到完整方案时返回 timeout 而非无解；已验证的完整结果可返回 feasible，但不声明全局最优。可另传工作流 `deadline`，最终校验超时则不发布候选。纯引擎无 Provider 调用，不能据求解限额承诺端到端响应时间。
+
+`multi_day_validation.validate_multi_day` 对照原始全程需求重新准备日内候选并复核硬约束，另查全程必选覆盖、目标/场次唯一、日期/端点/票务作用域、过夜快照与连续性、进度不可注入、全程时间/步行/已知费用汇总及最弱证据。过夜费用尚无 B3/B4 的计价契约，始终保留费用未知，省钱仅比较已知费用。测试见 `backend/tests/test_city_engine.py`、`test_city_engine_travel.py`，合成基准可用 `pytest -s -k multi_day_synthetic_benchmark` 打印 1/2/3 天 × 5/15/30 目标的状态与实测耗时。尚未接通 API 预览确认、多天重排、日期语义与前端。
+
 ## 交付状态
 
 | 能力 | 状态与证据 |

@@ -337,3 +337,245 @@ def test_solver_timeout_and_unavailable_are_not_proven_infeasible(sample,monkeyp
     def unavailable(*args):raise RuntimeError('injected')
     monkeypatch.setattr(solver,'_solve',unavailable)
     r=plan_trip(req,ctx);assert r.status=='unavailable' and not r.itineraries
+
+
+def multi_sample(sample,count=2,goals=None,**patch):
+    from multi_day_helpers import requirements
+    from app.city.engine.models import MultiDayRequirements
+    single,ctx=sample;data=requirements(count)
+    for d in data['days']:d['ends_at']=d['business_date']+'T20:00:00+08:00'
+    dates=[single.business_date+timedelta(days=i) for i in range(count)]
+    data['goals']=goals if goals is not None else [dict(g.model_dump(mode='json'),allowed_dates=[v.isoformat() for v in dates])
+        for g in single.goals]
+    records=dict(ctx.facts)
+    # Explicit synthetic daily records, never a runtime fallback for missing dates.
+    for offset in range(1,count):
+        for r in ctx.facts.values():
+            if not isinstance(r,facts.OpenRule):continue
+            changed=r.model_dump()|{'fact_id':r.fact_id+f':day{offset}','business_date':r.business_date+timedelta(days=offset)}
+            for key in ('opens_at','closes_at','last_entry_at'):
+                if changed[key]:changed[key]+=timedelta(days=offset)
+            copy=type(r).model_validate(changed);records[copy.kind,copy.fact_id]=copy
+    return MultiDayRequirements.model_validate(data|patch),replace(ctx,facts=records)
+
+
+@pytest.mark.parametrize('count',[2,3])
+def test_multi_day_synthetic_whole_trip_required_once(sample,count):
+    from app.city.engine.multi_day_validation import validate_multi_day
+    req,ctx=multi_sample(sample,count);result=plan_trip(req,ctx)
+    assert result.status=='feasible',result
+    assert len(result.itineraries)<=3
+    for plan in result.itineraries:
+        assert len(plan.days)==count and not validate_multi_day(req,ctx,plan)
+        ids=[a.goal_id for d in plan.days for a in d.itinerary.activities]
+        sessions=[a.session_id for d in plan.days for a in d.itinerary.activities if a.session_id]
+        assert sorted(ids)==['lunch','show','visit'] and len(sessions)==len(set(sessions))
+        assert plan.active_seconds==sum(d.itinerary.total_seconds for d in plan.days)
+        assert plan.elapsed_seconds>plan.active_seconds and plan.cost_unknown
+        assert all(len(d.itinerary.legs)==len(d.itinerary.activities)+1 for d in plan.days)
+
+
+def test_multi_day_required_only_open_second_day(sample):
+    req,ctx=multi_sample(sample,goals=[dict(goal('must','museum',required=True).model_dump(mode='json'),allowed_dates=['2030-05-01','2030-05-02'])])
+    records={k:v for k,v in ctx.facts.items() if k!=('open_rule','open:museum')};ctx=replace(ctx,facts=records)
+    result=plan_trip(req,ctx);assert result.status=='feasible',result
+    for plan in result.itineraries:
+        assert not plan.days[0].itinerary.activities
+        assert [a.goal_id for a in plan.days[1].itinerary.activities]==['must']
+
+
+def test_multi_day_fixed_first_day_show_keeps_flexible_required_for_second(sample):
+    goals=[dict(goal('flex','museum',required=True,duration_seconds=7200).model_dump(mode='json'),allowed_dates=['2030-05-01','2030-05-02']),
+        {'goal_id':'fixed-show','target_kind':'session','target_id':'s1','kind':'show','required':True,'allowed_dates':['2030-05-01','2030-05-02']}]
+    req,ctx=multi_sample(sample,goals=goals)
+    req=req.model_copy(update={'days':tuple(d.model_copy(update={'ends_at':d.starts_at.replace(hour=12)}) for d in req.days)})
+    result=plan_trip(req,ctx);assert result.status=='feasible',result
+    for plan in result.itineraries:
+        assert [a.goal_id for a in plan.days[0].itinerary.activities]==['fixed-show']
+        assert [a.goal_id for a in plan.days[1].itinerary.activities]==['flex']
+
+
+@pytest.mark.parametrize('kind',['opening','session'])
+def test_multi_day_missing_daily_data_never_reuses_first_day(sample,kind):
+    if kind=='opening':g=dict(goal('only-second','museum',required=True).model_dump(mode='json'))
+    else:g={'goal_id':'only-second','target_kind':'program','target_id':'program','kind':'show','required':True}
+    req,ctx=multi_sample(sample,goals=[g|{'allowed_dates':['2030-05-02']}])
+    if kind=='opening':ctx=replace(ctx,facts={k:v for k,v in ctx.facts.items() if k!=('open_rule','open:museum:day1')})
+    result=plan_trip(req,ctx)
+    assert result.status=='needs_data' and not result.itineraries
+    assert 'day:2030-05-02' in result.issues[0].affected_ids
+
+
+def test_multi_day_same_session_two_required_instances_cannot_repeat(sample):
+    req,ctx=multi_sample(sample,goals=[{'goal_id':gid,'target_kind':'session','target_id':'s1','kind':'show',
+        'required':True,'allowed_dates':['2030-05-01','2030-05-02']} for gid in ('one','two')])
+    result=plan_trip(req,ctx)
+    assert result.status=='infeasible' and not result.itineraries
+
+
+def test_multi_day_empty_target_days_require_explicit_transfer_and_stationary_edge(sample):
+    req,ctx=multi_sample(sample,3,goals=[])
+    result=plan_trip(req,ctx);assert result.status=='feasible',result
+    p=result.itineraries[0]
+    assert all(not d.itinerary.activities and len(d.itinerary.legs)==1 for d in p.days)
+    assert p.days[1].itinerary.legs[0].journey.travel.origin_place_id=='hotel'
+    ctx=replace(ctx,operations=ctx.operations.model_copy(update={'journeys':tuple(j for j in ctx.operations.journeys
+        if (j.travel.origin_place_id,j.travel.destination_place_id)!=('hotel','hotel'))}))
+    assert plan_trip(req,ctx).status=='needs_data'
+
+
+def test_multi_day_three_objectives_deduplicate_entire_trip_and_respect_less_waiting(sample):
+    from app.city.engine.multi_day import signature
+    for objective in ('balanced','less_waiting'):
+        req,ctx=multi_sample(sample,goals=[],objective=objective)
+        result=plan_trip(req,ctx);assert result.status=='feasible',result
+        assert len(result.itineraries)==1
+        assert result.itineraries[0].objectives==(objective,'less_walking','lower_cost')
+        assert len({repr(signature(p)) for p in result.itineraries})==len(result.itineraries)
+
+
+def test_multi_day_whole_objectives_choose_different_dates_by_whole_cost_and_walk(sample):
+    req,ctx=multi_sample(sample,goals=[dict(goal('flex','museum',required=True,duration_seconds=60).model_dump(mode='json'),
+        allowed_dates=['2030-05-01','2030-05-02'])],pace='compact')
+    journeys=[]
+    for j in ctx.operations.journeys:
+        pair=(j.travel.origin_place_id,j.travel.destination_place_id)
+        seconds,metres,cost=(100,500,0) if pair==('origin','museum') else (1000,1,500) if pair==('hotel','museum') else (0,0,0)
+        journeys.append(j.model_copy(update={'travel':j.travel.model_copy(update={'lower_seconds':seconds,'upper_seconds':seconds}),
+            'distance_m':metres,'cost_lower_fen':cost,'cost_upper_fen':cost}))
+    ctx=replace(ctx,operations=ctx.operations.model_copy(update={'journeys':tuple(journeys)}))
+    result=plan_trip(req,ctx);assert result.status=='feasible',result
+    assignments={o:next(i for i,d in enumerate(p.days) if d.itinerary.activities)
+        for p in result.itineraries for o in p.objectives}
+    assert assignments=={'balanced':0,'less_walking':1,'lower_cost':0}
+    assert any('仅按已知费用' in w for w in result.warnings)
+
+
+def test_multi_day_validator_uses_original_required_overnights_dates_and_costs(sample):
+    from app.city.engine.multi_day_validation import validate_multi_day
+    req,ctx=multi_sample(sample);plan=plan_trip(req,ctx).itineraries[0]
+    assert not validate_multi_day(req,ctx,plan)
+    changed=plan.model_copy(update={'overnights':(plan.overnights[0].model_copy(update={'place_id':'garden'}),)})
+    assert {'OVERNIGHT_CHANGED','OVERNIGHT_CONTINUITY'}<={i.code for i in validate_multi_day(req,ctx,changed)}
+    days=[]
+    for d in plan.days:
+        req2=d.requirements.model_copy(update={'goals':tuple(g.model_copy(update={'required':False}) for g in d.requirements.goals)})
+        acts=tuple(a.model_copy(update={'required':False,'adjustable':True}) for a in d.itinerary.activities)
+        days.append(d.model_copy(update={'requirements':req2,'itinerary':d.itinerary.model_copy(update={'activities':acts})}))
+    assert {'GOAL_REQUIREMENTS_CHANGED','REQUIRED_CHANGED'}<={i.code for i in validate_multi_day(req,ctx,plan.model_copy(update={'days':tuple(days)}))}
+    removed=plan.model_copy(update={'days':tuple(d.model_copy(update={'itinerary':d.itinerary.model_copy(update={'activities':()})}) for d in plan.days)})
+    assert 'MISSING_REQUIRED' in {i.code for i in validate_multi_day(req,ctx,removed)}
+    for field,value,code in [('known_cost_upper_fen',0,'COST_TOTAL'),('cost_unknown',False,'COST_UNKNOWN'),
+                             ('elapsed_seconds',plan.active_seconds,'ELAPSED_TOTAL')]:
+        assert code in {i.code for i in validate_multi_day(req,ctx,plan.model_copy(update={field:value}))}
+    duplicate=plan.days[1].model_copy(update={'itinerary':plan.days[0].itinerary})
+    codes={i.code for i in validate_multi_day(req,ctx,plan.model_copy(update={'days':(plan.days[0],duplicate)}))}
+    assert 'DUPLICATE_GOAL' in codes and 'DUPLICATE_SESSION' in codes
+
+
+def test_single_day_never_enters_multi_day_module(sample,monkeypatch):
+    from app.city.engine import multi_day
+    monkeypatch.setattr(multi_day,'plan_multi_day',lambda *a,**kw:pytest.fail('single day dispatched to multi day'))
+    assert plan_trip(*sample).status=='feasible'
+
+
+@pytest.mark.parametrize('count',[1,2,3])
+def test_multi_day_budget_shared_and_no_round_up_of_subminimum_remaining(sample,monkeypatch,count):
+    from app.city.engine import multi_day
+    req,ctx=multi_sample(sample,count,goals=[],solve_seconds=0.2,alternatives=1)
+    ticks=[0.0];allocations=[];original=multi_day.solve
+    def limited(problem,*,deadline,clock):
+        allocations.append(problem.requirements.solve_seconds)
+        assert deadline<=req.solve_seconds and clock()+problem.requirements.solve_seconds<=deadline+1e-8
+        result=original(problem)
+        ticks[0]+=problem.requirements.solve_seconds
+        return result
+    monkeypatch.setattr(multi_day,'solve',limited)
+    result=multi_day.plan_multi_day(req,ctx,clock=lambda:ticks[0])
+    assert result.status=='feasible' and len(allocations)==count
+    assert sum(allocations)<=0.2+1e-8 and ticks[0]<=0.2+1e-8
+    allocations.clear();ticks[0]=0.16
+    result=multi_day.plan_multi_day(req,ctx,clock=lambda:ticks[0],deadline=0.2)
+    assert result.status=='timeout' and not allocations
+
+
+def test_multi_day_bounded_assignment_not_exhausted_never_claims_infeasible(sample,monkeypatch):
+    from app.city.engine import multi_day
+    from app.city.engine.models import SolveResult
+    req,ctx=multi_sample(sample,goals=[dict(goal(f'g{i}','museum',required=True,duration_seconds=60).model_dump(mode='json'),
+        allowed_dates=['2030-05-01','2030-05-02']) for i in range(5)])
+    monkeypatch.setattr(multi_day,'solve',lambda *a,**kw:SolveResult(status='infeasible',computed_at=ctx.assessed_at))
+    result=multi_day.plan_multi_day(req,ctx)
+    assert result.status=='timeout' and result.metrics['search_truncated']
+    assert result.metrics['assignment_attempts']<=8 and '未穷尽' in result.issues[0].message
+
+
+@pytest.mark.parametrize('count',[1,2,3])
+@pytest.mark.parametrize('size',[5,15,30])
+def test_multi_day_synthetic_benchmark(sample,count,size):
+    import time
+    from scripts.benchmark_city_engine import case
+    from app.city.engine.multi_day_validation import validate_multi_day
+    single,ctx=case(size)
+    req,ctx=multi_sample((single,ctx),count)
+    start=time.perf_counter();result=plan_trip(req,ctx);elapsed=(time.perf_counter()-start)*1000
+    selected=sum(len(d.itinerary.activities) for d in result.itineraries[0].days) if result.itineraries else 0
+    print(f'B2.2 benchmark days={count} goals={size} status={result.status} wall_ms={elapsed:.3f} selected={selected}')
+    assert result.status in ('feasible','timeout'),result
+    assert result.metrics['assignment_attempts']<=8
+    for plan in result.itineraries:assert not validate_multi_day(req,ctx,plan)
+
+
+def test_multi_day_fixed_date_and_dated_access_are_not_silently_relaxed(sample):
+    req,ctx=multi_sample(sample,goals=[dict(goal('must','museum',required=True).model_dump(mode='json'),
+        allowed_dates=['2030-05-01','2030-05-02'],fixed_date='2030-05-02')])
+    ctx=change_fact(ctx,'open_rule','open:museum:day1',reservation='required')
+    result=plan_trip(req,ctx);assert result.status=='needs_data' and not result.itineraries
+    from app.city.engine.models import DatedAccessConfirmation
+    access=DatedAccessConfirmation(place_id='museum',allowed_dates=(req.start_date,))
+    assert plan_trip(req.model_copy(update={'access_confirmations':(access,)}),ctx).status=='needs_data'
+    access=access.model_copy(update={'allowed_dates':(req.end_date,)})
+    result=plan_trip(req.model_copy(update={'access_confirmations':(access,)}),ctx)
+    assert result.status=='feasible',result
+    assert all([a.goal_id for a in p.days[1].itinerary.activities]==['must'] for p in result.itineraries)
+
+
+def test_multi_day_workflow_deadline_includes_final_validation(sample,monkeypatch):
+    from app.city.engine import multi_day,multi_day_validation
+    req,ctx=multi_sample(sample,goals=[]);ticks=[0.0];original=multi_day_validation.validate_multi_day
+    def validate(*args):
+        result=original(*args);ticks[0]=0.5;return result
+    monkeypatch.setattr(multi_day_validation,'validate_multi_day',validate)
+    result=multi_day.plan_multi_day(req,ctx,clock=lambda:ticks[0],deadline=0.5)
+    assert result.status=='timeout' and not result.itineraries and result.metrics['search_truncated']
+
+
+def test_multi_day_preparation_consumes_whole_trip_time_before_any_solver(sample,monkeypatch):
+    from app.city.engine import multi_day
+    req,ctx=multi_sample(sample,goals=[]);ticks=[0.0];original=multi_day.prepare;prepared=[]
+    def prepare(*args,**kwargs):
+        prepared.append(args[0].business_date);result=original(*args,**kwargs);ticks[0]+=0.6;return result
+    monkeypatch.setattr(multi_day,'prepare',prepare)
+    monkeypatch.setattr(multi_day,'solve',lambda *a,**kw:pytest.fail('budget exhausted by preparation'))
+    result=multi_day.plan_multi_day(req,ctx,clock=lambda:ticks[0])
+    assert result.status=='timeout' and not result.itineraries and len(prepared)==2
+
+
+def test_multi_day_feasible_incumbent_is_still_explicitly_unexhausted(sample,monkeypatch):
+    from app.city.engine import multi_day
+    req,ctx=multi_sample(sample,goals=[],alternatives=1);original=multi_day.solve
+    def incumbent(*args,**kwargs):
+        result=original(*args,**kwargs)
+        return result.model_copy(update={'metrics':result.metrics|{'solver_status':'FEASIBLE'}})
+    monkeypatch.setattr(multi_day,'solve',incumbent)
+    result=multi_day.plan_multi_day(req,ctx)
+    assert result.status=='feasible' and result.metrics['search_truncated']
+    assert result.metrics['timeout_scope']=='day_solver'
+    assert any('未穷尽' in warning for warning in result.warnings)
+
+
+def test_multi_day_small_total_budget_prioritizes_requested_objective(sample):
+    req,ctx=multi_sample(sample,1,goals=[],solve_seconds=0.12)
+    result=plan_trip(req,ctx)
+    assert result.status=='feasible',result
+    assert result.itineraries[0].objectives[0]=='balanced'

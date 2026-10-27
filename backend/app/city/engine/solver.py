@@ -5,18 +5,22 @@ from .models import Itinerary, ScheduledActivity, ScheduledLeg, SolveResult, Iss
 from .travel import travel_seconds, walking_metres, entry_deadline, entry_opening, journey_cost_upper
 
 
-def solve(problem):
+def solve(problem,*,deadline=None,clock=None):
     started=time.monotonic()
-    try:return _solve(problem)
+    try:return _solve(problem,deadline=deadline,clock=clock)
     except Exception:
         return SolveResult(status='unavailable',computed_at=problem.context.assessed_at,
             issues=(Issue(code='SOLVER_UNAVAILABLE',message='规划计算不可用，当前正式行程未修改'),),
             metrics={'candidate_count':len(problem.activities),'algorithm':'OR-Tools CP-SAT','global_optimum_claimed':False,'elapsed_ms':round((time.monotonic()-started)*1000,3)})
 
 
-def _solve(problem):
+def _solve(problem,*,deadline=None,clock=None):
     from ortools.sat.python import cp_model
-    started=time.monotonic();req=problem.requirements;acts=problem.activities;ctx=problem.context
+    clock=clock or time.monotonic
+    started=clock();req=problem.requirements;acts=problem.activities;ctx=problem.context
+    def remaining_seconds():
+        remaining=req.solve_seconds-(clock()-started)
+        return remaining if deadline is None else min(remaining,deadline-clock())
     meta={'algorithm':'OR-Tools CP-SAT circuit/time-windows','candidate_count':len(acts),
           'blocked_candidates':problem.blocked,'defaults':problem.defaults,'global_optimum_claimed':False}
     def response(status,issues=(),plans=(),solver_status=None):
@@ -25,7 +29,7 @@ def _solve(problem):
                            warnings=(ctx.demo_warnings() if ctx.demo_reference else
                                      (('采用有来源的参考资料；营业及供应以现场为准。',) if reference else ()))+
                            ('交通为预计耗时；额外缓冲和默认停留是规划参数。',),
-                           metrics=meta|{'elapsed_ms':round((time.monotonic()-started)*1000,3),'solver_status':solver_status})
+                           metrics=meta|{'elapsed_ms':round((clock()-started)*1000,3),'solver_status':solver_status})
     if problem.issues:return response('needs_data',problem.issues)
     if req.budget_fen is not None and problem.history_cost_unknown and not ctx.demo_reference:
         return response('needs_data',[Issue(code='SPENT_COST_REQUIRED',message='有途中进度时需明确已支出费用，不能把预算重新从零计算')])
@@ -142,13 +146,13 @@ def _solve(problem):
     plans=[];statuses=[];selected_arcs=[];solves_done=0
     max_solves=len(objectives)+max(0,req.alternatives-1)
     for attempt,objective in enumerate(objectives):
-        remaining=req.solve_seconds-(time.monotonic()-started)
+        remaining=remaining_seconds()
         if remaining<=0:break
         finish_weight=4 if objective=='less_waiting' else 1
         upper=soft_upper[objective]+budget*(finish_weight+n)
         model.Minimize(-(upper+1)*sum(rewards)+sum(penalties[objective])+finish_weight*times[last]+sum(times[1:-1]))
         # Reserve time for each preference; all solves reuse this model and travel matrix.
-        remaining=req.solve_seconds-(time.monotonic()-started)
+        remaining=remaining_seconds()
         if remaining<=0:break
         solver=cp_model.CpSolver();solver.parameters.max_time_in_seconds=remaining/max(1,max_solves-solves_done)
         solves_done+=1
@@ -172,13 +176,13 @@ def _solve(problem):
     for chosen in selected_arcs if len(plans)<req.alternatives else ():
         model.Add(sum(var for var,_ in chosen)<=len(chosen)-1)
     while plans and len(plans)<req.alternatives:
-        remaining=req.solve_seconds-(time.monotonic()-started)
+        remaining=remaining_seconds()
         if remaining<=0:break
         objective=objectives[0]
         finish_weight=4 if objective=='less_waiting' else 1
         upper=soft_upper[objective]+budget*(finish_weight+n)
         model.Minimize(-(upper+1)*sum(rewards)+sum(penalties[objective])+finish_weight*times[last]+sum(times[1:-1]))
-        remaining=req.solve_seconds-(time.monotonic()-started)
+        remaining=remaining_seconds()
         if remaining<=0:break
         solver=cp_model.CpSolver();solver.parameters.max_time_in_seconds=remaining/max(1,max_solves-solves_done)
         solves_done+=1

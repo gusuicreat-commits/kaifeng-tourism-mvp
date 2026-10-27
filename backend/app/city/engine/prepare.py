@@ -1,4 +1,5 @@
 """Resolve stable goals to finite activity choices; missing facts never become zero durations."""
+import time
 from datetime import timedelta
 from .. import facts
 from .context import Activity, Problem
@@ -19,7 +20,7 @@ def issue(code,message,*ids):
                  suggestions=('补齐或重新核验相关数据；也可调整目标、时段或交通方式。',))
 
 
-def prepare(req,ctx,prior_order=(),fixed_order=()):
+def prepare(req,ctx,prior_order=(),fixed_order=(),*,travel_service=None,timings=None,clock=time.monotonic):
     activities=[];issues=[];blocked=[];defaults={}
     req=req.model_copy(update={'origin_place_id':ctx.canonical('place',req.origin_place_id),
         'destination_place_id':ctx.canonical('place',req.destination_place_id),
@@ -121,6 +122,8 @@ def prepare(req,ctx,prior_order=(),fixed_order=()):
     if len(activities)>60:
         issues.append(issue('CANDIDATE_LIMIT','展开后的候选活动超过60项，请缩小目标或场次范围'))
         activities=[]
-    service=TravelTimeService(ctx)
+    service=travel_service or TravelTimeService(ctx)
+    started=clock()
     matrix=service.matrix(req,activities)
+    if timings is not None:timings['travel_elapsed_ms']+=round((clock()-started)*1000,3)
     return Problem(req,ctx,activities,matrix,issues,blocked,defaults,tuple(prior_order),tuple(fixed_order))
