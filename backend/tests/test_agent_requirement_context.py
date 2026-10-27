@@ -10,6 +10,7 @@ from app.city import state
 from app.db import connect
 from test_city_assistant import city, get, path, rid, modify
 from test_city_agent import snapshot
+from app.city.agent.provider import MODEL_INPUT_CHARACTERS as LIMIT
 
 
 def payload(snap):
@@ -121,7 +122,7 @@ def test_long_history_cannot_evict_authoritative_conditions(city):
     snap.services.update(version=2,requirements={'category':'hotels','nights':2,'room_type':'标间','stay_budget_fen':50000})
     snap.envelope=snap.envelope.model_copy(update={'recent_messages':[{'role':'assistant','text':'过时聊天'*300} for _ in range(8)]})
     data=conversation.model_payload('明天入住',snap,'测试提示'*1200)
-    assert len('测试提示'*1200)+len(json.dumps(data,ensure_ascii=False))<=12000
+    assert len('测试提示'*1200)+len(json.dumps(data,ensure_ascii=False))<=LIMIT
     assert data['context']['travel_service_workspace']['requirements']['nights']==2
     assert data['context']['travel_service_workspace']['requirements']['stay_budget_fen']==50000
     assert len(data['context']['recent_messages'])<8

@@ -217,10 +217,13 @@ def test_maximum_real_context_stays_under_budget_for_all_three_calls(city, monke
     interpret.model_intent('帮我看看行程', snap.envelope)
     calls.append(('assistant', *captured[-1]))
 
-    assert all(system + payload <= 12000 for _, system, payload in calls), calls
-    assert len(_system_texts()['understanding']) < 7096
+    from app.city.agent.provider import MODEL_INPUT_CHARACTERS
+    # The V3 calls share the provider limit; the V2 assistant keeps its own 12000 envelope.
+    assert all(system + payload <= (12000 if name == 'assistant' else MODEL_INPUT_CHARACTERS) for name, system, payload in calls), calls
+    # 8000 是 2026-10-27 为途中修改、演出查询、多天日期等新字段统一预留的总上限，硬限制仍是 12000。
+    assert len(_system_texts()['understanding']) < 8000
     report = 'A7 prompt budget: ' + json.dumps({name: {'system': system, 'payload': payload, 'total': system + payload,
-                                                     'remaining': 12000 - system - payload}
+                                                     'remaining': (12000 if name == 'assistant' else MODEL_INPUT_CHARACTERS) - system - payload}
                                                 for name, system, payload in calls}, ensure_ascii=False)
     with capsys.disabled():
         print(report)

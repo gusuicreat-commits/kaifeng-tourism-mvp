@@ -53,7 +53,10 @@ def protect_requirements(row,req,replanning,previous,body,ctx):
         if not next_pending or next_pending.stop_id!=ongoing_id:raise HTTPException(422,detail='只能结束或保留当前下一活动。')
         anchor=json.loads(row['anchor_json']) if row['anchor_json'] else None
         if not anchor or anchor['place_id']!=next_pending.place_id:raise HTTPException(422,detail='当前活动与手动位置不符。')
-    locked=[s for s in draft.stops if s.locked and s.progress=='pending' and s.stop_id!=ongoing_id]
+    skipped=set(getattr(body,'skipped_goal_ids',()))
+    pending={s.stop_id for s in draft.stops if s.progress=='pending' and s.kind!='return'}
+    if skipped-pending or skipped & set(goals) or ongoing_id in skipped:raise HTTPException(422,detail='跳过目标必须来自今天剩余行程且不能再次安排。')
+    locked=[s for s in draft.stops if s.locked and s.progress=='pending' and s.stop_id!=ongoing_id and s.stop_id not in skipped]
     for stop in locked:
         g=goals.get(stop.stop_id)
         valid=g and g.required and ((g.target_kind=='session' and g.target_id==stop.session_id)
@@ -141,8 +144,8 @@ def preview(session,trip_id,body,replanning=False,planning_version=None):
             done={s.stop_id for s in CityDraft.model_validate_json(row['draft_json']).stops if s.progress!='pending'}
             if body.ongoing is None and previous:
                 current=next((s for s in previous.activities if s.starts_at<=ctx.assessed_at<s.departs_at
-                              and s.goal_id not in done and s.place_id==anchor.place_id),None)
-                reserved=previous.ongoing if previous.ongoing and previous.ongoing['stop_id'] not in done else None
+                              and s.goal_id not in done|set(body.skipped_goal_ids) and s.place_id==anchor.place_id),None)
+                reserved=previous.ongoing if previous.ongoing and previous.ongoing['stop_id'] not in done|set(body.skipped_goal_ids) else None
                 if current:
                     body=body.model_copy(update={'ongoing':OngoingInput(stop_id=current.goal_id,
                          remaining_seconds=max(1,int((current.departs_at-ctx.assessed_at).total_seconds())),basis='prior_plan_estimate')})
@@ -207,6 +210,7 @@ def preview(session,trip_id,body,replanning=False,planning_version=None):
             extra={'baseline':baseline,'fixed_order':fixed,'ongoing':ongoing,'replanning':replanning,'basket_version':basket_baseline,
                    'planning_version':planning_baseline,
                    'ended_ongoing_id':body.ongoing.stop_id if replanning and body.ongoing and body.end_ongoing else None,
+                   'skipped_goal_ids':list(body.skipped_goal_ids) if replanning else [],
                    'spending':spending,
                    'previous_route_version':oldrow['route_version'] if oldrow else None}
             db.execute('INSERT INTO city_engine_candidates VALUES (?,?,?,?,?,?,?,?,0)',
@@ -258,6 +262,8 @@ def confirm_itinerary(session,trip_id,body):
         if extra.get('ended_ongoing_id'):
             ended=next((s for s in draft.stops if s.stop_id==extra['ended_ongoing_id']),None)
             if ended:prefix=prefix+(ended.model_copy(update={'locked':False,'progress':'skipped','progress_source':'user_reported'}),)
+        prefix+=tuple(s.model_copy(update={'locked':False,'progress':'skipped','progress_source':'user_reported'})
+                      for s in draft.stops if s.stop_id in extra.get('skipped_goal_ids',()) and s.progress=='pending')
         pending=[Stop(stop_id=s.goal_id,place_id=s.place_id,kind=s.kind,session_id=s.session_id,
                       locked=s.required,duration_seconds=s.duration_seconds) for s in itinerary.activities]
         if extra['ongoing']:

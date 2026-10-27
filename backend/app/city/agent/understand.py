@@ -69,6 +69,32 @@ def number(value):
     return NUMBERS.get(value)
 
 
+_DURATION = re.compile(r'(?<![-负\d.零一二两三四五六七八九十百千万])(?:(?P<token>半|[零一二两三四五六七八九十百千万]+|\d+(?:\.\d+)?)\s*个?\s*(?P<fraction>半)?\s*(?P<unit>小时|钟头|钟|分钟|分)(?P<half>半)?|(?P<quarter>[一二两三四]?)刻钟)')
+
+
+def duration_values(text):
+    """Read explicit user-reported durations for the in-trip change gate."""
+    from .planning_intent import _chinese_number
+    values=[];previous=None
+    for match in _DURATION.finditer(text or ''):
+        if match.group('quarter') is not None:
+            count=1 if not match.group('quarter') else _chinese_number(match.group('quarter'))
+            amount=count*15;unit='分'
+        else:
+            token=match.group('token');unit=match.group('unit')
+            if token=='半':amount=.5
+            else:
+                try:amount=float(token) if token[0].isdigit() else _chinese_number(token)
+                except ValueError:continue
+            amount=(amount+(.5 if match.group('half') or match.group('fraction') else 0))*(60 if unit in ('小时','钟头','钟') else 1)
+        # Adjacent hours and minutes form one duration, not two selectable numbers.
+        if previous and previous[1] in ('小时','钟头','钟') and unit in ('分钟','分') and re.fullmatch(r'\s*(?:又|零)?\s*',text[previous[0]:match.start()]):
+            values[-1]+=amount
+        else:values.append(amount)
+        previous=(match.end(),unit)
+    return tuple(dict.fromkeys(int(v) for v in values if 1<=v<=360 and int(v)==v))
+
+
 _CLOCK=re.compile(r'(\d{1,2}|[一二两三四五六七八九十]{1,3})[点:：](\d{1,2}|半|[一二三四五六七八九十]{1,3})?')
 _PERIOD=re.compile(r'下午|傍晚|晚上|今晚|明晚|今夜|晚饭|晚餐|夜里|中午|午饭|午餐|早上|上午|今早|明早|早饭|早餐|清晨|凌晨')
 
@@ -415,6 +441,30 @@ def _normalize_model_output(raw,text=None):
     return raw
 
 
+def today_stop_evidence(name,quote,snapshot):
+    """The visitor's words for one of today's remaining stops when the model wrote its full name.
+
+    The live model resolves "第一楼就不去了" to the catalog name 第一楼·中华老字号（…）. The
+    longest run of two or more characters shared by that name and the quote is the evidence;
+    it is used only when it identifies exactly one pending stop of an active trip."""
+    row=getattr(snapshot,'row',None) or {}
+    if row.get('status') not in ('ACTIVE','PAUSED') or not name or not getattr(snapshot,'draft',None):return None
+    labels=lambda stop:[n for f in (snapshot.planning.facts.get(('place',stop.place_id)),) if f for n in (f.name,*f.aliases)]
+    def shared(a,b):
+        best=''
+        for i in range(len(a)):
+            for j in range(i+len(best)+1,len(a)+1):
+                if a[i:j] in b:best=a[i:j]
+                else:break
+        return best
+    pending=[s for s in snapshot.draft.stops if s.progress=='pending' and s.kind!='return']
+    named=[s for s in pending if name in labels(s)]
+    if len(named)!=1:return None
+    evidence=max((shared(n,quote) for n in labels(named[0])),key=len,default='')
+    if len(evidence)<2 or sum(1 for s in pending if any(evidence in n for n in labels(s)))!=1:return None
+    return evidence
+
+
 def parse(text,snapshot,*,allow_model=True):
     from .. import weather
     model_enabled=allow_model and language.available()
@@ -562,6 +612,10 @@ def parse(text,snapshot,*,allow_model=True):
                 pending=planning_intent.pending_skip(result.model_copy(update={'state_request':StateIntent(
                     operation='skip',quote=action.quote,target_name=action.target_name)}),snapshot,text)
                 if pending:result=pending
+                else:
+                    if today_stop_evidence(action.target_name,action.quote,snapshot):
+                        result=Understanding(actions=(Action(kind='modify',quote=action.quote),),
+                                             state_request=StateIntent(operation='skip_replan',quote=action.quote,target_name=action.target_name))
             elif all(planning_intent.pending_skip(result.model_copy(update={'state_request':StateIntent(
                     operation='skip',quote=a.quote,target_name=a.target_name)}),snapshot,text) for a in result.actions):
                 # Several targets (one per candidate): the basket proposal decides between
@@ -578,7 +632,16 @@ def parse(text,snapshot,*,allow_model=True):
             if pending:result=pending
             else:
                 from .semantic_execution import grounded_state
-                grounded_state(result.state_request,text)
+                state=result.state_request
+                # A full catalog name for a stop the visitor named briefly is checked once
+                # against the quote; downstream keeps the full name and its exact matching.
+                short=state.operation in ('skip','skip_replan') and state.target_name and state.target_name not in state.quote \
+                      and today_stop_evidence(state.target_name,state.quote,snapshot)
+                grounded_state(state.model_copy(update={'target_name':short}) if short else state,text)
+                if result.state_request.operation in ('delay','extend','rest','skip_replan'):
+                    # The typed branch already owns this turn; legacy numeric cues must
+                    # not turn its duration into a second walking/meal constraint.
+                    meta['basis']='kimi_validated';meta['source']=usage.get('source','mock_model');return result,meta
         if local.corrections and not clock(text):
             # A cancelled clause cannot survive through a model-generated action list.
             result=result.model_copy(update={'actions':local.actions,'constraints':local.constraints})
@@ -634,6 +697,7 @@ def parse(text,snapshot,*,allow_model=True):
         # A failed whole-message interpretation cannot be replaced by a partial local modification.
         # A connection failure is not the visitor's fault; say so instead of asking them to rephrase.
         reply='小汴梁暂时连不上，稍后再试一次，行程没有变动。' if isinstance(exc,HTTPException) else '这句话我没完全理解，换个说法再试试？'
+        if str(exc) in ('duration_required','duration_not_in_quote'):reply='具体是多长时间？请告诉我分钟数或小时数，再生成剩余行程预览。'
         local=Understanding(unresolved=(reply,))
         meta['basis']='rule_fallback';meta['source']='deterministic_fallback';return local,meta
 
@@ -667,7 +731,7 @@ def wants_find(intent,snapshot):
 def route(intent,snapshot):
     clarification=questions(intent,snapshot)
     components=[]
-    if intent.state_request:return 'workflow',[]
+    if intent.state_request:return ('clarify',clarification) if clarification else ('workflow',[])
     if intent.conversation:components.append('conversation')
     if intent.service_query:components.append('travel_services')
     if intent.weather_query:components.append('weather')

@@ -335,6 +335,9 @@ def _workflow(session,t):
         return {'status':'needs_clarification','reply':'固定流程需要明确商家；请提供店名，或使用受控搜索查找候选。'},[]
     # Typed semantic state operations reuse the existing guarded V2 executor.
     if not t.intent.constraints:
+        if t.intent.state_request and t.intent.state_request.operation in ('skip_replan','delay','extend','rest'):
+            result=toolbelt.preview_adjustment(session,t.trip_id,t.snapshot,t.intent.state_request,t.id)
+            return _preview_result(result,t.snapshot,t.intent),['replan_trip']
         if t.interpretation.get('basis')=='kimi_validated':
             if not t.intent.state_request:
                 return {'status':'needs_clarification','reply':'请明确状态操作及目标；也可以使用相应按钮。'},[]
@@ -352,12 +355,19 @@ def _workflow(session,t):
 
 
 def _preview_result(result,snapshot,intent=None):
-    if result['status']!='preview':return {'status':result['status'],'reply':'当前条件未产生可确认路线，请核对缺项或约束冲突。','planning':result}
+    if result['status']!='preview':return {'status':result['status'],'reply':result.get('reply') or ''.join(result.get('adjustment_notes',()))+'当前条件未产生可确认路线，请核对缺项或约束冲突。','planning':result}
     names={s['goal_id']:context.label(snapshot.planning.facts,s['place_id']) for i in result['result']['itineraries'] for s in i['activities']}
     names.update({s.stop_id:context.label(snapshot.planning.facts,s.place_id) for s in snapshot.draft.stops if s.stop_id not in names})
     from .planning_intent import preference_notes
     echo=''.join(preference_notes(intent)) if intent else ''
-    return {'status':'needs_confirmation','reply':echo+'方案已准备好，看看是否合适，点“确认方案”后保存。',
+    detail=''.join(result.get('adjustment_notes',()))
+    if result.get('adjustment_notes'):
+        changes=result.get('changes') or {};first=result['result']['itineraries'][0]
+        detail+=''.join(f"{names.get(c['goal_id'],c['goal_id'])}：{c['before'][11:16]}→{c['after'][11:16]}。" for c in changes.get('start_changes',()))
+        removed=changes.get('removed',())
+        if removed:detail+='这版不再安排：'+'、'.join(names.get(g,g) for g in removed)+'。'
+        detail+=f"预计{first['returns_at'][11:16]}到达结束地点。"
+    return {'status':'needs_confirmation','reply':echo+detail+'方案已准备好，看看是否合适，点“确认方案”后保存。',
             'activity_names':names,
             'planning':result,'changes':result['changes'],
             'confirmation':{'target_kind':'route','candidate_id':result['candidate_id'],'expected_version':result['base_version']}}

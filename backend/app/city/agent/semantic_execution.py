@@ -14,9 +14,17 @@ def read_action(action,snapshot):
 
 
 def grounded_state(value,text):
-    from .understand import clock
+    from .understand import clock, duration_values
     request_evidence(text,value.quote)
     if value.target_name and (value.target_name not in value.quote):raise ValueError('state target absent')
+    if value.operation in ('delay','extend','rest'):
+        if value.minutes is None:raise ValueError('duration_required')
+        if value.minutes not in duration_values(value.quote):raise ValueError('duration_not_in_quote')
+    elif value.minutes is not None:
+        raise ValueError('duration_without_change')
+    if value.next_stop and value.operation!='skip_replan':raise ValueError('invalid next reference')
+    if value.operation=='skip_replan' and not (value.target_name or value.next_stop):
+        raise ValueError('state target required')
     if value.start_time:
         if not value.start_quote or value.start_quote not in value.quote:raise ValueError('state time evidence absent')
         request_evidence(text,value.start_quote)

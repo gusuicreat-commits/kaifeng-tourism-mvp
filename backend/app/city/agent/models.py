@@ -17,11 +17,16 @@ class Action(Strict):
     near: bool = Field(default=False, description='true=附近；false=不限。')
 
 
+IN_TRIP_CHANGES=frozenset({'skip_replan','delay','extend','rest'})
+
+
 class StateIntent(Strict):
-    operation: Literal['complete','skip','position','cancel','restore'] = Field(
-        description='状态操作用state_request：complete/skip/position/cancel/restore；目标用原文完整名称，缺对象不猜。complete=完成;skip=跳过;position=位置;cancel=取消;restore=恢复。')
+    operation: Literal['complete','skip','skip_replan','delay','extend','rest','position','cancel','restore'] = Field(
+        description='状态操作用state_request：complete/skip/position/cancel/restore；目标用原文完整名称，缺对象不猜。complete=完成;skip=跳过;position=位置;cancel=取消;restore=恢复。途中delay=已耽误(堵车/排队X分钟);extend=当前站多待/多逛;rest=歇/坐会儿;skip_replan=不去下一站或某站。否定不填。')
     quote: str = Field(min_length=1,max_length=500)
     target_name: str | None = Field(default=None,max_length=120)
+    minutes: int | None = Field(default=None,ge=1,le=360,description='分钟须对应原话；缺失null追问。')
+    next_stop: bool = Field(default=False,description='指下一站为true，否则false给站名。')
     start_time: str | None = Field(default=None,pattern=r'^(?:[01]\d|2[0-3]):[0-5]\d$',description='实际开始时间给HH:MM及start_quote；恢复给明确restore_version。HH:MM为24小时制，小时00–23、分钟00–59。')
     start_quote: str | None = Field(default=None,max_length=200)
     restore_version: int | None = Field(default=None,ge=1)
@@ -226,15 +231,25 @@ class Understanding(Strict):
             quote=(value.get(branch) or {}).get('quote') if isinstance(value.get(branch),dict) else None
             if quote and not has(kind,quote):actions.append({'kind':kind,'quote':quote})
         state=value.get('state_request')
+        if isinstance(state,dict) and state.get('quote') and state.get('operation') in IN_TRIP_CHANGES|{'skip'}:
+            # An in-trip change owns its turn. The live model sometimes restates it as a chat
+            # reply or a second index entry over the same words, and writes "skip the next
+            # stop" as the progress mark skip; neither adds a request, so both are folded in.
+            if state.get('operation')=='skip' and state.get('next_stop'):state=dict(state,operation='skip_replan')
+            if state.get('next_stop') and state.get('target_name') and state['target_name'] not in state['quote']:
+                state=dict(state,target_name=None)  # "下一站" is the reference; a copied full name adds nothing
+            if state['operation']!='skip':
+                q=state['quote'];value=dict(value,state_request=state,conversation=None)
+                actions=[a for a in actions if not (isinstance(a,dict) and a.get('quote') and (a['quote'] in q or q in a['quote']))]
         if isinstance(state,dict) and state.get('quote'):
-            kind={'complete':'progress','skip':'progress','position':'position','cancel':'cancel','restore':'modify'}.get(state.get('operation'))
+            kind={'complete':'progress','skip':'progress','skip_replan':'modify','delay':'modify','extend':'modify','rest':'modify','position':'position','cancel':'cancel','restore':'modify'}.get(state.get('operation'))
             if kind and not has(kind,state['quote']):actions.append({'kind':kind,'quote':state['quote']})
         return dict(value,actions=actions) if actions!=list(value.get('actions') or []) else value
 
     @model_validator(mode='after')
     def validate_subrequests(self):
         if self.state_request:
-            expected={'complete':'progress','skip':'progress','position':'position','cancel':'cancel','restore':'modify'}[self.state_request.operation]
+            expected={'complete':'progress','skip':'progress','skip_replan':'modify','delay':'modify','extend':'modify','rest':'modify','position':'position','cancel':'cancel','restore':'modify'}[self.state_request.operation]
             if not any(a.kind==expected and a.quote==self.state_request.quote for a in self.actions):
                 raise ValueError('state request needs matching action')
             if self.planning or self.service_query or self.weather_query or self.route_query or self.conversation or self.constraints:

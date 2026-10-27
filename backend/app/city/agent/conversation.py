@@ -3,6 +3,7 @@ import json
 import copy
 from zoneinfo import ZoneInfo
 from fastapi import HTTPException
+from . import provider
 
 
 def model_payload(text, snapshot, system):
@@ -45,16 +46,16 @@ def model_payload(text, snapshot, system):
     # Work on a projection, never trim or mutate the authoritative snapshot.
     ctx=copy.deepcopy(ctx)
     payload={'text':text,'context':ctx}
-    budget={'limit_characters':12000,'system_characters':len(system),'characters':0,'trimmed':[]}
+    budget={'limit_characters':provider.MODEL_INPUT_CHARACTERS,'system_characters':len(system),'characters':0,'trimmed':[]}
     ctx['input_budget']=budget
     def size():return len(system)+len(json.dumps(payload,ensure_ascii=False))
     def record(section):
         if section not in budget['trimmed']:budget['trimmed'].append(section)
-    while size()>12000 and ctx['recent_messages']:
+    while size()>provider.MODEL_INPUT_CHARACTERS and ctx['recent_messages']:
         ctx['recent_messages'].pop(0);record('oldest_messages')
-    if size()>12000:
+    if size()>provider.MODEL_INPUT_CHARACTERS:
         ctx['planning_readiness'].update(assessment={},issues=[]);record('previous_assessment')
-    if size()>12000:
+    if size()>provider.MODEL_INPUT_CHARACTERS:
         # Exact duplicate values can be read from requirements. No authoritative
         # requirement (including hard limits) is discarded or shortened.
         planning=ctx['planning_constraints']
@@ -62,14 +63,14 @@ def model_payload(text, snapshot, system):
         if values is not None:
             planning['constraints']={k:v for k,v in values.items() if k not in ctx['requirements'] or ctx['requirements'][k]!=v}
             planning['shared_values_from']='requirements';record('duplicate_planning_values')
-    if size()>12000:
+    if size()>provider.MODEL_INPUT_CHARACTERS:
         progress=ctx['progress']
         for key in ('completed','skipped','remaining'):
             progress[key]=[{k:v for k,v in stop.items() if k not in ('progress_source','actual_start','actual_end','planned')}
                            for stop in progress.get(key,[])]
         if progress.get('next'):progress['next']={k:progress['next'][k] for k in ('stop_id','name','place_id','session_id') if k in progress['next']}
         record('progress_timing_details')
-    if size()>12000:
+    if size()>provider.MODEL_INPUT_CHARACTERS:
         # Provider status and field inventory are useful for ordinary turns but
         # expendable after the authoritative requirements and user text remain.
         capability=ctx.get('travel_service_capability',{})
@@ -77,9 +78,9 @@ def model_payload(text, snapshot, system):
         record('travel_service_details')
     # Include budget metadata in its own measurement; no raw text in errors.
     for _ in range(3):budget['characters']=size()
-    if size()>12000:
+    if size()>provider.MODEL_INPUT_CHARACTERS:
         raise HTTPException(422,detail={'code':'AGENT_CONTEXT_BUDGET','source':'context_assembly',
-            'http_attempts':0,'limit_characters':12000,'system_characters':len(system),
+            'http_attempts':0,'limit_characters':provider.MODEL_INPUT_CHARACTERS,'system_characters':len(system),
             'required_characters':size(),'trimmed':budget['trimmed'],
             'message':'当前条件与输入合计超出理解预算，请分段处理；已有条件未丢弃。'})
     return payload

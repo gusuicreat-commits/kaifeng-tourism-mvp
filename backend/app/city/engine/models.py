@@ -185,6 +185,8 @@ class OngoingInput(Strict):
 
 
 class ReplanRequest(PreviewRequest):
+    skipped_goal_ids: tuple[EntityId, ...] = Field(default=(), max_length=1,
+        description='本轮明确跳过的一项剩余目标，允许在预览中解除必选；仅确认新路线时记录跳过。')
     ongoing: OngoingInput | None = None
     end_ongoing: bool = False
     spent_cost_fen: int | None = Field(default=None, ge=0, le=100000000)

@@ -926,10 +926,14 @@
       "additionalProperties": false,
       "properties": {
         "operation": {
-          "description": "状态操作用state_request：complete/skip/position/cancel/restore；目标用原文完整名称，缺对象不猜。complete=完成;skip=跳过;position=位置;cancel=取消;restore=恢复。",
+          "description": "状态操作用state_request：complete/skip/position/cancel/restore；目标用原文完整名称，缺对象不猜。complete=完成;skip=跳过;position=位置;cancel=取消;restore=恢复。途中delay=已耽误(堵车/排队X分钟);extend=当前站多待/多逛;rest=歇/坐会儿;skip_replan=不去下一站或某站。否定不填。",
           "enum": [
             "complete",
             "skip",
+            "skip_replan",
+            "delay",
+            "extend",
+            "rest",
             "position",
             "cancel",
             "restore"
@@ -955,6 +959,27 @@
           ],
           "default": null,
           "title": "Target Name"
+        },
+        "minutes": {
+          "anyOf": [
+            {
+              "maximum": 360,
+              "minimum": 1,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "分钟须对应原话；缺失null追问。",
+          "title": "Minutes"
+        },
+        "next_stop": {
+          "default": false,
+          "description": "指下一站为true，否则false给站名。",
+          "title": "Next Stop",
+          "type": "boolean"
         },
         "start_time": {
           "anyOf": [

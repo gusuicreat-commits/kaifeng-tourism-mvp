@@ -27,6 +27,12 @@ def safe_request_id(value):
     return value
 
 
+# System prompt plus payload. Raised from 12000 on 2026-10-27: the typed schema grew with
+# in-trip changes, show and dining fields, and the long-turn context no longer fit. The
+# model accepts far more; this bounds cost and latency per call.
+MODEL_INPUT_CHARACTERS = 16000
+
+
 def retry_after(value):
     """Retain safe raw header plus parsed seconds; never sleep/retry in this adapter."""
     raw=safe_text(value,100)
@@ -41,7 +47,7 @@ def retry_after(value):
 
 def generate(system, payload, *, timeout=12.0, max_tokens=1400):
     if not language.available():raise HTTPException(503,detail='模型未配置，使用确定性流程。')
-    if len(system)+len(json.dumps(payload,ensure_ascii=False)) > 12000:raise HTTPException(422,detail='模型输入超过预算。')
+    if len(system)+len(json.dumps(payload,ensure_ascii=False)) > MODEL_INPUT_CHARACTERS:raise HTTPException(422,detail='模型输入超过预算。')
     model=os.environ['TOURISM_LLM_MODEL'].strip()
     body={'model':model,'max_tokens':max_tokens,'response_format':{'type':'json_object'},
           'messages':[{'role':'system','content':system},{'role':'user','content':json.dumps(payload,ensure_ascii=False)}]}

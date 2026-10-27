@@ -12,6 +12,12 @@ V3.3 已补充限流诊断、真实执行来源和受控请求预算；本轮重
 
 2026-10-23 连续对话修复：新增只读 `conversation` 分支，最近对话与已合并条件进入模型上下文，区分用户缺项与产品缺资料；首次理解可在45秒内等待本地调用许可，连接失败不再误报为理解失败。真实四轮合成对话通过，未提交路线；具体改动、失败记录与验证范围见[修复报告](reports/agent-conversation-repair-20261023.md)。下方 V3/V3.4 架构和运行状态是对应轮次的历史记录。
 
+## 2026-10-27 D4 途中修改
+
+`state_request.operation` 增加 `delay / extend / rest / skip_replan`，共用原话 `quote`、分钟数 `minutes` 和目标名称；`next_stop=true` 表示明确指向下一站，服务端按当前进度解析，不替游客选地点。时长按中文数词、小时/分钟/刻钟语法核对；缺时长统一追问，不默认。延误按服务端当前时刻重排已确认位置之后的剩余行程，不重复累加已经过去的延误；多待保留当前站原剩余时长再延长，休息固定在当前位置/正在进行活动之后，不推断座椅设施。
+
+四类均走原引擎预览与显式确认，新 `ReplanRequest.skipped_goal_ids` 仅允许一项今天剩余目标，确认新路线时才记录跳过；必去项先提示影响。已完成历史保持，未明确跳过的必去/固定场次仍受原保护。预览回显时间变化、未排入项及结束时刻，赶不上演出时提示查下一场或明确放弃，不自动换场。契约见 [Agent](contracts/city-agent-v3.schema.json)、[引擎](contracts/city-engine-v1.schema.json)；合成事实与模型替身用例见 `backend/tests/test_agent_in_trip_changes.py`，真实模型与浏览器由 Claude 验收。
+
 ## 2026-10-27 A8 理解缺口修正
 
 `travel-intent/3.6` 新增 `MaterialChoice.priority_stated=false`；已有素材只有本轮明确声明优先级才提议改变，3.1–3.5 回放按 false 读取，新加入项仍沿用模型 priority。候补与正式路线修改继续走原确认门。模型字段说明补齐 pace/objective、预算分单位与每人口径、泛指餐饮 target=null 以及出发前素材取舍；A7 保留原句不变。

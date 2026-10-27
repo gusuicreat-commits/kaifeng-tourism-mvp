@@ -1362,10 +1362,9 @@ def test_official_stop_skip_keeps_strict_target_evidence_and_state_confirmation(
         'operation':'skip','quote':text,'target_name':'鼓楼夜市'}},{'source':'mock_model'}))
     before=get(city);task=run(city,text)
     assert 'basket_proposal' not in task['result'] and get(city)==before
-    if spoken=='鼓楼夜市':
-        assert task['status']=='needs_confirmation' and task['result']['confirmation']['target_kind']=='state'
-    else:
-        assert task['interpretation']['validation_failure']['check']=='state target absent'
+    # An alias or a short name that identifies one of today's remaining stops is evidence
+    # (D4, 2026-10-27); nothing changes before the visitor confirms the full-name card.
+    assert task['status']=='needs_confirmation' and '鼓楼夜市' in json.dumps(task['result'],ensure_ascii=False),task
 
 
 @pytest.mark.parametrize('kind,identity,place_id,name,alias',[

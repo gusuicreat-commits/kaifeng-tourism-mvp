@@ -255,3 +255,96 @@ def preview(session,trip_id,snapshot,intent,request_id,restaurant=None):
     result=engine.preview(session,trip_id,body,replanning=replanning)
     if result.get('changes'):result['changes']=v2tools.changes_for_remaining(result['changes'],snapshot.draft)
     return result
+
+
+def preview_adjustment(session,trip_id,snapshot,value,request_id):
+    """Project an evidenced in-trip request onto the existing replan/confirm gate."""
+    from ..engine.models import OngoingInput
+    if snapshot.row['status'] not in ('ACTIVE','PAUSED') or not snapshot.route.get('itinerary'):
+        return {'status':'needs_clarification','reply':'请先开始今天已确认的行程，再修改剩余安排。'}
+    if snapshot.envelope.position['status']!='fresh':
+        return {'status':'needs_clarification','reply':'请先确认你现在所在的地点，再重排剩余行程。'}
+    req=v2tools.requirements(snapshot);moment=snapshot.planning.assessed_at
+    pending=[s for s in snapshot.draft.stops if s.progress=='pending' and s.kind!='return']
+    position=snapshot.envelope.position['place_id'];route=snapshot.route['itinerary']
+    current=pending[0] if pending and pending[0].place_id==position else None
+    matches=[]
+    if value.next_stop:
+        remaining=pending[1:] if snapshot.envelope.progress.get('ongoing') else pending
+        matches=remaining[:1]
+        if not matches:return {'status':'needs_clarification','reply':'今天已没有下一站，请核对当前进度。'}
+        # "下一站" is the reference; a name beside it may only repeat that stop or the place
+        # the visitor stands at (the live model copies it). Any other name is a conflict.
+        if value.target_name:
+            names=lambda pid:(getattr(snapshot.planning.facts.get(('place',pid)),'name',None),*getattr(snapshot.planning.facts.get(('place',pid)),'aliases',()))
+            if value.target_name not in (*names(matches[0].place_id),*names(position)):
+                return {'status':'needs_clarification','reply':'你说的是下一站，还是另一站？请再说一下。'}
+    elif value.target_name:
+        for stop in pending:
+            place=snapshot.planning.facts.get(('place',stop.place_id))
+            show=snapshot.planning.facts.get(('show_session',stop.session_id))
+            program=snapshot.planning.facts.get(('program',show.program_id)) if show else None
+            if any(value.target_name in (getattr(f,'name',None),*getattr(f,'aliases',())) for f in (place,program) if f):matches.append(stop)
+        if len(matches)!=1:return {'status':'needs_clarification','reply':'请明确今天剩余行程中的哪一站；不会替你选择或改动已完成记录。'}
+    extra={};notes=[];seconds=(value.minutes or 0)*60
+    if value.operation=='skip_replan':
+        stop=matches[0];extra['skipped_goal_ids']=(stop.stop_id,)
+        req=req.model_copy(update={'goals':tuple(g for g in req.goals if g.goal_id!=stop.stop_id)})
+        notes.append(('这是必去项目，' if stop.locked else '')+f'将跳过{context.label(snapshot.planning.facts,stop.place_id)}，确认后才生效。')
+    if value.operation=='extend':
+        if not current or matches and matches[0].stop_id!=current.stop_id:
+            return {'status':'needs_clarification','reply':'当前地点无法对应正在游玩的第一项未完成活动，请确认地点和活动。'}
+        if current.kind=='show':return {'status':'needs_clarification','reply':'演出有固定场次，不能延长公告时长；可以在演出后加休息。'}
+        old=next((s for s in route['activities'] if s['goal_id']==current.stop_id),None)
+        reserved=route.get('ongoing')
+        end=reserved['ends_at'] if reserved and reserved['stop_id']==current.stop_id else old['departs_at'] if old else None
+        if not end:return {'status':'needs_clarification','reply':'无法确定当前活动原来的剩余时长，请先核对进度。'}
+        remaining=max(0,int((datetime.fromisoformat(end)-moment).total_seconds()))+seconds
+        if remaining>21600:return {'status':'needs_clarification','reply':'当前站剩余时间太长，请缩短停留或调整结束时间。'}
+        extra['ongoing']=OngoingInput(stop_id=current.stop_id,remaining_seconds=remaining)
+        notes.append(f'{context.label(snapshot.planning.facts,position)}在原剩余时长上多待{value.minutes}分钟，预计至{(moment+timedelta(seconds=remaining)).astimezone(TZ):%H:%M}。')
+    if value.operation=='rest':
+        if matches and (not current or matches[0].stop_id!=current.stop_id):
+            return {'status':'needs_clarification','reply':'休息只能放在当前确认地点之后，请核对你现在的位置。'}
+        start=moment+timedelta(seconds=120)
+        ongoing=snapshot.envelope.progress.get('ongoing')
+        if ongoing:
+            reserved=route.get('ongoing');old=next((s for s in route['activities'] if s['goal_id']==ongoing['stop_id']),None)
+            end=reserved['ends_at'] if reserved else old['departs_at'] if old else None
+            if not end or datetime.fromisoformat(end)<=moment:
+                return {'status':'needs_clarification','reply':'当前活动预计结束时刻已过，请先报告剩余时长或完成进度。'}
+            start=max(start,datetime.fromisoformat(end))
+        goal=Goal(goal_id='rest:'+uuid5(UUID(str(request_id)),'rest').hex,target_kind='place',target_id=position,
+                  kind='rest',required=True,duration_seconds=seconds,window_start=start,window_end=start+timedelta(seconds=seconds))
+        req=req.model_copy(update={'goals':(*req.goals,goal)})
+        notes.append(f'在{context.label(snapshot.planning.facts,position)}之后休息{value.minutes}分钟；未指定或核实座椅设施。')
+    if value.operation=='delay':notes.append(f'按你报告已延误{value.minutes}分钟，从当前实际时刻{moment.astimezone(TZ):%H:%M}重排，已过去的时间不会重复累加。')
+    body=ReplanRequest(request_id=uuid5(UUID(str(request_id)),'adjustment'),expected_version=snapshot.row['version'],requirements=req,**extra)
+    result=engine.preview(session,trip_id,body,replanning=True)
+    departure=moment+timedelta(seconds=extra['ongoing'].remaining_seconds if extra.get('ongoing') else 120)
+    if value.operation=='rest':departure=max(departure,goal.window_end)
+    travel=TravelTimeService(snapshot.planning)
+    plans=result.get('result',{}).get('itineraries',())
+    selected={a['goal_id'] for a in plans[0]['activities']} if plans else set()
+    if plans and plans[0].get('ongoing'):selected.add(plans[0]['ongoing']['stop_id'])
+    for stop in pending:
+        if stop.kind!='show' or stop.stop_id in extra.get('skipped_goal_ids',()) or stop.stop_id in selected:continue
+        show=snapshot.planning.facts.get(('show_session',stop.session_id))
+        if not show:continue
+        deadline=show.starts_at-timedelta(seconds=req.show_buffer_seconds)
+        if show.admission_deadline:deadline=min(deadline,show.admission_deadline)
+        journeys=[j for mode in req.modes for j in travel.index.get((position,stop.place_id,mode),())
+                  if travel.usable(j,req.model_copy(update={'starts_at':departure}))]
+        earliest=departure+timedelta(seconds=min(map(travel_seconds,journeys))) if journeys else departure if position==stop.place_id else None
+        if deadline<departure or earliest and earliest>deadline or plans:
+            program=snapshot.planning.facts.get(('program',show.program_id))
+            reason='已赶不上到场截止时间' if deadline<departure else '按现有交通估时赶不上到场截止时间' if earliest and earliest>deadline else '本版因剩余约束未排入'
+            notes.append(f"{getattr(program,'name',None) or context.label(snapshot.planning.facts,stop.place_id)}的{show.starts_at.astimezone(TZ):%H:%M}场次{reason}；可查询下一场，或明确放弃这场后重新预览。")
+    def changes(change,plan):
+        change=v2tools.changes_for_remaining(change,snapshot.draft)
+        ongoing=plan.get('ongoing')
+        return change|{'removed':[g for g in change['removed'] if not ongoing or g!=ongoing['stop_id']]}
+    result['alternative_changes']=[changes(c,p) for c,p in zip(result.get('alternative_changes',()),plans)]
+    if result.get('changes'):result['changes']=result['alternative_changes'][0]
+    result['adjustment_notes']=notes
+    return result
