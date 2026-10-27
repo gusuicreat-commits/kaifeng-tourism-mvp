@@ -82,6 +82,9 @@ def query(action, snapshot):
         if not stage or not readable(session,set()):continue
         end=session.ends_at.astimezone(TZ).strftime('%H:%M') if session.ends_at else '结束待确认'
         lines.append(f'{redact(program.name)}｜{redact(stage.name)}｜{session.starts_at.astimezone(TZ).strftime("%H:%M")}–{end}')
+        sources=[items.get(('source',sid)) for sid in session.source_ids]
+        if any(s and '海报未标注日期' in (s.name or '') for s in sources):
+            lines[-1] += '（海报未标注日期，按采集日记录）'
         values.append(view)
     if not values:
         return {'status':'needs_data','reply':'当天有场次记录，但来源、有效期或资料尚不完整，暂不能给出可用场次。','facts':[],'references':[]}

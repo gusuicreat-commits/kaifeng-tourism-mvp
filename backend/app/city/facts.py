@@ -200,7 +200,10 @@ RECORD = TypeAdapter(Record)
 
 class FactBundle(Strict):
     schema_version: Literal['city-facts/1'] = 'city-facts/1'
-    records: tuple[Record, ...] = Field(max_length=2000)
+    # A dated team sheet may legitimately expand into source, program and stage
+    # facts in addition to its sessions; keep the maintenance bundle above the
+    # 1,614-row input size while the CLI still applies one explicit batch.
+    records: tuple[Record, ...] = Field(max_length=5000)
 
 
 def init_catalog(db):

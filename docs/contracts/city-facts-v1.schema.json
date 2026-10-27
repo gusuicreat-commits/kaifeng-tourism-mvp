@@ -2806,7 +2806,7 @@
           }
         ]
       },
-      "maxItems": 2000,
+      "maxItems": 5000,
       "title": "Records",
       "type": "array"
     }

@@ -60,6 +60,23 @@ def write_csv(tmp_path, rows):
     return path
 
 
+def team_row(items, **patch):
+    values={k:'' for k in importer.TEAM_COLUMNS}
+    values.update(session_id='ses_test',program_id='prg_test',program_name='合成新节目（每周一）',program_status='待建节目档案',
+                  park_place_id=items['place','park'].fact_id,park_name=items['place','park'].name,stage_name=items['place','stage1'].name,
+                  session_date='2030-05-01',starts_at='11:00',ends_at='',duration_minutes='30',timezone='Asia/Shanghai',
+                  session_status='scheduled',source='合成队员资料',checked_at='2020-01-01',evidence_path='evidence/team.png',
+                  validation_status='candidate',reviewer='测试',version='1',notes='海报未标注日期，按采集日记录')
+    values.update(patch);return values
+
+
+def write_team_csv(tmp_path, rows):
+    path=tmp_path/'team-shows.csv'
+    with path.open('w',encoding='utf-8-sig',newline='') as stream:
+        writer=csv.DictWriter(stream,fieldnames=importer.TEAM_COLUMNS);writer.writeheader();writer.writerows(rows)
+    return path
+
+
 def counts(database):
     with sqlite3.connect(database) as db:
         return tuple(db.execute('SELECT COUNT(*) FROM '+table).fetchone()[0] for table in ('city_facts','city_fact_revisions'))
@@ -116,6 +133,36 @@ def test_import_conflict_does_not_overwrite(csv_catalog,tmp_path):
     write_csv(tmp_path,[row(items,结束='11:40')])
     with pytest.raises(importer.ImportErrors,match='整批拒绝'):importer.import_csv(path,database)
     assert counts(database)==before
+
+
+def test_team_26_columns_builds_entities_skips_statuses_and_preserves_notes(csv_catalog,tmp_path):
+    database,items=csv_catalog
+    rows=[team_row(items),team_row(items,session_id='ses_test_2',program_name='合成新节目（周二）',stage_name='新舞台',ends_at='',duration_minutes=''),
+          team_row(items,session_id='ses_stop',session_status='suspended_today',starts_at='',duration_minutes=''),
+          team_row(items,session_id='ses_pending',session_status='to_be_announced',starts_at='',duration_minutes=''),
+          team_row(items,session_id='ses_unknown',starts_at='',duration_minutes='')]
+    path=write_team_csv(tmp_path,rows)
+    report=importer.import_csv(path,database,dry_run=True)
+    assert report['total_rows']==5 and report['importable_sessions']==2
+    assert report['new_programs']==2 and report['new_stages']==1
+    assert {x['reason'] for x in report['skipped_rows']}=={'今日停演','待定','无固定场次'}
+    assert len(report['needs_team_info'])==2
+    importer.import_csv(path,database)
+    with sqlite3.connect(database) as db:
+        db.row_factory=sqlite3.Row;records=facts.records(db)
+    programs=[p for p in records.values() if isinstance(p,facts.Program) and p.name=='合成新节目']
+    assert len(programs)==2 and {p.notes for p in programs}=={'原始节目名：合成新节目（每周一）','原始节目名：合成新节目（周二）'}
+    sessions=[s for s in records.values() if isinstance(s,facts.ShowSession) and s.business_date.isoformat()=='2030-05-01']
+    assert len(sessions)==2 and any(s.ends_at is None for s in sessions)
+    source=[s for s in records.values() if isinstance(s,facts.Source) and '海报未标注日期' in s.name]
+    assert source
+
+
+def test_team_header_is_rejected_as_whole_batch(csv_catalog,tmp_path):
+    database,_=csv_catalog;path=tmp_path/'bad-team.csv'
+    path.write_text('session_id,program_name\nx,y\n',encoding='utf-8')
+    with pytest.raises(importer.ImportErrors) as error:importer.import_csv(path,database,dry_run=True)
+    assert '26 列' in error.value.errors[0]['error']
 
 
 def test_imported_session_used_by_existing_program_planner(csv_catalog,tmp_path,sample):
