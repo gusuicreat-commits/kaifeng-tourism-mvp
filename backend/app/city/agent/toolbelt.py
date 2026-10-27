@@ -74,8 +74,9 @@ def find_food(snapshot,intent,*,general=False):
     ctx=snapshot.planning;now=ctx.assessed_at;today=now.astimezone(TZ).date()
     basket={(m['fact_kind'],m['fact_id']) for m in snapshot.materials if m['status']!='standby'}
     items=[];lines=[];reference=False
-    # A named dish or shop missing from the data is said so before the general list;
-    # a generic request ("当地特色") carries target_name=null and gets the list alone.
+    # A target with no record may be a dish missing from the data (螺蛳粉) or a generic
+    # phrase the model kept as a name (开封特色美食). The list therefore ends with a note
+    # that is true in both cases instead of claiming the phrase is absent.
     unknown_targets=[]
     if general:
         for action in intent.actions:
@@ -103,13 +104,13 @@ def find_food(snapshot,intent,*,general=False):
         if general and not shops:continue
         lines.append(f"{food.name}可以去：{'；'.join(shops[:5])}。" if shops else f"暂时没有{food.name}的店铺资料。")
         if general and len(lines)==5:break
-    missing=''.join(f'资料里暂时没有{target}。' for target in dict.fromkeys(unknown_targets))
+    missing_note='没有列出的菜暂时没有资料。' if unknown_targets else ''
     if not lines:
-        if general:return {'status':'needs_data','code':'NO_SUPPLY_REFERENCE','items':[],'reply':missing+'暂时没有带供应记录的特色菜与店铺资料。','formal_state_changed':False}
+        if general:return {'status':'needs_data','code':'NO_SUPPLY_REFERENCE','items':[],'reply':'暂时没有带供应记录的特色菜与店铺资料。','formal_state_changed':False}
         return {'status':'needs_clarification','code':'FOOD_NOT_NAMED','items':[],'reply':'想吃哪道菜？告诉我菜名就能帮你找店。'}
     tail='想去哪家可以加入素材篮。' if general else '想排进行程，在店铺详情页加入素材篮就行。' if items and not all(i['in_basket'] for i in items) else ''
     result={'status':'answered' if items else 'needs_data','code':None if items else 'NO_SUPPLY_REFERENCE','items':items,
-            'reply':missing+('以下是资料中的供应参考，尚未现场核实，当前供应请向店家确认。' if reference else '')+''.join(lines)+tail,'formal_state_changed':False}
+            'reply':('以下是资料中的供应参考，尚未现场核实，当前供应请向店家确认。' if reference else '')+''.join(lines)+missing_note+tail,'formal_state_changed':False}
     # A named dish with one unambiguous Food record can itself become a basket
     # candidate. Vendor/place results remain read-only until the visitor confirms.
     if not general and len(foods)==1 and items:

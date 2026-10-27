@@ -1021,8 +1021,9 @@ def test_general_dining_lists_only_dishes_with_supply_records(city,monkeypatch,t
     assert task['status']=='answered' and '[合成测试]菜品可以去：[合成测试]restaurant' in result['reply']
     assert result['items'][0]['food_id']=='food' and result['items'][0]['vendor_id']=='vendor'
     assert '想去哪家可以加入素材篮' in result['reply'] and '你想问哪一场演出' not in result['reply']
-    # A named target missing from the data is said so; a generic request (target_name=null) is not.
-    assert ('资料里暂时没有' in result['reply'])==bool(target_name)
+    # A target without a record gets a note true for a missing dish and a generic phrase alike.
+    assert '资料里暂时没有' not in result['reply']
+    assert ('没有列出的菜暂时没有资料' in result['reply'])==bool(target_name)
     assert get(city)==before
 
 
@@ -1133,6 +1134,44 @@ def test_dish_wish_never_changes_a_basket_shop_whose_name_contains_the_dish(city
         task=run(city,text)
         assert 'basket_proposal' not in task['result'] and '优先级' not in task['result']['reply'],(priority,task['result']['reply'])
         assert c.get(path(city,'/basket')).json()['items'][0]['priority']=='want'
+
+
+def test_misplaced_service_and_budget_basis_fields_are_relocated_not_fatal(city,monkeypatch):
+    # Live output for the pitch sentence (A6-A8b): hotel category/fields nested in the
+    # search_services action and budget_basis on trip_days rejected the whole turn.
+    text='周六去开封玩两天，想去[合成测试]museum。酒店要干净、有窗户'
+    model(monkeypatch,text,[field('date','周六','周六'),{'field':'trip_days','value':2,'quote':'玩两天','budget_basis':'per_person'}],
+        actions=[{'kind':'search_services','quote':'酒店要干净、有窗户','category':'hotels',
+                  'fields':[{'field':'clean','value':True,'quote':'干净','strength':'hard'},
+                            {'field':'window','value':True,'quote':'有窗户','strength':'hard'}]}])
+    snap,_=snapshot(city);intent,meta=understand.parse(text,snap)
+    assert intent.service_query and intent.service_query.category=='hotels'
+    assert {f.field for f in intent.service_query.fields}=={'clean','window'}
+    assert any(f.field=='trip_days' and f.budget_basis is None for f in intent.planning.fields)
+    assert all(set(a.model_dump())<=set(understand.Action.model_fields) for a in intent.actions)
+
+
+@pytest.mark.parametrize('text,quote,expect',[
+    ('我准备后天和朋友去开封玩，想去[合成测试]museum，行程不要太赶','我准备后天和朋友去开封玩，想去[合成测试]museum','2030-05-03'),
+    ('打算明天去开封转转，想去[合成测试]museum','打算明天去开封转转，想去[合成测试]museum','2030-05-02'),
+])
+def test_missing_date_is_recovered_from_the_planning_quote_by_the_date_grammar(city,monkeypatch,text,quote,expect):
+    model(monkeypatch,text,planning={'quote':quote,'fields':[],'choices':[]})
+    snap,_=snapshot(city);intent,meta=understand.parse(text,snap)
+    assert [f.value for f in intent.planning.fields if f.field=='date']
+    assert meta['recovered_fields']==[{'field':'date','source':'date_grammar'}]
+    task=run(city,text)
+    assert task['result']['planning_workflow']['result']['constraints']['business_date']==expect
+
+
+@pytest.mark.parametrize('text,quote',[
+    ('明天或者后天去开封，想去[合成测试]museum','明天或者后天去开封，想去[合成测试]museum'),   # two dates: never pick one
+    ('想去[合成测试]museum','想去[合成测试]museum'),                                         # no date: still asked
+])
+def test_date_grammar_recovery_never_guesses(city,monkeypatch,text,quote):
+    model(monkeypatch,text,planning={'quote':quote,'fields':[],'choices':[]})
+    snap,_=snapshot(city);intent,meta=understand.parse(text,snap)
+    assert not any(f.field=='date' for f in intent.planning.fields) and not meta.get('recovered_fields')
 
 
 def test_named_dish_lookup_offers_food_basket_candidate(city,monkeypatch):
