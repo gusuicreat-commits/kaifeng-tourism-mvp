@@ -1682,6 +1682,19 @@
         "requirements": {
           "$ref": "#/$defs/Requirements"
         },
+        "skipped_goal_ids": {
+          "default": [],
+          "description": "本轮明确跳过的一项剩余目标，允许在预览中解除必选；仅确认新路线时记录跳过。",
+          "items": {
+            "maxLength": 120,
+            "minLength": 1,
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]*$",
+            "type": "string"
+          },
+          "maxItems": 1,
+          "title": "Skipped Goal Ids",
+          "type": "array"
+        },
         "ongoing": {
           "anyOf": [
             {
@@ -1774,6 +1787,19 @@
         },
         "requirements": {
           "$ref": "#/$defs/MultiDayRequirements"
+        },
+        "skipped_goal_ids": {
+          "default": [],
+          "description": "本轮明确跳过的一项剩余目标，允许在预览中解除必选；仅确认新路线时记录跳过。",
+          "items": {
+            "maxLength": 120,
+            "minLength": 1,
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]*$",
+            "type": "string"
+          },
+          "maxItems": 1,
+          "title": "Skipped Goal Ids",
+          "type": "array"
         },
         "ongoing": {
           "anyOf": [
