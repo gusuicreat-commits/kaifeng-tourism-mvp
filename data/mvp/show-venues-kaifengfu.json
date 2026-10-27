@@ -1,0 +1,90 @@
+{
+  "schema_version": "city-facts/1",
+  "records": [
+    {
+      "kind": "place",
+      "fact_id": "stage_pl_hist_kaifengfu_official_005",
+      "version": 1,
+      "name": "梅花堂演出点",
+      "place_type": "stage",
+      "parent_place_id": "pl_hist_kaifengfu_official_005",
+      "source_ids": [
+        "src_hist_poi_kaifengfu_official_005",
+        "src_hist_program_kf_notice_left_18"
+      ],
+      "validation_status": "unverified",
+      "rights_status": "internal_only",
+      "planning_status": "reference",
+      "planning_note": "依据历史官方节目公告中的场地名称登记演出用途，以原地点名加“演出点”作登记名；保留原游览 POI。公告不代表目标日场次，坐标与现场范围待核验。",
+      "notes": "场地依据：data/mvp/source/historical-catalog-20261020.json 中 prg_hist_kf_notice_left_18 的 stage_name；仅登记演出用途，不将旧公告时刻转为场次。"
+    },
+    {
+      "kind": "place",
+      "fact_id": "stage_pl_hist_kaifengfu_official_010",
+      "version": 1,
+      "name": "明镜湖演出点",
+      "place_type": "stage",
+      "parent_place_id": "pl_hist_kaifengfu_official_010",
+      "source_ids": [
+        "src_hist_poi_kaifengfu_official_010",
+        "src_hist_program_kf_notice_right_08"
+      ],
+      "validation_status": "unverified",
+      "rights_status": "internal_only",
+      "planning_status": "reference",
+      "planning_note": "依据历史官方节目公告中的场地名称登记演出用途，以原地点名加“演出点”作登记名；保留原游览 POI。公告不代表目标日场次，坐标与现场范围待核验。",
+      "notes": "场地依据：data/mvp/source/historical-catalog-20261020.json 中 prg_hist_kf_notice_right_08 的 stage_name；仅登记演出用途，不将旧公告时刻转为场次。"
+    },
+    {
+      "kind": "place",
+      "fact_id": "stage_pl_hist_kaifengfu_official_015",
+      "version": 1,
+      "name": "明礼院演出点",
+      "place_type": "stage",
+      "parent_place_id": "pl_hist_kaifengfu_official_015",
+      "source_ids": [
+        "src_hist_poi_kaifengfu_official_015",
+        "src_hist_program_kf_notice_left_05"
+      ],
+      "validation_status": "unverified",
+      "rights_status": "internal_only",
+      "planning_status": "reference",
+      "planning_note": "依据历史官方节目公告中的场地名称登记演出用途，以原地点名加“演出点”作登记名；保留原游览 POI。公告不代表目标日场次，坐标与现场范围待核验。",
+      "notes": "场地依据：data/mvp/source/historical-catalog-20261020.json 中 prg_hist_kf_notice_left_05 的 stage_name；仅登记演出用途，不将旧公告时刻转为场次。"
+    },
+    {
+      "kind": "place",
+      "fact_id": "stage_pl_hist_kaifengfu_official_017",
+      "version": 1,
+      "name": "英武楼演出点",
+      "place_type": "stage",
+      "parent_place_id": "pl_hist_kaifengfu_official_017",
+      "source_ids": [
+        "src_hist_poi_kaifengfu_official_017",
+        "src_hist_program_kf_notice_left_08"
+      ],
+      "validation_status": "unverified",
+      "rights_status": "internal_only",
+      "planning_status": "reference",
+      "planning_note": "依据历史官方节目公告中的场地名称登记演出用途，以原地点名加“演出点”作登记名；保留原游览 POI。公告不代表目标日场次，坐标与现场范围待核验。",
+      "notes": "场地依据：data/mvp/source/historical-catalog-20261020.json 中 prg_hist_kf_notice_left_08 的 stage_name；仅登记演出用途，不将旧公告时刻转为场次。"
+    },
+    {
+      "kind": "place",
+      "fact_id": "stage_pl_hist_kaifengfu_official_020",
+      "version": 1,
+      "name": "天庆观演出点",
+      "place_type": "stage",
+      "parent_place_id": "pl_hist_kaifengfu_official_020",
+      "source_ids": [
+        "src_hist_poi_kaifengfu_official_020",
+        "src_hist_program_kf_notice_left_07"
+      ],
+      "validation_status": "unverified",
+      "rights_status": "internal_only",
+      "planning_status": "reference",
+      "planning_note": "依据历史官方节目公告中的场地名称登记演出用途，以原地点名加“演出点”作登记名；保留原游览 POI。公告不代表目标日场次，坐标与现场范围待核验。",
+      "notes": "场地依据：data/mvp/source/historical-catalog-20261020.json 中 prg_hist_kf_notice_left_07 的 stage_name；仅登记演出用途，不将旧公告时刻转为场次。"
+    }
+  ]
+}

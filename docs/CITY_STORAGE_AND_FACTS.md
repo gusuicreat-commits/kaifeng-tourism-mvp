@@ -86,6 +86,15 @@ cd /Users/mac/Desktop/大挑/kaifeng-tourism-mvp
 
 格式、日历日期、结束晚于开演、停止入场不晚于开演、采集日期不在未来、同节目同开演时刻去重均通过才原子写入；错误逐行列出，任一行错误整批不写。重复导入不新增事实/修订，已有同时间场次内容冲突须另走升版流程。来源记录保留采集人、采集日期、说明及链接/截图文件名；场次和来源均为 `reference/unverified/internal_only`，不是人工核实。不会读取 `schedule_text` 推断日期。舞台等依赖的坐标、营业和交通仍由既有引擎另行检查。
 
+开封府英武楼、明镜湖、天庆观、梅花堂、明礼院保留原 `poi` ID、类型和全部资料，演出用途由其下独立 `stage` 记录承接；普通 POI 仍不能关联场次。子舞台用“原地点名＋演出点”作登记名，避免同名歧义影响原 POI 查找；队员仍可填写原地点名/别名，导入器只在该 POI 有唯一有效子舞台时匹配，多个子舞台则退回澄清。[场地补充包](../data/mvp/show-venues-kaifengfu.json)引用原地点来源及 [历史归档](../data/mvp/source/historical-catalog-20261020.json) 中官方节目公告的场地依据（`src_hist_program_kf_notice_*`，官网 2026-10-08 公告图片），仅登记场地，不换日生成场次、不补坐标、不改变未核验状态。重建 MVP 清单时自动包含此包；维护现有库可单独使用现有事实导入器校验，核对后显式 `--apply`，再导入队员场次：
+
+```bash
+.venv/bin/python scripts/import_city_facts.py data/mvp/show-venues-kaifengfu.json --database /absolute/path/to/catalog.sqlite3
+.venv/bin/python scripts/import_show_sessions.py docs/data_templates/show_program_reference.csv --database /absolute/path/to/catalog.sqlite3 --match-reference
+```
+
+`--match-reference` 只读核对名称，不读取公告时刻，不写场次；报告区分候选行、匹配数、逐行缺字段及失败原因。按归档清单在临时库重跑，景区和舞台均有值的 181 行由 171 行匹配提高到 179 行，开封府 5 点涉及的 8 行全部匹配。剩余 CSV 第 165 行“城北枪声”（景区西侧影视街区的描述）和第 180 行“王婆说媒”（景区水浒街王婆茶馆/王婆舞台的描述）无同名舞台地点；不能仅凭相近名称把“王婆台”映射过去，须核对场地身份。其余 243 行缺景区或舞台，逐行列入 `incomplete_rows`。实际场次导入的名称关联错误也带 CSV 行号、景区、节目、舞台、出错字段和原因码，区分找不到地点、非演出场所、景区不符及重名歧义；有错仍整批拒绝。
+
 小汴梁复用 `actions[].kind=query,purpose=shows,target_name` 查询原话点名景区/节目（含别名）的当天场次；明确钟点复用现有时间语法作为查询下限，否则以服务器当前北京时间为准，按开演排序，仅列尚未开演的记录。没有日期场次如实提示节目介绍时间仅供参考；不会替换日期，也不会修改行程。指代已排行程中“那场”仍走原有引用查询。此链路由 `backend/tests/test_show_sessions.py` 的临时库、模型替身及原引擎节目目标测试覆盖，真实场次采集和现场验收另行完成。
 
 契约更新后重新生成：

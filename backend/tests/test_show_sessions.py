@@ -6,6 +6,7 @@ import sqlite3
 from dataclasses import replace
 from datetime import datetime
 from pathlib import Path
+from types import SimpleNamespace
 
 import pytest
 from app import language
@@ -13,13 +14,18 @@ from app.db import connect
 from app.city import facts
 from app.city.agent import provider, understand
 from app.city.agent.models import Action, Understanding
-from app.city.engine.models import Goal
+from app.city.agent import shows
+from app.city.basket import ObjectRef, init_basket, resolve
+from app.city.engine.context import PlanningContext
+from app.city.engine.models import Goal, OperationalBundle
 from app.city.engine.tools import plan_trip
 from test_city_assistant import city, get
 from test_city_agent import run, snapshot
 from test_city_engine import sample, park_context
 
 ROOT=Path(__file__).resolve().parents[2]
+VENUES=ROOT/'data/mvp/show-venues-kaifengfu.json'
+REFERENCE=ROOT/'docs/data_templates/show_program_reference.csv'
 spec=importlib.util.spec_from_file_location('import_show_sessions',ROOT/'scripts/import_show_sessions.py')
 importer=importlib.util.module_from_spec(spec);spec.loader.exec_module(importer)
 
@@ -218,6 +224,129 @@ def test_stage_from_other_park_rejected(csv_catalog,tmp_path):
     before=counts(database);path=write_csv(tmp_path,[row(items)])
     with pytest.raises(importer.ImportErrors) as error:importer.import_csv(path,database)
     assert any('舞台名称' in e['error'] for e in error.value.errors) and counts(database)==before
+
+
+@pytest.fixture
+def venue_catalog(tmp_path):
+    database=tmp_path/'venues.sqlite3'
+    # The archived catalog is evidence for names and links, never for dated sessions.
+    raw=json.loads((ROOT/'data/mvp/inventory-2026-10-25.json').read_text())
+    for r in raw['records']:r['version']=1
+    with sqlite3.connect(database) as db:
+        db.row_factory=sqlite3.Row;facts.init_catalog(db)
+        facts.import_bundle(facts.FactBundle.model_validate(raw),db,apply=True)
+    return database
+
+
+def test_reference_matching_before_after_and_remaining_failures(venue_catalog,capsys):
+    database=venue_catalog;before=counts(database)
+    report=importer.match_reference(REFERENCE,database)
+    assert (report['total_rows'],report['candidate_rows'],report['matched_rows'],report['unmatched_rows'])==(424,181,171,10)
+    assert len(report['incomplete_rows'])==243
+    assert {e['code'] for e in report['errors']}=={'not_performance_venue','place_not_found'}
+    assert counts(database)==before
+    with sqlite3.connect(database) as db:
+        db.row_factory=sqlite3.Row
+        bundle=facts.FactBundle.model_validate_json(VENUES.read_text())
+        assert facts.import_bundle(bundle,db)['changed']==5
+        facts.import_bundle(bundle,db,apply=True)
+        assert facts.import_bundle(bundle,db,apply=True)['changed']==0
+    before=counts(database)
+    assert importer.main([str(REFERENCE),'--database',str(database),'--match-reference'])==1
+    report=json.loads(capsys.readouterr().out)
+    assert (report['candidate_rows'],report['matched_rows'],report['unmatched_rows'])==(181,179,2)
+    assert [(e['row'],e['节目名称'],e['code']) for e in report['errors']]==[
+        (165,'城北枪声','place_not_found'),(180,'王婆说媒','place_not_found')]
+    assert all(e['row'] and e['error'] for e in report['incomplete_rows'])
+    assert counts(database)==before
+
+
+@pytest.mark.parametrize('index',range(5))
+def test_sourced_venues_import_query_and_keep_original_poi(venue_catalog,tmp_path,index):
+    database=venue_catalog;venues=facts.FactBundle.model_validate_json(VENUES.read_text())
+    venue=venues.records[index]
+    with sqlite3.connect(database) as db:
+        db.row_factory=sqlite3.Row;init_basket(db)
+        original=facts.records(db)['place',venue.parent_place_id]
+        ref=ObjectRef(kind='poi',object_id=original.fact_id);basket=resolve(db,ref)
+        facts.import_bundle(venues,db,apply=True)
+        items=facts.records(db)
+        assert items['place',original.fact_id]==original and original.place_type=='poi'
+        assert resolve(db,ref)==basket
+        assert facts.place_by_name(items,original.name)==original
+    program=next(p for p in items.values() if isinstance(p,facts.Program)
+                 and p.stage_name==original.name and p.place_id=='pl_wb_000003')
+    path=write_csv(tmp_path,[dict(zip(importer.COLUMNS,[
+        '开封府',program.name,original.name,'2030-05-01','11:00','11:30','',
+        '合成场次，仅供测试','synthetic-venue.png','测试采集人','2020-01-01']))])
+    assert importer.import_csv(path,database)['show_sessions']==1
+    with sqlite3.connect(database) as db:
+        db.row_factory=sqlite3.Row;items=facts.records(db)
+    ctx=PlanningContext(items,OperationalBundle(),datetime.fromisoformat('2030-05-01T08:00:00+08:00'))
+    assert ctx.parks(venue.fact_id)==ctx.parks(original.fact_id)==('pl_wb_000003',)
+    text=f'今天{program.name}下一场演出几点？'
+    answer=shows.query(Action(kind='query',purpose='shows',target_name=program.name,quote=text),SimpleNamespace(planning=ctx))
+    assert answer['status']=='answered' and '11:00–11:30' in answer['reply'] and venue.name in answer['reply'],answer
+    assert len(answer['facts'])==1
+    assert items['show_session',answer['facts'][0]['id']].stage_place_id==venue.fact_id
+    assert not ctx.ready(items['place',venue.fact_id],ctx.assessed_at)  # No surveyed coordinates were invented.
+
+
+def test_ordinary_poi_rejected_by_importer_and_fact_validator(csv_catalog,tmp_path):
+    database,items=csv_catalog
+    with sqlite3.connect(database) as db:
+        db.row_factory=sqlite3.Row
+        poi=items['place','stage1'].model_copy(update={'version':2,'place_type':'poi'})
+        facts.import_bundle(facts.FactBundle(records=[poi]),db,apply=True)
+        path=write_csv(tmp_path,[row(items)])
+        with pytest.raises(importer.ImportErrors) as error:importer.build_bundle(path,db)
+        assert any(e.get('code')=='not_performance_venue' and e['舞台']==poi.name for e in error.value.errors)
+        session=facts.ShowSession(kind='show_session',fact_id='invalid-poi-show',program_id='program',stage_place_id=poi.fact_id,
+            business_date='2030-05-01',starts_at='2030-05-01T11:00:00+08:00',ends_at='2030-05-01T11:30:00+08:00')
+        with pytest.raises(ValueError,match='独立舞台'):facts.import_bundle(facts.FactBundle(records=[session]),db,apply=True)
+
+
+@pytest.mark.parametrize('mode',['alias','cancelled','ambiguous','other_parent'])
+def test_parent_venue_matching_requires_unique_active_child(csv_catalog,tmp_path,mode):
+    database,items=csv_catalog
+    with sqlite3.connect(database) as db:
+        db.row_factory=sqlite3.Row
+        poi=items['place','stage1'].model_copy(update={'version':2,'place_type':'poi','aliases':('合成院落别名',)})
+        child=poi.model_copy(update={'version':1,'fact_id':'sourced-child','name':'合成演出点','aliases':(),
+            'place_type':'stage','parent_place_id':poi.fact_id})
+        if mode=='cancelled':child=child.model_copy(update={'business_status':'cancelled'})
+        if mode=='other_parent':child=child.model_copy(update={'parent_place_id':'stage2'})
+        additions=[poi,child]
+        if mode=='ambiguous':additions.append(child.model_copy(update={'fact_id':'another-child'}))
+        facts.import_bundle(facts.FactBundle(records=additions),db,apply=True)
+    before=counts(database);path=write_csv(tmp_path,[row(items,舞台='合成院落别名')])
+    if mode=='alias':
+        assert importer.import_csv(path,database)['show_sessions']==1
+        with sqlite3.connect(database) as db:
+            db.row_factory=sqlite3.Row
+            session=next(s for s in facts.records(db).values() if isinstance(s,facts.ShowSession))
+            assert session.stage_place_id==child.fact_id
+    else:
+        with pytest.raises(importer.ImportErrors) as error:importer.import_csv(path,database)
+        code='ambiguous' if mode=='ambiguous' else 'not_performance_venue'
+        assert any(e.get('code')==code for e in error.value.errors) and counts(database)==before
+
+
+def test_import_reports_each_missing_mismatched_or_ambiguous_venue(csv_catalog,tmp_path,capsys):
+    database,items=csv_catalog
+    with sqlite3.connect(database) as db:
+        db.row_factory=sqlite3.Row
+        duplicate=items['place','stage1'].model_copy(update={'fact_id':'other-stage'})
+        facts.import_bundle(facts.FactBundle(records=[duplicate]),db,apply=True)
+    before=counts(database)
+    path=write_csv(tmp_path,[row(items),row(items,舞台='不存在的场地'),row(items,舞台=items['place','stage2'].name),
+                             row(items,景区='不存在的景区'),row(items,节目名称='不存在的节目')])
+    assert importer.main([str(path),'--database',str(database)])==1
+    errors=json.loads(capsys.readouterr().err)['errors']
+    assert [(e['row'],e['code']) for e in errors]==[(2,'ambiguous'),(3,'place_not_found'),(4,'scenic_mismatch'),
+                                                                 (5,'scenic_not_found'),(6,'program_not_found'),(6,'ambiguous')]
+    assert all(e['error'] and e['field'] and e['舞台'] for e in errors)
+    assert counts(database)==before
 
 
 def test_exact_target_does_not_include_program_with_overlapping_alias(city,tmp_path,monkeypatch):

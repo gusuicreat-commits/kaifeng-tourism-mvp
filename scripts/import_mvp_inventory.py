@@ -340,6 +340,10 @@ def build_inventory(day):
         # guaranteed; they may now support reference dining, not stock claims.
         item['planning_status'] = 'reference'
         item['planning_note'] = NOTE
+    venues_path = OUT / 'show-venues-kaifengfu.json'
+    venues = facts.FactBundle.model_validate_json(venues_path.read_text())
+    for venue in venues.records:
+        items[venue.kind, venue.fact_id] = venue.model_dump(mode='json')
     excluded_keys = {(r['kind'], r['fact_id']) for r in excluded_records}
     records = [r for key, r in items.items() if key not in excluded_keys]
     bundle = facts.FactBundle.model_validate({'schema_version': 'city-facts/1', 'records': records})
@@ -353,6 +357,7 @@ def build_inventory(day):
         'historical_package': historical_audit,
         'historical_duplicate_matches': historical_duplicates,
         'canonical_place_aliases': alias_audit,
+        'show_venue_bundle': str(venues_path.relative_to(ROOT)),
         'materialized_workbook_open_rules': materialized_rules,
         'materialized_vendor_open_rules': vendor_rules,
         'skipped_workbook_open_rules': skipped_rules,

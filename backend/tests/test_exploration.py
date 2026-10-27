@@ -83,6 +83,33 @@ def test_verified_route_preview_confirm_and_basket_stale_gate(engine):
     assert c.get(base(t)+'/basket').json()['items'][0]['status']=='arranged'
 
 
+def test_child_stage_keeps_parent_poi_basket_visit_and_route_coordinates(engine):
+    from app.city import facts
+    c,t,d=engine
+    assert collect(c,t,'poi','museum','must').status_code==200
+    before=c.get(base(t)+'/basket').json()['items']
+    first=plan(engine).json();assert first['status']=='feasible',first
+    with connect() as db:
+        parent=facts.records(db)['place','museum']
+        stage=parent.model_copy(update={'fact_id':'synthetic-child-stage','name':'合成院内演出点',
+            'place_type':'stage','parent_place_id':parent.fact_id,'longitude':None,'latitude':None,'coordinate_system':'unknown'})
+        facts.import_bundle(facts.FactBundle(records=[stage]),db,apply=True)
+        assert facts.records(db)['place','museum']==parent
+    assert c.get(base(t)+'/basket').json()['items']==before
+    result=plan(engine).json();assert result['status']=='feasible',result
+    routes=result['planning']['result']['itineraries']
+    assert routes==first['planning']['result']['itineraries']
+    confirmed=c.post(base(t)+'/engine/confirm',json={'request_id':rid(),'expected_version':t['version'],
+        'candidate_id':result['planning']['candidate_id']})
+    assert confirmed.status_code==200,confirmed.text
+    current=c.get(base(t)+'/engine/current').json()
+    assert current['itinerary']['activities'][0]['place_id']==parent.fact_id
+    public=c.get('/api/city/v1/facts?kind=place').json()
+    place=next(p for p in public['items'] if p['record']['fact_id']==parent.fact_id)
+    assert place['record']['place_type']=='poi'
+    assert (place['record']['longitude'],place['record']['latitude'])==(parent.longitude,parent.latitude)
+
+
 def test_actual_conflict_has_structured_choices_and_never_relaxes_must(engine):
     c,t,d=engine
     collect(c,t,'place','museum','must');collect(c,t,'show','s1','must')

@@ -1,6 +1,7 @@
 """Inventory merge protects provenance and identity before MVP adoption."""
 import json
 from datetime import date
+from pathlib import Path
 
 from app.city import facts
 from scripts.import_mvp_inventory import EXCLUDED, PLACE_ALIASES, _rewrite_place_bindings, build_inventory
@@ -67,6 +68,26 @@ def test_inventory_is_repeatable_and_programs_are_not_dated_sessions():
     assert any(r['kind'] == 'program' for r in first['records'])
     assert any(r['kind'] == 'open_rule' and r['business_date'] == '2026-10-24'
                for r in first['records'])
+
+
+def test_kaifengfu_stage_bundle_keeps_poi_identity_and_archived_source_links():
+    bundle, audit = build_inventory(date(2026, 10, 25))
+    items = {(r['kind'], r['fact_id']): r for r in bundle['records']}
+    root = Path(__file__).resolve().parents[2]
+    venues = facts.FactBundle.model_validate_json((root / audit['show_venue_bundle']).read_text())
+    archived = json.loads((root / 'data/mvp/source/historical-catalog-20261020.json').read_text())['records']
+    assert {items['place', r.parent_place_id]['name'] for r in venues.records} == {'梅花堂', '明镜湖', '明礼院', '英武楼', '天庆观'}
+    for venue in venues.records:
+        assert items['place', venue.fact_id] == venue.model_dump(mode='json')
+        poi = items['place', venue.parent_place_id]
+        assert poi['place_type'] == 'poi' and venue.name == poi['name'] + '演出点'
+        assert poi['parent_place_id'] == 'pl_wb_000003'
+        assert venue.longitude is None and venue.latitude is None and not venue.is_demo
+        assert venue.validation_status == 'unverified' and venue.planning_status == 'reference'
+        programs = [p for p in archived if p['kind'] == 'program' and p.get('stage_name') == poi['name']
+                    and p.get('place_id') == poi['parent_place_id']]
+        assert any(set(p['source_ids']) & set(venue.source_ids) for p in programs)
+        assert all(items['source', sid].get('url') for sid in venue.source_ids)
 
 
 def test_workbook_fields_highlights_and_historical_catalog_are_adopted():
