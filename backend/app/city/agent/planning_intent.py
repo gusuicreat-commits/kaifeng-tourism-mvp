@@ -322,6 +322,8 @@ _NOW_DEPARTURE=re.compile(r'(?:现在|马上|立刻|立即|这就|这会儿|即�
 
 
 def _now_departure(planning,text,snapshot,base):
+    # Cheap text check first: ordinary turns never reach the multi-day test below.
+    if not _NOW_DEPARTURE.search(text):return None
     from .multi_day_intent import is_multi
     if is_multi(base,planning) or any(f.field in ('date','start_time') and f.value is not None for f in planning.fields):return None
     moment=snapshot.envelope.identity.generated_at.astimezone(TZ)
