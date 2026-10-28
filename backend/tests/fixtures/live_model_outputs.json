@@ -425,10 +425,12 @@
      "end_date": "2026-11-01",
      "trip_days": 2,
      "budget_fen": null,
-     "pace": "relaxed"
+     "pace": "relaxed",
+     "per_person_budget_fen": 80000,
+     "party_size": null
     },
     "reply_contains": [
-     "按人预算暂时不能用于规划，先不按预算筛选",
+     "预算按每人800元记下",
      "想去哪家可以加入素材篮",
      "2026-10-31几点开始",
      "要把万岁山武侠城、清明上河园加入素材篮吗"
@@ -439,18 +441,15 @@
      "日期没听准",
      "只能先排第一天",
      "多天行程还在开发中",
-     "过夜"
+     "过夜",
+     "按人预算暂时不能用于规划",
+     "格式无法核对",
+     "这部分我没采用"
     ],
     "reply_topics": [
      "住宿",
      "美食",
      "行程"
-    ],
-    "dropped_fields": [
-     {
-      "field": "budget_fen",
-      "check": "per_person_budget"
-     }
     ]
    },
    "replies": [

@@ -830,9 +830,12 @@ def test_misconverted_per_person_budget_is_only_explained(city,monkeypatch,quote
     text='明天去开封，'+quote
     model(monkeypatch,text,[field('date','明天','明天'),field('budget_fen',value,quote)|{'budget_basis':'per_person'}])
     task=run(city,text)
-    assert task['interpretation']['dropped_fields']==[{'field':'budget_fen','check':'per_person_budget'}]
-    assert '按人预算暂时不能用于规划' in task['result']['reply'] and '预算没听准' not in task['result']['reply']
-    assert city['client'].get(path(city,'/exploration/constraints')).json()['constraints']['budget_fen'] is None
+    # B4.1: a per-person amount the model multiplied is not in the quote; only that item is dropped.
+    assert task['interpretation']['dropped_fields']==[{'field':'budget_fen','check':'budget_not_in_quote'}]
+    reply=task['result']['reply']
+    assert '预算没听准' in reply and '按人预算暂时不能用于规划' not in reply and '格式无法核对' not in reply
+    saved=city['client'].get(path(city,'/exploration/constraints')).json()['constraints']
+    assert saved['budget_fen'] is None and saved['per_person_budget_fen'] is None
 
 
 @pytest.mark.parametrize('quote,value',[('总共300元',60000),('两人合计800',800),('整趟五百块',100000)])
@@ -978,10 +981,13 @@ def test_per_person_budget_is_dropped_after_normalization(city,monkeypatch,scope
     if home=='constraints':extra['constraints']=[budget|{'strength':'hard'}]
     else:fields.append(budget)
     model(monkeypatch,text,fields,**extra);task=run(city,text)
-    assert {'field':'budget_fen','check':'per_person_budget'} in task['interpretation']['dropped_fields']
-    assert '按人预算暂时不能用于规划，先不按预算筛选' in task['result']['reply']
-    assert '预算没听准' not in task['result']['reply']
-    assert city['client'].get(path(city,'/exploration/constraints')).json()['constraints'].get('budget_fen') is None
+    # B4.1: the per-person budget is kept as its own requirement, never as the solver's total.
+    assert not any(d['field']=='budget_fen' for d in task['interpretation'].get('dropped_fields',()))
+    reply=task['result']['reply']
+    assert '预算按每人800元记下' in reply and '按人预算暂时不能用于规划' not in reply and '格式无法核对' not in reply
+    assert '预算没听准' not in reply
+    saved=city['client'].get(path(city,'/exploration/constraints')).json()['constraints']
+    assert saved.get('budget_fen') is None and saved['per_person_budget_fen']==80000 and saved['party_size'] is None
 
 
 @pytest.mark.parametrize('quote',['预算每人800元','800元'])
@@ -989,7 +995,8 @@ def test_budget_basis_gate_is_explicit(quote):
     from datetime import date
     from app.city.agent.models import PlanningField
     from app.city.agent.planning_intent import _field_check
-    assert _field_check(PlanningField(**(field('budget_fen',80000,quote)|{'budget_basis':'per_person'})),'预算每人800元',date(2026,10,26))=='per_person_budget'
+    assert _field_check(PlanningField(**(field('budget_fen',80000,quote)|{'budget_basis':'per_person'})),'预算每人800元',date(2026,10,26)) is None
+    assert _field_check(PlanningField(**(field('budget_fen',160000,quote)|{'budget_basis':'per_person'})),'预算每人800元',date(2026,10,26))=='budget_not_in_quote'
     assert _field_check(PlanningField(**(field('budget_fen',80000,'800元')|{'budget_basis':'total'})),'总预算800元',date(2026,10,26)) is None
 
 
@@ -1462,9 +1469,14 @@ def test_budget_basis_survives_normalization_validation_storage_and_reply(city,m
         assert f'预算按总额{value/100:g}元理解' in task['result']['reply']
         assert not task['interpretation'].get('dropped_fields')
     else:
-        assert saved['budget_fen'] is None
-        assert '按人预算暂时不能用于规划' in task['result']['reply']
-        assert task['interpretation']['dropped_fields']==[{'field':'budget_fen','check':'per_person_budget'}]
+        assert saved['budget_fen'] is None and saved['per_person_budget_fen']==value
+        assert f'预算按每人{value/100:g}元记下' in task['result']['reply']
+        assert '按人预算暂时不能用于规划' not in task['result']['reply']
+        assert not task['interpretation'].get('dropped_fields')
+        # A count the visitor said converts; "一个人" only states the per-person basis.
+        party={'一个人不超过200块':None,'我们俩每人500':2,'五人每位三百元':5}[quote]
+        assert saved['party_size']==party
+        if party:assert f'{party}人合计{value*party/100:g}元，按每人×{party}人换算' in task['result']['reply']
     assert get(city)['route_version']==0
 
 
@@ -1490,8 +1502,9 @@ def test_per_person_request_does_not_claim_to_remove_a_saved_total_budget(city,m
     text='我们俩每人500'
     model(monkeypatch,text,[field('budget_fen',50000,text)|{'budget_basis':'per_person'}])
     task=run(city,text)
-    assert city['client'].get(path(city,'/exploration/constraints')).json()['constraints']['budget_fen']==90000
-    assert '仍沿用已保存的总预算' in task['result']['reply'] and '先不按预算筛选' not in task['result']['reply']
+    saved=city['client'].get(path(city,'/exploration/constraints')).json()['constraints']
+    assert saved['budget_fen']==90000 and saved['per_person_budget_fen']==50000
+    assert '预算按每人500元记下' in task['result']['reply'] and '先不按预算筛选' not in task['result']['reply']
 
 
 def test_budget_scope_is_echoed_before_basket_confirmation(city,monkeypatch):

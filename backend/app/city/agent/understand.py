@@ -966,7 +966,7 @@ def parse(text,snapshot,*,allow_model=True):
                 _drop(meta,'planning',_drop_category(str(exc)),str(exc),result.planning.quote)
                 planning_checked=None
             result=result.model_copy(update={'planning':planning_checked}) if planning_checked else _without_branch(result,'planning')
-            if result.planning and (original_planning.fields or original_planning.choices) and not (result.planning.fields or result.planning.choices) and not meta.get('planning_conflicts') and not any(d['check'] in ('per_person_budget','budget_basis_missing') for d in dropped):
+            if result.planning and (original_planning.fields or original_planning.choices) and not (result.planning.fields or result.planning.choices) and not meta.get('planning_conflicts') and not any(d['check']=='budget_basis_missing' for d in dropped):
                 result=_without_branch(result,'planning')
             if result.planning and result.planning.operation=='weather_replan':
                 planning_intent.weather_replan(result.planning.quote)

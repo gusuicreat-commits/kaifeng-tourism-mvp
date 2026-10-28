@@ -403,6 +403,39 @@
           ],
           "default": null,
           "title": "Budget Fen"
+        },
+        "per_person_budget_fen": {
+          "anyOf": [
+            {
+              "maximum": 100000000,
+              "minimum": 0,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Per Person Budget Fen"
+        },
+        "per_person_budget_daily": {
+          "default": false,
+          "title": "Per Person Budget Daily",
+          "type": "boolean"
+        },
+        "party_size": {
+          "anyOf": [
+            {
+              "maximum": 50,
+              "minimum": 1,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Party Size"
         }
       },
       "title": "Constraints",

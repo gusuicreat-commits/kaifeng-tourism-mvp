@@ -124,7 +124,7 @@ def prepare(session,trip_id,snapshot,intent,text,*,today=None,notes=()):
             pending.append(item)
         elif f.field in ('pace','objective') and f.value:values[f.field]=f.value
         elif f.field=='mode' and f.value:values['modes']=[f.value]
-        elif f.field=='budget_fen':notes.append('多天全程预算尚未接通，这笔金额未用于多天求解。')
+        elif f.field=='budget_fen' and f.budget_basis!='per_person':notes.append('多天全程预算尚未接通，这笔金额未用于多天求解。')
         elif f.field=='city' and f.value not in ('开封','开封市'):
             return {'status':'needs_data','reply':'目前只支持开封的行程。'}
     remaining=[]
@@ -182,6 +182,8 @@ def prepare(session,trip_id,snapshot,intent,text,*,today=None,notes=()):
                 kind='dining' if kind=='food' else 'show' if kind in ('program','session') else 'visit',
                 allowed_dates=(day,),fixed_date=day).model_dump(mode='json'))
     values['clarifications']=list(dict.fromkeys(values['clarifications']))
+    from .planning_intent import per_person_budget
+    notes+=per_person_budget(values,p,text)
     validated=MultiDayConstraints.model_validate(values)
     return {'status':'planning_input','reply':'好的，正在安排。','notes':list(dict.fromkeys(notes)),
         **{k:v for k,v in basket_result.items() if k in ('basket_proposal','basket_choices')},

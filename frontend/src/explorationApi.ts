@@ -4,7 +4,7 @@ export {isMultiDayItinerary,routeDays} from './days'
 import {isMultiDayItinerary} from './days'
 export type PlanningObjective='balanced'|'less_walking'|'less_waiting'|'lower_cost'
 export const objectiveLabel=(objectives?:PlanningObjective[])=> objectives?.length===0?'备选':(objectives||['balanced']).map(o=>({balanced:'均衡',less_walking:'少走路',less_waiting:'少等待',lower_cost:'省钱'})[o]).join(' · ')
-export interface PlanningConstraints{business_date:string|null;starts_at:string|null;ends_at:string|null;origin_place_id:string|null;destination_place_id:string|null;origin_text?:string|null;destination_text?:string|null;pace:'relaxed'|'standard'|'compact';objective:'balanced'|'less_walking'|'less_waiting'|'lower_cost';modes:('walking'|'driving'|'transit')[];budget_fen:number|null}
+export interface PlanningConstraints{business_date:string|null;starts_at:string|null;ends_at:string|null;origin_place_id:string|null;destination_place_id:string|null;origin_text?:string|null;destination_text?:string|null;pace:'relaxed'|'standard'|'compact';objective:'balanced'|'less_walking'|'less_waiting'|'lower_cost';modes:('walking'|'driving'|'transit')[];budget_fen:number|null;per_person_budget_fen?:number|null;per_person_budget_daily?:boolean;party_size?:number|null}
 export interface MultiDayPlanningConstraints{schema_version:'city-constraints/2';start_date:string|null;end_date:string|null;trip_days?:number|null;trip_nights?:number|null;days:unknown[];[key:string]:unknown}
 export type PlanningInput=PlanningConstraints|MultiDayPlanningConstraints
 export interface PlannedActivity{goal_id:string;place_id:string;session_id:string|null;kind:string;starts_at:string;departs_at:string;duration_seconds:number;required:boolean}

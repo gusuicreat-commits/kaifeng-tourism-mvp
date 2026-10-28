@@ -32,6 +32,11 @@ class Constraints(Strict):
     objective:Literal['balanced','less_walking','less_waiting','lower_cost']='balanced'
     modes:tuple[Literal['walking','driving','transit'],...]=Field(default=('walking',),min_length=1,max_length=3)
     budget_fen:int | None=Field(default=None,ge=0,le=100000000)
+    # A per-person budget is checked against the plan's known per-person costs after
+    # preview; it never enters the solver, whose budget is a hard total.
+    per_person_budget_fen:int | None=Field(default=None,ge=0,le=100000000)
+    per_person_budget_daily:bool=False
+    party_size:int | None=Field(default=None,ge=1,le=50)
 
     @field_validator('origin_text','destination_text',mode='before')
     @classmethod
@@ -46,6 +51,9 @@ class Constraints(Strict):
             for endpoint in ('origin','destination'):
                 if value.get(endpoint+'_place_id'):value[endpoint+'_text']=None
         return value
+
+
+AGENT_ONLY=('per_person_budget_fen','per_person_budget_daily','party_size')
 
 
 class Plan(Strict):
@@ -95,7 +103,7 @@ def preview_plan(trip_id,body,s,*,execution_guard=None):
             if body.planning_version is not None:exploration_state.guard(db,trip_id,body.planning_version)
         req_data=body.constraints.model_dump(mode='json')
         req_data['days']=[{k:v for k,v in d.items() if k in DayRequirements.model_fields} for d in req_data['days']]
-        for key in ('trip_days','trip_nights','pending_fields','clarifications','range_impacts'):req_data.pop(key,None)
+        for key in ('trip_days','trip_nights','pending_fields','clarifications','range_impacts',*AGENT_ONLY):req_data.pop(key,None)
         req_data['schema_version']='city-engine/2'
         try:requirements=MultiDayRequirements.model_validate(req_data)
         except ValidationError:raise HTTPException(422,detail='请补齐多天每日时段、端点和过夜条件。') from None
@@ -127,7 +135,7 @@ def preview_plan(trip_id,body,s,*,execution_guard=None):
         if body.planning_version is not None:exploration_state.guard(db,trip_id,body.planning_version)
         collected=basket.snapshot(db,s,trip_id);draft=guard_single_day(db,row)
         ctx=engine.context(db)
-        values=body.constraints.model_dump(exclude={'origin_text','destination_text'})
+        values=body.constraints.model_dump(exclude={'origin_text','destination_text',*AGENT_ONLY})
         for k in ('origin_place_id','destination_place_id'):
             if values[k]:values[k]=facts.trip_endpoint(ctx.facts,values[k])
         missing=[k for k in ('business_date','starts_at','ends_at') if values[k] is None]

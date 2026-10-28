@@ -90,7 +90,8 @@ def test_stay_operation_negation_stays_blocked(condition):
 def test_planning_budget_amount_uses_quote_digits_and_model_basis(quote,value,basis):
     field=PlanningField(field='budget_fen',value=value,quote=quote,budget_basis=basis)
     check=_field_check(field,quote,date(2026,10,26))
-    assert check=='per_person_budget' if basis=='per_person' else check is None
+    # B4.1: a per-person amount is checked against its quote like a total, then kept.
+    assert check is None
 
 
 @pytest.mark.parametrize('quote,value', [
@@ -149,14 +150,14 @@ def test_service_money_scope_is_not_guessed_from_quote(entry):
 ])
 def test_budget_amount_is_selected_by_model_among_grounded_numbers(quote,value,basis):
     field=PlanningField(field='budget_fen',value=value,quote=quote,budget_basis=basis)
-    assert _field_check(field,quote,date(2026,10,26))==('per_person_budget' if basis=='per_person' else None)
+    assert _field_check(field,quote,date(2026,10,26)) is None
 
 
 @pytest.mark.parametrize('basis',['total','per_person',None])
-def test_only_per_person_budget_bypasses_amount_matching(basis):
+def test_every_budget_basis_matches_its_amount(basis):
+    # B4.1: a per-person budget is kept, so its amount is checked like a total's.
     field=PlanningField(field='budget_fen',value=50000,quote='两个人600元',budget_basis=basis)
-    expected='per_person_budget' if basis=='per_person' else 'budget_not_in_quote'
-    assert _field_check(field,field.quote,date(2026,10,26))==expected
+    assert _field_check(field,field.quote,date(2026,10,26))=='budget_not_in_quote'
 
 
 @pytest.mark.parametrize('quote,value', [
@@ -164,6 +165,6 @@ def test_only_per_person_budget_bypasses_amount_matching(basis):
     ('人均五百，合计1200元', 70000),
     ('一人预算800块，共三人', 60000),
 ])
-def test_per_person_budget_explains_scope_before_amount_mismatch(quote,value):
+def test_per_person_budget_amount_mismatch_drops_the_field(quote,value):
     field=PlanningField(field='budget_fen',value=value,quote=quote,budget_basis='per_person')
-    assert _field_check(field,quote,date(2026,10,26))=='per_person_budget'
+    assert _field_check(field,quote,date(2026,10,26))=='budget_not_in_quote'

@@ -309,6 +309,10 @@ class MultiDayConstraints(Strict):
     pace: Literal['relaxed','standard','compact'] = 'standard'
     objective: Literal['balanced','less_walking','less_waiting','lower_cost'] = 'balanced'
     access_confirmations: tuple[DatedAccessConfirmation,...] = Field(default=(),max_length=60)
+    # Checked against known per-person costs after preview; never a solver input.
+    per_person_budget_fen: int | None = Field(default=None,ge=0,le=100000000)
+    per_person_budget_daily: bool = False
+    party_size: int | None = Field(default=None,ge=1,le=50)
 
     @model_validator(mode='after')
     def valid(self):

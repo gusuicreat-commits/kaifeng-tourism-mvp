@@ -41,7 +41,6 @@ def _field_check(f, text, today):
             numbers=counts(f.quote,'天' if f.field=='trip_days' else '(?:晚|夜)')
             return None if numbers and f.value==max(numbers) else f.field+'_not_in_quote'
         if f.field=='budget_fen':
-            if f.budget_basis=='per_person':return 'per_person_budget'
             # The model selects the amount; other numbers in its quote are not conflicting budgets.
             amounts=_money_amounts(f.quote)
             if f.value not in amounts:return 'budget_not_in_quote'
@@ -302,6 +301,17 @@ def preference_notes(intent):
     return notes
 
 
+def per_person_budget(values,planning,text):
+    """Record a stated per-person budget and party size in ``values``; return the note for the visitor."""
+    from .budget_check import party_size,daily,recorded_note
+    party=party_size(text)
+    if party:values['party_size']=party
+    field=next((f for f in planning.fields if f.field=='budget_fen' and f.budget_basis=='per_person'),None)
+    if field is None:return []
+    values.update(per_person_budget_fen=field.value,per_person_budget_daily=daily(field.quote,text))
+    return [recorded_note(values)]
+
+
 def proposal(session, trip_id, snapshot, intent, text, *, today=None):
     from ...db import connect
     from .. import basket
@@ -316,7 +326,7 @@ def proposal(session, trip_id, snapshot, intent, text, *, today=None):
     # Requirements the basket workflow cannot take yet are reported back instead of
     # blocking the date/time/endpoint update the visitor also asked for.
     notes=preference_notes(intent)
-    notes+=[f'预算按总额{f.value/100:g}元理解。' for f in p.fields if f.field=='budget_fen']
+    notes+=[f'预算按总额{f.value/100:g}元理解。' for f in p.fields if f.field=='budget_fen' and f.budget_basis!='per_person']
     for c in intent.constraints:
         if c.field=='food':
             if not any(c.value in (choice.name,*(a for f in _choice_facts(choice.name,snapshot) for a in _fact_names(f,snapshot))) for choice in p.choices):
@@ -330,7 +340,7 @@ def proposal(session, trip_id, snapshot, intent, text, *, today=None):
     if is_multi(base,p):
         return prepare(session,trip_id,snapshot,intent,text,today=today,notes=notes)
     c=Constraints.model_validate(base);values=c.model_dump(mode='json');today=today or snapshot.envelope.identity.generated_at.astimezone(TZ).date()
-    fields={f.field:f.value for f in p.fields}
+    fields={f.field:f.value for f in p.fields if not (f.field=='budget_fen' and f.budget_basis=='per_person')}
     # The application's city scope is not a navigable waypoint. Require an endpoint role
     # before interpreting that city name as an origin or return location.
     for slot,markers in (('origin',('从','起点')),('destination',('回','返程','终点','结束','住'))):
@@ -348,7 +358,7 @@ def proposal(session, trip_id, snapshot, intent, text, *, today=None):
         if slot in fields and fields[slot]!=constraint.value:
             return {'status':'needs_clarification','reply':'同一项条件说了两个不同的值，以哪个为准？'}
         fields[slot]=constraint.value
-    if p.operation=='update' and not fields and not p.choices:
+    if p.operation=='update' and not fields and not p.choices and not any(f.field=='budget_fen' for f in p.fields):
         return {'status':'needs_clarification','reply':'你想哪天出发？也可以先告诉我想去的地方。'}
     if 'date' in fields:values['business_date']=resolve_date(fields['date'],today).isoformat()
     day=values['business_date']
@@ -368,6 +378,7 @@ def proposal(session, trip_id, snapshot, intent, text, *, today=None):
     for field in ('pace','objective','budget_fen'):
         if field in fields:values[field]=fields[field]
     if 'mode' in fields:values['modes']=[fields['mode']]
+    notes+=per_person_budget(values,p,text)
     validated=Constraints.model_validate(values)
     changes=[];ambiguities=[];asked=set()
     if p.choices:

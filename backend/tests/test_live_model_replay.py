@@ -70,9 +70,11 @@ def test_pitch_reply_keeps_dish_suppliers_basket_and_hotels_while_asking_daily_t
     saved=model_replay.saved(kaifeng,trip)
     assert saved['start_date']==saturday and saved['end_date']==(recorded+timedelta(days=6-recorded.weekday())).isoformat()
     assert saved['trip_days']==2 and saved.get('budget_fen') is None and saved['pace']=='relaxed'
+    # B4.1: "和朋友" says no number, so the party size stays unknown and only per-person is checked.
+    assert saved['per_person_budget_fen']==80000 and saved['party_size'] is None and saved['per_person_budget_daily'] is False
     assert saved['days'][0]['starts_at'] is None and saved['days'][1]['starts_at'] is None
     assert '只能先排第一天' not in reply and '多天行程还在开发中' not in reply
-    assert '几点开始' in reply and '过夜' not in reply and '按人预算暂时不能用于规划，先不按预算筛选' in reply
+    assert '几点开始' in reply and '过夜' not in reply and '预算按每人800元记下' in reply and '按人预算暂时不能用于规划' not in reply and '格式无法核对' not in reply
     assert [line.split('：',1)[0] for line in reply.splitlines()]==['住宿','美食','行程']
     assert '。；' not in reply and '你想问哪一场演出' not in reply
     hotels=task['result']['services']

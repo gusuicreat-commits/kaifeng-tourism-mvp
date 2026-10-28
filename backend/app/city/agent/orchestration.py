@@ -21,6 +21,14 @@ def _ready_reply(result):
     return '方案已准备好。'+(f"时间不够，这版没排进：{'、'.join(left)}。" if left else '')+'请点“确认方案”保存。'
 
 
+def _budget_reply(constraints,itinerary,days,notes,overnight=False):
+    """The per-person budget check replaces the "recorded" note once a plan exists."""
+    from .budget_check import check,recorded_note
+    sentence=check(constraints,itinerary,days=days,overnight=overnight)
+    recorded=recorded_note(constraints)
+    return ''.join(n for n in notes if not (sentence and n==recorded))+sentence
+
+
 def _basket_reply(pending,snapshot):
     if not pending:return ''
     existing={(i['kind'],i['id']) for i in snapshot.materials}
@@ -76,7 +84,7 @@ def _execute(session,t,intent,proposed=None):
         req_data=constraints.model_dump(mode='json')
         req_data['days']=[{k:v for k,v in d.items() if k in DayRequirements.model_fields} for d in req_data['days']]
         req_data.pop('trip_days',None);req_data.pop('trip_nights',None)
-        req_data.pop('pending_fields',None);req_data.pop('clarifications',None);req_data.pop('range_impacts',None)
+        for key in ('pending_fields','clarifications','range_impacts',*exploration.AGENT_ONLY):req_data.pop(key,None)
         req_data['schema_version']='city-engine/2'
         requirements=MultiDayRequirements.model_validate(req_data)
         from ...db import connect
@@ -90,9 +98,13 @@ def _execute(session,t,intent,proposed=None):
             'result':result,'rounds':result.get('rounds',0)}
         from ..assistant import context as assistant_context
         t.snapshot=assistant_context.load(session,t.trip_id,'modify',t.text)
+        plan=(((result.get('result') or {}).get('itineraries') or [None])[0]) if result.get('status') in ('preview','feasible') else None
         return {'status':'needs_confirmation' if result.get('status') in ('preview','feasible') else 'needs_data',
             'reply':('多天方案已准备好，请核对整套行程后确认保存。' if result.get('status') in ('preview','feasible') else
-                     result.get('reply') or '当前条件未产生可确认的多天路线，请核对缺项或约束冲突。')+''.join(proposed.get('notes',[])),
+                     result.get('reply') or '当前条件未产生可确认的多天路线，请核对缺项或约束冲突。')+_budget_reply(
+                         constraints.model_dump(mode='json'),plan,[{'activities':d['itinerary']['activities'],'legs':d['itinerary']['legs'],
+                             'starts_at':d['requirements']['starts_at'],'ends_at':d['requirements']['ends_at']} for d in (plan or {}).get('days',())],
+                         proposed.get('notes',[]),overnight=bool((plan or {}).get('overnights'))),
             'formal_state_changed':False,'planning_workflow':{'trip_id':t.trip_id,'execution':'completed_backend',
                 'operation':action['operation'],'date_changed':action['date_changed'],'result':result}}
     constraints=action['constraints']
@@ -148,10 +160,12 @@ def _execute(session,t,intent,proposed=None):
     filled={'date':final.get('business_date'),'start_time':final.get('starts_at'),'end_time':final.get('ends_at'),
             'origin':final.get('origin_place_id') or final.get('origin_text'),
             'destination':final.get('destination_place_id') or final.get('destination_text'),'budget_fen':final.get('budget_fen')}
-    dropped=[LABELS[f] for f in dict.fromkeys(d['field'] for d in t.interpretation.get('dropped_fields',()) if d['check'] not in ('per_person_budget','budget_basis_missing','choice_not_in_quote'))
+    dropped=[LABELS[f] for f in dict.fromkeys(d['field'] for d in t.interpretation.get('dropped_fields',()) if d['check'] not in ('budget_basis_missing','choice_not_in_quote'))
              if f in LABELS and f not in asked and not filled.get(f)]
     if dropped:reply+=f"另外，{'、'.join(dropped)}没听准，能再说一下吗？"
-    if proposed.get('notes'):reply+=''.join(proposed['notes'])
+    plan=(((result.get('planning') or {}).get('result') or {}).get('itineraries') or [None])[0] if result['status']=='feasible' and not missing else None
+    reply+=_budget_reply(final,plan,[{'activities':plan['activities'],'legs':plan['legs'],
+        'starts_at':final.get('starts_at'),'ends_at':final.get('ends_at')}] if plan else [],proposed.get('notes',[]))
     return {'status':status,'reply':reply,'formal_state_changed':False,
         'planning_workflow':{'trip_id':t.trip_id,'execution':'completed_backend','operation':action['operation'],
             'date_changed':action['date_changed'],'result':result}}
@@ -159,10 +173,6 @@ def _execute(session,t,intent,proposed=None):
 
 def execute(session,t,intent,proposed=None):
     result=_execute(session,t,intent,proposed)
-    if any(d['check']=='per_person_budget' for d in t.interpretation.get('dropped_fields',())):
-        from .requirement_context import planning_values
-        result['reply']+=('按人预算暂时不能用于规划，这笔金额未作为总预算保存；仍沿用已保存的总预算。'
-                          if planning_values(t.snapshot).get('budget_fen') is not None else '按人预算暂时不能用于规划，先不按预算筛选。')
     if any(d['check']=='budget_basis_missing' for d in t.interpretation.get('dropped_fields',())):
         result['reply']+='这笔预算是所有人合计，还是每人？'
     return result
