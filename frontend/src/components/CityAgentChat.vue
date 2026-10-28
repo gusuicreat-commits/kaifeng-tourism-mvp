@@ -8,6 +8,7 @@ import {journey} from '../journey'
 import {loadBasket} from '../journey'
 import BasketPlanning from './BasketPlanning.vue'
 import {basketApi,type ObjectRef} from '../basketApi'
+import {basketReply} from '../basketReply'
 import ReferenceRouteCard from './ReferenceRouteCard.vue'
 import TravelServiceCards from './TravelServiceCards.vue'
 import WeatherCard from './WeatherCard.vue'
@@ -66,9 +67,18 @@ async function load(){const guard=memoryEpoch.value,id=props.tripId;try{await ap
 async function send(inputOverride?:string){
  const input=(inputOverride??text.value).trim()
  if(!input||!ctx.value||inputBusy.value)return
- const current=++epoch;text.value='';error.value='';busy.value=true;continuePlanning.value=false
+ text.value='';error.value=''
  atLatest.value=true
  messages.value.push({role:'你',text:input})
+ if(basketProposal.value){
+  const reply=basketReply(input)
+  if(reply==='accept'&&!basketChoices.value.length){await confirmBasket();return}
+  if(reply==='decline'){discardBasket();return}
+  // Anything else would silently drop the pending proposal; keep the text and ask first.
+  messages.value.pop();text.value=input
+  error.value=reply==='accept'?'请先在上面的候选里选定，再确认加入。':'请先回答是否加入素材篮：回复“好的”或“不用了”，也可以点下方按钮。';return
+ }
+ const current=++epoch;busy.value=true;continuePlanning.value=false
  try{
   if(task.value?.status==='awaiting_locations')await cityAgentApi.cancel(task.value)
   await refresh()
@@ -237,8 +247,8 @@ onBeforeUnmount(()=>{disposed=true;epoch++;resizeObserver?.disconnect();if(task.
   </div>
   <form class="chat-composer" @submit.prevent="send()">
    <label for="city-agent-input" class="visually-hidden">告诉小汴梁你的问题或想调整的安排</label>
-   <textarea id="city-agent-input" v-model="text" rows="2" maxlength="2000" :disabled="!ctx||inputBusy||!!candidate||!!basketProposal" placeholder="告诉小汴梁你的想法…"/>
-   <div class="interview-actions"><button class="button" :disabled="!ctx||inputBusy||!text.trim()||!!candidate||!!basketProposal">发送</button><button v-if="busy" type="button" class="button secondary" @click="cancel">停止处理</button></div>
+   <textarea id="city-agent-input" v-model="text" rows="2" maxlength="2000" :disabled="!ctx||inputBusy||!!candidate" placeholder="告诉小汴梁你的想法…"/>
+   <div class="interview-actions"><button class="button" :disabled="!ctx||inputBusy||!text.trim()||!!candidate">发送</button><button v-if="busy" type="button" class="button secondary" @click="cancel">停止处理</button></div>
   </form>
 
  </section>

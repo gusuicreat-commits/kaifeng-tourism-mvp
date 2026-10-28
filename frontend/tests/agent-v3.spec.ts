@@ -151,6 +151,77 @@ test('chat proposes a basket addition and only saves it after confirmation befor
  expect((await(await page.request.get(path)).json()).route_version).toBe(0)
 })
 
+async function proposeBasket(page:Page){
+ const {path}=await prepare(page),input=page.getByLabel('告诉小汴梁你的问题或想调整的安排')
+ let starts=0,patches=0
+ page.on('request',request=>{
+  if(request.method()==='POST'&&request.url().endsWith(path+'/agent/tasks'))starts++
+  if(request.method()==='PATCH'&&request.url().endsWith(path+'/basket'))patches++
+ })
+ await input.fill('想去[合成测试]museum');await page.getByRole('button',{name:'发送',exact:true}).click()
+ const card=page.getByLabel('待确认的素材篮变更')
+ await expect(card).toBeVisible();await expect(input).toBeEnabled()
+ expect(starts).toBe(1);expect(patches).toBe(0)
+ return {path,input,card,counts:()=>({starts,patches})}
+}
+
+test('typed acceptance confirms the basket without starting another agent task',async({page})=>{
+ const {path,input,card,counts}=await proposeBasket(page)
+ await card.getByLabel('[合成测试]museum优先级').selectOption('must')
+ await input.fill('好的，加进去');await page.getByRole('button',{name:'发送',exact:true}).click()
+ await expect(page.locator('.agent-messages')).toContainText('素材篮已更新')
+ await expect(card).toHaveCount(0);await expect(input).toBeEnabled();await expect(input).toHaveValue('')
+ expect(counts()).toEqual({starts:1,patches:1})
+ const basket=await(await page.request.get(path+'/basket')).json()
+ expect(basket.items).toHaveLength(1);expect(basket.items[0]).toMatchObject({kind:'place',id:'museum',priority:'must',source:'assistant'})
+ expect((await(await page.request.get(path)).json()).route_version).toBe(0)
+})
+
+test('typed refusal discards the basket proposal without a write or agent task',async({page})=>{
+ const {path,input,card,counts}=await proposeBasket(page)
+ await input.fill('算了');await page.getByRole('button',{name:'发送',exact:true}).click()
+ await expect(page.locator('.agent-messages')).toContainText('已放弃本次素材篮变更')
+ await expect(card).toHaveCount(0);await expect(input).toBeEnabled();await expect(input).toHaveValue('')
+ expect(counts()).toEqual({starts:1,patches:0})
+ expect((await(await page.request.get(path+'/basket')).json()).items).toEqual([])
+})
+
+test('other typed text keeps the pending basket and asks for an answer first',async({page})=>{
+ const {path,input,card,counts}=await proposeBasket(page)
+ await input.fill('好的，再加个包公祠');await page.getByRole('button',{name:'发送',exact:true}).click()
+ await expect(page.getByRole('alert')).toContainText('请先回答是否加入素材篮')
+ // Nothing is sent, the text stays for editing, and the proposal is still there to answer.
+ await expect(input).toHaveValue('好的，再加个包公祠');await expect(card).toBeVisible()
+ expect(counts()).toEqual({starts:1,patches:0})
+ expect((await(await page.request.get(path+'/basket')).json()).items).toEqual([])
+})
+
+test('short replies still go to the agent when there is no basket proposal',async({page})=>{
+ const {path}=await prepare(page),input=page.getByLabel('告诉小汴梁你的问题或想调整的安排')
+ for(const text of ['好的，加进去','算了']){
+  const start=page.waitForRequest(request=>request.method()==='POST'&&request.url().endsWith(path+'/agent/tasks'))
+  await input.fill(text);await page.getByRole('button',{name:'发送',exact:true}).click()
+  expect((await start).postDataJSON().text).toBe(text)
+  await expect(input).toBeEnabled();await expect(page.getByLabel('待确认的素材篮变更')).toHaveCount(0)
+ }
+ expect((await(await page.request.get(path+'/basket')).json()).items).toEqual([])
+})
+
+test('short acceptance waits for the remaining basket choices',async({page})=>{
+ await page.route('**/agent/tasks/*/step',async route=>{
+  const response=await route.fetch(),task=await response.json(),item=task.result?.basket_proposal?.items[0]
+  if(item)task.result.basket_choices=[{query:item.name,quote:item.quote,priority:item.priority,candidates:[
+   {kind:'place',object_id:'museum',name:'[合成测试]museum'}]}]
+  await route.fulfill({response,json:task})
+ })
+ const {path,input,counts}=await proposeBasket(page)
+ await expect(page.getByRole('button',{name:'确认加入',exact:true})).toBeDisabled()
+ await input.fill('好的');await page.getByRole('button',{name:'发送',exact:true}).click()
+ await expect(page.getByRole('alert')).toContainText('请先在上面的候选里选定')
+ await expect(input).toHaveValue('好的');expect(counts()).toEqual({starts:1,patches:0})
+ expect((await(await page.request.get(path+'/basket')).json()).items).toEqual([])
+})
+
 test('chat basket confirmation refuses a changed basket version without overwriting it',async({page})=>{
  const {path}=await prepare(page)
  const input=page.getByLabel('告诉小汴梁你的问题或想调整的安排')
