@@ -102,7 +102,16 @@ def preview_plan(trip_id,body,s,*,execution_guard=None):
         result=engine.preview(s,trip_id,PreviewRequestV2(request_id=body.request_id,expected_version=body.expected_version,
             requirements=requirements),planning_version=workspace['version'])
         with connect() as db:
+            db.execute('BEGIN IMMEDIATE')
+            exploration_state.guard(db,trip_id,workspace['version'])
             saved=exploration_state.save(db,trip_id,body.constraints.model_dump(mode='json'),result,workspace['rounds'])
+            # Saving the workspace bumps its version; the candidate must carry the version it
+            # was saved at, or confirming it reports PLANNING_CHANGED (as the single-day path does).
+            candidate=result.get('candidate_id')
+            if candidate:
+                row=db.execute('SELECT progress_json FROM city_engine_candidates WHERE id=?',(candidate,)).fetchone()
+                extra=json.loads(row[0]);extra['planning_version']=saved['version']
+                db.execute('UPDATE city_engine_candidates SET progress_json=? WHERE id=?',(json.dumps(extra),candidate))
         return result|{'constraints':body.constraints.model_dump(mode='json'),'planning_version':saved['version'],
                        'basket_version':body.basket_version,'trip_version':body.expected_version}
     single_day(body.constraints)
