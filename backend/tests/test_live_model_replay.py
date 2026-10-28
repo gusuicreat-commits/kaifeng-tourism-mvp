@@ -79,8 +79,12 @@ def test_pitch_reply_keeps_dish_suppliers_basket_and_hotels_while_asking_daily_t
     assert hotels['requirements']['category']=='hotels'
     assert hotels['requirements']['attributes']['window']['strength']=='hard'
     assert hotels['requirements']['attributes']['free_parking']['strength']=='soft'
-    assert hotels['result']['status']=='needs_clarification'
-    assert '请提供入住日期' in reply and '请提供退房日期或住几晚' in reply
+    assert hotels['requirements']['check_in']==saturday and hotels['requirements']['nights']==1
+    assert hotels['requirements']['check_out']==saved['end_date']
+    assert hotels['result']['status']=='provider_unavailable'
+    assert hotels['result']['query_diagnostics']['execution_basis']=='provider_registry'
+    assert '请提供入住日期' not in reply and '请提供退房日期或住几晚' not in reply
+    assert f"按行程 {int(saturday[5:7])} 月 {int(saturday[8:])} 日入住、住 1 晚" in reply
     dining=next(item for item in task['result']['compound']['items'] if item['kind']=='direct_query')['answers'][0]
     assert dining['items'] and len({i['food_id'] for i in dining['items']})<=5
     with connect() as db:catalog=facts.records(db)

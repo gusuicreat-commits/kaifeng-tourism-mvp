@@ -104,13 +104,13 @@ class Correction(Strict):
 
 class PlanningField(Strict):
     field: Literal['city','date','start_date','end_date','start_time','end_time','origin','destination','pace','objective','mode','budget_fen','trip_days','trip_nights'] = Field(
-        description='city城市;date日期;start_time/end_time起止;origin/destination出发/返回;pace节奏;objective目标;mode交通;budget_fen预算分;trip_days天。start_date起日;end_date末日(含);trip_nights晚数。')
+        description='city城市;date日期;start_time/end_time起止;origin/destination起终点;pace节奏;objective目标;mode交通;budget_fen分;trip_days天;start_date首日;end_date含末日;trip_nights晚。')
     value: str | int | None = Field(description='日期抄原文；晚间沿用到后续钟点（今晚五点半…十点回→17:30、22:00），无钟点不猜，几点前回来用end_time。pace=relaxed/standard/compact;objective=balanced均衡/less_walking少走路/less_waiting/lower_cost;少走路/走不动/腿脚不便=less_walking；无分钟不填walking_seconds。')
     quote: str = Field(min_length=1, max_length=500, description='quote连续摘本轮，field.quote含value；往返复用origin.quote。')
     budget_basis: Literal['total','per_person'] | None = Field(
         default=None, description='trip_days填整数，“两三天”取上限；budget_fen同时给budget_basis（total总预算/per_person每人预算），由你判断口径，系统会把理解结果告诉游客。分：300元=30000；每人金额不乘人数。')
     day_ref: str | None = Field(default=None,max_length=120)
-    scope: Literal['every_day'] | None = Field(default=None,description='every_day=每天。')
+    scope: Literal['every_day'] | None = Field(default=None,description='各天相同用every_day；quote含每天原话。')
 
     @model_validator(mode='after')
     def typed_value(self):

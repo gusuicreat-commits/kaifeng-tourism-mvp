@@ -374,3 +374,11 @@ B2 只接受 `user_place` 已有地点；过夜地点证据由服务端事实计
 已知后端阻塞：`exploration.preview_plan` 的 V2 分支生成候选后递增工作区版本，未同步候选的 `planning_version`，通过该入口生成的候选确认返回 `409 PLANNING_CHANGED`。[隔离 API 测试](../backend/tests/test_multi_day_browser_fixture.py) 保留 strict xfail 复现；直接 engine 预览、整套确认与双日读取正常。浏览器测试服务器只准备已有引擎候选快照，不在生产前端绕过版本门。
 
 验证入口：[离线 TS 投影](../backend/tests/test_multi_day_frontend.py)、[五个多日浏览器场景](../frontend/tests/multi-day.spec.ts)、[隔离浏览器配置](../frontend/playwright.multi-day.config.ts)。全量后端为 2530 passed、9 skipped、1 xfailed；类型检查、Vite runner 与原 `npx vite build` 均通过（原 loader 首次因外链 node_modules 临时目录 `EPERM` 失败，改用本 worktree 内临时依赖入口后通过，原链接已恢复）。现有五组及新增多日浏览器服务均因本地监听端口 `EPERM` 未启动，`docs/screenshots/multi-day-*.png` 尚未生成。这些软件检查不代表真实开封数据、住宿、导航或现场验收。
+
+## 15. B2.6 每日条件与住宿日期（2026-10-28，待 Claude 验收）
+
+`every_day` 的证据允许来自字段 quote 或包含 quote 的同一句，句末标点及换行断开，逗号并列保持同句；数量/范围天数加“都”和“每一天/每日/天天/各天”按语法核对。漏标作用域仅在已知多天、无 day_ref、同字段本轮唯一值且有同句证据时恢复，记录 `recovered_fields.source=sentence_scope`；缺证据继续追问。后续明确每天的答复可替换未定日的同字段，不影响其他条件。
+
+已有相邻日终点和起点相同即可形成 `user_place` 过夜边界；酒店查询位置无法映射到该边界时继续追问，不能替换端点。酒店查询在本轮或已保存的有效多天范围内补缺失入住日/晚数，分别采用第一天和天数减一；游客明确日期、晚数或退房日优先，单天不补。回复回显采用的日期和晚数，`service_date_defaults` 记录补齐项，已补上的日期项保留丢弃审计但不重复告知游客“未采用”。本轮范围由确定性规划预备结果共享给服务查询，再走原预览/确认入口；酒店仍仅是查询条件，没有候选绑定、可入住或预订保证。
+
+验证入口：[B2.6 正反例及走样输出](../backend/tests/test_b26_multi_day_conditions.py)、[日期范围回归](../backend/tests/test_b24_date_range.py)、[讲稿录制回放](../backend/tests/test_live_model_replay.py)、[逐句提示词与长度检查](../backend/tests/test_agent_prompt_schema.py)。理解提示词含 schema 的字符数由 7993 调整为 7999，`prompt_rules_main.json` 保持原样；均使用隔离库和模型/服务替身，真实模型、外部服务及现场未验收。

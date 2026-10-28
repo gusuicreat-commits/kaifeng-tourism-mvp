@@ -388,6 +388,28 @@ def _preview_result(result,snapshot,intent=None):
             'confirmation':{'target_kind':'route','candidate_id':result['candidate_id'],'expected_version':result['base_version']}}
 
 
+def _query_services(session,t,proposed=None):
+    from .requirement_context import planning_values
+    from .. import travel_services
+    values=(proposed or {}).get('planning_action',{}).get('constraints') or planning_values(t.snapshot)
+    dates=None
+    if values.get('schema_version')=='city-constraints/2' and values.get('start_date') and values.get('end_date'):
+        from datetime import date
+        start,end=map(date.fromisoformat,(values['start_date'],values['end_date']))
+        span=(end-start).days+1
+        if 1<span<=3 and values.get('trip_days') in (None,span) and values.get('trip_nights') in (None,span-1):
+            dates=(start.isoformat(),end.isoformat())
+    result=travel_services.query(session,t.trip_id,t.text,t.snapshot.services.get('version',0),cancelled=lambda:t.cancelled,
+        intent=t.intent.service_query,today=t.interpretation_date,trip_dates=dates)
+    if result.get('inferred_fields'):
+        t.interpretation['service_date_defaults']=result['inferred_fields']
+    if not t.intent.planning and t.intent.service_query and t.intent.service_query.category=='hotels':
+        from .multi_day_intent import lodging_questions
+        locations=[f.value for f in t.intent.service_query.fields if f.field=='location_text']
+        result['reply']+=''.join(lodging_questions(values,locations,t.snapshot.planning.facts))
+    return result
+
+
 def _compound_step(session,t):
     """Execute a bounded set of independent subrequests from one user turn.
 
@@ -405,6 +427,13 @@ def _compound_step(session,t):
         reply=checked_reply(intent.conversation.reply)
         parts.append({'kind':'conversation','status':'answered','reply':reply});add_reply('说明',reply);statuses.append('answered')
     questions=understand.questions(intent,snapshot)
+    proposed=None
+    if intent.planning and not questions and not intent.state_request and not any(a.kind in ('progress','position','cancel') for a in intent.actions):
+        from .multi_day_intent import is_multi
+        from .requirement_context import planning_values
+        if is_multi(planning_values(snapshot),intent.planning):
+            from .planning_intent import proposal
+            proposed=proposal(session,t.trip_id,snapshot,intent,t.text,today=t.interpretation_date)
     if questions:
         parts.append({'kind':'clarify','status':'needs_clarification','questions':questions})
         for question in questions:add_reply('待确认',question)
@@ -417,10 +446,8 @@ def _compound_step(session,t):
         parts.append({'kind':'weather','status':result['status'],'result':result});statuses.append(result['status'])
         add_reply('天气',result.get('reply'))
     if intent.service_query or any(a.kind=='search_services' for a in intent.actions):
-        from .. import travel_services
         t.tools+=1;t.events.append({'tool':'search_travel_services','status':'running','parameters':{},'source':'provider_registry'})
-        result=travel_services.query(session,t.trip_id,t.text,snapshot.services.get('version',0),cancelled=lambda:t.cancelled,
-            intent=intent.service_query,today=t.interpretation_date)
+        result=_query_services(session,t,proposed)
         t.snapshot.services=result['services']
         if not _fresh(session,t):return public(t)
         t.events[-1].update(status=result['services']['result']['status'],query_diagnostics=result['services']['result'].get('query_diagnostics'))
@@ -469,8 +496,8 @@ def _compound_step(session,t):
             t.tools+=1;t.events.append({'tool':'planning_workflow','status':'running','parameters':{},'source':'backend_orchestrator'})
             planning_intent=intent.model_copy(update={
                 'actions':tuple(a for a in intent.actions if a.kind in ('modify','preference','cancel','progress','position')),
-                'conversation':None,'route_query':None,'weather_query':None,'service_query':None})
-            planning_result=execute(session,t,planning_intent)
+                'conversation':None,'route_query':None,'weather_query':None})
+            planning_result=execute(session,t,planning_intent,proposed)
             if not _fresh(session,t):
                 _discard_result(session,t,planning_result);return public(t)
             t.events[-1]['status']=planning_result['status']
@@ -692,12 +719,9 @@ def _advance(session,trip_id,identity,body):
             elif t.mode=='weather':
                 pass
             elif t.mode=='travel_services':
-                from .. import travel_services
-                services_workspace=t.snapshot.services
                 t.tools+=1
                 t.events.append({'tool':'search_travel_services','status':'running','parameters':{},'source':'provider_registry'})
-                result=travel_services.query(session,t.trip_id,t.text,services_workspace.get('version',0),cancelled=lambda:t.cancelled,
-                    intent=t.intent.service_query,today=t.interpretation_date)
+                result=_query_services(session,t)
                 t.snapshot.services=result['services']
                 if not _fresh(session,t):return public(t)
                 t.events[-1].update(status=result['services']['result']['status'],query_diagnostics=result['services']['result'].get('query_diagnostics'))

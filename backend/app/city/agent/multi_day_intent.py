@@ -36,6 +36,17 @@ def _questions(values):
     return list(dict.fromkeys(questions))
 
 
+def lodging_questions(values,locations,catalog):
+    from .planning_intent import _resolve_endpoint
+    days=values.get('days',[]);questions=[]
+    for location in locations:
+        place,_=_resolve_endpoint(catalog,location)
+        if len(days)>1 and (not place or any(a.get('destination_place_id')!=place.fact_id or b.get('origin_place_id')!=place.fact_id
+                for a,b in zip(days,days[1:]))):
+            questions.append(f'住宿位置“{location}”尚未与行程过夜地点对上，请确认在哪个已知地点过夜。')
+    return questions
+
+
 def prepare(session,trip_id,snapshot,intent,text,*,today=None,notes=()):
     from .requirement_context import planning_values
     from .planning_intent import proposal,_resolve_endpoint,_choice_facts,_fact_names
@@ -101,6 +112,7 @@ def prepare(session,trip_id,snapshot,intent,text,*,today=None,notes=()):
             ref=date_range.day_reference(f.day_ref or f.quote,text,today) if f.day_ref else None
             item={'field':f.field,'value':f.value,'day_ref':ref,'scope':f.scope}
             pending=[v for v in pending if (v['field'],v.get('day_ref'),v.get('scope'))!=(f.field,ref,f.scope)]
+            if f.scope:pending=[v for v in pending if v['field']!=f.field or v.get('day_ref') or v.get('scope')]
             pending.append(item)
         elif f.field in ('pace','objective') and f.value:values[f.field]=f.value
         elif f.field=='mode' and f.value:values['modes']=[f.value]
@@ -132,6 +144,13 @@ def prepare(session,trip_id,snapshot,intent,text,*,today=None,notes=()):
             nights.append({'overnight_id':'night:'+a['business_date'],'from_day_id':'day:'+a['business_date'],
                 'to_day_id':'day:'+b['business_date'],'night_date':a['business_date'],'place_id':place,'source_kind':'user_place'})
     values['overnights']=nights
+    service=intent.service_query
+    locations=[f.value for f in service.fields if f.field=='location_text'] if service and service.category=='hotels' else []
+    saved_service=snapshot.services.get('requirements') or {}
+    if not locations and saved_service.get('category')=='hotels' and saved_service.get('location_text'):
+        locations=[saved_service['location_text']]
+    values['clarifications']=[q for q in values['clarifications'] if not q.startswith('住宿位置“')]
+    values['clarifications'].extend(lodging_questions(values,locations,snapshot.planning.facts))
     basket_result={}
     if p.choices:
         single=copy.copy(snapshot);single.workspace={'constraints':{},'version':snapshot.workspace.get('version',0)}

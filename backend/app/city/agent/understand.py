@@ -554,7 +554,9 @@ def _sanitize_understanding(raw,meta):
                 for extra in extras:_drop(meta,f'service_query.fields[{index}].{extra}','C','extra_field',item.get('quote'))
                 try:kept.append(ServiceField.model_validate({k:v for k,v in item.items() if k in ServiceField.model_fields}).model_dump(mode='json'))
                 except (ValidationError,TypeError,ValueError) as exc:
-                    _drop(meta,f'service_query.fields[{index}]',_drop_category(_validation_reason(exc)),_validation_reason(exc),item.get('quote'))
+                    key='service.'+item['field'] if item.get('field') in ('check_in','nights') else None
+                    _drop(meta,f'service_query.fields[{index}]',_drop_category(_validation_reason(exc)),_validation_reason(exc),item.get('quote'),field=key)
+                    if key:meta['dropped'][-1]['field']=key
             extras=set(service)-set(ServiceIntent.model_fields)
             for extra in extras:_drop(meta,f'service_query.{extra}','C','extra_field',service.get('quote'))
             candidate={k:v for k,v in service.items() if k in ServiceIntent.model_fields and k!='fields'}
@@ -646,6 +648,7 @@ def dropped_reply(intent,meta,text):
     reasons={'A':'原话与提取的内容对不上','B':'这段话未明确授权执行','C':'这项内容格式无法核对'}
     seen=set();notices=[]
     for item in meta.get('dropped',()):
+        if item.get('field',item['path']) in {'service.'+f for f in meta.get('service_date_defaults',())}:continue
         quote=item.get('quote')
         if not isinstance(quote,str) or not quote or quote not in text or item['reason'] in noise or quote in seen:continue
         if item['category']=='C' and item['path'].startswith('actions[') and quote in typed:continue

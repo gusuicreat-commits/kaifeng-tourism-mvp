@@ -6,6 +6,8 @@ from .dates import DATE_EXPRESSION, resolve_date, _number
 
 RANGE_DATE = re.compile(r'(?<!\d)\d{4}[-/]\d{1,2}[-/]\d{1,2}(?!\d)|(?<!\d)(?:\d{4}年)?[\d一二三四五六七八九十两]+月[\d一二三四五六七八九十两]+(?:日|号)?|(?<![\d-])\d{1,2}[-./]\d{1,2}(?![\d-])|'+DATE_EXPRESSION)
 DAY_NUMBER = re.compile(r'第\s*(\d+|[零一二两三四五六七八九十]+)\s*天|第一天|最后一天|首日|末日')
+EVERY_DAY = re.compile(r'每\s*(?:一\s*)?天|每日|天天|各天|(?:\d+|[零一二两三四五六七八九十百]+|这几|那几|所有|全部|整个)\s*天\s*(?:全\s*)?都')
+SENTENCE = re.compile(r'[^。！？!?；;\n]+')
 
 
 def expressions(quote):
@@ -65,12 +67,39 @@ def day_reference(ref,text,today):
     return resolve(found[0],today).isoformat()
 
 
+def daily_evidence(quote,text,field=None):
+    # Repeated short quotes must agree on scope; a match in another sentence is not evidence.
+    anchor=quote.strip('。！？!?；;\n')
+    parts=[m.group() for m in SENTENCE.finditer(anchor)]
+    if len(parts)>1:
+        if field is None:return False
+        from .understand import clock_grounded
+        relevant=[p for p in parts if clock_grounded(field.value,p,text)] if field.field in ('start_time','end_time') else [
+            p for p in parts if field.value is not None and str(field.value) in p]
+        return bool(relevant) and all(daily_evidence(p,text) for p in relevant)
+    sentences=[m.group() for m in SENTENCE.finditer(text) if anchor and anchor in m.group()]
+    return bool(sentences) and all(EVERY_DAY.search(s) for s in sentences)
+
+
+def multiple_days(base,fields,today):
+    values={k:base.get(k) for k in ('start_date','end_date','trip_days')}
+    for f in fields:
+        key='start_date' if f.field=='date' else f.field
+        if key not in values:continue
+        value=resolve(str(f.value),today).isoformat() if f.value and key.endswith('_date') else f.value
+        values[key]=value
+    if any(f.field=='trip_days' for f in fields) and not any(f.field=='end_date' for f in fields):
+        return bool(values['trip_days'] and values['trip_days']>1)
+    if not values['start_date'] or not values['end_date']:return bool(values['trip_days'] and values['trip_days']>1)
+    return bool(values['start_date'] and values['end_date'] and values['end_date']>values['start_date'])
+
+
 def scope_check(field,text):
     from .evidence import request_evidence
     if field.day_ref and field.scope:raise ValueError('ambiguous_day_scope')
     if field.scope:
         request_evidence(text,field.quote)
-        if not re.search(r'每(?:一)?天|每日|天天|各天|每天',field.quote):raise ValueError('scope_not_in_quote')
+        if not daily_evidence(field.quote,text,field):raise ValueError('scope_not_in_quote')
 
 
 def day_key(field,today):

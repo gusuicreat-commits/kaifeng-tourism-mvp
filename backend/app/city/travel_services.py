@@ -206,7 +206,7 @@ def nearby(req):
     ))
     return execution.result.data | {'provider_trace':execution.provider_id}
 
-def query(session,trip_id,text,expected_version=None,cancelled=None,*,intent=None,today=None):
+def query(session,trip_id,text,expected_version=None,cancelled=None,*,intent=None,today=None,trip_dates=None):
     dropped=[]
     with connect() as db:
         row=state.owned(db,session,trip_id)
@@ -215,9 +215,17 @@ def query(session,trip_id,text,expected_version=None,cancelled=None,*,intent=Non
         if expected_version is not None and expected_version!=original_version:raise HTTPException(409,detail='旅行服务条件已变化，请刷新。')
     if intent:
         req=semantic_requirements(intent,text,w['requirements'],today or datetime.now(TZ).date(),dropped)
-        questions=service_questions(req,today or datetime.now(TZ).date())
         req['query_text']=text[:500]
     else:req,questions=parse(text,w['requirements'])
+    inferred=[]
+    if intent and req['category']=='hotels' and trip_dates:
+        start,end=map(date.fromisoformat,trip_dates);span=(end-start).days
+        if span>0:
+            for key,value in (('check_in',start.isoformat()),('nights',span)):
+                if not req.get(key) and not (key=='nights' and req.get('check_out')):
+                    req[key]=value;inferred.append(key)
+            stay_dates(req)
+    if intent:questions=service_questions(req,today or datetime.now(TZ).date())
     if questions:result={'status':'needs_clarification','items':[],'questions':questions,'provider_trace':[]}
     else:
         capability='search_hotels' if req['category']=='hotels' else 'search_parking' if req['category']=='parking' else 'search_merchants'
@@ -268,6 +276,9 @@ def query(session,trip_id,text,expected_version=None,cancelled=None,*,intent=Non
         write(db,trip_id,w)
     reply=''.join(questions) if questions else f"已查询到 {len(result.get('items',[]))} 个{'酒店' if req['category']=='hotels' else '地点'}候选。" if result.get('items') else '查询暂未取得候选（'+result['status']+'），可稍后重试。'
     if req['category']=='hotels':
+        if inferred:
+            day=date.fromisoformat(req['check_in'])
+            reply+=f" 按行程 {day.month} 月 {day.day} 日入住、住 {req['nights']} 晚，如需调整请告诉我。"
         reply+=' 房型、设施和评价还没核实，价格以预订页面为准。'
         labels={'hard':'必须','soft':'最好','optional':'可选'}
         condition_parts=[]
@@ -280,7 +291,7 @@ def query(session,trip_id,text,expected_version=None,cancelled=None,*,intent=Non
         if req.get('stay_budget_fen') is not None:reply+=f" 价格口径：住宿合计不超过 {req['stay_budget_fen']//100} 元。"
     conditions=list(dict.fromkeys('“'+d['quote']+'”' if d['quote'] in text else '未听准的住宿条件' for d in dropped))
     if conditions:reply+='、'.join(conditions)+('这条' if len(conditions)==1 else '这几条')+'暂时没法按条件筛选，候选里需要自己核对。'
-    return {'reply':reply,'services':w,'formal_state_changed':False}
+    return {'reply':reply,'services':w,'formal_state_changed':False,**({'inferred_fields':inferred} if inferred else {})}
 
 class Query(Strict):
     text: str = Field(min_length=1,max_length=2000)

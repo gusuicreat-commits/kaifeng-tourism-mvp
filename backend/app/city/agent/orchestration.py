@@ -32,8 +32,8 @@ def _basket_reply(pending,snapshot):
             ('要把'+'、'.join(standby)+'改为候补吗？' if standby else '')+'确认后我接着排。')
 
 
-def _execute(session,t,intent):
-    proposed=proposal(session,t.trip_id,t.snapshot,intent,t.text,today=t.interpretation_date)
+def _execute(session,t,intent,proposed=None):
+    if proposed is None:proposed=proposal(session,t.trip_id,t.snapshot,intent,t.text,today=t.interpretation_date)
     conflicts=t.interpretation.get('planning_conflicts',())
     action=proposed.get('planning_action')
     if not action:
@@ -157,8 +157,8 @@ def _execute(session,t,intent):
             'date_changed':action['date_changed'],'result':result}}
 
 
-def execute(session,t,intent):
-    result=_execute(session,t,intent)
+def execute(session,t,intent,proposed=None):
+    result=_execute(session,t,intent,proposed)
     if any(d['check']=='per_person_budget' for d in t.interpretation.get('dropped_fields',())):
         from .requirement_context import planning_values
         result['reply']+=('按人预算暂时不能用于规划，这笔金额未作为总预算保存；仍沿用已保存的总预算。'

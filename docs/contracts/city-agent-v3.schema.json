@@ -588,7 +588,7 @@
       "additionalProperties": false,
       "properties": {
         "field": {
-          "description": "city城市;date日期;start_time/end_time起止;origin/destination出发/返回;pace节奏;objective目标;mode交通;budget_fen预算分;trip_days天。start_date起日;end_date末日(含);trip_nights晚数。",
+          "description": "city城市;date日期;start_time/end_time起止;origin/destination起终点;pace节奏;objective目标;mode交通;budget_fen分;trip_days天;start_date首日;end_date含末日;trip_nights晚。",
           "enum": [
             "city",
             "date",
@@ -671,7 +671,7 @@
             }
           ],
           "default": null,
-          "description": "every_day=每天。",
+          "description": "各天相同用every_day；quote含每天原话。",
           "title": "Scope"
         }
       },

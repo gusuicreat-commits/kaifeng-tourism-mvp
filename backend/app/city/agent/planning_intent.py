@@ -122,7 +122,12 @@ def grounded(planning, text, snapshot, dropped=None, meta=None, corrections=()):
         control=planning.quote.strip().rstrip('。！!')
         if control not in ('好','好的','可以','就这样','就这样吧','就按这个安排','生成安排','开始安排','帮我安排','安排','规划') and not re.search(r'(?:开始|生成|继续|帮我|请).{0,20}(?:安排|规划)',control):
             raise ValueError('continue needs an explicit planning request')
-    from .date_range import day_key,day_reference,scope_check
+    from .date_range import day_key,day_reference,scope_check,daily_evidence,multiple_days
+    from .requirement_context import planning_values
+    range_fields=[f for f in planning.fields if f.field in ('date','start_date','end_date','trip_days')
+                  and f.quote in text and _field_check(f,text,today) is None]
+    multi=any(f.field in ('start_time','end_time','origin','destination') and not f.scope and not f.day_ref for f in planning.fields) \
+        and multiple_days(planning_values(snapshot),range_fields,today)
     seen={};kept=[]
     def drop(item,field,check,part):
         dropped.append({'field':field,'check':check})
@@ -146,6 +151,10 @@ def grounded(planning, text, snapshot, dropped=None, meta=None, corrections=()):
         if check is not None:
             if dropped is None:raise ValueError(check)
             drop(f,f.field,check,'fields');continue
+        if multi and f.field in ('start_time','end_time','origin','destination') and not f.scope and not f.day_ref \
+                and len({item.value for item in planning.fields if item.field==f.field})==1 and daily_evidence(f.quote,text,f):
+            f=f.model_copy(update={'scope':'every_day'});key=(f.field,day_key(f,today))
+            if meta is not None:meta.setdefault('recovered_fields',[]).append({'field':f.field,'scope':'every_day','source':'sentence_scope','quote':f.quote})
         value=f.value
         if value is not None and f.field in ('date','start_date','end_date'):
             from .date_range import resolve
@@ -186,7 +195,7 @@ def grounded(planning, text, snapshot, dropped=None, meta=None, corrections=()):
             meta.setdefault('short_name_matches',[]).append({'name':choice.name,'method':'common_substring',
                 'material_keys':[item['key'] for item in matches]})
         kept_choices.append(choice)
-    if len(kept)!=len(planning.fields) or len(kept_choices)!=len(planning.choices):
+    if tuple(kept)!=planning.fields or tuple(kept_choices)!=planning.choices:
         return planning.model_copy(update={'fields':tuple(kept),'choices':tuple(kept_choices)})
     return planning
 
