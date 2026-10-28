@@ -14,7 +14,7 @@ const route=useRoute(),router=useRouter(),busy=ref(false),error=ref(''),editing=
 const working=ref<SingleDayDraft>(emptyCityDraft()),day=ref(''),start=ref(''),end=ref(''),previous=ref<SingleDayDraft>()
 const proposal=ref<Extract<CityProposal,{status:'needs_confirmation'}>>(),selectedPlace=ref(''),selectedSession=ref(''),completion=ref(false),actualStart=ref(''),actualEnd=ref('')
 let disposed=false
-const trip=computed(()=>journey.trip),multi=computed(()=>isMultiDayDraft(trip.value?.draft)),viewDraft=computed(()=>focusedDraftDay.value||emptyCityDraft()),next=computed(()=>nextCityStop.value),terminal=computed(()=>trip.value&&['COMPLETED','CANCELLED','ARCHIVED'].includes(trip.value.status))
+const trip=computed(()=>journey.trip),multi=computed(()=>isMultiDayDraft(trip.value?.draft)),viewDraft=computed(()=>multi.value?focusedDraftDay.value||emptyCityDraft():trip.value?.draft as SingleDayDraft|undefined||emptyCityDraft()),next=computed(()=>nextCityStop.value),terminal=computed(()=>trip.value&&['COMPLETED','CANCELLED','ARCHIVED'].includes(trip.value.status))
 const places=computed(()=>journey.catalog.filter(x=>x.record.kind==='place'))
 const sessions=computed(()=>journey.catalog.filter(x=>x.record.kind==='show_session'&&x.record.business_date===day.value&&x.ready&&!x.record.is_demo))
 const completed=computed(()=>viewDraft.value.stops.filter(s=>s.progress==='completed').length||0)

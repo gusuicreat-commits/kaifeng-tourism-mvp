@@ -1,5 +1,7 @@
 import {mutate,request} from './api'
 import type {Overnight} from './explorationApi'
+export {isMultiDayDraft,draftDays} from './days'
+import {isMultiDayDraft} from './days'
 
 export interface CityStop {
  stop_id:string;place_id:string;kind:'visit'|'show'|'dining'|'rest'|'return';session_id:string|null;scenic_id?:string|null
@@ -19,9 +21,7 @@ export interface MultiDayDraft {
  schema_version:'city-draft/2';start_date:string;end_date:string;days:CityDraftDay[];overnights?:Overnight[]
 }
 export type CityDraft=SingleDayDraft|MultiDayDraft
-export const isMultiDayDraft=(draft:CityDraft|undefined|null):draft is MultiDayDraft=>draft?.schema_version==='city-draft/2'&&Array.isArray((draft as MultiDayDraft).days)
 export interface DraftDay extends CityDraftDay {day_id:string;business_date:string;is_overnight?:boolean}
-export const draftDays=(draft:CityDraft|undefined|null):DraftDay[]=>isMultiDayDraft(draft)?draft.days.map(d=>({...d,is_overnight:!!draft.overnights?.some(o=>o.from_day_id===d.day_id)})):(draft?[{...draft,day_id:'day:'+(draft.business_date||'legacy'),business_date:draft.business_date||'',status:'pending'} as DraftDay]:[])
 interface CityStateBase {
  id:string;status:'DRAFT'|'ACTIVE'|'PAUSED'|'COMPLETED'|'CANCELLED'|'ARCHIVED'
  anchor:{place_id:string;confirmed_at:string;source:'manual_known_place'}|null

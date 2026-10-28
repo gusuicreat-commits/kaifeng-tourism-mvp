@@ -94,7 +94,7 @@ test('unsupported backend scope explanation stays visible and old forms cannot f
  await page.goto('/city-trip/manage/'+setup.trip_id)
  await expect(page.getByLabel('多天只读进度')).toContainText('此页只查看按日进度及确认今天的当前位置')
  await expect(page.getByRole('button',{name:/保存安排/})).toHaveCount(0)
- await page.getByLabel('我在这里', {exact:true}).selectOption('museum')
+ await page.getByRole('combobox',{name:'我在这里',exact:true}).selectOption('museum')
  await expect(page.getByRole('button',{name:'确认当前位置',exact:true})).toBeEnabled()
  await page.goto('/plan-city')
  await expect(page.getByText(/此单日表单不支持修改多天行程/)).toBeVisible()
