@@ -364,3 +364,13 @@ B2 只接受 `user_place` 已有地点；过夜地点证据由服务端事实计
 仍拒绝 `current_and_future`、`selected_future_day`、历史补录、多天整体草稿覆盖、酒店绑定及全程费用报告。D4 请求中显式日期、数字日序和数值天数范围会被确定性核对；现有 `StateIntent` 没有范围字段，且本任务禁止改提示词/字段说明，因此“后几天一起”等没有日期或数值范围的说法尚不能可靠结构化，需 B2.4 补齐，不能把当前 Mock 验收说成这类真实语义已通过。
 
 软件验证入口：[整套事务/API](../backend/tests/test_multi_day_api.py)、[日级状态](../backend/tests/test_multi_day_state.py)、[助手与 D4](../backend/tests/test_multi_day_assistant.py)、[按日交通](../backend/tests/test_multi_day_travel.py)。这些测试使用隔离库、合成事实及替身，不代表真实模型、交通、住宿、现场或游客验收；前端属于 B2.5，本轮未修改。
+
+## 14. B2.5 前端实现边界（2026-10-28，待 Claude 验收）
+
+前端按 schema 区分旧单日与多天草稿/路线，只读日投影不改原 JSON，写操作保留服务端契约。行程页提供日期范围、默认今日及按日只读切换，复用日内时间轴并单列过夜说明；跨夜不生成交通段。素材篮与 Agent 多日候选复用整套方案展示，按日折叠、汇总步行/已知费用、显示各日变更，一次确认同一候选的完整 alternative。助手本轮返回的工作流候选直接交给预览组件，避免工作区未持久化 result 时丢失候选。地图 revision 包含旅行、状态版本、路线版本与日 ID；选未来日不标为今天下一站。旧单日表单禁止覆盖多天，管理页保留今日位置确认及按日只读进度。
+
+进行中的多天每日条件表只读，调整今天剩余交给已接通的 Agent 流程；后续天调整、历史补录、酒店绑定、全程预算没有新增可点的入口，错误和 unavailable 回复保留后端说明。未改后端业务、模型契约或提示词，未调用真实模型、地图或其他外部服务。
+
+已知后端阻塞：`exploration.preview_plan` 的 V2 分支生成候选后递增工作区版本，未同步候选的 `planning_version`，通过该入口生成的候选确认返回 `409 PLANNING_CHANGED`。[隔离 API 测试](../backend/tests/test_multi_day_browser_fixture.py) 保留 strict xfail 复现；直接 engine 预览、整套确认与双日读取正常。浏览器测试服务器只准备已有引擎候选快照，不在生产前端绕过版本门。
+
+验证入口：[离线 TS 投影](../backend/tests/test_multi_day_frontend.py)、[五个多日浏览器场景](../frontend/tests/multi-day.spec.ts)、[隔离浏览器配置](../frontend/playwright.multi-day.config.ts)。全量后端为 2530 passed、9 skipped、1 xfailed；类型检查、Vite runner 与原 `npx vite build` 均通过（原 loader 首次因外链 node_modules 临时目录 `EPERM` 失败，改用本 worktree 内临时依赖入口后通过，原链接已恢复）。现有五组及新增多日浏览器服务均因本地监听端口 `EPERM` 未启动，`docs/screenshots/multi-day-*.png` 尚未生成。这些软件检查不代表真实开封数据、住宿、导航或现场验收。

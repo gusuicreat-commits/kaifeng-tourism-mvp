@@ -1,11 +1,11 @@
 <script setup lang="ts">
 import {computed} from 'vue'
 import {Check,Flag,MapPin,Landmark,Utensils,Ticket,Coffee,LockKeyhole,Footprints,Car,BusFront,ArrowDown} from 'lucide-vue-next'
-import type {CityTripState} from '../cityApi'
-import type {Itinerary,PlannedActivity,ScheduledLeg} from '../explorationApi'
+import {draftDays,emptyCityDraft,type CityTripState} from '../cityApi'
+import type {SingleDayItinerary,PlannedActivity,ScheduledLeg} from '../explorationApi'
 import {clock,journey,nameOf} from '../journey'
 
-const props=defineProps<{trip:CityTripState;itinerary:Itinerary}>()
+const props=defineProps<{trip:CityTripState;itinerary:SingleDayItinerary;dayId?:string;actionable?:boolean}>()
 type Point={id:string;place:string|null;kind:string;title:string;status:string;time:string|null;end?:string|null;duration?:number|null;locked?:boolean;state?:string;incoming?:ScheduledLeg;history?:boolean}
 const labels:Record<string,string>={visit:'游览',dining:'用餐',show:'演出',rest:'休息',return:'返程',origin:'出发',resume:'接续行程'}
 const icons:Record<string,typeof MapPin>={visit:Landmark,dining:Utensils,show:Ticket,rest:Coffee,return:Flag,origin:MapPin,resume:MapPin}
@@ -20,7 +20,7 @@ function title(activity:PlannedActivity){
  return nameOf(activity.place_id)
 }
 const points=computed(()=>{
- const route=props.itinerary,draft=props.trip.draft,firstLeg=route.legs[0],lastLeg=route.legs.at(-1)
+ const route=props.itinerary,draft=draftDays(props.trip.draft).find(d=>d.day_id===props.dayId)||draftDays(props.trip.draft)[0]||emptyCityDraft(),firstLeg=route.legs[0],lastLeg=route.legs.at(-1)
  const history=draft.stops.filter(s=>s.progress!=='pending'),ongoing=route.ongoing
  const result:Point[]=[{id:'origin',place:history.length||ongoing?draft.origin_place_id:firstLeg?.journey.travel.origin_place_id||draft.origin_place_id,
   kind:'origin',title:'',status:history.length||ongoing?'原定出发':'按计划出发',time:history.length||ongoing?draft.starts_at:firstLeg?.departs_at||draft.starts_at}]
@@ -29,7 +29,7 @@ const points=computed(()=>{
  if(ongoing){
   const activity=ongoing.original_activity,stop=draft.stops.find(s=>s.stop_id===ongoing.stop_id)
   result.push({id:ongoing.stop_id,place:ongoing.place_id||activity?.place_id||stop?.place_id||null,kind:activity?.kind||stop?.kind||'visit',
-   title:activity?title(activity):nameOf(stop?.place_id),status:'正在进行',time:activity?.starts_at||null,end:ongoing.ends_at,state:'ongoing',locked:activity?.required})
+   title:activity?title(activity):nameOf(stop?.place_id),status:props.actionable===false?'原计划进行项':'正在进行',time:activity?.starts_at||null,end:ongoing.ends_at,state:'ongoing',locked:activity?.required})
  }else if(history.length&&firstLeg)result.push({id:'resume',place:firstLeg.journey.travel.origin_place_id,kind:'resume',title:'',status:'剩余行程从此接续',time:firstLeg.departs_at})
  const done=new Set(history.map(s=>s.stop_id));if(ongoing)done.add(ongoing.stop_id)
  route.activities.forEach((a,i)=>{
@@ -40,7 +40,7 @@ const points=computed(()=>{
  })
  result.push({id:'destination',place:lastLeg?.journey.travel.destination_place_id||draft.destination_place_id,kind:'return',title:'',status:'预计抵达',time:route.returns_at,
   incoming:route.legs.length>route.activities.length?lastLeg:undefined})
- const next=result.find(p=>p.state==='pending');if(next&&!ongoing){next.state='next';next.status='下一站'}
+ const next=result.find(p=>p.state==='pending');if(next&&!ongoing&&props.actionable!==false){next.state='next';next.status='下一站'}
  return result
 })
 function legBetween(from:Point,to:Point){const leg=to.incoming;return leg&&leg.journey.travel.origin_place_id===from.place&&leg.journey.travel.destination_place_id===to.place?leg:null}

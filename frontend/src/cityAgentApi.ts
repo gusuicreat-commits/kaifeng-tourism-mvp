@@ -1,6 +1,6 @@
 import {mutate,request} from './api'
 import type {ObjectRef,BasketChoice} from './basketApi'
-import type {Itinerary,PlanningResult} from './explorationApi'
+import type {Itinerary,PlanningReply} from './explorationApi'
 
 export interface CityContext {
  identity:{trip_id:string;version:number;route_version:number;status:string}
@@ -9,6 +9,7 @@ export interface CityContext {
  recent_messages?:{role:string;text:string}[]
 }
 export interface CandidateChange {
+ days?:({day_id:string;business_date:string}&CandidateChange)[]
  retained:string[];removed:string[];added:string[];reordered:string[]
  start_changes:{goal_id:string;before:string;after:string}[]
  walking_distance_m_delta:number;travel_seconds_delta:number
@@ -45,7 +46,7 @@ export interface AgentTask {
  waiting?:{retry_after_seconds:number}|null
  events:{tool:string;status:string}[]
  understanding:{constraints:{field:string;strength:string;value:string|number|null;quote:string}[]}|null
- result:{reply:string;state?:'locations_explicit'|'ambiguous_locations'|'current_position_required'|'model_unavailable';code?:string;reference_route?:ReferenceRoute;weather?:WeatherReport;location_choices?:RouteLocationChoice[];basket_proposal?:BasketProposal;basket_choices?:BasketChoicePrompt[];planning_workflow?:{trip_id:string;execution:'completed_backend';operation:string;date_changed:boolean;result:PlanningResult};questions?:string[];answers?:{status:string;reply:string}[];compound?:{partial:boolean;items:{kind:string;status:string;reply?:string;questions?:string[];result?:unknown;answers?:{status:string;reply:string}[]}[]};activity_names?:Record<string,string>;changes?:CandidateChange;confirmation?:{target_kind:'route'|'state';candidate_id:string;expected_version:number};
+ result:{reply:string;state?:'locations_explicit'|'ambiguous_locations'|'current_position_required'|'model_unavailable';code?:string;reference_route?:ReferenceRoute;weather?:WeatherReport;location_choices?:RouteLocationChoice[];basket_proposal?:BasketProposal;basket_choices?:BasketChoicePrompt[];planning_workflow?:{trip_id:string;execution:'completed_backend';operation:string;date_changed:boolean;result:PlanningReply};questions?:string[];answers?:{status:string;reply:string}[];compound?:{partial:boolean;items:{kind:string;status:string;reply?:string;questions?:string[];result?:unknown;answers?:{status:string;reply:string}[]}[]};activity_names?:Record<string,string>;changes?:CandidateChange;alternative_changes?:CandidateChange[];confirmation?:{target_kind:'route'|'state';candidate_id:string;expected_version:number};
   planning?:{result:{itineraries:Itinerary[];warnings?:string[]}}}|null
 }
 const prefix=(id:string)=>`/city/v1/trips/${encodeURIComponent(id)}`
@@ -59,5 +60,5 @@ export const cityAgentApi={
  step:(t:AgentTask)=>mutate<AgentTask>(prefix(t.trip_id)+`/agent/tasks/${t.task_id}/step`,{expected_step:t.step},'POST',16000),
  get:(t:AgentTask)=>request<AgentTask>(prefix(t.trip_id)+`/agent/tasks/${t.task_id}`),
  cancel:(t:AgentTask)=>request<AgentTask>(prefix(t.trip_id)+`/agent/tasks/${t.task_id}/cancel`,{method:'POST'}),
- confirm:(t:AgentTask)=>mutate(prefix(t.trip_id)+'/assistant/confirm',{...t.result?.confirmation,confirmed:true}),
+ confirm:(t:AgentTask,alternative_index=0)=>mutate(prefix(t.trip_id)+'/assistant/confirm',{...t.result?.confirmation,confirmed:true,alternative_index}),
 }

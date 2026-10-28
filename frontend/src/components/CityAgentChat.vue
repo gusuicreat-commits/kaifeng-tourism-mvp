@@ -11,11 +11,12 @@ import {basketApi,type ObjectRef} from '../basketApi'
 import ReferenceRouteCard from './ReferenceRouteCard.vue'
 import TravelServiceCards from './TravelServiceCards.vue'
 import WeatherCard from './WeatherCard.vue'
-import {objectiveLabel} from '../explorationApi'
+import {isMultiDayItinerary,objectiveLabel,type PlanningReply} from '../explorationApi'
+import PlanPreview from './PlanPreview.vue'
 
 const props=defineProps<{tripId:string;focus?:ObjectRef|null;initialQuestion?:string;planning?:boolean}>()
 const showPlanning=ref(!!props.planning),planningRevision=ref(0),planningBusy=ref(false)
-const continuePlanning=ref(false)
+const continuePlanning=ref(false),workflowResult=ref<PlanningReply|null>(null)
 const inputBusy=computed(()=>busy.value||planningBusy.value)
 const ctx=ref<CityContext|null>(null),text=ref(''),task=ref<AgentTask|null>(null),busy=ref(false),error=ref('')
 const weather=ref<WeatherReport|null>(null)
@@ -39,6 +40,12 @@ let epoch=0,disposed=false,resizeObserver:ResizeObserver|undefined
 const labels:Record<string,string>={query_weather:'正在查询和风天气',search_locations:'正在查找起点和终点',query_reference_route:'正在查询高德参考路线',search_dining:'正在查找合适商家',query_shows:'正在核对演出时间',verify_travel:'正在验证交通衔接',preview_plan:'正在验证行程安排',understand:'正在理解你的要求'}
 const progress=computed(()=>task.value?.waiting?'小汴梁正在思考':labels[task.value?.events.at(-1)?.tool||'']||'正在理解你的要求')
 const candidate=computed(()=>task.value?.status==='needs_confirmation'&&task.value.result?.confirmation?task.value.result:null)
+const selectedCandidate=ref(0)
+const candidatePlans=computed(()=>candidate.value?.planning?.result.itineraries||[])
+const multiCandidate=computed(()=>candidatePlans.value.some(isMultiDayItinerary))
+const singleCandidate=computed(()=>{const plan=candidatePlans.value[0];return plan&&!isMultiDayItinerary(plan)?plan:null})
+const candidateChanges=computed(()=>candidate.value?.alternative_changes?.[selectedCandidate.value]||candidate.value?.changes)
+watch(()=>candidate.value?.confirmation?.candidate_id,()=>selectedCandidate.value=0)
 const basketProposal=computed(()=>task.value?.result?.basket_proposal)
 const basketChoices=computed(()=>task.value?.result?.basket_choices||[])
 watch(()=>[messages.value.length,busy.value,showPlanning.value,candidate.value,basketProposal.value,basketChoices.value.length,task.value?.status,error.value],async()=>{if(atLatest.value)await scrollLatest()},{flush:'post'})
@@ -76,7 +83,7 @@ async function send(inputOverride?:string){
    if(t.result.planning_workflow.trip_id!==props.tripId)throw new Error('安排已变化，请重新读取当前旅程。')
    await loadBasket()
    if(current!==epoch||disposed)return
-   planningRevision.value++;showPlanning.value=!t.result.basket_proposal&&!t.result.basket_choices
+   workflowResult.value=t.result.planning_workflow.result;planningRevision.value++;showPlanning.value=!t.result.basket_proposal&&!t.result.basket_choices
   }
   messages.value.push({role:'小汴梁',text:t.result?.reply||'本次处理已停止，请重试。'})
  }catch(e){if(current===epoch)error.value=e instanceof Error?e.message:'处理失败，请重试'}
@@ -115,7 +122,7 @@ async function confirm(){
  if(!task.value||!candidate.value||busy.value)return
  busy.value=true;error.value='';const guard=memoryEpoch.value
  try{
-  await cityAgentApi.confirm(task.value)
+  await cityAgentApi.confirm(task.value,selectedCandidate.value)
   if(disposed||guard!==memoryEpoch.value)return
   task.value=null;await refresh()
   const latest=await cityApi.get(props.tripId)
@@ -128,6 +135,7 @@ async function confirm(){
 async function confirmBasket(){
  const proposal=basketProposal.value
  if(!proposal||inputBusy.value||basketChoices.value.length)return
+ const workflow=task.value?.result?.planning_workflow?.result
  const current=++epoch,guard=memoryEpoch.value,id=props.tripId
  const active=()=>!disposed&&current===epoch&&guard===memoryEpoch.value&&id===props.tripId
  busy.value=true;error.value=''
@@ -145,7 +153,7 @@ async function confirmBasket(){
   }
   task.value=null;await loadBasket();await refresh();if(!active())return
   messages.value.push({role:'小汴梁',text:'素材篮已更新，接着按已保存的条件安排。'})
-  continuePlanning.value=true;planningRevision.value++;showPlanning.value=true
+  continuePlanning.value=true;workflowResult.value=workflow||null;planningRevision.value++;showPlanning.value=true
  }catch(e){if(active()){
   task.value=null;await loadBasket()
   error.value=e instanceof ApiError&&e.status===409?'素材篮或行程已变化，请刷新后重新提出要求；本次未覆盖冲突项。':e instanceof Error?e.message:'素材篮未更新，请重试'
@@ -210,20 +218,21 @@ onBeforeUnmount(()=>{disposed=true;epoch++;resizeObserver?.disconnect();if(task.
   <section v-if="candidate" aria-label="待确认修改" class="agent-preview">
    <h3>请核对新安排</h3>
    <p>以下为待确认候选，正式路线尚未改变。</p>
-   <template v-if="candidate.planning?.result.itineraries[0]">
-   <h4>{{objectiveLabel(candidate.planning.result.itineraries[0].objectives)}}</h4>
-   <small v-if="candidate.planning.result.itineraries[0].objectives?.includes('lower_cost')&&candidate.planning.result.itineraries[0].cost_unknown">费用资料不全，只按已知费用比较</small>
+   <PlanPreview v-if="multiCandidate" :plans="candidatePlans" :selected="selectedCandidate" :disabled="busy" :names="candidate.activity_names" :changes="candidateChanges" @select="selectedCandidate=$event"/>
+   <template v-else-if="singleCandidate">
+   <h4>{{objectiveLabel(singleCandidate.objectives)}}</h4>
+   <small v-if="singleCandidate.objectives?.includes('lower_cost')&&singleCandidate.cost_unknown">费用资料不全，只按已知费用比较</small>
    <ol>
-    <li v-for="stop in candidate.planning.result.itineraries[0].activities" :key="stop.goal_id">{{candidate.activity_names?.[stop.goal_id]||'待核对活动'}} · {{clock(stop.starts_at)}}—{{clock(stop.departs_at)}}</li>
+    <li v-for="stop in singleCandidate.activities" :key="stop.goal_id">{{candidate.activity_names?.[stop.goal_id]||'待核对活动'}} · {{clock(stop.starts_at)}}—{{clock(stop.departs_at)}}</li>
    </ol>
    </template>
-   <p v-if="candidate.changes">步行距离变化 {{Math.round(candidate.changes.walking_distance_m_delta)}} 米；交通耗时变化 {{Math.round(candidate.changes.travel_seconds_delta/60)}} 分钟。</p>
-   <p v-if="candidate.changes?.removed.length">移除的活动：{{candidate.changes.removed.map(activityName).join('、')}}</p>
-   <p v-for="change in candidate.changes?.start_changes||[]" :key="change.goal_id">{{candidate.activity_names?.[change.goal_id]||'活动'}}：{{clock(change.before)}} → {{clock(change.after)}}</p>
+   <p v-if="candidate.changes&&!multiCandidate">步行距离变化 {{Math.round(candidate.changes.walking_distance_m_delta)}} 米；交通耗时变化 {{Math.round(candidate.changes.travel_seconds_delta/60)}} 分钟。</p>
+   <p v-if="!multiCandidate&&candidate.changes?.removed?.length">移除的活动：{{candidate.changes.removed.map(activityName).join('、')}}</p>
+   <p v-for="change in !multiCandidate?candidate.changes?.start_changes||[]:[]" :key="change.goal_id">{{candidate.activity_names?.[change.goal_id]||'活动'}}：{{clock(change.before)}} → {{clock(change.after)}}</p>
    <ul v-if="candidate.planning?.result.warnings?.length" class="agent-planning-warnings" aria-label="演示规划提醒"><li v-for="warning in candidate.planning.result.warnings" :key="warning">{{warning}}</li></ul>
-   <div class="interview-actions"><button class="button" :disabled="busy" @click="confirm">确认修改</button><button class="button secondary" :disabled="busy" @click="cancel">放弃修改</button></div>
+   <div class="interview-actions"><button class="button" :disabled="busy" @click="confirm">{{multiCandidate?'确认整套方案':'确认修改'}}</button><button class="button secondary" :disabled="busy" @click="cancel">放弃修改</button></div>
   </section>
-  <BasketPlanning v-if="showPlanning&&!candidate&&!basketProposal" :key="tripId" :trip-id="tripId" :revision="planningRevision" :auto-plan="continuePlanning" @busy="planningBusy=$event"/>
+  <BasketPlanning v-if="showPlanning&&!candidate&&!basketProposal" :key="tripId" :trip-id="tripId" :revision="planningRevision" :auto-plan="continuePlanning" :workflow-result="workflowResult" @busy="planningBusy=$event"/>
   <div v-else-if="!messages.length&&!focus" class="chat-welcome"><p>想怎么逛开封？</p><button type="button" @click="showPlanning=true">一起安排行程</button></div>
   </div>
   <form class="chat-composer" @submit.prevent="send()">

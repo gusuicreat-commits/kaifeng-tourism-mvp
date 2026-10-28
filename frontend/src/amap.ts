@@ -1,24 +1,29 @@
-import type {CatalogItem,CityTripState} from './cityApi'
-import type {RouteSnapshot} from './explorationApi'
+import {draftDays,isMultiDayDraft,type CatalogItem,type CityTripState} from './cityApi'
+import {routeDays,type RouteSnapshot} from './explorationApi'
 export type Pair=[number,number]
 export type TravelMode='walking'|'driving'|'transit'
 export interface MapPoint {id:string;name:string;position:Pair;coordinateSystem:'GCJ02'|'WGS84';type:string;state:string;locked:boolean;entrance:boolean}
 export interface MapLocation {position:Pair;coordinate_system:'GCJ02';source:'amap_geolocation'|'manual_map'|'manual_known_place';method:string;obtained_at:string;accuracy_m:number|null;place_id?:string}
 export const validPair=(x:unknown):x is Pair=>Array.isArray(x)&&x.length===2&&x.every(n=>typeof n==='number'&&Number.isFinite(n))&&Math.abs(x[0])<=180&&Math.abs(x[1])<=90
 export function locationUsable(p:MapLocation|null,now=Date.now()) {if(!p||!validPair(p.position))return false;const age=now-Date.parse(p.obtained_at);return age>=0&&age<900000&&(p.source!=='amap_geolocation'||(p.accuracy_m!==null&&p.accuracy_m<=200&&!/ip/i.test(p.method)))}
-export function mapPoints(catalog:CatalogItem[],trip:CityTripState|null,route:RouteSnapshot|null):MapPoint[]{
- const current=route&&route.trip_id===trip?.id&&route.version===trip.version&&route.route_version===trip.route_version&&!route.stale&&route.itinerary&&Date.parse(route.itinerary.returns_at)>Date.now()?route.itinerary:null
+export function mapPoints(catalog:CatalogItem[],trip:CityTripState|null,route:RouteSnapshot|null,dayId?:string):MapPoint[]{
+ const today=new Intl.DateTimeFormat('en-CA',{timeZone:'Asia/Shanghai',year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date())
+ const days=draftDays(trip?.draft),draft=days.find(d=>d.day_id===dayId)||days.find(d=>d.business_date===today)||days[0]
+ const selected=routeDays(route,trip?.draft).find(d=>d.day_id===draft?.day_id)
+ const history=!!selected&&(selected.frozen||selected.business_date<today||selected.status==='closed')
+ const current=route&&route.trip_id===trip?.id&&route.version===trip.version&&route.route_version===trip.route_version&&selected&&(!route.stale||history)&&(isMultiDayDraft(trip.draft)||Date.parse(selected.returns_at)>Date.now())?selected:null
+ const actionable=!isMultiDayDraft(trip?.draft)||draft?.business_date===today&&draft.status!=='closed'
  const activities=[...(current?.activities||[])]
  if(current?.ongoing?.original_activity&&!activities.some(a=>a.goal_id===current.ongoing?.stop_id))activities.unshift(current.ongoing.original_activity)
- const remaining=activities.filter(a=>!['completed','skipped'].includes(trip?.draft.stops.find(s=>s.stop_id===a.goal_id)?.progress||''))
- const ongoing=current?.ongoing?.stop_id
+ const remaining=activities.filter(a=>!['completed','skipped'].includes(draft?.stops.find(s=>s.stop_id===a.goal_id)?.progress||''))
+ const ongoing=actionable?current?.ongoing?.stop_id:undefined
  return catalog.filter(x=>x.record.kind==='place'&&x.ready&&!x.record.is_demo&&x.record.validation_status==='verified'&&x.record.business_status==='active'&&x.record.source_ids?.length&&(!x.record.effective_to||Date.parse(x.record.effective_to)>Date.now())).flatMap(x=>{
   const r=x.record,p=[r.longitude,r.latitude];if(!validPair(p)||!['GCJ02','WGS84'].includes(r.coordinate_system||''))return []
-  const related=activities.filter(a=>a.place_id===r.fact_id),next=remaining.find(a=>a.goal_id!==ongoing)
-  const progress=(a:typeof activities[number])=>trip?.draft.stops.find(s=>s.stop_id===a.goal_id)?.progress
+  const related=activities.filter(a=>a.place_id===r.fact_id),next=actionable?remaining.find(a=>a.goal_id!==ongoing):undefined
+  const progress=(a:typeof activities[number])=>draft?.stops.find(s=>s.stop_id===a.goal_id)?.progress
   const state=related.some(a=>a.goal_id===ongoing)?'正在游览':related.some(a=>a.goal_id===next?.goal_id)?'下一站':related.length&&related.every(a=>progress(a)==='completed')?'已完成':related.length&&related.every(a=>progress(a)==='skipped')?'已跳过':related.length?'已确认':'已有地点'
   const entrance=r.place_type==='entrance'&&catalog.some(e=>e.record.kind==='entrance'&&e.ready&&!e.record.is_demo&&e.record.validation_status==='verified'&&e.record.business_status==='active'&&e.record.entrance_place_id===r.fact_id)
-  return [{id:r.fact_id,name:r.name||'未命名地点',position:p,coordinateSystem:r.coordinate_system as 'GCJ02'|'WGS84',type:r.place_type||'poi',state,entrance,locked:related.some(a=>a.required||trip?.draft.stops.find(s=>s.stop_id===a.goal_id)?.locked)}]
+  return [{id:r.fact_id,name:r.name||'未命名地点',position:p,coordinateSystem:r.coordinate_system as 'GCJ02'|'WGS84',type:r.place_type||'poi',state,entrance,locked:related.some(a=>a.required||draft?.stops.find(s=>s.stop_id===a.goal_id)?.locked)}]
  })
 }
 export function navigationUrl(to:Pair,name:string,mode:TravelMode,from?:MapLocation|null){

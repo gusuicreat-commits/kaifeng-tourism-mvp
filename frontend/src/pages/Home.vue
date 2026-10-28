@@ -8,14 +8,14 @@ import DestinationActions from '../components/DestinationActions.vue'
 import {api} from '../api'
 import {scenicCatalog,type ScenicSummary} from '../data/scenicCatalog'
 import {foodCatalog} from '../data/foods'
-import {journey,loadJourney,nameOf,cityStatus,nextCityStop,arrivalSummary,clock,localDate} from '../journey'
+import {journey,loadJourney,nameOf,cityStatus,nextCityStop,arrivalSummary,clock,localDate,tripDays,tripDateLabel} from '../journey'
 const items=ref<ScenicSummary[]>([...scenicCatalog]),busy=ref(false),error=ref(''),query=ref(''),category=ref('全部')
 let disposed=false
 const scenics=computed(()=>items.value.filter(s=>(s.name+s.category).includes(query.value.trim())))
 const foods=computed(()=>foodCatalog.filter(f=>f.name.includes(query.value.trim())))
 const shows=computed(()=>journey.catalog.filter(x=>x.record.kind==='show_session'&&!x.record.is_demo&&x.ready&&x.record.business_date===localDate()).filter(x=>(nameOf(x.record.program_id)+nameOf(x.record.stage_place_id)).includes(query.value.trim())))
 const showScenic=computed(()=>['全部','景点'].includes(category.value)),showFood=computed(()=>['全部','美食'].includes(category.value))
-const hasTripContent=computed(()=>!!(journey.trip&&(journey.trip.draft.stops.length||journey.trip.draft.business_date)))
+const hasTripContent=computed(()=>!!(journey.trip&&(tripDays.value.some(d=>d.stops.length||d.business_date))))
 const currentTrip=computed(()=>journey.trip),next=computed(()=>nextCityStop.value)
 const terminal=computed(()=>currentTrip.value&&['COMPLETED','CANCELLED','ARCHIVED'].includes(currentTrip.value.status))
 async function load(){if(busy.value)return;busy.value=true;error.value='';try{const data=await api.scenics('',5000);if(!disposed)items.value=data.items}catch(e){if(!disposed)error.value=(e as Error).message}finally{if(!disposed)busy.value=false}}
@@ -26,9 +26,9 @@ onMounted(()=>{void load();void loadJourney(true)});onBeforeUnmount(()=>{dispose
   <h1 class="visually-hidden">发现开封</h1>
   <section v-if="currentTrip&&hasTripContent" class="home-trip-card has-trip" aria-label="当前行程">
    <div class="trip-card-top"><span class="home-trip-kicker">我的开封之旅</span><span class="journey-status">{{cityStatus[currentTrip.status]}}</span></div>
-   <h2>{{currentTrip.draft.business_date||'开封之旅'}}</h2>
+   <h2>{{tripDateLabel(currentTrip.draft)}}</h2>
    <div class="next-destination"><MapPin :size="19"/><div><small>{{terminal?'这一程已留存':'下一站'}}</small><strong>{{next?nameOf(next.place_id):terminal?'查看游玩记录':'继续完善安排'}}</strong><span v-if="next">{{arrivalSummary(next.stop_id)}}</span></div></div>
-   <div class="home-trip-actions"><RouterLink class="button primary" :to="'/city-trip/'+currentTrip.id">{{terminal?'回顾行程':'继续行程'}}<ArrowRight :size="15"/></RouterLink><RouterLink v-if="currentTrip.draft.stops.length" class="text-link" to="/guide?mode=city">查看地图</RouterLink></div>
+   <div class="home-trip-actions"><RouterLink class="button primary" :to="'/city-trip/'+currentTrip.id">{{terminal?'回顾行程':'继续行程'}}<ArrowRight :size="15"/></RouterLink><RouterLink v-if="tripDays.some(d=>d.stops.length)" class="text-link" to="/guide?mode=city">查看地图</RouterLink></div>
   </section>
   <div class="home-banner" :class="{'compact-banner':hasTripContent}"><img src="/images/scenics/bianliang.jpg" alt="汴梁城市主题画" width="1448" height="1086" fetchpriority="high" decoding="async"><div v-if="!hasTripContent" class="home-banner-action"><RouterLink class="button primary" to="/assistant?context=city"><CalendarDays :size="17"/>规划我的开封之旅<ArrowUpRight :size="17"/></RouterLink></div></div>
   <section v-if="journey.catalog.some(x=>x.record.fact_id==='open_mvp_kaifengfu_20261025')" class="home-trip-card"><h2>开封夜游怎么安排</h2><p>开封府 → 第一楼 → 鼓楼夜市，按你的时间试排。</p><RouterLink class="button primary" to="/plan-city">用真实资料规划 <ArrowRight :size="15"/></RouterLink></section>

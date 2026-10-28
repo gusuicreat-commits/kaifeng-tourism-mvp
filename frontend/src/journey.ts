@@ -1,28 +1,35 @@
 import {computed,reactive,watch} from 'vue'
 import {api,ApiError} from './api'
-import {cityApi,emptyCityDraft} from './cityApi'
-import type {CatalogItem,CityAction,CityDraft,CityProposal,CityTripState} from './cityApi'
+import {cityApi,emptyCityDraft,draftDays,isMultiDayDraft} from './cityApi'
+import type {CatalogItem,CityAction,CityDraft,CityProposal,CityTripState,DraftDay} from './cityApi'
 import {memoryEpoch} from './voiceDraft'
 import {scenicCatalog} from './data/scenicCatalog'
 import {foodCatalog} from './data/foods'
-import {explorationApi,type RouteSnapshot} from './explorationApi'
+import {explorationApi,routeDays,type RouteDay,type RouteSnapshot} from './explorationApi'
 import {basketApi,type BasketChoice} from './basketApi'
 
 export interface Choice extends BasketChoice {}
 const storageKey='bianyou:exploration:v2'
 function restore():{choices:Choice[];favorites:Choice[];legacyChoices:Choice[]}{try{const raw=JSON.parse(sessionStorage.getItem(storageKey)||'null');if(raw?.expires>Date.now()){const safe=(a:unknown)=>Array.isArray(a)?a.filter((x:Choice)=>x&&['scenic','food','place','show','poi','vendor','program'].includes(x.kind)&&typeof x.id==='string'&&typeof x.name==='string'&&typeof x.key==='string').slice(0,100):[];return {choices:[],favorites:safe(raw.favorites),legacyChoices:safe(raw.serverBacked?raw.legacyChoices:raw.choices)}}}catch{}return {choices:[],favorites:[],legacyChoices:[]}}
 const restored=restore()
-export const journey=reactive({route:null as RouteSnapshot|null,routeError:'',trip:null as CityTripState|null,catalog:[] as CatalogItem[],choices:restored.choices,favorites:restored.favorites,legacyChoices:restored.legacyChoices,basketVersion:0,basketBusy:false,basketError:'',loading:false,loaded:false,error:'',toast:'',offline:false})
+export const journey=reactive({route:null as RouteSnapshot|null,routeError:'',trip:null as CityTripState|null,catalog:[] as CatalogItem[],choices:restored.choices,favorites:restored.favorites,legacyChoices:restored.legacyChoices,basketVersion:0,basketBusy:false,basketError:'',loading:false,loaded:false,error:'',toast:'',offline:false,focusedDayId:''})
 let pending:Promise<void>|undefined,toastTimer:ReturnType<typeof setTimeout>|undefined
 export function notify(text:string){journey.toast=text;if(toastTimer)clearTimeout(toastTimer);toastTimer=setTimeout(()=>journey.toast='',3500)}
 watch(()=>[journey.choices,journey.favorites,journey.legacyChoices],()=>{try{sessionStorage.setItem(storageKey,JSON.stringify({serverBacked:true,legacyChoices:journey.legacyChoices,favorites:journey.favorites,expires:Date.now()+24*3600000}))}catch{}},{deep:true})
-watch(memoryEpoch,()=>{journey.route=null;journey.routeError='';journey.trip=null;journey.catalog=[];journey.choices=[];journey.favorites=[];journey.legacyChoices=[];journey.basketVersion=0;journey.basketError='';journey.loaded=false;try{sessionStorage.removeItem(storageKey)}catch{}})
+watch(memoryEpoch,()=>{journey.route=null;journey.routeError='';journey.trip=null;journey.catalog=[];journey.choices=[];journey.favorites=[];journey.legacyChoices=[];journey.basketVersion=0;journey.basketError='';journey.loaded=false;journey.focusedDayId='';try{sessionStorage.removeItem(storageKey)}catch{}})
 export async function loadJourney(force=false){if(pending)return pending;if(journey.loaded&&!force)return;journey.loading=true;journey.error='';const epoch=memoryEpoch.value
- pending=(async()=>{try{await api.memorySession();const [facts,current]=await Promise.all([cityApi.facts(),cityApi.current()]);if(epoch!==memoryEpoch.value)return;journey.catalog=facts.items;journey.trip=current.trip;journey.offline=false;journey.loaded=true;await loadBasket()}catch(e){if(epoch===memoryEpoch.value){journey.error=(e as Error).message;journey.offline=true}}finally{journey.loading=false;pending=undefined}})();return pending}
+ pending=(async()=>{try{await api.memorySession();const [facts,current]=await Promise.all([cityApi.facts(),cityApi.current()]);if(epoch!==memoryEpoch.value)return;journey.catalog=facts.items;journey.trip=current.trip;setDefaultDay();journey.offline=false;journey.loaded=true;await loadBasket()}catch(e){if(epoch===memoryEpoch.value){journey.error=(e as Error).message;journey.offline=true}}finally{journey.loading=false;pending=undefined}})();return pending}
 export const clone=<T,>(v:T):T=>JSON.parse(JSON.stringify(v)) as T
 export const nameOf=(id:string|null|undefined)=>journey.catalog.find(x=>x.record.fact_id===id)?.record.name||'待核对地点'
 export const cityStatus:Record<CityTripState['status'],string>={DRAFT:'尚未开始',ACTIVE:'进行中',PAUSED:'已暂停',COMPLETED:'已结束',CANCELLED:'已取消',ARCHIVED:'已归档'}
-export const nextCityStop=computed(()=>journey.trip?.draft.stops.find(x=>x.progress==='pending'))
+export const tripDays=computed<DraftDay[]>(()=>draftDays(journey.trip?.draft))
+const shanghaiToday=()=>new Intl.DateTimeFormat('en-CA',{timeZone:'Asia/Shanghai',year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date())
+export function setDefaultDay(){const days=tripDays.value;if(!days.length){journey.focusedDayId='';return}const today=days.find(d=>d.business_date===shanghaiToday()&&d.status!=='closed');journey.focusedDayId=journey.focusedDayId&&days.some(d=>d.day_id===journey.focusedDayId)?journey.focusedDayId:(today?.day_id||days[0].day_id)}
+export function focusDay(dayId:string){if(tripDays.value.some(d=>d.day_id===dayId))journey.focusedDayId=dayId}
+export const focusedDraftDay=computed(()=>tripDays.value.find(d=>d.day_id===journey.focusedDayId)||tripDays.value[0])
+export const focusedRouteDay=computed<RouteDay|undefined>(()=>{const days=routeDays(journey.route,journey.trip?.draft);return days.find(d=>d.day_id===focusedDraftDay.value?.day_id)||(!isMultiDayDraft(journey.trip?.draft)?days[0]:undefined)})
+export const canUseFocusedDay=computed(()=>!isMultiDayDraft(journey.trip?.draft)||!!focusedDraftDay.value&&focusedDraftDay.value.business_date===shanghaiToday()&&focusedDraftDay.value.status!=='closed')
+export const nextCityStop=computed(()=>canUseFocusedDay.value?focusedDraftDay.value?.stops.find(x=>x.progress==='pending'):undefined)
 export function choice(kind:Choice['kind'],id:string,name:string):Choice{return {key:kind+':'+id,kind,id,name}}
 export function isFavorite(item:Choice){return journey.favorites.some(x=>x.key===item.key)}
 export function toggleFavorite(item:Choice){const i=journey.favorites.findIndex(x=>x.key===item.key);if(i>=0)journey.favorites.splice(i,1);else journey.favorites.push(item);notify(i>=0?'已取消收藏':'已收藏')}
@@ -71,7 +78,13 @@ export async function loadConfirmedRoute(){const trip=journey.trip,epoch=memoryE
  try{const saved=await explorationApi.current(trip.id);if(sequence===routeSequence&&epoch===memoryEpoch.value&&journey.trip?.id===trip.id&&journey.trip.version===saved.version&&journey.trip.route_version===saved.route_version)journey.route=saved}
  catch(e){if(sequence===routeSequence&&epoch===memoryEpoch.value)journey.routeError=(e as Error).message}}
 watch(()=>[journey.trip?.id,journey.trip?.version,journey.trip?.route_version],()=>{void loadConfirmedRoute()})
-export function usableItinerary(){const saved=journey.route;return saved&&saved.trip_id===journey.trip?.id&&saved.version===journey.trip.version&&!saved.stale&&saved.itinerary&&Date.parse(saved.itinerary.returns_at)>Date.now()?saved.itinerary:null}
+export function usableItinerary(){const saved=journey.route,trip=journey.trip,day=focusedRouteDay.value
+ if(!saved||!trip||saved.trip_id!==trip.id||saved.version!==trip.version||saved.route_version!==trip.route_version||!saved.itinerary||!day)return null
+ if(isMultiDayDraft(trip.draft)){if(day.frozen||day.business_date<localDate()||day.status==='closed')return day;return saved.stale?null:day}
+ return !saved.stale&&Date.parse(day.returns_at)>Date.now()?day:null
+}
+export function tripDateLabel(draft:CityDraft){const days=draftDays(draft);if(!days.length)return '开封之旅';const format=(date:string)=>new Intl.DateTimeFormat('zh-CN',{timeZone:'Asia/Shanghai',month:'long',day:'numeric'}).format(new Date(date+'T12:00:00+08:00'));return days.length>1?format(days[0].business_date)+'—'+format(days.at(-1)!.business_date)+' · '+days.length+' 天':days[0].business_date}
+watch(()=>journey.trip?.id,()=>{journey.focusedDayId='';setDefaultDay()})
 export function plannedActivity(stopId:string){return usableItinerary()?.activities.find(a=>a.goal_id===stopId)}
 export function plannedLeg(stopId:string){const route=usableItinerary(),index=route?.activities.findIndex(a=>a.goal_id===stopId)??-1;return index>=0?route?.legs[index]:undefined}
 export function arrivalSummary(stopId:string){const leg=plannedLeg(stopId);if(!leg)return '交通和到达时间待核算';return '预计转场 '+Math.ceil((Date.parse(leg.arrives_at)-Date.parse(leg.departs_at))/60000)+' 分钟 · '+clock(leg.arrives_at)+' 到达'}

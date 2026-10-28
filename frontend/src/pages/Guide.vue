@@ -6,7 +6,7 @@ import {api} from '../api'
 import type {Network} from '../types'
 import {fallbackNetwork,guidePerformances,performanceCountdown,refreshPerformance,scenicNames,type GuidePerformance} from '../data/guide'
 import {demoRoute} from '../demoRouting'
-import {journey,loadJourney,localDate,clock,addChoice,choice,nameOf} from '../journey'
+import {journey,focusedDraftDay,loadJourney,localDate,clock,addChoice,choice,nameOf} from '../journey'
 import GuideMap from '../components/GuideMap.vue'
 import CityMap from '../components/CityMap.vue'
 const route=useRoute(),router=useRouter(),scenicId=ref(String(route.query.scenic||'wansui'))
@@ -20,8 +20,8 @@ let loadVersion=0,ticker:ReturnType<typeof setInterval>|undefined
 const nodes=computed(()=>network.value.features.filter(x=>x.geometry.type==='Point'))
 const place=computed(()=>nodes.value.find(p=>p.properties.id===selectedNode.value))
 const listed=computed(()=>performances.value.filter(p=>(p.name+p.venue).includes(search.value.trim())&&(filter.value==='all'||p.status===filter.value)).sort((a,b)=>+new Date(a.startsAt)-+new Date(b.startsAt)))
-const task=computed(()=>journey.trip?.draft.stops.find(s=>s.progress==='pending'))
-const date=computed(()=>journey.trip?.draft.business_date||localDate())
+const task=computed(()=>focusedDraftDay.value?.stops.find(s=>s.progress==='pending'))
+const date=computed(()=>focusedDraftDay.value?.business_date||localDate())
 async function loadScene(id:string){const version=++loadVersion;scenicId.value=id;loading.value=true;routeNetwork.value=undefined;selectedEvent.value=undefined;selectedNode.value='';summary.value=undefined;message.value='';error.value='';performances.value=[]
  try{const [n,s]=await Promise.allSettled([api.network(id),api.schedules(id,date.value)]);if(version!==loadVersion)return;network.value=n.status==='fulfilled'?n.value:fallbackNetwork(id)
  if(demo.value)performances.value=guidePerformances(id)
