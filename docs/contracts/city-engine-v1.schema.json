@@ -884,6 +884,45 @@
           "default": null,
           "title": "Cost Upper Fen"
         },
+        "vehicle_cost_fen": {
+          "anyOf": [
+            {
+              "minimum": 0,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Vehicle Cost Fen"
+        },
+        "tolls_fen": {
+          "anyOf": [
+            {
+              "minimum": 0,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Tolls Fen"
+        },
+        "vehicle_cost_source": {
+          "anyOf": [
+            {
+              "const": "amap_taxi_estimate",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Vehicle Cost Source"
+        },
         "boundaries": {
           "default": [],
           "items": {

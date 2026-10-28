@@ -20,6 +20,7 @@ export interface ReferenceRoute {
  entrances_verified:false;navigation_certified:false;formal_admission:'needs_data'
  destination_entrance?:{name:string;basis:'catalog'|'amap_poi_proxy';poi_name:string|null;straight_m:number;others:string[]}|null
  destination_point?:[number,number]
+ taxi_cost_fen?:number|null;tolls_fen?:number|null;parking?:{name:string;straight_m:number}[]
 }
 export interface RouteLocationChoice {
  role:'origin'|'destination';query:string;resolution_id:string

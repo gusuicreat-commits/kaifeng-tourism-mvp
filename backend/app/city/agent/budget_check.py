@@ -75,6 +75,7 @@ def recorded_note(values):
 
 def _unknown_items(days,catalog,costs_known):
     items=[]
+    taxi=[];tolls=[]
     def add(label):
         if label not in items:items.append(label)
     for day in days:
@@ -86,9 +87,14 @@ def _unknown_items(days,catalog,costs_known):
                 add((getattr(place,'name',None) or '部分地点')+('门票' if getattr(place,'place_type',None)=='scenic' else '费用'))
         for leg in day['legs']:
             journey=leg['journey']
+            driving=journey['travel']['mode']=='driving'
             if journey.get('cost_upper_fen') is None:
-                add({'driving':'打车或驾车费用','transit':'公共交通费用'}.get(journey['travel']['mode'],'部分交通费用'))
+                if driving and journey.get('vehicle_cost_fen') is not None:taxi.append(journey['vehicle_cost_fen'])
+                else:add({'driving':'打车或驾车费用','transit':'公共交通费用'}.get(journey['travel']['mode'],'部分交通费用'))
+            if driving and journey.get('tolls_fen',0):tolls.append(journey['tolls_fen'])
             if any(b.get('cost_upper_fen') is None for b in journey.get('boundaries',())):add('部分入园费用')
+    if sum(taxi):add(f'打车约{_yuan(sum(taxi))}元/车（高德估计）')
+    if tolls:add(f'过路费约{_yuan(sum(tolls))}元')
     return items
 
 

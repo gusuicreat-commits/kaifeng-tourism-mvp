@@ -258,3 +258,35 @@ def test_request_cap_is_global_not_per_endpoint(monkeypatch):
     assert report['mock_requests'] == 1 and report['real_requests'] == 0
     with pytest.raises(ValueError):
         module.run(request_cap=21)
+
+
+@pytest.mark.parametrize('version', ['v3', 'v5'])
+def test_driving_vehicle_estimates_are_separate_from_total_cost(version):
+    payload=data('driving', duration='601', tolls='2.001', cost={'duration':'600.2','tolls':'2.001'})
+    payload['route']['taxi_cost']='15.001'
+    p=provider(lambda _:httpx.Response(200,json=payload));p.api_version=version
+    try:q=quote(p,'driving')
+    finally:p.close()
+    assert q.status=='estimated' and q.taxi_cost_fen==1501 and q.tolls_fen==201 and q.cost_fen is None
+
+
+@pytest.mark.parametrize('version', ['v3', 'v5'])
+@pytest.mark.parametrize('value', [None, '', [], {}, 'no number', '-1', 'NaN', True])
+def test_invalid_optional_driving_cost_does_not_fail_quote(version,value):
+    payload=data('driving',duration='600',tolls=value,cost={'duration':'600','tolls':value})
+    if value is not None:payload['route']['taxi_cost']=value
+    p=provider(lambda _:httpx.Response(200,json=payload));p.api_version=version
+    try:q=quote(p,'driving')
+    finally:p.close()
+    assert q.status=='estimated' and q.taxi_cost_fen is None and q.tolls_fen is None
+
+
+@pytest.mark.parametrize('mode', ['walking','transit'])
+@pytest.mark.parametrize('version', ['v3','v5'])
+def test_other_modes_ignore_vehicle_costs(mode,version):
+    payload=data(mode,duration='600',tolls='3',cost={'duration':'600','tolls':'3'} if version=='v5' else '2')
+    payload['route']['taxi_cost']='15'
+    p=provider(lambda _:httpx.Response(200,json=payload));p.api_version=version
+    try:q=quote(p,mode,citycode='999')
+    finally:p.close()
+    assert q.status=='estimated' and q.taxi_cost_fen is None and q.tolls_fen is None

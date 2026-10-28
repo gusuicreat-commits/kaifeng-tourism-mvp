@@ -36,7 +36,7 @@ def grounded(intent,text):
 
 def requested_mode(intent):
     """A mode the visitor did not ask for falls back to the walking default; the route itself stays."""
-    if intent.mode=='driving' and not any(w in intent.quote for w in ('开车','驾车','自驾')) or \
+    if intent.mode=='driving' and not any(w in intent.quote for w in ('开车','驾车','自驾','打车','出租','的士','网约车')) or \
        intent.mode=='transit' and not any(w in intent.quote for w in ('公交','公共交通','巴士')):
         return intent.model_copy(update={'mode':'walking'})
     return intent
@@ -126,11 +126,12 @@ def query(session_id,intent,found):
     origin,oname=point('origin');destination,dname=point('destination')
     provider=locations.provider_from_environment()
     moment=datetime.now(TZ)
-    entrance=None;notice=''
+    entrance=None;notice='';parking=[]
     try:
         with connect() as db:catalog=facts.records(db)
         scenic=navigation.scenic_for(intent.destination,catalog) or navigation.scenic_for(dname,catalog)
         if scenic:
+            around=destination
             items=navigation.entrances(scenic,catalog)
             located=navigation.locate_entrances(scenic,items,provider,destination)
             gate,straight_m=navigation.nearest(origin,located)
@@ -146,6 +147,7 @@ def query(session_id,intent,found):
             elif items:
                 notice=f'{scenic.name}有入口资料（'+ '、'.join(i['name'] for i in items)+'），但都还没有位置，终点按景区位置；到达后请按现场指引前往入口。'
             else:notice=f'暂无{scenic.name}的入口资料，终点按高德地点位置。'
+            if intent.mode=='driving':parking=navigation.parking(scenic,items,around,destination)
         quote=provider.estimate(origin,destination,intent.mode,moment,moment,citycode=getattr(origin,'citycode',None) or getattr(destination,'citycode',None))
         events=[dict(e) for e in provider.events]
     finally:provider.close()
@@ -166,12 +168,20 @@ def query(session_id,intent,found):
             instruction=step.get('instruction') if isinstance(step,dict) else None
             if isinstance(instruction,str) and instruction.strip():steps.append(instruction.strip()[:240])
     mode_label={'walking':'步行','driving':'驾车','transit':'公交'}[intent.mode]
-    return {'status':'answered','state':'locations_explicit','reply':notice+f'{oname} → {dname}，已查得{mode_label}参考路线。以下为高德当前估计，出入口尚未核验，不是已确认行程。',
+    extra=''
+    if intent.mode=='driving':
+        from .budget_check import _yuan
+        if quote.taxi_cost_fen is not None:extra+=f'高德估计打车约{_yuan(quote.taxi_cost_fen)}元（按车计）。'
+        if quote.tolls_fen:extra+=f'过路费约{_yuan(quote.tolls_fen)}元。'
+        if parking:extra+='附近停车场（高德资料，收费与车位未核实）：'+'、'.join(f'{p["name"]}（约{p["straight_m"]}米）' for p in parking)+'。'
+    return {'status':'answered','state':'locations_explicit','reply':notice+f'{oname} → {dname}，已查得{mode_label}参考路线。以下为高德当前估计，出入口尚未核验，不是已确认行程。'+extra,
             'history_reply':f'已查询从{oname}到{dname}的{mode_label}高德参考路线；估时与路段仅本次显示，可重新查询。',
             'reference_route':{'source':'AMap Web Service','evidence_status':'provider_estimate','origin':oname,'destination':dname,
                 'mode':intent.mode,'mode_basis':'walking_default_for_reference' if intent.mode=='walking' else 'explicit_user_mode',
                 'duration_seconds':quote.duration_seconds,'distance_m':quote.distance_m,'steps':steps,'queried_at':quote.queried_at,
                 'coordinate_system':'GCJ02','entrances_verified':False,'navigation_certified':False,
                 'destination_entrance':entrance,'destination_point':[destination.longitude,destination.latitude],
+                'taxi_cost_fen':quote.taxi_cost_fen if intent.mode=='driving' else None,
+                'tolls_fen':quote.tolls_fen if intent.mode=='driving' else None,'parking':parking,
                 'formal_admission':'needs_data','formal_state_changed':False,'persisted_as_itinerary':False},
             'provider_status':quote.status,'provider_events':events}

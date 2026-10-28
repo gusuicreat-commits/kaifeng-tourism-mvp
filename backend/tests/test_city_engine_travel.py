@@ -114,3 +114,55 @@ def test_multi_day_dated_matrix_is_reused_across_objectives_without_provider(mon
     result=multi_day.plan_multi_day(req,replace(ctx,operations=ctx.operations.model_copy(update={'journeys':journeys})))
     assert result.status=='needs_data' and not result.itineraries
     assert any('day:2030-05-02' in issue.affected_ids for issue in result.issues)
+
+
+
+def test_live_driving_journeys_keep_vehicle_costs_out_of_per_person_costs(monkeypatch):
+    from app.city.engine import live_travel
+    req,ctx=sample()
+    records={k:r.model_copy(update={'is_demo':False}) for k,r in ctx.facts.items()}
+    records['source',live_travel.SOURCE_ID]=records['source','fixture:source'].model_copy(update={'fact_id':live_travel.SOURCE_ID})
+    ctx=replace(ctx,facts=records,synthetic=False,operations=ctx.operations.model_copy(update={'journeys':()}))
+    req=req.model_copy(update={'modes':('driving','walking'),'goals':()})
+    monkeypatch.setenv('AMAP_PLANNING_ENABLED','1')
+    def handler(request):
+        return httpx.Response(200,json={'status':'1','route':{'taxi_cost':'15','paths':[
+            {'distance':'800','cost':{'duration':'600','tolls':'2'},'steps':[{'polyline':'114.3,34.8;114.31,34.81'}]}]}})
+    ticks=iter(range(100,500,2))
+    p=AmapProvider('test-only-key',enabled=True,terms_reviewed=True,api_version='v5',retries=0,
+                   transport=httpx.MockTransport(handler),clock=lambda:next(ticks))
+    p.interval=0
+    try:enriched=live_travel.enrich(ctx,req,provider=p)
+    finally:p.close()
+    driving=[j for j in enriched.operations.journeys if j.travel.mode=='driving' and j.estimated_seconds]
+    assert driving
+    for j in driving:
+        assert j.vehicle_cost_fen==1500 and j.tolls_fen==200 and j.vehicle_cost_source=='amap_taxi_estimate'
+        assert j.cost_lower_fen is None and j.cost_upper_fen is None
+    same_point=False
+    for j in enriched.operations.journeys:
+        if j.travel.mode=='driving' and not j.estimated_seconds:
+            # Same point: no ride, so the fare is known to be zero rather than unknown.
+            assert j.vehicle_cost_fen==0 and j.tolls_fen==0 and j.vehicle_cost_source is None
+            same_point=True
+        elif j.travel.mode!='driving':
+            assert j.vehicle_cost_fen is None and j.tolls_fen is None and j.vehicle_cost_source is None
+    assert same_point
+
+
+@pytest.mark.parametrize('budget',[None,0,100000])
+def test_vehicle_costs_do_not_change_solver_known_cost_or_hard_budget(budget):
+    req,ctx=sample();req=req.model_copy(update={'modes':('driving',),'budget_fen':budget,'alternatives':1})
+    journeys=tuple(j.model_copy(update={'travel':j.travel.model_copy(update={'mode':'driving'}),
+                                      'cost_lower_fen':None,'cost_upper_fen':None})
+                   for j in ctx.operations.journeys if j.travel.mode=='walking')
+    plain=replace(ctx,operations=ctx.operations.model_copy(update={'journeys':journeys}))
+    with_cost=replace(ctx,operations=ctx.operations.model_copy(update={'journeys':tuple(
+        j.model_copy(update={'vehicle_cost_fen':999999,'tolls_fen':99999,'vehicle_cost_source':'amap_taxi_estimate'}) for j in journeys)}))
+    before=plan_trip(req,plain);after=plan_trip(req,with_cost)
+    assert before.status==after.status
+    assert [i.known_cost_upper_fen for i in before.itineraries]==[i.known_cost_upper_fen for i in after.itineraries]
+    assert [i.cost_unknown for i in before.itineraries]==[i.cost_unknown for i in after.itineraries]
+    assert [i.code for i in before.issues]==[i.code for i in after.issues]
+    if budget is None:assert before.status=='feasible' and before.itineraries
+    else:assert not before.itineraries

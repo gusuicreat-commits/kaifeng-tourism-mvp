@@ -78,6 +78,8 @@ class Quote:
     destination_id: str | None = None
     # Restricted data, excluded from repr. Never use dataclasses.asdict for reports.
     paths: tuple = field(default=(), repr=False)
+    taxi_cost_fen: int | None = None
+    tolls_fen: int | None = None
 
 
 @dataclass(frozen=True)
@@ -372,6 +374,13 @@ class AmapProvider:
                 if walking_seconds is not None and walking_seconds > seconds:
                     raise ValueError('walking exceeds total')
             cost_fen = 0 if mode == 'walking' else None
+            taxi_cost_fen, tolls_fen = None, None
+            if mode == 'driving':
+                def optional_fen(value):
+                    try:return math.ceil(_number(value, maximum=1_000_000) * 100)
+                    except (ValueError, TypeError, OverflowError):return None
+                taxi_cost_fen = optional_fen(route.get('taxi_cost'))
+                tolls_fen = optional_fen(cost.get('tolls') if version == 'v5' else p.get('tolls'))
             # Never equate tolls/taxi guesses with total door-to-door driving cost.
             if mode == 'transit' and version == 'v3' and p.get('cost') not in (None, [], ''):
                 cost_fen = math.ceil(_number(p['cost'], maximum=1_000_000) * 100)
@@ -381,7 +390,7 @@ class AmapProvider:
                          source_reference=path, alternatives_count=len(paths), steps_count=len(steps),
                          geometry_available=geometry, transit_lines_count=lines, transfers=transfers,
                          total_includes_wait=True if mode == 'transit' and version == 'v5' else None,
-                         paths=tuple(paths))
+                         paths=tuple(paths), taxi_cost_fen=taxi_cost_fen, tolls_fen=tolls_fen)
         except (ValueError, TypeError, KeyError, AttributeError, OverflowError):
             return fail('invalid_response')
 

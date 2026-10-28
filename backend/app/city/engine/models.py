@@ -77,6 +77,10 @@ class Journey(Strict):
     distance_m: float = Field(ge=0, le=1000000)
     cost_lower_fen: int | None = Field(default=None, ge=0)
     cost_upper_fen: int | None = Field(default=None, ge=0)
+    # 按车计，不进入每人费用，也不进入求解器。
+    vehicle_cost_fen: int | None = Field(default=None, ge=0)
+    tolls_fen: int | None = Field(default=None, ge=0)
+    vehicle_cost_source: Literal['amap_taxi_estimate'] | None = None
     boundaries: tuple[Boundary, ...] = Field(default=(), max_length=8)
     # Curated source facts carry provenance and usage rights; a URL string is insufficient.
     source_ids: tuple[EntityId, ...] = Field(default=(), max_length=20)

@@ -50,12 +50,16 @@ def matches(scenic, entrance_name, candidate_name):
     return bool(core) and any(n in candidate_name for n in names) and (core in candidate_name or core.replace('大门','门') in candidate_name)
 
 
+def cache_key(scenic, items, around):
+    return (scenic.fact_id,scenic.name,scenic.aliases,tuple(tuple(i.items()) for i in items),around.longitude,around.latitude)
+
+
 def locate_entrances(scenic, items, provider, around):
     # Scope the cache to catalog content and the selected scenic POI, never a visitor's origin.
-    key=(scenic.fact_id,scenic.name,scenic.aliases,tuple(tuple(i.items()) for i in items),around.longitude,around.latitude)
+    key=cache_key(scenic,items,around)
     now=time.monotonic()
     for expired in [k for k,(at,_) in CACHE.items() if now-at>=TTL]:CACHE.pop(expired,None)
-    if key in CACHE:return [dict(i) for i in CACHE[key][1]]
+    if key in CACHE:return [dict(i) for i in CACHE[key][1]['located']]
     located=[dict(i) for i in items];pool=[]
     for query in (scenic.name,scenic.name+'门'):
         if all(i['longitude'] is not None for i in located):break
@@ -65,7 +69,7 @@ def locate_entrances(scenic, items, provider, around):
                 if poi.coordinate_system!='GCJ02':continue
                 pool.append((poi.name,poi.longitude,poi.latitude))
             for poi in result.pois:
-                if scenic.name not in poi.name:continue
+                if poi.coordinate_system!='GCJ02':continue
                 for child in poi.children:
                     try:
                         lon,lat=map(float,child['location'].split(','))
@@ -83,8 +87,22 @@ def locate_entrances(scenic, items, provider, around):
                 if not all(isinstance(v,(int,float)) and math.isfinite(v) for v in (lon,lat)) or not (-180<=lon<=180 and -90<=lat<=90):continue
                 if matches(scenic,item['name'],name) and distance((lon,lat),(around.longitude,around.latitude))<=2000:
                     item.update(longitude=lon,latitude=lat,basis='amap_poi_proxy',poi_name=name);break
-    CACHE[key]=(now,located)
+    CACHE[key]=(now,{'located':located,'pool':pool})
     return [dict(i) for i in located]
+
+
+def parking(scenic, items, around, destination):
+    cached=CACHE.get(cache_key(scenic,items,around))
+    if not cached or time.monotonic()-cached[0]>=TTL:return []
+    names=(scenic.name,*(a for a in scenic.aliases if len(a)>=2))
+    choices={}
+    for name,lon,lat in cached[1]['pool']:
+        if not isinstance(name,str) or '停车' not in name or any(w in name for w in ('酒店','宾馆','内部','专用',*CLOSED)):continue
+        if not any(n in name for n in names):continue
+        if not all(isinstance(v,(int,float)) and math.isfinite(v) for v in (lon,lat)) or not (-180<=lon<=180 and -90<=lat<=90):continue
+        metres=distance((destination.longitude,destination.latitude),(lon,lat))
+        choices[name]=min(choices.get(name,math.inf),metres)
+    return [{'name':name,'straight_m':round(metres)} for name,metres in sorted(choices.items(),key=lambda v:v[1])[:2]]
 
 
 def nearest(origin, located):

@@ -133,3 +133,27 @@ def test_multi_day_total_budget_note_is_unchanged(city, monkeypatch):
     model(monkeypatch, text, range_fields() + daily_fields('every_day') + [budget])
     reply = run(city, text)['result']['reply']
     assert '多天全程预算尚未接通' in reply and '按每人预算核对' not in reply
+
+
+@pytest.mark.parametrize('amounts,tolls,expected', [
+    ([1500],[0],'打车约15元/车（高德估计）'),
+    ([1500,2300],[200,300],'打车约38元/车（高德估计）'),
+    ([None],[None],'打车或驾车费用'),
+    ([1500,None],[0,None],'打车约15元/车（高德估计）'),
+    ([0],[0],None),  # zero-distance hops: known free, nothing to list
+])
+def test_vehicle_references_are_aggregated_across_days_but_not_per_person(amounts,tolls,expected):
+    days=[]
+    for amount,toll in zip(amounts,tolls):
+        transport=leg('driving',None)
+        transport['journey'].update(vehicle_cost_fen=amount,tolls_fen=toll)
+        days.append(day(legs=[transport]))
+    sentence=check({'per_person_budget_fen':10000,'party_size':3},
+                   {'known_cost_upper_fen':5000,'cost_unknown':True},days=days,ctx=ctx())
+    if expected:assert expected in sentence
+    else:assert '打车' not in sentence
+    assert '已知费用每人约50元，在预算内' in sentence
+    assert '3人合计已知费用约150元' in sentence
+    if any(tolls):assert '过路费约5元' in sentence
+    else:assert '过路费' not in sentence
+    if None in amounts:assert '打车或驾车费用' in sentence

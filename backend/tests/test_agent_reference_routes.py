@@ -39,7 +39,7 @@ def reference(client,monkeypatch):
             if settings['ambiguous'] and (query=='开封站' or settings['both']):rows.append(rows[0]|{'id':query+':b','address':'[合成测试]另一地址','location':'114.31,34.81'})
             else:rows.append(rows[0]|{'id':query+':other','name':query+'附近小店'})
             return httpx.Response(200,json={'status':settings['poi_status'],'infocode':'10000','pois':rows})
-        return httpx.Response(200,json={'status':settings['route_status'],'infocode':'10000','route':{'paths':[{'distance':'1234','cost':{'duration':'720'},'steps':[{'instruction':'[合成测试]沿测试路前行'}]}]}})
+        return httpx.Response(200,json={'status':settings['route_status'],'infocode':'10000','route':{'taxi_cost':settings.get('taxi_cost'),('transits' if '/transit/' in request.url.path else 'paths'):[{'distance':'1234','cost':{'duration':'720','tolls':settings.get('tolls')},'steps':[{'instruction':'[合成测试]沿测试路前行'}]}]}})
     def factory():
         instance=lr.amap.AmapProvider('fake-key',enabled=True,terms_reviewed=True,transport=httpx.MockTransport(handle),api_version='v5',retries=0)
         instance.interval=0
@@ -386,12 +386,13 @@ def test_closed_ticket_office_is_not_an_entrance_proxy():
 @pytest.mark.parametrize('mode,text,expected',[
     ('transit','从开封站去清明上河园怎么走','walking'),('driving','从开封站到大相国寺怎么走','walking'),
     ('transit','从开封站坐公交去清明上河园怎么走','transit'),('driving','从开封府开车去万岁山怎么走','driving'),
+    ('driving','从开封府打车去万岁山怎么走','driving'),('driving','从开封站坐出租去龙亭怎么走','driving'),
 ])
 def test_unrequested_mode_falls_back_to_walking_without_losing_the_route(reference,monkeypatch,mode,text,expected):
     # The live model sometimes picks transit for a "站" origin; only that value is unsupported.
     monkeypatch.setattr(language,'available',lambda:True)
     origin,destination=text[1:].split('去' if '去' in text else '到',1)
-    for word in ('坐公交','开车'):origin=origin.replace(word,'')
+    for word in ('坐公交','开车','打车','坐出租'):origin=origin.replace(word,'')
     destination=destination.removesuffix('怎么走')
     monkeypatch.setattr(provider,'generate',lambda *a,**k:({'actions':[{'kind':'query','quote':text}],'route_query':{
         'quote':text,'origin':origin,'destination':destination,'mode':mode}},{'source':'mock_model','http_attempts':1}))
@@ -400,3 +401,75 @@ def test_unrequested_mode_falls_back_to_walking_without_losing_the_route(referen
     # The route request goes out with the visitor's own mode, or walking when none was said.
     assert {'walking':'/walking','transit':'/transit','driving':'/driving'}[expected] in reference['calls'][-1].url.path
     if expected=='walking':assert t['status']=='answered' and t['result']['reference_route']['mode']=='walking'
+
+
+@pytest.mark.parametrize('tolls', ['0','2.5',None])
+def test_driving_reference_reports_vehicle_estimates(reference,monkeypatch,tolls):
+    e=reference;e['settings'].update(taxi_cost='15',tolls=tolls)
+    text='从开封站开车去普通地点怎么走'
+    route_model(monkeypatch,text,'普通地点','driving')
+    result=run(e,text)['result']
+    assert '高德估计打车约15元（按车计）。' in result['reply']
+    route=result['reference_route']
+    assert route['taxi_cost_fen']==1500 and route['parking']==[]
+    if tolls=='2.5':assert '过路费约2.5元。' in result['reply'] and route['tolls_fen']==250
+    else:assert '过路费' not in result['reply']
+    assert len(e['calls'])==3
+
+
+@pytest.mark.parametrize('mode,words', [('walking','步行'),('transit','坐公交'),('driving','开车')])
+def test_parking_reuses_entrance_pool_and_orders_from_actual_gate(reference,monkeypatch,mode,words):
+    e=reference;add_scenic(e);e['settings'].update(origin_point='114.3049,34.8',taxi_cost='15',tolls='0')
+    e['settings']['pois']['合成园']=[poi('合成园',children=[
+        *e['settings']['children'],
+        {'name':'合成景区停车场甲','location':'114.3051,34.8'},
+        {'name':'合成园停车场乙','location':'114.3052,34.8'},
+        {'name':'合成园停车场坏坐标','location':'NaN,34.8'},
+        {'name':'合成园停车场坏名称','location':'114.3'},
+        {'name':'合成园停车酒店','location':'114.305,34.8'},
+        {'name':'合成园停车场甲(暂停营业)','location':'114.305,34.8'},
+        {'name':'合成园酒店','location':'114.305,34.8'},
+        {'name':'合成园停车场(内部专用)','location':'114.305,34.8'},{'name':'合成园内部停车场','location':'114.305,34.8'},
+        {'name':'别园停车场','location':'114.305,34.8'}]),
+        poi('合成园停车场丙','114.3053,34.8'),poi('合成园游客中心','114.305,34.8')]
+    text=f'从开封站{words}去合成园怎么走'
+    route_model(monkeypatch,text,'合成园',mode)
+    result=run(e,text)['result'];route=result['reference_route']
+    assert route['mode']==mode and route['destination_point']==[114.305,34.8]
+    if mode=='driving':
+        assert route['parking']==[{'name':'合成景区停车场甲','straight_m':9},{'name':'合成园停车场乙','straight_m':18}]
+        assert '附近停车场（高德资料，收费与车位未核实）：合成景区停车场甲（约9米）、合成园停车场乙（约18米）。' in result['reply']
+        assert route['taxi_cost_fen']==1500
+    else:
+        assert route['parking']==[] and route['taxi_cost_fen'] is None and route['tolls_fen'] is None
+        assert '停车场' not in result['reply'] and '打车' not in result['reply']
+    assert len(e['calls'])==4
+    before=len(e['calls'])
+    cached=run(e,text)['result']['reference_route']
+    assert cached['parking']==route['parking'] and len(e['calls'])-before==3
+
+
+def test_parking_in_top_level_poi(reference,monkeypatch):
+    e=reference;add_scenic(e,('A门',),catalog=False)
+    e['settings']['pois']['合成园']=[poi('合成园'),poi('合成园A门售票处','114.301,34.8'),poi('合成园停车场','114.3011,34.8')]
+    text='从开封站开车去合成园怎么走'
+    route_model(monkeypatch,text,'合成园','driving')
+    route=run(e,text)['result']['reference_route']
+    assert route['parking']==[{'name':'合成园停车场','straight_m':9}] and len(e['calls'])==4
+
+
+def test_parking_does_not_trigger_search_without_entrances(reference,monkeypatch):
+    e=reference;add_scenic(e,())
+    before=len(e['calls'])
+    text='从开封站开车去合成园怎么走'
+    route_model(monkeypatch,text,'合成园','driving')
+    route=run(e,text)['result']['reference_route']
+    assert route['parking']==[] and len(e['calls'])-before==3
+
+
+
+def route_model(monkeypatch,text,destination,mode):
+    monkeypatch.setattr(language,'available',lambda:True)
+    monkeypatch.setattr(provider,'generate',lambda *a,**k:({'actions':[{'kind':'query','quote':text}],
+        'route_query':{'quote':text,'origin':'开封站','destination':destination,'mode':mode}},
+        {'source':'mock_model','http_attempts':1}))

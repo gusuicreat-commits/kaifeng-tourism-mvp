@@ -10,6 +10,8 @@ const modes={walking:'步行',driving:'驾车',transit:'公交'}
  <p v-if="route.destination_entrance" class="reference-entrance">终点：最近入口 {{route.destination_entrance.name}}（{{route.destination_entrance.basis==='catalog'?'按资料库位置':`按高德“${route.destination_entrance.poi_name}”定位`}}，未现场核验）</p>
  <a v-if="route.destination_point" class="reference-navigate" :href="navigationUrl(route.destination_point,route.destination,route.mode)" target="_blank" rel="noopener noreferrer">在高德中导航</a>
  <p class="reference-metrics">约 {{Math.ceil(route.duration_seconds/60)}} 分钟 · {{route.distance_m>=1000?(route.distance_m/1000).toFixed(1)+' 公里':Math.round(route.distance_m)+' 米'}}</p>
+ <p v-if="route.taxi_cost_fen!=null">打车约 ¥{{Number((route.taxi_cost_fen/100).toFixed(2))}}（高德估计，按车计）</p>
+ <p v-if="route.parking?.length">附近停车场：{{route.parking.map(p=>`${p.name}（约${p.straight_m}米）`).join('、')}}（高德资料，收费与车位未核实）</p>
  <ol v-if="route.steps.length"><li v-for="(step,i) in route.steps" :key="i">{{step}}</li></ol>
  <p class="reference-note">以所选地点为两端，出入口尚未核验。此为出行参考，不代表已确认行程或保证到达；临时道路与现场通行以实际为准。</p>
  <small>查询于 {{new Date(route.queried_at).toLocaleTimeString('zh-CN',{timeZone:'Asia/Shanghai',hour:'2-digit',minute:'2-digit'})}} · 参考结果不会写入正式路线</small>

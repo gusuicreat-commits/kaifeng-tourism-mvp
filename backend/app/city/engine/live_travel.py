@@ -138,6 +138,7 @@ def _enrich_day(ctx, req, *, provider=None, deadline=None, clock=None, dated=Fal
                 if unresolved:
                     origin, destination, boundaries = to_gcj02(ctx.facts['place', a]), to_gcj02(ctx.facts['place', b]), []
                 for mode in req.modes:
+                    quote = None
                     if deadline is not None and clock()>=deadline:
                         return replace(ctx,operations=ctx.operations.model_copy(update={'journeys':tuple(journeys)}))
                     if (origin.longitude, origin.latitude) == (destination.longitude, destination.latitude):
@@ -163,7 +164,11 @@ def _enrich_day(ctx, req, *, provider=None, deadline=None, clock=None, dated=Fal
                         source_ids=(SOURCE_ID,), time_basis='provider_estimate', estimated_seconds=seconds,
                         planning_buffer_seconds=buffer, quote_expires_at=checked + timedelta(minutes=15),
                         boundaries=tuple(boundaries), cost_lower_fen=0 if mode=='walking' else None,
-                        cost_upper_fen=0 if mode=='walking' else None))
+                        cost_upper_fen=0 if mode=='walking' else None,
+                        # A zero-distance hop needs no ride: known to cost nothing, not an unknown fare.
+                        vehicle_cost_fen=(quote.taxi_cost_fen if quote else 0) if mode=='driving' else None,
+                        tolls_fen=(quote.tolls_fen if quote else 0) if mode=='driving' else None,
+                        vehicle_cost_source='amap_taxi_estimate' if mode=='driving' and quote and quote.taxi_cost_fen is not None else None))
     finally:
         if own: provider.close()
     return replace(ctx, operations=ctx.operations.model_copy(update={'journeys':tuple(journeys)}))
