@@ -1520,3 +1520,28 @@ def test_dropped_fields_never_leak_program_names_in_questions(city,monkeypatch,d
     assert dropped_field not in reply
     if dropped_field=='choice' or dropped_field not in orchestration.LABELS:
         assert '没听准' not in reply
+
+
+@pytest.mark.parametrize('markets,expect',[(('双桥夜市',),'proposal'),(('双桥夜市','西岸夜市'),'ask')])
+def test_bare_cancel_takes_its_target_from_the_basket_item_the_quote_names(city,monkeypatch,markets,expect):
+    # Live model output for "夜市不去了": a bare cancel with no target and no branch.
+    before=named_basket(city,*[(f'short:{i}',n,()) for i,n in enumerate(markets)],('short:park','清风上河园',()))
+    text='夜市不去了'
+    monkeypatch.setattr(language,'available',lambda:True)
+    monkeypatch.setattr(provider,'generate',lambda *a,**k:({'actions':[{'kind':'cancel','quote':text}]},{'source':'mock_model'}))
+    trip=get(city);task=run(city,text)
+    if expect=='proposal':
+        assert [(i['object_id'],i['operation']) for i in task['result']['basket_proposal']['items']]==[('short:0','standby')],task['result']
+    else:
+        assert 'basket_proposal' not in task['result'] and '夜市' in task['result']['reply'],task['result']
+        assert '请明确状态操作及目标' not in task['result']['reply']
+    assert city['client'].get(path(city,'/basket')).json()==before and get(city)==trip
+
+
+def test_bare_cancel_naming_no_basket_item_stays_strict(city,monkeypatch):
+    named_basket(city,('short:park','清风上河园',()))
+    text='今天不去了'
+    monkeypatch.setattr(language,'available',lambda:True)
+    monkeypatch.setattr(provider,'generate',lambda *a,**k:({'actions':[{'kind':'cancel','quote':text}]},{'source':'mock_model'}))
+    task=run(city,text)
+    assert 'basket_proposal' not in task['result'] and task['status']=='needs_clarification'

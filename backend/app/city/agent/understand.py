@@ -754,6 +754,33 @@ def _normalize_model_output(raw,text=None,meta=None):
     return raw
 
 
+def shared(a,b):
+    """The longest run of characters of a that also appears in b."""
+    best=''
+    for i in range(len(a)):
+        for j in range(i+len(best)+1,len(a)+1):
+            if a[i:j] in b:best=a[i:j]
+            else:break
+    return best
+
+
+def basket_fragment(quote,snapshot):
+    """The visitor's words for pending basket items when the model named no target.
+
+    "夜市不去了" sometimes comes back as a bare cancel. The longest run of two or more
+    characters the quote shares with a pending item's name is the evidence; it is used only
+    when every best-matching item shares that same run, so the proposal can confirm one item
+    or ask which of several."""
+    best={}
+    for item in getattr(snapshot,'materials',()):
+        if item.get('status')=='standby':continue
+        run=max((shared(n,quote) for n in planning_intent._material_names(item,snapshot)),key=len,default='')
+        if len(run)>=2:best[item['key']]=run
+    if not best:return None
+    longest=max(map(len,best.values()));runs={r for r in best.values() if len(r)==longest}
+    return runs.pop() if len(runs)==1 else None
+
+
 def today_stop_evidence(name,quote,snapshot):
     """The visitor's words for one of today's remaining stops when the model wrote its full name.
 
@@ -763,13 +790,6 @@ def today_stop_evidence(name,quote,snapshot):
     row=getattr(snapshot,'row',None) or {}
     if row.get('status') not in ('ACTIVE','PAUSED') or not name or not getattr(snapshot,'draft',None):return None
     labels=lambda stop:[n for f in (snapshot.planning.facts.get(('place',stop.place_id)),) if f for n in (f.name,*f.aliases)]
-    def shared(a,b):
-        best=''
-        for i in range(len(a)):
-            for j in range(i+len(best)+1,len(a)+1):
-                if a[i:j] in b:best=a[i:j]
-                else:break
-        return best
     pending=[s for s in snapshot.draft.stops if s.progress=='pending' and s.kind!='return']
     named=[s for s in pending if name in labels(s)]
     if len(named)!=1:return None
@@ -941,6 +961,11 @@ def parse(text,snapshot,*,allow_model=True):
                 result=_without_branch(result,'planning')
             if result.planning and result.planning.operation=='weather_replan':
                 planning_intent.weather_replan(result.planning.quote)
+        if not result.state_request and not result.planning and len(result.actions)==1 \
+                and result.actions[0].kind in ('cancel','modify') and not result.actions[0].target_name:
+            # A bare cancel with no target: the basket item the quote names, if any, is the target.
+            fragment=basket_fragment(result.actions[0].quote,snapshot)
+            if fragment:result=result.model_copy(update={'actions':(result.actions[0].model_copy(update={'target_name':fragment}),)})
         if not result.state_request and not result.planning and result.actions \
                 and all(a.kind in ('cancel','modify') and a.target_name for a in result.actions):
             # The model sometimes labels "XX就算了" as cancel/modify of a place. When that
