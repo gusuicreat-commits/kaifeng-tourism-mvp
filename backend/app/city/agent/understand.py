@@ -644,6 +644,8 @@ def dropped_reply(intent,meta,text):
     typed={b.quote for b in (intent.planning,intent.service_query,intent.state_request,intent.weather_query,intent.route_query) if b}
     quotes.extend(a.quote for a in intent.actions if a.quote not in typed)
     quotes.extend(b.quote for b in (intent.state_request,intent.weather_query,intent.route_query) if b)
+    # A field the code recovered from the same words (e.g. "现在出发") is not an omission.
+    quotes.extend(r['quote'] for r in meta.get('recovered_fields',()) if isinstance(r.get('quote'),str))
     noise={'extra_field','duplicate_item','duplicate_index','duplicate_constraint','not_applicable','empty_chat','chat_truncated','continue_with_conditions','invalid_purpose','multiple_writes'}
     reasons={'A':'原话与提取的内容对不上','B':'这段话未明确授权执行','C':'这项内容格式无法核对'}
     seen=set();notices=[]

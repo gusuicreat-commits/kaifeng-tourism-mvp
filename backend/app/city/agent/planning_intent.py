@@ -1,6 +1,6 @@
 """Validate extracted planning fields; propose inputs to the existing workflow, never commit routes."""
 import re
-from datetime import date, datetime
+from datetime import date, datetime, timedelta
 from decimal import Decimal, InvalidOperation
 from .. import facts
 from ..schema import TZ
@@ -195,7 +195,13 @@ def grounded(planning, text, snapshot, dropped=None, meta=None, corrections=()):
                 'material_keys':[item['key'] for item in matches]})
         kept_choices.append(choice)
     if tuple(kept)!=planning.fields or tuple(kept_choices)!=planning.choices:
-        return planning.model_copy(update={'fields':tuple(kept),'choices':tuple(kept_choices)})
+        planning=planning.model_copy(update={'fields':tuple(kept),'choices':tuple(kept_choices)})
+    if meta is not None:
+        base=planning_values(snapshot)
+        departure=_now_departure(planning,text,snapshot,base)
+        if departure and base.get('business_date') in (None,today.isoformat()):
+            meta.setdefault('recovered_fields',[]).extend(
+                {'field':field,'source':'now_departure','quote':departure[0]} for field in ('date','start_time'))
     return planning
 
 
@@ -312,6 +318,25 @@ def per_person_budget(values,planning,text):
     return [recorded_note(values)]
 
 
+_NOW_DEPARTURE=re.compile(r'(?:现在|马上|立刻|立即|这就|这会儿|即刻).{0,20}?(?:出发|走|动身|出门|过去|启程)')
+
+
+def _now_departure(planning,text,snapshot,base):
+    from .multi_day_intent import is_multi
+    if is_multi(base,planning) or any(f.field in ('date','start_time') and f.value is not None for f in planning.fields):return None
+    moment=snapshot.envelope.identity.generated_at.astimezone(TZ)
+    start=moment.replace(second=0,microsecond=0)+timedelta(minutes=5-moment.minute%5)
+    if start<moment+timedelta(minutes=1):start+=timedelta(minutes=5)
+    if start.date()!=moment.date():return None
+    for clause in re.split(r'[，,。；;！!？?\n]',text):
+        clause=clause.strip()
+        if not _NOW_DEPARTURE.search(clause) or find_date_expressions(clause):continue
+        try:request_evidence(text,clause)
+        except ValueError:continue
+        return clause,start
+    return None
+
+
 def proposal(session, trip_id, snapshot, intent, text, *, today=None):
     from ...db import connect
     from .. import basket
@@ -358,6 +383,13 @@ def proposal(session, trip_id, snapshot, intent, text, *, today=None):
         if slot in fields and fields[slot]!=constraint.value:
             return {'status':'needs_clarification','reply':'同一项条件说了两个不同的值，以哪个为准？'}
         fields[slot]=constraint.value
+    departure=_now_departure(p,text,snapshot,base)
+    if departure:
+        if values['business_date'] and values['business_date']!=today.isoformat():
+            saved_day=date.fromisoformat(values['business_date'])
+            return {'status':'needs_clarification','reply':f'已保存的日期是{saved_day.month}月{saved_day.day}日，现在出发是指今天吗？'}
+        fields.update(date=today.isoformat(),start_time=departure[1].strftime('%H:%M'))
+        notes.append(f"按现在出发：今天 {fields['start_time']} 开始。")
     if p.operation=='update' and not fields and not p.choices and not any(f.field=='budget_fen' for f in p.fields):
         return {'status':'needs_clarification','reply':'你想哪天出发？也可以先告诉我想去的地方。'}
     if 'date' in fields:values['business_date']=resolve_date(fields['date'],today).isoformat()

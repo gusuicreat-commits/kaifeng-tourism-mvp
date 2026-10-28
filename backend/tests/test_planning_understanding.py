@@ -1185,6 +1185,140 @@ def test_date_grammar_recovery_never_guesses(city,monkeypatch,text,quote):
     assert not any(f.field=='date' for f in intent.planning.fields) and not meta.get('recovered_fields')
 
 
+def departure_clock(monkeypatch,time):
+    from test_live_model_replay import freeze
+    freeze(monkeypatch,{'recorded_at':'2030-05-01T'+time+'+08:00'})
+
+
+@pytest.mark.parametrize('text,end_time,end_quote,clause',[
+    ('现在从开封府出发，下午五点回到开封府','17:00','下午五点','现在从开封府出发'),
+    ('我现在就出发，从开封府走，晚上八点前回开封府','20:00','晚上八点','我现在就出发'),
+    ('马上从开封府出发，六点前回来','18:00','六点前回来','马上从开封府出发'),
+])
+def test_now_departure_saves_today_rounded_start_and_recovery_evidence(reference_city,monkeypatch,text,end_time,end_quote,clause):
+    departure_clock(monkeypatch,'16:18:44')
+    model(monkeypatch,text,[field('origin','开封府','开封府'),field('destination','开封府','开封府'),
+        field('end_time',end_time,end_quote)])
+    before=get(reference_city);task=run(reference_city,text)
+    saved=reference_city['client'].get(path(reference_city,'/exploration/constraints')).json()['constraints']
+    assert saved['business_date']=='2030-05-01' and saved['starts_at']=='2030-05-01T16:20:00+08:00'
+    assert saved['ends_at']==f'2030-05-01T{end_time}:00+08:00'
+    assert saved['origin_place_id']==saved['destination_place_id']=='pl_wb_000003'
+    assert '按现在出发：今天 16:20 开始。' in task['result']['reply']
+    assert task['interpretation']['recovered_fields']==[
+        {'field':f,'source':'now_departure','quote':clause} for f in ('date','start_time')]
+    assert get(reference_city)==before
+
+
+@pytest.mark.parametrize('time,expected',[
+    ('16:18:44','16:20'),('16:19:30','16:25'),('16:19:00','16:20'),
+    ('16:19:00.000001','16:25'),('16:20:00','16:25'),('23:58:00',None),
+])
+def test_now_departure_rounding_leaves_at_least_one_minute_and_stays_today(city,monkeypatch,time,expected):
+    departure_clock(monkeypatch,time);text='现在出发，从开封府出发和返回'
+    model(monkeypatch,text,[field('origin','开封府','开封府'),field('destination','开封府','开封府')])
+    task=run(city,text);saved=city['client'].get(path(city,'/exploration/constraints')).json()['constraints']
+    if expected:
+        assert saved['business_date']=='2030-05-01' and saved['starts_at']==f'2030-05-01T{expected}:00+08:00'
+        assert f'按现在出发：今天 {expected} 开始。' in task['result']['reply']
+    else:
+        assert not saved or not saved['business_date'] and not saved['starts_at']
+        assert '哪天' in task['result']['reply'] and '按现在出发' not in task['result']['reply']
+        assert not task['interpretation'].get('recovered_fields')
+
+
+@pytest.mark.parametrize('clause',[
+    '现在就出发','马上从开封府走','立刻动身','立即出门','这就过去','这会儿启程','即刻从开封府出发',
+    '现在'+'先'*20+'出发',
+])
+def test_now_departure_accepts_the_bounded_time_and_departure_class(city,monkeypatch,clause):
+    departure_clock(monkeypatch,'16:18:44');model(monkeypatch,clause)
+    task=run(city,clause)
+    assert '按现在出发：今天 16:20 开始。' in task['result']['reply']
+    assert city['client'].get(path(city,'/exploration/constraints')).json()['constraints']['starts_at']=='2030-05-01T16:20:00+08:00'
+
+
+@pytest.mark.parametrize('clause',[
+    '现在几点','现在人多吗','马上到了','现在'+'先'*21+'出发','从开封府出发，现在再看看',
+    *('现在先看看'+separator+'从开封府出发' for separator in '，,。；;！!？?\n'),
+])
+def test_now_departure_does_not_infer_a_start_without_a_departure_in_the_same_clause(city,monkeypatch,clause):
+    departure_clock(monkeypatch,'16:18:44');text=clause+'，从开封府出发和返回，晚上八点结束'
+    model(monkeypatch,text,[field('origin','开封府','开封府'),field('destination','开封府','开封府'),field('end_time','20:00','晚上八点')])
+    task=run(city,text)
+    assert task['status']=='needs_clarification' and '你打算哪天去' in task['result']['reply']
+    assert city['client'].get(path(city,'/exploration/constraints')).json()['version']==0
+    assert not task['interpretation'].get('recovered_fields')
+
+
+@pytest.mark.parametrize('explicit',[
+    [field('date','明天','明天')],
+    [field('start_time','17:00','下午五点')],
+    [field('date','今天','今天'),field('start_time','17:00','下午五点')],
+])
+def test_now_departure_preserves_explicit_date_and_start_time(city,monkeypatch,explicit):
+    departure_clock(monkeypatch,'16:18:44')
+    text=('明天现在这个点出发' if len(explicit)==1 and explicit[0]['field']=='date' else
+          ('今天' if len(explicit)==2 else '')+'现在先准备，下午五点马上出发')+'，从开封府出发和返回，晚上八点结束'
+    model(monkeypatch,text,[*explicit,field('origin','开封府','开封府'),field('destination','开封府','开封府'),field('end_time','20:00','晚上八点')])
+    task=run(city,text);saved=city['client'].get(path(city,'/exploration/constraints')).json()['constraints']
+    assert '按现在出发' not in task['result']['reply']
+    assert not task['interpretation'].get('recovered_fields')
+    if explicit[0]['field']=='start_time':
+        assert '你打算哪天去' in task['result']['reply'] and saved is None
+    else:
+        assert saved['business_date']==('2030-05-02' if len(explicit)==1 else '2030-05-01')
+        assert saved['starts_at']==(None if len(explicit)==1 else '2030-05-01T17:00:00+08:00')
+
+
+@pytest.mark.parametrize('saved_date',['今天','明天'])
+def test_now_departure_only_updates_an_empty_or_today_saved_date(city,monkeypatch,saved_date):
+    departure_clock(monkeypatch,'16:18:44')
+    text=saved_date+'上午九点到晚上八点'
+    model(monkeypatch,text,[field('date',saved_date,saved_date),field('start_time','09:00','上午九点'),field('end_time','20:00','晚上八点')])
+    run(city,text);before=city['client'].get(path(city,'/exploration/constraints')).json()
+    text='我现在就出发';model(monkeypatch,text);task=run(city,text)
+    saved=city['client'].get(path(city,'/exploration/constraints')).json()
+    if saved_date=='明天':
+        assert task['status']=='needs_clarification' and '已保存的日期是5月2日，现在出发是指今天吗？' in task['result']['reply']
+        assert saved==before and not task['interpretation'].get('recovered_fields')
+    else:
+        assert saved['constraints']['starts_at']=='2030-05-01T16:20:00+08:00'
+        assert '按现在出发' in task['result']['reply']
+
+
+def test_now_departure_does_not_fill_multiday_times(city,monkeypatch):
+    departure_clock(monkeypatch,'16:18:44');text='现在从开封府出发，玩两天'
+    model(monkeypatch,text,[field('origin','开封府','开封府'),field('trip_days',2,'玩两天')])
+    task=run(city,text);saved=city['client'].get(path(city,'/exploration/constraints')).json()['constraints']
+    assert '按现在出发' not in task['result']['reply'] and not task['interpretation'].get('recovered_fields')
+    assert not saved or all(not day['starts_at'] for day in saved['days'])
+
+
+@pytest.mark.parametrize('value',['now','现在'])
+def test_now_departure_recovers_a_non_clock_model_start_time_without_losing_other_fields(reference_city,monkeypatch,value):
+    departure_clock(monkeypatch,'16:19:30');text='现在从开封府出发，晚上八点前回开封府'
+    model(monkeypatch,text,[field('origin','开封府','开封府'),field('destination','开封府','开封府'),
+        field('end_time','20:00','晚上八点'),field('start_time',value,'现在')])
+    task=run(reference_city,text);saved=reference_city['client'].get(path(reference_city,'/exploration/constraints')).json()['constraints']
+    assert not task['interpretation'].get('validation_failure'),task
+    assert saved['business_date']=='2030-05-01' and saved['starts_at']=='2030-05-01T16:25:00+08:00'
+    assert saved['ends_at']=='2030-05-01T20:00:00+08:00'
+    assert saved['origin_place_id']==saved['destination_place_id']=='pl_wb_000003'
+    assert '按现在出发：今天 16:25 开始。' in task['result']['reply']
+    # The dropped non-clock start is covered by the recovery, so no omission notice.
+    assert '没采用' not in task['result']['reply']
+    assert {f['field'] for f in task['interpretation']['recovered_fields']}=={'date','start_time'}
+
+
+def test_now_departure_keeps_the_end_after_start_check(city,monkeypatch):
+    departure_clock(monkeypatch,'16:19:30');text='现在从开封府出发，下午四点结束'
+    model(monkeypatch,text,[field('origin','开封府','开封府'),field('end_time','16:00','下午四点')])
+    task=run(city,text)
+    assert task['status']=='needs_clarification' and '结束时间要晚于出发时间' in task['result']['reply']
+    assert city['client'].get(path(city,'/exploration/constraints')).json()['version']==0
+
+
 def test_named_dish_lookup_offers_food_basket_candidate(city,monkeypatch):
     text='哪家店能做[合成测试]菜品？'
     dining(monkeypatch,text,target_name='[合成测试]菜品')
