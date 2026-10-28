@@ -699,7 +699,7 @@ def _normalize_model_output(raw,text=None,meta=None):
         raw=dict(raw,planning=planning,constraints=[c for c in raw_constraints if c not in moved])
         raw_constraints=raw['constraints']
     planning=raw.get('planning')
-    planning_fields={}
+    planning_fields={};window_quotes={}
     if isinstance(planning,dict):
         for f in planning.get('fields') if isinstance(planning.get('fields'),(list,tuple)) else []:
             if isinstance(f,dict) and isinstance(f.get('field'),str) and 'value' in f:
@@ -709,6 +709,7 @@ def _normalize_model_output(raw,text=None,meta=None):
                         if not clock_grounded(f['value'],f['quote'],text):continue
                     except (TypeError,ValueError):continue
                 planning_fields[f['field']]=f['value']
+                if f['field'] in ('start_time','end_time') and isinstance(f.get('quote'),str):window_quotes.setdefault(f['value'],[]).append(f['quote'])
     kept=[]
     for index,c in enumerate(raw_constraints):
         def discarded(reason):
@@ -727,6 +728,11 @@ def _normalize_model_output(raw,text=None,meta=None):
             if field=='return_by' and planning_fields.get('end_time')==val:
                 discarded('duplicate_constraint');continue
             if field in ('meal_at','visit_at') and planning_fields.get('start_time')==val:
+                discarded('duplicate_constraint');continue
+            # The same words already set the trip window ("十点前回来" as end_time); a clock
+            # constraint quoting them repeats that window whatever field the model labelled.
+            quote=c.get('quote') if isinstance(c.get('quote'),str) else ''
+            if quote and any(quote in q or q in quote for q in window_quotes.get(val,())):
                 discarded('duplicate_constraint');continue
         if field=='walking_seconds' and val is not None:
             if type(val) is not int or not 1 <= val <= 43200:

@@ -494,3 +494,33 @@ def test_conflicting_field_cannot_resume_planning_through_a_basket_confirmation(
     assert task['understanding']['planning']['choices']
     saved=city['client'].get(path(city,'/exploration/constraints')).json()
     assert saved['constraints']['origin_place_id']=='origin' and saved['result'] is None
+
+
+def test_null_on_a_defaulted_non_nullable_field_is_treated_as_absent():
+    # Live model output writes "scope": null on a state request; the default applies.
+    from app.city.agent.models import StateIntent
+    state=StateIntent.model_validate({'operation':'skip','quote':'先不去了','target_name':'开封府','scope':None,'scope_quote':None})
+    assert state.scope=='current_day' and state.scope_quote is None
+    with pytest.raises(Exception):StateIntent.model_validate({'operation':None,'quote':'先不去了'})
+
+
+
+WINDOW={'operation':'update','quote':'明晚五点半从开封府出发，鼓楼夜市必须去，十点前回来','fields':[
+    {'field':'start_time','value':'17:30','quote':'明晚五点半'},{'field':'end_time','value':'22:00','quote':'十点前回来'}],'choices':[]}
+
+
+@pytest.mark.parametrize('label',['visit_at','meal_at','return_by'])
+def test_clock_constraint_quoting_the_trip_window_is_a_duplicate(label):
+    # Live output: "十点前回来" as planning end_time and again as a visit_at constraint.
+    from app.city.agent.understand import _normalize_model_output
+    text=WINDOW['quote'];meta={}
+    raw=_normalize_model_output({'constraints':[{'field':label,'strength':'hard','value':'22:00','quote':'十点前回来'}],'planning':WINDOW},text,meta)
+    assert raw['constraints']==[],raw
+
+
+def test_clock_constraint_with_its_own_words_is_kept():
+    from app.city.agent.understand import _normalize_model_output
+    text='明晚五点半从开封府出发，八点去鼓楼夜市，十点前回来'
+    raw=_normalize_model_output({'constraints':[{'field':'visit_at','strength':'hard','value':'22:00','quote':'八点去鼓楼夜市'}],
+        'planning':dict(WINDOW,quote=text)},text,{})
+    assert len(raw['constraints'])==1

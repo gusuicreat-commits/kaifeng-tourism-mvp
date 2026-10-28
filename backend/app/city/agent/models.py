@@ -1,8 +1,25 @@
-from typing import Literal
+from types import NoneType, UnionType
+from typing import Literal, Union, get_args, get_origin
 from uuid import UUID
 from pydantic import Field, model_validator
-from ..schema import Strict
+from ..schema import Strict as _Strict
 from ..basket import ObjectRef
+
+
+
+class Strict(_Strict):
+    """The model writes null for fields it leaves unused. A defaulted field that does not
+    accept null treats it as absent; a required field still rejects null."""
+    @model_validator(mode='before')
+    @classmethod
+    def _null_is_absent(cls,data):
+        if not isinstance(data,dict):return data
+        def drop(key):
+            field=cls.model_fields.get(key)
+            if field is None or field.is_required():return False
+            hint=field.annotation
+            return not (hint is None or get_origin(hint) in (Union,UnionType) and NoneType in get_args(hint))
+        return {k:v for k,v in data.items() if v is not None or not drop(k)}
 
 
 class Action(Strict):
