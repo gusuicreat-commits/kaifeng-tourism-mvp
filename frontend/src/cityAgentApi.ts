@@ -18,6 +18,8 @@ export interface ReferenceRoute {
  source:string;evidence_status:string;origin:string;destination:string;mode:'walking'|'driving'|'transit'
  duration_seconds:number;distance_m:number;steps:string[];queried_at:string
  entrances_verified:false;navigation_certified:false;formal_admission:'needs_data'
+ destination_entrance?:{name:string;basis:'catalog'|'amap_poi_proxy';poi_name:string|null;straight_m:number;others:string[]}|null
+ destination_point?:[number,number]
 }
 export interface RouteLocationChoice {
  role:'origin'|'destination';query:string;resolution_id:string

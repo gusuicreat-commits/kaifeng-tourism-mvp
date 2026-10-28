@@ -938,6 +938,10 @@ def parse(text,snapshot,*,allow_model=True):
             try:
                 query_evidence(text,result.route_query.quote)
                 reference_routes.grounded(result.route_query,text)
+                route=reference_routes.requested_mode(result.route_query)
+                if route is not result.route_query:
+                    _drop(meta,'route_query.mode','C','unrequested_mode')
+                    result=result.model_copy(update={'route_query':route})
             except ValueError as exc:
                 if str(exc)=='unrequested visitor position':raise
                 _drop(meta,'route_query',_drop_category(str(exc)),str(exc),result.route_query.quote)

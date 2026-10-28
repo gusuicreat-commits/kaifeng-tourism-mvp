@@ -6,9 +6,12 @@ from types import SimpleNamespace
 
 from fastapi import HTTPException
 from .. import location_resolution as locations
+from .. import facts
+from ...db import connect
 from ..engine import amap
 from ..schema import TZ
 from .models import ReferenceRouteIntent
+from . import entrance_navigation as navigation
 
 
 def explicit(text):
@@ -28,8 +31,14 @@ def grounded(intent,text):
     if intent.quote not in text or intent.destination not in intent.quote:raise ValueError('ungrounded route destination')
     if intent.origin and intent.origin not in intent.quote:raise ValueError('ungrounded route origin')
     if intent.use_current_position and not re.search(r'从(?:我)?(?:这里|这儿|当前位置|我的位置|我现在的位置)',intent.quote):raise ValueError('unrequested visitor position')
-    if intent.mode=='driving' and not any(w in intent.quote for w in ('开车','驾车','自驾')):raise ValueError('unrequested driving')
-    if intent.mode=='transit' and not any(w in intent.quote for w in ('公交','公共交通','巴士')):raise ValueError('unrequested transit')
+    return intent
+
+
+def requested_mode(intent):
+    """A mode the visitor did not ask for falls back to the walking default; the route itself stays."""
+    if intent.mode=='driving' and not any(w in intent.quote for w in ('开车','驾车','自驾')) or \
+       intent.mode=='transit' and not any(w in intent.quote for w in ('公交','公共交通','巴士')):
+        return intent.model_copy(update={'mode':'walking'})
     return intent
 
 
@@ -117,7 +126,26 @@ def query(session_id,intent,found):
     origin,oname=point('origin');destination,dname=point('destination')
     provider=locations.provider_from_environment()
     moment=datetime.now(TZ)
+    entrance=None;notice=''
     try:
+        with connect() as db:catalog=facts.records(db)
+        scenic=navigation.scenic_for(intent.destination,catalog) or navigation.scenic_for(dname,catalog)
+        if scenic:
+            items=navigation.entrances(scenic,catalog)
+            located=navigation.locate_entrances(scenic,items,provider,destination)
+            gate,straight_m=navigation.nearest(origin,located)
+            if gate:
+                others=[i['name'] for i in items if i['name']!=gate['name']]
+                entrance={k:gate[k] for k in ('name','basis','poi_name')}
+                entrance.update(straight_m=round(straight_m),others=others)
+                basis='按资料库位置' if gate['basis']=='catalog' else f'按高德“{gate["poi_name"]}”定位'
+                notice=f'{scenic.name}有{len(items)}个入口资料，离起点最近的是{gate["name"]}（{basis}，直线约{round(straight_m)}米），已按它查参考路线。'
+                if others:notice+='其他入口：'+'、'.join(others)+'。'
+                dname=scenic.name+'·'+gate['name']
+                destination=amap.Poi(gate['entrance_id'],dname,gate['longitude'],gate['latitude'],citycode=destination.citycode)
+            elif items:
+                notice=f'{scenic.name}有入口资料（'+ '、'.join(i['name'] for i in items)+'），但都还没有位置，终点按景区位置；到达后请按现场指引前往入口。'
+            else:notice=f'暂无{scenic.name}的入口资料，终点按高德地点位置。'
         quote=provider.estimate(origin,destination,intent.mode,moment,moment,citycode=getattr(origin,'citycode',None) or getattr(destination,'citycode',None))
         events=[dict(e) for e in provider.events]
     finally:provider.close()
@@ -138,11 +166,12 @@ def query(session_id,intent,found):
             instruction=step.get('instruction') if isinstance(step,dict) else None
             if isinstance(instruction,str) and instruction.strip():steps.append(instruction.strip()[:240])
     mode_label={'walking':'步行','driving':'驾车','transit':'公交'}[intent.mode]
-    return {'status':'answered','state':'locations_explicit','reply':f'{oname} → {dname}，已查得{mode_label}参考路线。以下为高德当前估计，出入口尚未核验，不是已确认行程。',
+    return {'status':'answered','state':'locations_explicit','reply':notice+f'{oname} → {dname}，已查得{mode_label}参考路线。以下为高德当前估计，出入口尚未核验，不是已确认行程。',
             'history_reply':f'已查询从{oname}到{dname}的{mode_label}高德参考路线；估时与路段仅本次显示，可重新查询。',
             'reference_route':{'source':'AMap Web Service','evidence_status':'provider_estimate','origin':oname,'destination':dname,
                 'mode':intent.mode,'mode_basis':'walking_default_for_reference' if intent.mode=='walking' else 'explicit_user_mode',
                 'duration_seconds':quote.duration_seconds,'distance_m':quote.distance_m,'steps':steps,'queried_at':quote.queried_at,
                 'coordinate_system':'GCJ02','entrances_verified':False,'navigation_certified':False,
+                'destination_entrance':entrance,'destination_point':[destination.longitude,destination.latitude],
                 'formal_admission':'needs_data','formal_state_changed':False,'persisted_as_itinerary':False},
             'provider_status':quote.status,'provider_events':events}
