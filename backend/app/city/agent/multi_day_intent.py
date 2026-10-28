@@ -39,8 +39,12 @@ def _questions(values):
 def lodging_questions(values,locations,catalog):
     from .planning_intent import _resolve_endpoint
     days=values.get('days',[]);questions=[]
+    # A stay described around the shared endpoint ("XX附近", "XX那边") names that place.
+    named=lambda place_id,text:any(len(n)>=2 and n in text for f in (catalog.get(('place',place_id)),) if f for n in (f.name,*f.aliases))
     for location in locations:
         place,_=_resolve_endpoint(catalog,location)
+        if len(days)>1 and all(a.get('destination_place_id') and a.get('destination_place_id')==b.get('origin_place_id')
+                and named(a['destination_place_id'],location) for a,b in zip(days,days[1:])):continue
         if len(days)>1 and (not place or any(a.get('destination_place_id')!=place.fact_id or b.get('origin_place_id')!=place.fact_id
                 for a,b in zip(days,days[1:]))):
             questions.append(f'住宿位置“{location}”尚未与行程过夜地点对上，请确认在哪个已知地点过夜。')
@@ -73,6 +77,10 @@ def prepare(session,trip_id,snapshot,intent,text,*,today=None,notes=()):
     # A new duration changes the end only when no independent end date was supplied.
     if start and values['trip_days'] and not any(f.field=='end_date' for f in range_fields) and (new_days or not end):
         end=start+timedelta(days=values['trip_days']-1);values['end_date']=end.isoformat()
+    # "住一晚" without a day count or end date: the nights fix the end the same way.
+    new_nights=next((f for f in range_fields if f.field=='trip_nights'),None)
+    if start and values['trip_nights'] and not values['trip_days'] and not any(f.field=='end_date' for f in range_fields) and (new_nights or not end):
+        end=start+timedelta(days=values['trip_nights']);values['end_date']=end.isoformat()
     weekend=next((e for f in range_fields for e in date_range.expressions(f.quote) if '周末' in e and not e.startswith(('下','下个'))),None)
     if weekend and today.weekday()==6 and (values['trip_days'] or 1)>1:
         values.update(start_date=None,end_date=None)

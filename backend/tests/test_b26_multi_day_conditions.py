@@ -234,3 +234,21 @@ def test_one_utterance_with_short_quotes_and_lodging_reaches_whole_preview(city,
 def test_every_day_evidence_needs_a_count_or_range_before_dou(sentence,daily):
     from app.city.agent.date_range import EVERY_DAY
     assert bool(EVERY_DAY.search(sentence))==bool(daily)
+
+
+@pytest.mark.parametrize('stay,asks',[('[合成测试]origin附近',False),('[合成测试]origin那边',False),('未登记住处附近',True)])
+def test_stay_described_around_the_shared_endpoint_is_that_overnight_place(city,monkeypatch,stay,asks):
+    text=daily_text()+f'，晚上住{stay}'
+    monkeypatch.setattr(hotels,'search',lambda q:{'status':'ok','items':[]})
+    model(monkeypatch,text,range_fields()+daily_fields(),service_query={'quote':f'晚上住{stay}','fields':[field('location_text',stay,stay)]})
+    task=run(city,text)
+    assert ('过夜' in task['result']['reply'])==asks,task['result']['reply']
+    if not asks:assert task['status']=='needs_confirmation'
+
+
+@pytest.mark.parametrize('nights,end',[(1,'2030-05-04'),(2,'2030-05-05')])
+def test_nights_without_days_or_end_fix_the_end_date(city,monkeypatch,nights,end):
+    text=f'2030-05-03过来，住{"一" if nights==1 else "两"}晚'
+    model(monkeypatch,text,[field('start_date','2030-05-03','2030-05-03'),field('trip_nights',nights,f'住{"一" if nights==1 else "两"}晚')])
+    run(city,text)
+    assert saved(city)['end_date']==end and len(saved(city)['days'])==nights+1
