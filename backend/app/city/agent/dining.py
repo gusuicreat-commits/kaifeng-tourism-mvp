@@ -6,6 +6,7 @@ from ..restaurant import price_range
 
 LABELS={'cuisine':'类别','taste':'口味','spicy':'辣度','max_fen':'人均上限','period':'适合时段','dish':'招牌菜'}
 SPICY={'none':'不辣','mild':'微辣','hot':'辣'}
+SPICY_UP_TO={'none':('none',),'mild':('none','mild'),'hot':('hot',)}
 
 
 def conditions(intent):
@@ -46,9 +47,12 @@ def failures(vendor,filters):
                     'max_fen':price_range(vendor.price_band),'cuisine':tuple(l for l in (vendor.cuisine,*vendor.taste_tags) if l)}[key]
             if not actual:failed.append(LABELS[key]+'资料不全，未确认');continue
             if key=='dish':continue
-            # A stated taste matches a recorded tag when either contains the other (口味清淡 / 清淡).
-            matched=(all(any(len(t.strip())>=2 and (t.strip() in a or a in t.strip()) for a in actual) for t in value.split('、')) if key in ('taste','cuisine') else
-                     value==actual if key=='spicy' else value in actual if key=='period' else actual[1]<=value)
+            # A stated taste matches a recorded tag when either contains the other (口味清淡 / 清淡);
+            # a one-character taste (辣, 甜) matches the tags that contain it (香辣, 咸鲜微甜).
+            matched=(all(any(t.strip() and (t.strip() in a and (len(t.strip())>=2 or key=='taste') or len(t.strip())>=2 and a in t.strip())
+                                 for a in actual) for t in value.split('、')) if key in ('taste','cuisine') else
+                     # 别太辣 (mild) is a ceiling: a not-spicy shop qualifies too.
+                     actual in SPICY_UP_TO[value] if key=='spicy' else value in actual if key=='period' else actual[1]<=value)
             if not matched:failed.append(LABELS[key]+'不符合')
     return list(dict.fromkeys(failed))
 

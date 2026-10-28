@@ -155,9 +155,12 @@ def test_combined_conditions_unknown_and_no_results(restaurants):
     result=toolbelt.find_food(snap,intent('合成请求',filters|{'max_fen':4900}))
     assert not result['items'] and result['status']=='needs_data'
     assert '没有商家满足全部条件' in result['reply'] and '人均上限不符合' in result['reply'] and '资料不全，未确认' in result['reply']
-    for key,value,label in [('taste','未知口味','口味'),('spicy','mild','辣度'),('period','晚餐','适合时段')]:
+    for key,value,label in [('taste','未知口味','口味'),('period','晚餐','适合时段')]:
         result=toolbelt.find_food(snap,intent('合成请求',{key:value}))
         assert not result['items'] and label+'不符合' in result['reply']
+    # 别太辣 is a ceiling: the not-spicy shop qualifies, the hot one does not.
+    result=toolbelt.find_food(snap,intent('合成请求',{'spicy':'mild'}))
+    assert [i['vendor_id'] for i in result['items']]==['vendor'] and result['excluded'].get('辣度不符合')==1
 
 
 @pytest.mark.parametrize('text,value',[('每人五十元',5000),('每位50.5元以内',5050),('吃饭不超一百二十元',12000)])
@@ -294,3 +297,13 @@ def test_invented_price_drops_only_that_condition():
     result=understand.grounded(intent(text,{'max_fen':8000,'spicy':'none'}),text,meta)
     assert result.actions[0].dining=={'spicy':'none'}
     assert [d['path'] for d in meta['dropped']]==['actions[0].dining.max_fen'] and meta['dropped'][0]['category']=='A'
+
+
+def test_one_character_taste_and_mild_ceiling(restaurants):
+    with connect() as db:
+        vendor=facts.records(db)['vendor','vendor']
+    assert not dining.failures(vendor,[{'taste':'甜'}])        # 甜口
+    assert dining.failures(vendor,[{'taste':'辣'}])            # 清淡、甜口、偏咸
+    assert not dining.failures(vendor,[{'spicy':'mild'}])      # not spicy fits 别太辣
+    assert dining.failures(vendor,[{'spicy':'hot'}])
+    assert dining.failures(vendor,[{'cuisine':'合'}])          # a one-character cuisine never matches by containment
