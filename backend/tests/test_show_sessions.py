@@ -156,6 +156,13 @@ def test_team_26_columns_builds_entities_skips_statuses_and_preserves_notes(csv_
     assert len(sessions)==2 and any(s.ends_at is None for s in sessions)
     source=[s for s in records.values() if isinstance(s,facts.Source) and '海报未标注日期' in s.name]
     assert source
+    # The visitor says the name without its annotation; an unknown end still lists the start.
+    ctx=PlanningContext(records,OperationalBundle(),datetime.fromisoformat('2030-05-01T08:00:00+08:00'))
+    answer=shows.query(Action(kind='query',purpose='shows',target_name='合成新节目',quote='合成新节目今天几点演'),SimpleNamespace(planning=ctx))
+    assert answer['status']=='answered' and len(answer['facts'])==2,answer
+    assert '11:00–11:30' in answer['reply'] and '11:00–结束待确认' in answer['reply'] and '海报未标注日期' in answer['reply']
+    unknown=next(s for s in sessions if s.ends_at is None)
+    assert 'SHOW_END_UNKNOWN' in facts.gaps(unknown,records,unknown.starts_at)  # planning still treats it as not ready
 
 
 def test_team_header_is_rejected_as_whole_batch(csv_catalog,tmp_path):
@@ -457,3 +464,14 @@ def test_a_failed_rule_parse_never_adds_its_placeholder_to_a_grounded_model_quer
     monkeypatch.setattr(provider,'generate',lambda *a,**k:({'actions':[{'kind':'query','purpose':'shows','target_name':name,'quote':text}]},{'source':'mock_model'}))
     task=run(city,text)
     assert task['status']=='answered' and understand.ASK_QUESTION_OR_CHANGE not in json.dumps(task,ensure_ascii=False),task
+
+
+def test_a_busy_day_lists_the_next_few_and_counts_the_rest(csv_catalog,tmp_path):
+    database,items=csv_catalog
+    rows=[team_row(items,session_id=f'ses_{i}',program_name='合成新节目',starts_at=f'{9+i//6:02d}:{i%6*10:02d}') for i in range(12)]
+    importer.import_csv(write_team_csv(tmp_path,rows),database)
+    with sqlite3.connect(database) as db:
+        db.row_factory=sqlite3.Row;records=facts.records(db)
+    ctx=PlanningContext(records,OperationalBundle(),datetime.fromisoformat('2030-05-01T08:00:00+08:00'))
+    answer=shows.query(Action(kind='query',purpose='shows',target_name='合成新节目',quote='合成新节目今天几点演'),SimpleNamespace(planning=ctx))
+    assert len(answer['facts'])==shows.SHOWN and '09:00' in answer['reply'] and '之后还有 4 场' in answer['reply']

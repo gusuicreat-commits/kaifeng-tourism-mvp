@@ -1,9 +1,13 @@
 """Dated catalog show queries, independent of saved itinerary targets."""
+import re
 from datetime import datetime
 from ...memory.context import redact
 from .. import facts
 from ..assistant import context, interpret
 from ..schema import TZ
+
+
+SHOWN=8
 
 
 def query(action, snapshot):
@@ -16,7 +20,9 @@ def query(action, snapshot):
           and facts.planning_visible(p) and not getattr(p,'superseded_by',None)
           and (isinstance(p,facts.Program) and p.place_id or isinstance(p,facts.Place) and p.place_type=='scenic')]
     named=[p for p in pool if facts.name_matches(p,action.quote)]
-    t=action.target_name;names=lambda p:(p.name,*p.aliases)
+    t=action.target_name
+    # An annotation (中华巨马展演（每周一检修）) is not part of the name a visitor says.
+    names=lambda p:tuple(dict.fromkeys(n for raw in (p.name,*p.aliases) for n in (raw,re.sub(r'（[^）]*）|\([^)]*\)','',raw).strip()) if n))
     # Visitors shorten catalog names (五鼠闹东京, 铁塔) or prefix the park (万岁山打铁花). The
     # target is already grounded in the quote, so a two-character-or-longer containment either
     # way identifies the record; exact names still win.
@@ -76,7 +82,9 @@ def query(action, snapshot):
             key=(item.kind,item.fact_id)
             if key in seen:return True
             seen.add(key)
-            if not facts.planning_visible(item) or any(i!='LOCATION_UNKNOWN' for i in facts.gaps(item,items,session.starts_at)):
+            # Reading a start time needs neither surveyed coordinates nor a known end; planning
+            # still treats both gaps as not ready.
+            if not facts.planning_visible(item) or any(i not in ('LOCATION_UNKNOWN','SHOW_END_UNKNOWN') for i in facts.gaps(item,items,session.starts_at)):
                 return False
             return all(ref in items and readable(items[ref],seen) for ref in facts.references(item))
         if not stage or not readable(session,set()):continue
@@ -89,5 +97,7 @@ def query(action, snapshot):
     if not values:
         return {'status':'needs_data','reply':'当天有场次记录，但来源、有效期或资料尚不完整，暂不能给出可用场次。','facts':[],'references':[]}
     label='当天' if day==moment.date() else f'{day.month}月{day.day}日'
-    return {'status':'answered','reply':f'按{label}场次资料（未核验参考资料不代表现场保证）：\n'+'\n'.join(lines),
-            'facts':values,'references':[{'kind':'show_session','id':s['id']} for s in values[:6]]}
+    # A whole park lists hundreds of sessions a day; the next few answer "what's on".
+    more=f'\n之后还有 {len(lines)-SHOWN} 场，可以说节目名或舞台名细查。' if len(lines)>SHOWN else ''
+    return {'status':'answered','reply':f'按{label}场次资料（未核验参考资料不代表现场保证）：\n'+'\n'.join(lines[:SHOWN])+more,
+            'facts':values[:SHOWN],'references':[{'kind':'show_session','id':s['id']} for s in values[:6]]}
