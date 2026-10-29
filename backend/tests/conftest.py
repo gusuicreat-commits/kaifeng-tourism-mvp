@@ -25,3 +25,30 @@ def client(tmp_path,monkeypatch):
     monkeypatch.setenv('M7_DELETION_LEDGER_PATH',str(tmp_path/'deletions.sqlite3'))
     with TestClient(app) as c:
         yield c
+
+
+def pytest_addoption(parser):
+    parser.addoption('--require-postgres', action='store_true',
+                     help='Fail instead of skipping when the disposable PostgreSQL database is absent')
+
+
+def pytest_configure(config):
+    import os
+    from postgres_guard import validate_test_database
+    url = os.environ.get('SCENIC_TEST_DATABASE_URL')
+    if not url:
+        if config.getoption('--require-postgres'):
+            raise pytest.UsageError('--require-postgres requires SCENIC_TEST_DATABASE_URL')
+        return
+    try:
+        validate_test_database(url, os.environ.get('SCENIC_TEST_DATABASE_DISPOSABLE'),
+                               os.environ.get('SCENIC_SCHEDULE_DATABASE_URL'))
+    except ValueError as exc:
+        raise pytest.UsageError(str(exc)) from None
+
+
+@pytest.fixture(autouse=True)
+def require_isolated_postgres(request):
+    import os
+    if request.node.get_closest_marker('postgres') and not os.environ.get('SCENIC_TEST_DATABASE_URL'):
+        pytest.skip('PostgreSQL not executed: set disposable local SCENIC_TEST_DATABASE_URL; CI requires it')

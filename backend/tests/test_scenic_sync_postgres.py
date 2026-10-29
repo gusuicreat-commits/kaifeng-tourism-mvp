@@ -14,14 +14,14 @@ from app.scenic_sync.provider import QmsyunProvider
 from app.scenic_sync.store import TZ, connect, migrate
 
 URL = __import__('os').environ.get("SCENIC_TEST_DATABASE_URL")
-pytestmark = pytest.mark.skipif(not URL, reason="requires an explicitly isolated PostgreSQL test database")
+pytestmark = pytest.mark.postgres
 FIXTURE = Path(__file__).parent / "fixtures/scenic_sync/qmsy.html"
 NOW = datetime(2026, 10, 24, 9, tzinfo=TZ)
 ADMIN = {"x-scenic-admin-key": "test-admin-key-012345678901234567890123456789", "x-scenic-reviewer": "test-reviewer"}
 
 
 @pytest.fixture(autouse=True)
-def clean_pg(monkeypatch):
+def clean_pg(monkeypatch, require_isolated_postgres):
     monkeypatch.setenv("SCENIC_SCHEDULE_DATABASE_URL", URL)
     monkeypatch.setenv("SCENIC_ADMIN_API_KEY", ADMIN["x-scenic-admin-key"])
     with connect(URL) as db, db.cursor() as cur:

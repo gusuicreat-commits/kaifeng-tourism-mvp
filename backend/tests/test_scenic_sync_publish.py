@@ -19,13 +19,13 @@ from app.scenic_sync.store import TZ, connect, migrate, register_source, create_
 from app.scenic_sync.models import NormalizedSession
 
 URL = __import__('os').environ.get("SCENIC_TEST_DATABASE_URL")
-pytestmark = pytest.mark.skipif(not URL, reason="requires an explicitly isolated PostgreSQL test database")
+pytestmark = pytest.mark.postgres
 NOW = datetime.now(TZ).replace(second=0, microsecond=0)
 DAY = NOW.date()
 
 
 @pytest.fixture
-def publishing_environment(tmp_path, monkeypatch):
+def publishing_environment(tmp_path, monkeypatch, require_isolated_postgres):
     monkeypatch.setenv("DATABASE_PATH", str(tmp_path / "city.sqlite3"))
     monkeypatch.setenv("M7_DELETION_LEDGER_PATH", str(tmp_path / "deletion.sqlite3"))
     with connect(URL) as db, db.cursor() as cur:

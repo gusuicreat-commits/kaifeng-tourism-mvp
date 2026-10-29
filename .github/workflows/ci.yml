@@ -4,9 +4,61 @@ on:
   push:
   pull_request:
 
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   verify:
     runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22.12'
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+      - name: Install Python dependencies
+        run: |
+          python -m venv .venv
+          .venv/bin/python -m pip install -r backend/requirements.lock -r backend/requirements-data.lock
+      - name: Install frontend dependencies
+        run: npm ci --prefix frontend
+      - name: Run backend tests (PostgreSQL runs in its own job) and build once
+        env:
+          PYTEST_ADDOPTS: '-m "not postgres" -ra --junitxml=.test-results/backend.xml'
+        run: ./scripts/check.sh
+      - name: Run collection tests without network calls
+        if: ${{ !cancelled() }}
+        run: .venv/bin/python -m pytest -q -ra collector/tests --junitxml=.test-results/collector.xml
+      - name: Summarize backend results
+        if: always()
+        run: python scripts/ci_test_summary.py .test-results/backend.xml
+      - name: Summarize collection results
+        if: always()
+        run: python scripts/ci_test_summary.py .test-results/collector.xml
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: python-results
+          path: .test-results/*.xml
+          include-hidden-files: true
+      - uses: actions/upload-artifact@v4
+        with:
+          name: frontend-dist
+          path: frontend/dist
+          retention-days: 1
+
+  postgres:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
     services:
       postgres:
         image: postgres:16
@@ -17,42 +69,96 @@ jobs:
         ports:
           - 5432:5432
         options: >-
-          --health-cmd "pg_isready -U scenic_test"
+          --health-cmd "pg_isready -U scenic_test -d scenic_test"
           --health-interval 5s
           --health-timeout 5s
           --health-retries 10
     env:
       SCENIC_TEST_DATABASE_URL: postgresql://scenic_test:isolated-ci-only@127.0.0.1:5432/scenic_test
+      SCENIC_TEST_DATABASE_DISPOSABLE: '1'
     steps:
       - uses: actions/checkout@v4
-
       - uses: actions/setup-python@v5
         with:
           python-version: '3.13'
+      - name: Install Python dependencies
+        run: |
+          python -m venv .venv
+          .venv/bin/python -m pip install -r backend/requirements.lock -r backend/requirements-data.lock
+      - name: Require destructive integration tests against disposable service
+        run: .venv/bin/python -m pytest -q -ra -m postgres --require-postgres --junitxml=.test-results/postgres.xml
+      - name: Require executed tests with zero skips
+        if: always()
+        run: python scripts/ci_test_summary.py .test-results/postgres.xml --no-skips
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: postgres-results
+          path: .test-results/postgres.xml
+          include-hidden-files: true
 
+  browser:
+    needs: verify
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    strategy:
+      fail-fast: false
+      max-parallel: 3
+      matrix:
+        suite: [default, agent, reference, services, weather, multi-day]
+        include:
+          - suite: default
+            config: playwright.config.ts
+            # Only REAL SDK is skipped here; it belongs to manual online acceptance.
+            expected_skips: 1
+          - suite: agent
+            config: playwright.agent.config.ts
+            expected_skips: 0
+          - suite: reference
+            config: playwright.reference.config.ts
+            expected_skips: 0
+          - suite: services
+            config: playwright.services.config.ts
+            expected_skips: 0
+          - suite: weather
+            config: playwright.weather.config.ts
+            expected_skips: 0
+          - suite: multi-day
+            config: playwright.multi-day.config.ts
+            expected_skips: 0
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
       - uses: actions/setup-node@v4
         with:
           node-version: '22.12'
           cache: npm
           cache-dependency-path: frontend/package-lock.json
-
-      - name: Install Python dependencies
+      - name: Install dependencies
         run: |
           python -m venv .venv
           .venv/bin/python -m pip install -r backend/requirements.lock -r backend/requirements-data.lock
-
-      - name: Install frontend dependencies
-        run: npm ci --prefix frontend
-
-      - name: Run backend tests and frontend build
-        run: ./scripts/check.sh
-
-      - name: Run collection tests without network calls
-        run: .venv/bin/python -m pytest -q collector/tests
-
-      - name: Install browser for UI tests
-        run: npx --prefix frontend playwright install --with-deps chromium
-
-      - name: Run isolated browser tests
+          npm ci --prefix frontend
+          npx --prefix frontend playwright install --with-deps chromium
+      - uses: actions/download-artifact@v4
+        with:
+          name: frontend-dist
+          path: frontend/dist
+      # Each matrix entry owns a VM, server, temporary DB and output directory.
+      - name: Run ${{ matrix.suite }} suite without live providers
         working-directory: frontend
-        run: npm run test:e2e
+        env:
+          PLAYWRIGHT_JSON_OUTPUT_NAME: ../.test-results/browser.json
+        run: npm run test:e2e -- --config=${{ matrix.config }} --forbid-only --reporter=list,json
+      - name: Summarize actual browser results
+        if: always()
+        run: python scripts/ci_test_summary.py .test-results/browser.json --expected-skips=${{ matrix.expected_skips }}
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: browser-${{ matrix.suite }}-results
+          path: .test-results
+          include-hidden-files: true
+          retention-days: 7

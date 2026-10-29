@@ -7,10 +7,12 @@ if(process.env.E2E_EMPTY_CATALOG!=='1'){
  process.env.E2E_OBJECT_BINDINGS??=fileURLToPath(new URL('../backend/tests/fixtures/object_bindings.json',import.meta.url))
 }
 const port=Number(process.env.E2E_PORT||8018)
+// Specialty suites need their own synthetic server; CI runs all five separately.
+// Keep their specs out of this server, rather than running them against the wrong fixtures.
 export default defineConfig({
  testDir:'./tests',testIgnore:['agent-v3.spec.ts','assistant-reference.spec.ts','travel-services.spec.ts','weather-reminder.spec.ts','multi-day.spec.ts'],fullyParallel:false,workers:1,timeout:30000,
  use:{baseURL:`http://127.0.0.1:${port}`,viewport:{width:1440,height:1000},headless:true,
   launchOptions:{args:['--use-fake-ui-for-media-stream','--use-fake-device-for-media-stream'],...browserLaunchOptions}},
- reporter:[['list']],outputDir:'../.test-results',
+ reporter:[['list']],outputDir:'../.test-results/default',
  webServer:{command:testServerCommand('browser_server.py'),url:`http://127.0.0.1:${port}/api/health`,reuseExistingServer:false,timeout:20000}
 })

@@ -1,0 +1,63 @@
+name: Online provider acceptance (manual)
+
+on:
+  workflow_dispatch:
+    inputs:
+      confirm_online_requests:
+        description: 'Authorize real AMap SDK and routing API requests (may consume provider quota)'
+        type: boolean
+        required: true
+        default: false
+
+permissions:
+  contents: read
+
+jobs:
+  amap-live:
+    if: inputs.confirm_online_requests
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    # Configure credentials and optional approval rules in this GitHub Environment.
+    environment: online-acceptance
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22.12'
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+      - name: Require acceptance credentials
+        env:
+          AMAP_JS_KEY: ${{ secrets.AMAP_JS_KEY }}
+          AMAP_JS_SECURITY_CODE: ${{ secrets.AMAP_JS_SECURITY_CODE }}
+        run: test -n "$AMAP_JS_KEY" && test -n "$AMAP_JS_SECURITY_CODE"
+      - name: Install and build
+        run: |
+          python -m venv .venv
+          .venv/bin/python -m pip install -r backend/requirements.lock -r backend/requirements-data.lock
+          npm ci --prefix frontend
+          npm run build --prefix frontend
+          npx --prefix frontend playwright install --with-deps chromium
+      - name: Run only explicit online acceptance using temporary business data
+        working-directory: frontend
+        env:
+          AMAP_LIVE_TEST: '1'
+          AMAP_JS_KEY: ${{ secrets.AMAP_JS_KEY }}
+          AMAP_JS_SECURITY_CODE: ${{ secrets.AMAP_JS_SECURITY_CODE }}
+          PLAYWRIGHT_JSON_OUTPUT_NAME: ../.test-results/online.json
+        run: npm run test:e2e -- --config=playwright.amap.config.ts --grep='REAL SDK' --forbid-only --reporter=list,json
+      - name: Require executed acceptance with zero skips
+        if: always()
+        run: python scripts/ci_test_summary.py .test-results/online.json --no-skips
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: online-acceptance-results
+          path: |
+            .test-results
+            docs/reports/amap-map-location-live.json
+          include-hidden-files: true
+          retention-days: 7
