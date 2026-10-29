@@ -6,7 +6,7 @@ from fastapi import HTTPException
 from pydantic import ValidationError
 from ...db import connect
 from ...memory.storage import encoded,stamp
-from .. import state
+from .. import state,hotel_binding,travel_services
 from ..schema import TZ,Stop,PositionAnchor
 from ..state_schema import CityDraft,CityDraftV2,DayDraft
 from ..versions import read_draft,read_requirements,read_itinerary
@@ -46,8 +46,8 @@ def current_day(draft,moment,day_id=None):
 def overnight_evidence(req,ctx):
     boundaries=[];days={d.day_id:d for d in req.days}
     for o in req.overnights:
-        if o.source_kind!='user_place' or any(getattr(o,k) is not None for k in ('service_selection_id','service_version','binding_revision','check_in','check_out')):
-            unavailable('酒店过夜绑定尚未开放，请手选已有地点作为过夜点；不能把酒店候选当作已绑定地点。')
+        if o.source_kind=='user_place' and any(getattr(o,k) is not None for k in ('service_selection_id','service_version','binding_revision','check_in','check_out')):
+            unavailable('手选地点不能携带酒店选择版本；请确认酒店候选，或仅指定已有地点作为过夜点。')
         place=ctx.facts.get(('place',o.place_id))
         ready=ctx.ready(place,days[o.from_day_id].ends_at,days[o.to_day_id].starts_at)
         mode='synthetic' if ready and ctx.synthetic else 'reference' if ready and place.planning_status=='reference' else 'verified' if ready else 'unknown'
@@ -196,7 +196,17 @@ def preview_multi_day(session,trip_id,body,replanning=False,planning_version=Non
         if cached is not None:return cached
         state.check_version(row,body.expected_version);service.check_open(row)
         ctx=service.context(db);req=body.requirements;draft=read_draft(row['draft_json'])
-        req=overnight_evidence(req,ctx);body=body.model_copy(update={'requirements':req})
+        services=travel_services.read(db,trip_id)
+        hotel_baseline=hotel_binding.baseline(db,services)
+        projected,hotel_issues=hotel_binding.project(db,req.model_dump(mode='json'),services,moment=ctx.assessed_at)
+        if not hotel_issues:
+            req=MultiDayRequirements.model_validate(projected)
+        if replanning and (hotel_issues or hotel_binding.route_binding(req.model_dump(mode='json'))!=
+                          hotel_binding.route_binding(body.requirements.model_dump(mode='json'))):
+            raise HTTPException(409,detail={'code':'HOTEL_REPLAN_SCOPE',
+                'message':'酒店变更影响相邻两天；今天剩余重排不能更改跨日边界，请保留原路线并重新规划整套行程。'})
+        if not hotel_issues:req=overnight_evidence(req,ctx)
+        body=body.model_copy(update={'requirements':req})
         oldrow=service.route_row(db,trip_id);previous=read_itinerary(oldrow['itinerary_json']) if oldrow else None
         original=read_requirements(oldrow['requirements_json']) if oldrow else None
         if previous and not isinstance(previous,MultiDayItinerary):
@@ -218,7 +228,10 @@ def preview_multi_day(session,trip_id,body,replanning=False,planning_version=Non
         base=row['version'];baseline=service.progress(row);fingerprint=ctx.fingerprint()
         basket_baseline=basket.version(db,trip_id);planning_baseline=exploration_state.read(db,trip_id)['version']
         if planning_version is not None:exploration_state.guard(db,trip_id,planning_version)
-    if replanning:
+    if hotel_issues:
+        result=SolveResultV2(schema_version='city-engine-result/2',status='needs_data',
+            issues=tuple(Issue.model_validate(i) for i in hotel_issues),computed_at=ctx.assessed_at)
+    elif replanning:
         ctx=live_travel.restore_snapshot(ctx,previous)
         ctx=live_travel._enrich_day(ctx,daily,dated=True)
         solved=replan_trip(daily,ctx,completed_prefix=tuple(s for s in prefix if s.progress=='completed'),
@@ -257,6 +270,7 @@ def preview_multi_day(session,trip_id,body,replanning=False,planning_version=Non
         if cached is not None:return cached
         row=state.owned(db,session,trip_id);state.check_version(row,base);service.check_open(row)
         basket.guard(db,trip_id,basket_baseline);exploration_state.guard(db,trip_id,planning_baseline)
+        hotel_binding.guard(db,trip_id,hotel_baseline)
         if service.context(db).fingerprint()!=fingerprint:raise HTTPException(409,detail='计算期间事实已变化，请重新预览。')
         if service.progress(row)!=baseline:raise HTTPException(409,detail='计算期间进度已变化，请重新预览。')
         if candidate_id:
@@ -265,6 +279,7 @@ def preview_multi_day(session,trip_id,body,replanning=False,planning_version=Non
                 'daily_requirements':daily.model_dump(mode='json') if daily else None,
                 'basket_version':basket_baseline,'planning_version':planning_baseline,
                 'previous_route_version':oldrow['route_version'] if oldrow else None}
+            extra['hotel_baseline']=hotel_baseline
             db.execute('INSERT INTO city_engine_candidates VALUES (?,?,?,?,?,?,?,?,0)',
                 (candidate_id,str(trip_id),base,fingerprint,req.model_dump_json(),result.model_dump_json(),encoded(extra),expiry))
         state.remember(db,session,body.request_id,trip_id,scope,data,response)
@@ -296,6 +311,7 @@ def confirm_multi_day(db,session,trip_id,body,row,c,req,result,data,scope):
     if not isinstance(result,SolveResultV2):raise HTTPException(422,detail='候选需求和结果的 schema 不一致。')
     if c['base_version']!=row['version']:raise HTTPException(409,detail='候选基线版本已变化。')
     ctx=service.context(db);extra=json.loads(c['progress_json'])
+    if 'hotel_baseline' in extra:hotel_binding.guard(db,trip_id,extra['hotel_baseline'])
     if ctx.fingerprint()!=c['fingerprint']:raise HTTPException(409,detail='关键事实已变化，请重新计算。')
     if not {'baseline','basket_version','planning_version','replanning'}<=extra.keys():
         unavailable('此多天历史候选缺少可确认基线，请重新生成整套预览。')
@@ -343,6 +359,13 @@ def read_multi_snapshot(db,row,saved,req,plan):
     ctx=live_travel.restore_snapshot(ctx,plan);today=ctx.assessed_at.astimezone(TZ).date()
     draft=read_draft(row['draft_json']);states={d.day_id:d for d in draft.days} if isinstance(draft,CityDraftV2) else {}
     errors=[];days=[];refresh=False
+    raw=req.model_dump(mode='json');services=travel_services.read(db,row['id'])
+    try:
+        projected,hotel_issues=hotel_binding.project(db,raw,services,moment=ctx.assessed_at)
+        if hotel_issues or hotel_binding.route_binding(projected)!=hotel_binding.route_binding(raw):
+            errors.append(Issue(code='HOTEL_SELECTION_CHANGED',message='酒店选择或地点绑定已变化，原路线保留，请重新预览整套行程。'))
+    except HTTPException:
+        errors.append(Issue(code='HOTEL_SELECTION_CHANGED',message='原路线引用的酒店已撤销，历史路线保留，请重新规划。'))
     for d in plan.days:
         status=states[d.day_id].status if d.day_id in states else d.status
         frozen=d.business_date<today or status=='closed'

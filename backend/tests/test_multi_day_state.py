@@ -124,4 +124,4 @@ def test_v2_create_rejects_forged_history_and_unknown_overnight(engine,monkeypat
     assert r.status_code==422
     value=draft(3);value['overnights'][0]['source_kind']='selected_hotel'
     r=c.post('/api/city/v1/trips',json={'request_id':rid(),'draft':value})
-    assert r.status_code==503 and r.json()['detail']['code']=='MULTI_DAY_HOTEL_UNAVAILABLE'
+    assert r.status_code==422 and r.json()['detail']['code']=='INVALID_HOTEL_BINDING'

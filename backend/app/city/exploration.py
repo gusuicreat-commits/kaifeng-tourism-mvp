@@ -101,6 +101,14 @@ def preview_plan(trip_id,body,s,*,execution_guard=None):
             row=state.owned(db,s,trip_id);state.check_version(row,body.expected_version);basket.guard(db,trip_id,body.basket_version)
             workspace=exploration_state.read(db,trip_id)
             if body.planning_version is not None:exploration_state.guard(db,trip_id,body.planning_version)
+            from . import hotel_binding,travel_services
+            projected,hotel_issues=hotel_binding.project(db,body.constraints.model_dump(mode='json'),
+                                                        travel_services.read(db,trip_id))
+        if hotel_issues:
+            return unknown(hotel_issues[0]['message'],code=hotel_issues[0]['code'])|{
+                'issues':hotel_issues,'constraints':projected,'planning_version':workspace['version'],
+                'basket_version':body.basket_version,'trip_version':body.expected_version}
+        body=body.model_copy(update={'constraints':MultiDayConstraints.model_validate(projected)})
         req_data=body.constraints.model_dump(mode='json')
         req_data['days']=[{k:v for k,v in d.items() if k in DayRequirements.model_fields} for d in req_data['days']]
         for key in ('trip_days','trip_nights','pending_fields','clarifications','range_impacts',*AGENT_ONLY):req_data.pop(key,None)

@@ -58,9 +58,15 @@ def validate_refs_v2(draft, items):
         validate_refs(day,items)
     for overnight in draft.overnights:
         if overnight.place_id: facts.require(items, 'place', overnight.place_id)
-        if overnight.source_kind != 'user_place':
-            raise HTTPException(503,detail={'status':'unavailable','code':'MULTI_DAY_HOTEL_UNAVAILABLE',
-                                             'message':'酒店过夜绑定尚未接通，请手选已有地点作为过夜点。'})
+        if overnight.source_kind == 'selected_hotel':
+            # This is the visitor create path, before a trip has an owned
+            # service workspace. Even complete-looking metadata is not proof
+            # of a confirmed selection. The engine builds bindings server-side.
+            raise HTTPException(422, detail={'code':'INVALID_HOTEL_BINDING',
+                'message':'请先创建行程，再确认酒店候选并预览路线；不能在新建草稿中自行提供酒店绑定。'})
+        elif overnight.source_kind != 'user_place':
+            raise HTTPException(422, detail={'code':'INVALID_OVERNIGHT_SOURCE',
+                                              'message':'过夜点来源无效。'})
 
 
 def _v2_day(draft, day_id):

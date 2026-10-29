@@ -26,7 +26,9 @@ def _questions(values):
             if not d.get(key):questions.append(d['business_date']+label+'？')
     for a,b in zip(values.get('days',[]),values.get('days',[])[1:]):
         if not a.get('destination_place_id') or not b.get('origin_place_id'):
-            questions.append(a['business_date']+'晚上在哪个已知地点过夜，并从那里开始第二天？')
+            hotel=next((o for o in values.get('overnights',[]) if o['night_date']==a['business_date'] and o['source_kind']=='selected_hotel'),None)
+            questions.append(a['business_date']+'已选酒店的位置待关联城市地点，暂不能核算酒店转场。' if hotel else
+                a['business_date']+'晚上在哪个已知地点过夜，并从那里开始第二天？')
         elif a['destination_place_id']!=b['origin_place_id']:
             questions.append(a['business_date']+'的终点和次日起点不同，请核对过夜地点。')
     days=values.get('days',[])
@@ -152,13 +154,19 @@ def prepare(session,trip_id,snapshot,intent,text,*,today=None,notes=()):
             nights.append({'overnight_id':'night:'+a['business_date'],'from_day_id':'day:'+a['business_date'],
                 'to_day_id':'day:'+b['business_date'],'night_date':a['business_date'],'place_id':place,'source_kind':'user_place'})
     values['overnights']=nights
+    from ...db import connect
+    from ..hotel_binding import project
+    with connect() as db:
+        values,hotel_issues=project(db,values,snapshot.services)
     service=intent.service_query
     locations=[f.value for f in service.fields if f.field=='location_text'] if service and service.category=='hotels' else []
     saved_service=snapshot.services.get('requirements') or {}
     if not locations and saved_service.get('category')=='hotels' and saved_service.get('location_text'):
         locations=[saved_service['location_text']]
     values['clarifications']=[q for q in values['clarifications'] if not q.startswith('住宿位置“')]
-    values['clarifications'].extend(lodging_questions(values,locations,snapshot.planning.facts))
+    if not (snapshot.services.get('selection') or {}).get('hotels'):
+        values['clarifications'].extend(lodging_questions(values,locations,snapshot.planning.facts))
+    values['clarifications'].extend(i['message'] for i in hotel_issues if i['code']!='HOTEL_LOCATION_PENDING')
     basket_result={}
     if p.choices:
         single=copy.copy(snapshot);single.workspace={'constraints':{},'version':snapshot.workspace.get('version',0)}

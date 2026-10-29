@@ -6,6 +6,7 @@ from uuid import UUID, uuid4
 from fastapi import APIRouter, Depends, HTTPException
 from pydantic import Field
 from .schema import Strict, TZ
+from . import hotel_binding
 from . import hotels, state, location_resolution  # compatibility export for existing adapter fakes
 from .providers import CapabilityRequest, default_registry
 from .agent.dates import find_date_expressions, resolve_date
@@ -16,6 +17,7 @@ from ..memory.storage import encoded, stamp
 router=APIRouter(prefix='/api/city/v1/trips/{trip_id}/services',tags=['旅行服务候选'])
 
 def init(db):
+    hotel_binding.init(db)
     db.execute('''CREATE TABLE IF NOT EXISTS city_service_workspaces (
       trip_id TEXT PRIMARY KEY REFERENCES city_trip_states(id) ON DELETE CASCADE,
       version INTEGER NOT NULL, requirements_json TEXT NOT NULL, result_json TEXT,
@@ -321,11 +323,14 @@ def preview_choice(session,trip_id,body):
         result={'preview_id':str(uuid4()),'before':w['selection'],'after':item,'expected_version':w['version'],
                 'trip_version':row['version'],'formal_route_changed':False,'planning_status':'needs_data',
                 'affected':['住宿费用','出发地点与转场','后续时间安排'],
-                'blockers':['房型与入住人数报价待核实','地点与入口尚未映射正式事实','正式交通依据待核实','多日住宿不在同日求解器范围内'],
+                'blockers':['房型与入住人数报价待核实','地点与入口尚未映射正式事实','正式交通依据待核实'],
                 'expires_at':item['expires_at']}
+        if w['requirements'].get('category')=='hotels':
+            result['binding_preview']=hotel_binding.describe(db,row,w,item)
         w['result']['preview']=result;write(db,trip_id,w)
         state.remember(db,session,body.request_id,trip_id,scope,data,result)
         return result
+
 
 @router.get('')
 def workspace(trip_id:UUID,s:Session=Depends(current)):
@@ -349,9 +354,17 @@ def confirm(trip_id:UUID,body:Confirm,s:Session=Depends(current)):
         if cached is not None:return cached
         w=read(db,trip_id);p=(w['result'] or {}).get('preview')
         if row['status'] in state.TERMINAL or not body.confirmed or w['version']!=body.expected_version or not p or p['preview_id']!=str(body.preview_id) or p['trip_version']!=row['version'] or datetime.fromisoformat(p['expires_at'])<=datetime.now(TZ):raise HTTPException(409,detail='预览已过期或条件变化，请重新预览。')
-        old=dict(w['selection'] or {});w['selection']=old|{w['requirements']['category']:p['after']};w['previous']=old
+        old=dict(w['selection'] or {})
+        selected=dict(p['after'])
+        if w['requirements']['category']=='hotels':
+            selected['stay']={k:w['requirements'].get(k) for k in ('check_in','check_out','nights')}
+            selected['selection_version']=w['version']+1
+        w['selection']=old|{w['requirements']['category']:selected};w['previous']=old
         w['version']+=1;w['result'].pop('preview',None);write(db,trip_id,w)
-        result={'workspace':w,'formal_state_changed':False,'planning_status':'needs_data','reply':'已记下这个意向，资料补齐后就能排进行程。'}
+        binding=hotel_binding.describe(db,row,w)
+        result={'workspace':w,'formal_state_changed':False,'planning_status':'needs_data',
+                'reply':binding['message'] if binding else '已记下这个意向，资料补齐后就能排进行程。'}
+        if binding:result['binding']=binding
         state.remember(db,s,body.request_id,trip_id,scope,data,result);return result
 
 class Undo(Strict):

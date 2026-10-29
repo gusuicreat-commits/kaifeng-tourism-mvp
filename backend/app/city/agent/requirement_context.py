@@ -21,6 +21,10 @@ def planning_values(snapshot):
         if 'days' in raw:
             previous={d['business_date']:d for d in values.get('days',[])}
             values['days']=[previous.get(d['business_date'],{})|d for d in raw['days']]
+        from ...db import connect
+        from ..hotel_binding import project
+        with connect() as db:
+            values,_=project(db,values,snapshot.services)
         return values
     fields=Constraints.model_fields
     values={k:v for k,v in snapshot.envelope.requirements.items() if k in fields}

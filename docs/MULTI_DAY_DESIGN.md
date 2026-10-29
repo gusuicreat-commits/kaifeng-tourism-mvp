@@ -382,3 +382,15 @@ B2 只接受 `user_place` 已有地点；过夜地点证据由服务端事实计
 已有相邻日终点和起点相同即可形成 `user_place` 过夜边界；酒店查询位置无法映射到该边界时继续追问，不能替换端点。酒店查询在本轮或已保存的有效多天范围内补缺失入住日/晚数，分别采用第一天和天数减一；游客明确日期、晚数或退房日优先，单天不补。回复回显采用的日期和晚数，`service_date_defaults` 记录补齐项，已补上的日期项保留丢弃审计但不重复告知游客“未采用”。本轮范围由确定性规划预备结果共享给服务查询，再走原预览/确认入口；酒店仍仅是查询条件，没有候选绑定、可入住或预订保证。
 
 验证入口：[B2.6 正反例及走样输出](../backend/tests/test_b26_multi_day_conditions.py)、[日期范围回归](../backend/tests/test_b24_date_range.py)、[讲稿录制回放](../backend/tests/test_live_model_replay.py)、[逐句提示词与长度检查](../backend/tests/test_agent_prompt_schema.py)。理解提示词含 schema 的字符数由 7993 调整为 7999，`prompt_rules_main.json` 保持原样；均使用隔离库和模型/服务替身，真实模型、外部服务及现场未验收。
+
+## 16. B3 酒店候选与相邻日衔接（2026-10-29，本地集成验收）
+
+`selection.hotels` 保存选择时的 `stay` 日期和 `selection_version`。服务候选确认与撤销只改变意向，不修改正式草稿、路线或历史进度。`hotel_binding.project` 将同一酒店覆盖的相邻日连接为 `selected_hotel` 过夜边界；小汴梁统一条件投影、素材篮预览、引擎直接预览共用此投影。整套路线确认后才写入正式日端点与绑定快照。首日起点、末日终点不变，额外住宿不延长游玩日期；日期仅证明所需晚数，实际入住/退房时刻保持未知，酒店起价不参与总价认证。
+
+地点使用已有 `city_object_bindings(kind='flyai_hotel', object_id='flyai:<shId>')`；新增 `city_hotel_binding_metadata` 保存显式地点 ID、修订号、来源、核对时刻及有效区间。维护者通过 `scripts/import_hotel_bindings.py bindings.json --database /absolute/path/to/db.sqlite3` 在内存副本预检；加 `--apply` 才原子写入。输入为 JSON 数组，每项字段为 `candidate_id/place_id/revision/source/checked_at/valid_from/valid_until`，时间须带时区。仅能引用库内已有地点，修订须递增；同名、地址及 provider ID 本身不构成事实映射。不提供游客写入映射接口。
+
+候选记录服务工作区版本和地点绑定指纹，计算结束及最终确认各复核一次。换酒店、重新查询、撤销或修订地点绑定后，旧预览拒绝确认。读取旧路线发现当前意向不同会标记过期并保留原快照。搜索结果过期限制新选择，已确认的酒店意向不会因三分钟搜索缓存到期而消失。未映射地点返回 `HOTEL_LOCATION_PENDING`，住宿区间不足返回 `HOTEL_STAY_RANGE_MISMATCH`，旧意向缺日期快照需重新确认；未知交通与事实有效性仍由原引擎检查。新建草稿禁止自行携带酒店绑定元数据。
+
+本轮软件集成使用隔离 SQLite、合成地点/交通和 Mock 酒店响应；真实模型及业务 Provider 请求为零。最终后端全量 **2975 passed、9 skipped**（安装目录以本地依赖链接复用，原先跳过的 5 项前端投影测试本轮运行通过）；前端类型检查、构建、四组契约导出检查通过，维护 CLI 的 dry-run、显式导入及无效导入不改旧映射检查通过。Playwright 酒店候选 6 项、多日行程 6 项通过，包含从现有酒店卡片选择到实际引擎规划、确认和双日行程页读取的新场景。后端验证入口：[酒店衔接 API/Agent/撤销与版本回归](../backend/tests/test_hotel_overnight_binding.py)、[既有酒店响应](../backend/tests/test_travel_services.py)、[多日状态](../backend/tests/test_multi_day_state.py)；浏览器入口：[多日集成](../frontend/tests/multi-day.spec.ts)。本地端口监听先受沙箱限制，允许本地监听后复跑通过。前端生产布局与组件未改。
+
+真实酒店地点映射尚未导入运行库，当前页面所在的运行服务未更新。本轮不包含途中更换住宿并联合重排后续日（现有仅今天剩余重排不允许改跨日边界）、多家酒店或住宿费用联合预算，不能据此声称真实预订或入住已经落实。
