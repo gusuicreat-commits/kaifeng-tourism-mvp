@@ -16,6 +16,9 @@ def applies(snapshot,intent,text):
 
 
 def preview(session,trip_id,snapshot,intent,request_id,text):
+    if tools.has_continuous_scope(text):
+        from .suffix_planning import preview as preview_suffix
+        return preview_suffix(session,trip_id,snapshot,intent,request_id,text)
     from .planning_intent import _resolve_endpoint,_choice_facts
     day_id=tools.selected_future_day_scope(snapshot,text)
     full=snapshot.multi_requirements;day=next(d for d in full.days if d.day_id==day_id)

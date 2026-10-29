@@ -17,7 +17,7 @@ from ..schema import TZ
 def require_single_day(snapshot):
     if getattr(snapshot,'multi_draft',None) or getattr(snapshot,'multi_requirements',None):
         raise HTTPException(503,detail={'status':'unavailable','code':'MULTI_DAY_UNAVAILABLE',
-            'message':'此多天写入工具尚未接通；可查看整套行程，途中延误、多待、休息和跳站仅支持今天剩余，不会降为第一天。'})
+            'message':'此旧单日入口不能改写多日行程；请在行程页或小汴梁选择今天剩余、未来单日或今天及后续天。'})
 
 
 def selected_future_day_scope(snapshot,quote=''):
@@ -87,7 +87,7 @@ def adjustment_request(snapshot,req,request_id,**extra):
             'fixed_date':old.fixed_date if old else today}))
     full=type(full).model_validate(full.model_dump()|{'goals':goals})
     return ReplanRequestV2(request_id=request_id,expected_version=snapshot.row['version'],requirements=full,
-        scope='current_day',day_id=snapshot.day_id,**extra)
+        scope=scope,day_id=snapshot.day_id,**extra)
 
 
 def requirements(snapshot):
@@ -248,3 +248,19 @@ def discard(session, trip_id, body):
                   'version':row['version'],'route_version':row['route_version'],'formal_state_changed':False}
         state.remember(db,session,body.request_id,trip_id,scope,data,result)
         return result
+
+
+def has_continuous_scope(quote):
+    """Check the model's scope evidence, without guessing a modification operation."""
+    import re
+    return bool(re.search(r'今天.{0,18}(?:后续|后面|以后|明天)|(?:连同|连着|连|包括).{0,12}(?:后续|后面|以后)|(?:后续|后面|剩下|接下来|余下)(?:的)?(?:几|两|二|三|[23])?天.{0,12}(?:一起|全部|都)|今天及后续天',quote))
+
+
+def continuous_scope(snapshot,quote):
+    if not getattr(snapshot,'multi_requirements',None) or not has_continuous_scope(quote):
+        raise HTTPException(422,detail={'code':'CONTINUOUS_SCOPE_REQUIRED','message':'请明确是否连同今天剩余及后续天一起调整；本轮未扩大修改范围。'})
+    from ..agent.evidence import request_evidence
+    try:request_evidence(quote,quote)
+    except ValueError:raise HTTPException(422,detail={'code':'CONTINUOUS_SCOPE_REQUIRED','message':'范围原话尚未构成明确修改请求，请重新说明。'}) from None
+    current_day_scope(snapshot)
+    return snapshot.day_id

@@ -150,10 +150,10 @@ def test_today_ongoing_preserves_identity_and_no_duplicate(multi_engine,monkeypa
 
 
 @pytest.mark.parametrize('scope',['current_and_future'])
-def test_unsupported_scopes_explicitly_unavailable(multi_engine,monkeypatch,scope):
+def test_continuous_scope_rejects_a_future_day_as_today(multi_engine,monkeypatch,scope):
     e,req,_=committed(multi_engine);start_today(e,monkeypatch)
     before=saved_rows();r=remaining(e,req,scope=scope,day_id='day:2030-05-03')
-    assert r.status_code==503 and r.json()['detail']['status']=='unavailable'
+    assert r.status_code==422
     assert saved_rows()==before
 
 

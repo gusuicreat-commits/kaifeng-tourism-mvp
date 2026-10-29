@@ -287,7 +287,9 @@ def preview_adjustment(session,trip_id,snapshot,value,request_id,text=None):
     source_quote=text if text is not None else value.quote
     future=value.scope=='selected_future_day'
     future_day_id=v2tools.selected_future_day_scope(snapshot,source_quote) if future else None
-    if not future:v2tools.current_day_scope(snapshot,source_quote)
+    continuous=value.scope=='current_and_future'
+    if continuous:v2tools.continuous_scope(snapshot,source_quote)
+    elif not future:v2tools.current_day_scope(snapshot,source_quote)
     if snapshot.row['status'] not in (('DRAFT','ACTIVE','PAUSED') if future else ('ACTIVE','PAUSED')) or not snapshot.route.get('itinerary'):
         return {'status':'needs_clarification','reply':'请先开始今天已确认的行程，再修改剩余安排。'}
     if not future and snapshot.envelope.position['status']!='fresh':
@@ -373,6 +375,10 @@ def preview_adjustment(session,trip_id,snapshot,value,request_id,text=None):
             req=req.model_copy(update={'goals':(*req.goals,goal)})
             notes.append(f'在{context.label(snapshot.planning.facts,position)}之后休息{value.minutes}分钟；未指定或核实座椅设施。')
     if value.operation=='delay':notes.append(f'按你报告已延误{value.minutes}分钟，从当前实际时刻{moment.astimezone(TZ):%H:%M}重排，已过去的时间不会重复累加。')
+    if continuous:
+        extra['scope']='current_and_future'
+        notes.insert(0,'已明确选择今天剩余及后续天一起调整。')
+        notes=[n for n in notes if '今天剩余，其余日期保持原计划' not in n]
     if future:
         extra['scope']='selected_future_day';extra['day_id']=future_day_id
     body=v2tools.adjustment_request(snapshot,req,uuid5(UUID(str(request_id)),'adjustment'),**extra)

@@ -19,7 +19,7 @@ from .multi_day_validation import validate_multi_day
 from .prepare import prepare
 from .validation import validate_itinerary,compare_itineraries
 from .tools import plan_trip,replan_trip
-from . import live_travel, future_day
+from . import live_travel, future_day, suffix
 
 
 def unavailable(message):
@@ -75,7 +75,10 @@ def snapshot_history(ctx,plan):
 
 def compare(previous,plan):
     old={d.day_id:d for d in previous.days} if previous else {}
-    return {'days':[{'day_id':d.day_id,'business_date':d.business_date.isoformat(),
+    old_owner={a.goal_id:d.day_id for d in previous.days for a in d.itinerary.activities} if previous else {}
+    moves=[{'goal_id':a.goal_id,'before_day_id':old_owner[a.goal_id],'after_day_id':d.day_id}
+           for d in plan.days for a in d.itinerary.activities if a.goal_id in old_owner and old_owner[a.goal_id]!=d.day_id]
+    return {'day_moves':moves,'days':[{'day_id':d.day_id,'business_date':d.business_date.isoformat(),
             **compare_itineraries(old[d.day_id].itinerary if d.day_id in old else None,d.itinerary)} for d in plan.days],
             'must_confirm':True}
 
@@ -140,7 +143,7 @@ def remaining(row,body,ctx,previous,original):
     draft=read_draft(row['draft_json'])
     if not isinstance(draft,CityDraftV2) or not isinstance(previous,MultiDayItinerary):
         unavailable('今天剩余重排需要已确认的多天路线，不能将单天历史自动扩为多天。')
-    if body.scope!='current_day':unavailable('多天首轮仅支持今天剩余；连后续天调整和指定未来日调整尚未开放，未降为第一天。')
+    if body.scope!='current_day':unavailable('今天剩余适配器收到其他范围，请使用对应的未来单日或连续多日入口。')
     if body.spent_cost_fen is not None or body.spend_as_of is not None:
         raise HTTPException(422,detail='请在全程费用报告中同时指定金额、时刻和已覆盖费用项，避免重复计费。')
     report=body.requirements.pricing.spending if body.requirements.pricing else None
@@ -270,7 +273,7 @@ def preview_multi_day(session,trip_id,body,replanning=False,planning_version=Non
     from .. import basket,exploration_state
     data=body.model_dump(mode='json');scope=('engine_replan:' if replanning else 'engine_preview:')+str(trip_id)
     future=replanning and body.scope=='selected_future_day'
-    if replanning and body.scope=='current_and_future':unavailable('连同今天及后续天一起调整尚未开放；可以只调整今天剩余或指定一个未来日。')
+    continuous=replanning and body.scope=='current_and_future';suffix_scope=None
     with connect() as db:
         row=state.owned(db,session,trip_id)
         cached=state.receipt(db,session,body.request_id,scope,data)
@@ -294,7 +297,7 @@ def preview_multi_day(session,trip_id,body,replanning=False,planning_version=Non
         body=body.model_copy(update={'requirements':req})
         oldrow=service.route_row(db,trip_id);previous=read_itinerary(oldrow['itinerary_json']) if oldrow else None
         original=read_requirements(oldrow['requirements_json']) if oldrow else None
-        if replanning and body.scope=='selected_future_day' and original and future_day.overnight_identity(requested_overnights)!=future_day.overnight_identity(original.overnights):
+        if replanning and body.scope in ('selected_future_day','current_and_future') and isinstance(original,MultiDayRequirements) and future_day.overnight_identity(requested_overnights)!=future_day.overnight_identity(original.overnights):
             raise HTTPException(409,detail='单日调整不能改写已确认的过夜地点或酒店衔接。')
         if previous and not isinstance(previous,MultiDayItinerary):
             if row['status']!='DRAFT' or any(s.progress!='pending' for s in draft.stops):
@@ -302,11 +305,14 @@ def preview_multi_day(session,trip_id,body,replanning=False,planning_version=Non
             previous=None
         daily=None;prefix=();ongoing=None;fixed=();today=None
         if replanning:
-            if body.restore_route_version and not future:
+            if body.restore_route_version and not future and not continuous:
                 if not isinstance(previous,MultiDayItinerary):unavailable('今天恢复需要已确认的多天路线。')
                 req=restore_today(db,row,body,ctx,previous,original)
                 body=body.model_copy(update={'requirements':req,'restore_route_version':None})
-            daily,prefix,ongoing,fixed,current,today=(future_day.prepare_future if future else remaining)(row,body,ctx,previous,original)
+            if continuous:
+                suffix_scope=suffix.prepare_scope(row,body,ctx,previous,original)
+                daily,prefix,ongoing,fixed,current,today=(suffix_scope[k] for k in ('daily','prefix','ongoing','fixed','current','today'))
+            else:daily,prefix,ongoing,fixed,current,today=(future_day.prepare_future if future else remaining)(row,body,ctx,previous,original)
         else:
             if req.pricing and req.pricing.spending:raise HTTPException(422,detail='首次规划不能注入已支付费用，请在途中明确报告。')
             days=draft.days if isinstance(draft,CityDraftV2) else (draft,)
@@ -321,6 +327,12 @@ def preview_multi_day(session,trip_id,body,replanning=False,planning_version=Non
     if hotel_issues:
         result=SolveResultV2(schema_version='city-engine-result/2',status='needs_data',
             issues=tuple(Issue.model_validate(i) for i in hotel_issues),computed_at=ctx.assessed_at)
+    elif continuous:
+        ctx=live_travel.restore_snapshot(ctx,previous)
+        for day in suffix_scope['search'].days:
+            goals=[g for g in suffix_scope['search'].goals if applicable(g,day)]
+            ctx=live_travel._enrich_day(ctx,suffix.daily_for(suffix_scope,day,goals,req.objective,req.solve_seconds),dated=True)
+        result=suffix.plan(req,ctx,previous,suffix_scope)
     elif replanning:
         ctx=live_travel.restore_snapshot(ctx,previous)
         ctx=live_travel._enrich_day(ctx,daily,dated=True)
@@ -358,7 +370,7 @@ def preview_multi_day(session,trip_id,body,replanning=False,planning_version=Non
     expiry=stamp(service.now()+timedelta(minutes=15))
     if candidate_id:
         quotes=[l.journey.quote_expires_at for p in result.itineraries for d in p.days for l in d.itinerary.legs
-                if l.journey.time_basis=='provider_estimate' and l.journey.quote_expires_at and (not today or d.day_id==today.day_id)]
+                if l.journey.time_basis=='provider_estimate' and l.journey.quote_expires_at and (not today or d.day_id==today.day_id or continuous and d.day_id in {v.day_id for v in suffix_scope['search'].days})]
         if quotes:expiry=min(expiry,stamp(min(quotes)))
         price=selected.get('price_selection') or {}
         if req.pricing and price.get('expires_at') and 'lodging:'+selected.get('id','') not in set(req.pricing.spending.covered_cost_ids if req.pricing.spending else ()):
@@ -367,7 +379,7 @@ def preview_multi_day(session,trip_id,body,replanning=False,planning_version=Non
     response={'status':'preview' if candidate_id else result.status,'candidate_id':candidate_id,'trip_id':str(trip_id),
         'base_version':base,'expires_at':expiry if candidate_id else None,'result':result.model_dump(mode='json'),
         'changes':changes[0] if changes else None,'alternative_changes':changes,'must_confirm':bool(candidate_id),
-        **({'scope':'selected_future_day','day_id':today.day_id,'business_date':today.business_date.isoformat()} if future else {})}
+        **({'scope':body.scope,'day_id':today.day_id,'business_date':today.business_date.isoformat()} if future or continuous else {})}
     with connect() as db:
         db.execute('BEGIN IMMEDIATE')
         cached=state.receipt(db,session,body.request_id,scope,data)
@@ -384,6 +396,10 @@ def preview_multi_day(session,trip_id,body,replanning=False,planning_version=Non
                 'daily_requirements':daily.model_dump(mode='json') if daily else None,
                 'basket_version':basket_baseline,'planning_version':planning_baseline,
                 'previous_route_version':oldrow['route_version'] if oldrow else None}
+            if continuous:
+                extra['suffix_controls']=body.model_dump(mode='json',include={'ongoing','end_ongoing','skipped_goal_ids','fixed_goal_ids'})
+                extra['replan_assessed_at']=ctx.assessed_at.isoformat()
+                extra['suffix_day_ids']=[d.day_id for d in suffix_scope['search'].days]
             extra['hotel_baseline']=hotel_baseline
             db.execute('INSERT INTO city_engine_candidates VALUES (?,?,?,?,?,?,?,?,0)',
                 (candidate_id,str(trip_id),base,fingerprint,req.model_dump_json(),result.model_dump_json(),encoded(extra),expiry))
@@ -391,11 +407,11 @@ def preview_multi_day(session,trip_id,body,replanning=False,planning_version=Non
     return response
 
 
-def new_draft(req,plan,previous,replanning,day_id):
+def new_draft(req,plan,previous,replanning,day_id,mutable_days=None):
     old={d.day_id:d for d in previous.days} if isinstance(previous,CityDraftV2) else {}
     days=[]
     for d in plan.days:
-        if replanning and d.day_id!=day_id:days.append(old[d.day_id]);continue
+        if replanning and d.day_id not in (mutable_days or {day_id}):days.append(old[d.day_id]);continue
         p=d.itinerary
         pending=[Stop(stop_id=a.goal_id,place_id=a.place_id,kind=a.kind,session_id=a.session_id,
                 locked=a.required,duration_seconds=a.duration_seconds) for a in p.activities]
@@ -427,7 +443,7 @@ def confirm_multi_day(db,session,trip_id,body,row,c,req,result,data,scope):
     draft=read_draft(row['draft_json']);previous_row=service.route_row(db,trip_id)
     if (previous_row['route_version'] if previous_row else None)!=extra['previous_route_version']:
         raise HTTPException(409,detail='正式路线版本已变化。')
-    future=extra.get('scope')=='selected_future_day'
+    future=extra.get('scope')=='selected_future_day';continuous=extra.get('scope')=='current_and_future';suffix_scope=None
     if extra['replanning'] and future:
         from .models import ReplanRequestV2
         original=read_requirements(previous_row['requirements_json']);previous=read_itinerary(previous_row['itinerary_json'])
@@ -442,7 +458,17 @@ def confirm_multi_day(db,session,trip_id,body,row,c,req,result,data,scope):
         anchor=PositionAnchor.model_validate_json(row['anchor_json']) if row['anchor_json'] else None
         if not anchor or not 0<=(ctx.assessed_at-anchor.confirmed_at).total_seconds()<=900:
             raise HTTPException(409,detail='当前位置已过期，请重新确认并规划。')
-    active=[d for d in plan.days if not day_id or d.day_id==day_id]
+    if continuous:
+        from .models import ReplanRequestV2
+        assessed=datetime.fromisoformat(extra['replan_assessed_at'])
+        if assessed.astimezone(TZ).date()!=ctx.assessed_at.astimezone(TZ).date():raise HTTPException(409,detail='日期已变化，请重新核对今天及后续天。')
+        original=read_requirements(previous_row['requirements_json']);previous=read_itinerary(previous_row['itinerary_json'])
+        local=ReplanRequestV2(request_id=body.request_id,expected_version=row['version'],requirements=req,scope='current_and_future',day_id=day_id,**extra['suffix_controls'])
+        try:suffix_scope=suffix.prepare_scope(row,local,replace(ctx,assessed_at=assessed),previous,original)
+        except HTTPException as exc:raise HTTPException(409,detail=exc.detail) from None
+        if suffix_scope['daily']!=Requirements.model_validate(extra['daily_requirements']) or [d.day_id for d in suffix_scope['search'].days]!=extra['suffix_day_ids']:
+            raise HTTPException(409,detail='连续重排保护条件已变化，请重新预览。')
+    active=[d for d in plan.days if not day_id or d.day_id==day_id or continuous and d.day_id in extra['suffix_day_ids']]
     for d in active:
         if not d.itinerary.legs or d.itinerary.legs[0].departs_at<service.now():raise HTTPException(409,detail='候选出发时刻已过去，请重新预览。')
         if any(l.journey.time_basis=='provider_estimate' and (not l.journey.quote_expires_at or l.journey.quote_expires_at<=ctx.assessed_at) for l in d.itinerary.legs):
@@ -451,13 +477,14 @@ def confirm_multi_day(db,session,trip_id,body,row,c,req,result,data,scope):
     ctx=price_context(db,trip_id,req,ctx)
     if extra['replanning']:
         previous=read_itinerary(previous_row['itinerary_json'])
-        ctx=snapshot_history(ctx,previous) if future else history_context(ctx,previous,day_id,tuple(Stop.model_validate(s) for s in extra['prefix']),extra['ongoing'],
-            Requirements.model_validate(extra['daily_requirements']).starts_at-timedelta(seconds=120))
-        errors=runtime_errors(req,ctx,plan,previous,day_id,tuple(Stop.model_validate(s) for s in extra['prefix']),extra['fixed_order'],extra['ongoing'],
+        ctx=snapshot_history(ctx,previous) if future else history_context(ctx,previous,day_id,suffix_scope['prefix'] if continuous else tuple(Stop.model_validate(s) for s in extra['prefix']),suffix_scope['ongoing'] if continuous else extra['ongoing'],
+            datetime.fromisoformat(extra['replan_assessed_at']) if continuous else Requirements.model_validate(extra['daily_requirements']).starts_at-timedelta(seconds=120))
+        if continuous:errors=suffix.validate(req,ctx,plan,previous,suffix_scope)
+        else:errors=runtime_errors(req,ctx,plan,previous,day_id,tuple(Stop.model_validate(s) for s in extra['prefix']),extra['fixed_order'],extra['ongoing'],
                               Requirements.model_validate(extra['daily_requirements']),future=future)
     else:errors=validate_multi_day(req,ctx,plan)
     if errors:raise HTTPException(409,detail={'code':'VALIDATION_FAILED','issues':[e.model_dump(mode='json') for e in errors]})
-    updated_draft=new_draft(req,plan,draft,extra['replanning'],day_id)
+    updated_draft=new_draft(req,plan,draft,extra['replanning'],day_id,set(extra['suffix_day_ids']) if continuous else None)
     version=row['route_version']+1
     db.execute('INSERT INTO city_engine_routes VALUES (?,?,?,?,?,?,?)',
         (str(trip_id),version,row['version']+1,c['requirements_json'],plan.model_dump_json(),c['fingerprint'],stamp()))

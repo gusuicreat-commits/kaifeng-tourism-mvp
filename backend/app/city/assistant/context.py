@@ -131,6 +131,9 @@ def load(session, trip_id=None, purpose='trip', text='', page_focus=None):
                 from .tools import changes_for_remaining
                 selected_draft=next((d for d in multi_draft.days if d.day_id==candidate_day),draft) if multi_draft else draft
                 diff = changes_for_remaining(diff,selected_draft)
+            if extra.get('scope')=='current_and_future' and multi_plan and first:
+                from ..engine.multi_day_service import compare
+                diff=compare(multi_plan,read_itinerary(first))
             pending.append({'candidate_id':r['id'],'target_kind':'route','base_version':r['base_version'],
                             'expires_at':r['expires_at'],'status':status,'changes':diff,**({'day_id':candidate_day,'scope':extra.get('scope') or 'current_day'} if first_day else {})})
         revision = state.catalog_revision(planning.facts)

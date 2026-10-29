@@ -96,7 +96,7 @@ def test_multi_day_engine_requests_use_whole_trip_or_explicitly_reject_scope(eng
         assert response.status_code==200 and response.json()['status']=='preview'
         assert all(len(p['days'])==2 for p in response.json()['result']['itineraries'])
     else:
-        assert response.status_code==503 and response.json()['detail']['status']=='unavailable'
+        assert response.status_code==422 and '先确认多日行程' in response.json()['detail']
     assert c.get('/api/city/v1/trips/'+t['id']).json()==before
     with connect() as db:
         assert db.execute('SELECT count(*) FROM city_engine_candidates').fetchone()[0]==(1 if endpoint=='preview' else 0)

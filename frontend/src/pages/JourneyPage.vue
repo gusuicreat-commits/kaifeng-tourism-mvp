@@ -8,6 +8,7 @@ import {journey,loadJourney,nameOf,nextCityStop,clone,loadBasket,notify,updateCi
 import {assistantLink} from '../assistantHandoff'
 import ScenicCover from '../components/ScenicCover.vue'
 import BudgetBreakdown from '../components/BudgetBreakdown.vue'
+import SuffixPlanning from '../components/SuffixPlanning.vue'
 import FutureDayPlanning from '../components/FutureDayPlanning.vue'
 import BudgetSpending from '../components/BudgetSpending.vue'
 import {isMultiDayItinerary} from '../explorationApi'
@@ -78,6 +79,7 @@ onMounted(load);onBeforeUnmount(()=>{disposed=true})
  <div class="journey-itinerary-heading"><h2>行程安排</h2><RouterLink :to="'/guide?mode=city'+(next?'&place='+encodeURIComponent(next.place_id):'')" class="text-link"><Map :size="15"/>在地图查看</RouterLink></div>
  <p v-if="usableItinerary()?.evidence_mode==='synthetic'" class="trip-evidence-note">演示路线</p><p v-else-if="usableItinerary()?.evidence_mode==='reference_with_estimates'" class="trip-evidence-note">依据已有来源安排 · 路程采用高德预计耗时，营业与供应以现场为准</p><p v-else-if="trip.route_version&&!usableItinerary()" class="trip-evidence-note">路线待更新</p>
  <p v-if="journey.routeError" role="alert" class="error-state">暂时无法读取路线，<button type="button" @click="load">重试</button></p>
+ <SuffixPlanning v-if="multi&&!terminal"/>
  <FutureDayPlanning v-if="multi&&focusedDraftDay" :day-id="focusedDraftDay.day_id"/>
  <ItineraryFlow v-if="officialItinerary" :trip="trip" :itinerary="officialItinerary" :day-id="focusedDraftDay?.day_id" :actionable="canUseFocusedDay"/>
  <ol v-else class="journey-timeline"><li v-for="(s,i) in viewDraft.stops" :key="s.stop_id" :class="[s.progress,{next:next?.stop_id===s.stop_id}]"><div class="timeline-clock">{{stopTime(s)}}</div><span class="timeline-pin"><Check v-if="s.progress==='completed'" :size="12"/></span><article class="timeline-stop"><div class="timeline-stop-main"><div><span class="tiny-caption">{{s.progress==='completed'?'已游玩':s.progress==='skipped'?'已跳过':'待游玩'}}</span><h2><RouterLink :to="stopScenic(s)?'/scenic/'+stopScenic(s):'/place/'+encodeURIComponent(s.place_id)">{{nameOf(s.place_id)}}</RouterLink><LockKeyhole v-if="s.locked" :size="14" aria-label="必去"/></h2><p>{{s.kind==='show'?'演出':s.kind==='dining'?'用餐':'游览'}} · {{s.duration_seconds?Math.round(s.duration_seconds/60)+' 分钟':'时长待定'}}</p></div><div v-if="stopScenic(s)" class="timeline-thumb"><ScenicCover :id="stopScenic(s)!" :name="nameOf(s.place_id)" theme="song"/></div></div><div class="stop-inline-actions"><RouterLink :to="'/guide?mode=city&place='+encodeURIComponent(s.place_id)"><MapPin :size="13"/>查看位置</RouterLink></div><p v-if="i<viewDraft.stops.length-1" class="transfer-note"><Footprints :size="13"/>{{arrivalSummary(viewDraft.stops[i+1].stop_id)}}</p></article></li></ol>
