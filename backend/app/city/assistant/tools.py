@@ -11,6 +11,7 @@ from .. import state
 from ..state_schema import MutateCityTrip, ConfirmCityChange
 from ..engine import service as engine
 from ..engine.models import Goal, Requirements, PreviewRequest, ReplanRequest, ReplanRequestV2, TripGoal, ConfirmRequest
+from ..schema import TZ
 
 
 def require_single_day(snapshot):
@@ -19,7 +20,33 @@ def require_single_day(snapshot):
             'message':'此多天写入工具尚未接通；可查看整套行程，途中延误、多待、休息和跳站仅支持今天剩余，不会降为第一天。'})
 
 
+def selected_future_day_scope(snapshot,quote=''):
+    if not getattr(snapshot,'multi_draft',None):
+        raise HTTPException(503,detail={'status':'unavailable','code':'MULTI_DAY_SCOPE_UNAVAILABLE','message':'指定未来日调整需要已确认的多日行程。'})
+    from ..agent import date_range
+    today=snapshot.planning.assessed_at.astimezone(TZ).date();dates=[]
+    try:
+        dates.extend(date_range.resolve(e,today) for e in date_range.expressions(quote))
+        for match in date_range.DAY_NUMBER.finditer(quote):
+            ref=date_range.day_reference(match.group(),quote,today)
+            dates.append(date_range.date_for_ref(ref,snapshot.multi_draft.start_date,snapshot.multi_draft.end_date))
+        if date_range.EVERY_DAY.search(quote) or any(n>1 for n in date_range.counts(date_range.DAY_NUMBER.sub('',quote),'天')):
+            dates.append(None)
+    except ValueError:
+        dates=[]
+    dates=list(dict.fromkeys(dates))
+    if len(dates)!=1 or dates[0] is None:
+        raise HTTPException(422,detail={'code':'FUTURE_DAY_REQUIRED','message':'请明确要调整哪一天，例如“明天”或“第三天”。'})
+    target=dates[0]
+    if target<=today or not snapshot.multi_draft.start_date<=target<=snapshot.multi_draft.end_date:
+        raise HTTPException(422,detail={'code':'FUTURE_DAY_INVALID','message':'请选择本次行程中尚未到来的日期。'})
+    day=next((d for d in snapshot.multi_draft.days if d.business_date==target),None)
+    if not day:raise HTTPException(422,detail={'code':'FUTURE_DAY_INVALID','message':'所选日期不在当前多日行程中。'})
+    return day.day_id
+
+
 def current_day_scope(snapshot,quote=''):
+
     if not getattr(snapshot,'multi_draft',None):return
     from ..schema import TZ
     from ..agent.dates import find_date_expressions, resolve_date, _number
@@ -36,7 +63,7 @@ def current_day_scope(snapshot,quote=''):
         dates=[None]
     if snapshot.draft.business_date!=today or snapshot.draft.status=='closed' or len(dates)>1 or any(d!=today for d in dates):
         raise HTTPException(503,detail={'status':'unavailable','code':'MULTI_DAY_SCOPE_UNAVAILABLE',
-            'message':'仅支持今天剩余的重排；未来单日、连后续天和历史补录尚未接通，整套正式路线保持不变。'})
+            'message':'本入口仅支持今天剩余；指定未来日请明确日期并选择对应范围，整套正式路线保持不变。'})
 
 
 def adjustment_request(snapshot,req,request_id,**extra):
@@ -44,6 +71,11 @@ def adjustment_request(snapshot,req,request_id,**extra):
     if full is None:return ReplanRequest(request_id=request_id,expected_version=snapshot.row['version'],requirements=req,**extra)
     from ..schema import TZ
     today=snapshot.planning.assessed_at.astimezone(TZ).date()
+    scope=extra.pop('scope','current_day');selected_day=extra.pop('day_id',None)
+    if scope=='selected_future_day':
+        selected_day=selected_day or selected_future_day_scope(snapshot)
+        return ReplanRequestV2(request_id=request_id,expected_version=snapshot.row['version'],requirements=req,
+            scope='selected_future_day',day_id=selected_day,**extra)
     current_day_scope(snapshot)
     pending={s.stop_id for s in snapshot.draft.stops if s.progress=='pending'}
     original={g.goal_id:g for g in full.goals}

@@ -149,7 +149,7 @@ def test_today_ongoing_preserves_identity_and_no_duplicate(multi_engine,monkeypa
     assert [s['stop_id'] for s in draft['days'][1]['stops']]==[a['goal_id']]
 
 
-@pytest.mark.parametrize('scope',['current_and_future','selected_future_day'])
+@pytest.mark.parametrize('scope',['current_and_future'])
 def test_unsupported_scopes_explicitly_unavailable(multi_engine,monkeypatch,scope):
     e,req,_=committed(multi_engine);start_today(e,monkeypatch)
     before=saved_rows();r=remaining(e,req,scope=scope,day_id='day:2030-05-03')

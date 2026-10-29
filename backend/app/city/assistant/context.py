@@ -114,22 +114,25 @@ def load(session, trip_id=None, purpose='trip', text='', page_focus=None):
             parsed=read_result(r['result_json'])
             result = parsed.model_dump(mode='json')
             first = (result.get('itineraries') or [None])[0]
-            first_day=next((d for d in first['days'] if d['day_id']==day_id),first['days'][0]) if first and 'days' in first else None
+            extra=json.loads(r['progress_json']);candidate_day=extra.get('day_id') or day_id
+            first_day=next((d for d in first['days'] if d['day_id']==candidate_day),first['days'][0]) if first and 'days' in first else None
             projected=first_day['itinerary'] if first_day else first
             legs=(projected or {}).get('legs',[])
             expired = datetime.fromisoformat(r['expires_at']) <= moment or bool(legs and datetime.fromisoformat(legs[0]['departs_at']) < moment)
             status = 'expired' if expired else 'stale' if r['base_version'] != row['version'] or r['fingerprint'] != planning.fingerprint() else 'valid'
-            extra=json.loads(r['progress_json'])
             if extra.get('basket_version',basket_version)!=basket_version or extra.get('planning_version',workspace['version'])!=workspace['version']:status='stale'
             from ..engine.validation import compare_itineraries
             from ..engine.models import Itinerary
-            diff = compare_itineraries(Itinerary.model_validate(route['itinerary']) if route['itinerary'] else None,
+            baseline=next((d.itinerary for d in multi_plan.days if d.day_id==candidate_day),None) if multi_plan else None
+            baseline=baseline or (Itinerary.model_validate(route['itinerary']) if route['itinerary'] else None)
+            diff = compare_itineraries(baseline,
                                        Itinerary.model_validate(projected)) if projected else None
             if diff:
                 from .tools import changes_for_remaining
-                diff = changes_for_remaining(diff,draft)
+                selected_draft=next((d for d in multi_draft.days if d.day_id==candidate_day),draft) if multi_draft else draft
+                diff = changes_for_remaining(diff,selected_draft)
             pending.append({'candidate_id':r['id'],'target_kind':'route','base_version':r['base_version'],
-                            'expires_at':r['expires_at'],'status':status,'changes':diff,**({'day_id':day_id,'scope':'current_day'} if first_day else {})})
+                            'expires_at':r['expires_at'],'status':status,'changes':diff,**({'day_id':candidate_day,'scope':extra.get('scope') or 'current_day'} if first_day else {})})
         revision = state.catalog_revision(planning.facts)
         for r in db.execute('SELECT * FROM city_proposals WHERE trip_id=? AND consumed=0 ORDER BY expires_at DESC LIMIT 8', (str(trip_id),)):
             action = json.loads(r['action_json'])

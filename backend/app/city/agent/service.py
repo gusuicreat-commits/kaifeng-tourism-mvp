@@ -382,7 +382,10 @@ def _preview_result(result,snapshot,intent=None):
     detail=''.join(result.get('adjustment_notes',()))
     if result.get('adjustment_notes'):
         changes=result.get('changes') or {};first=result['result']['itineraries'][0]
-        if 'days' in first:first=next(d['itinerary'] for d in first['days'] if d['day_id']==snapshot.day_id)
+        selected_day=result.get('day_id') or snapshot.day_id
+        if 'days' in first:first=next(d['itinerary'] for d in first['days'] if d['day_id']==selected_day)
+        if 'days' in changes:changes=next((c for c in changes['days'] if c['day_id']==selected_day),{})
+        if result.get('scope')=='selected_future_day':detail+=f"本次只调整{result.get('business_date','所选未来日')}，今天及其他日期保持原计划。"
         detail+=''.join(f"{names.get(c['goal_id'],c['goal_id'])}：{c['before'][5:16] if getattr(snapshot,'multi_requirements',None) else c['before'][11:16]}→{c['after'][5:16] if getattr(snapshot,'multi_requirements',None) else c['after'][11:16]}。" for c in changes.get('start_changes',()))
         removed=changes.get('removed',())
         if removed:detail+='这版不再安排：'+'、'.join(names.get(g,g) for g in removed)+'。'
@@ -436,7 +439,8 @@ def _compound_step(session,t):
     if intent.planning and not questions and not intent.state_request and not any(a.kind in ('progress','position','cancel') for a in intent.actions):
         from .multi_day_intent import is_multi
         from .requirement_context import planning_values
-        if is_multi(planning_values(snapshot),intent.planning):
+        from .future_planning import applies
+        if is_multi(planning_values(snapshot),intent.planning) and not applies(snapshot,intent,t.text):
             from .planning_intent import proposal
             proposed=proposal(session,t.trip_id,snapshot,intent,t.text,today=t.interpretation_date)
     if questions:
@@ -496,7 +500,8 @@ def _compound_step(session,t):
         elif any(a.kind in ('progress','position','cancel') for a in intent.actions):
             planning_result={'status':'needs_clarification','reply':'进度、当前位置与取消操作请单独确认；本轮未执行这些状态修改。'}
         elif intent.planning:
-            v2tools.require_single_day(snapshot)
+            from .future_planning import applies
+            if not applies(snapshot,intent,t.text):v2tools.require_single_day(snapshot)
             from .orchestration import execute
             t.tools+=1;t.events.append({'tool':'planning_workflow','status':'running','parameters':{},'source':'backend_orchestrator'})
             planning_intent=intent.model_copy(update={
@@ -667,7 +672,7 @@ def _advance(session,trip_id,identity,body):
         if str(body.request_id) in t.step_requests:
             if t.step_requests[str(body.request_id)]!=body.expected_step:raise HTTPException(409,detail='步骤请求编号与内容冲突。')
             return public(t)
-        if t.intent and t.intent.state_request and t.intent.state_request.scope in ('current_and_future','selected_future_day'):
+        if t.intent and t.intent.state_request and t.intent.state_request.scope=='current_and_future':
             _finish(session,t,'unavailable',{'reply':'暂不支持调整后续天；今天的剩余行程仍保持不变，请单独说明今天要改什么。',
                 'code':'MULTI_DAY_SCOPE_UNAVAILABLE','formal_state_changed':False})
             return public(t)
@@ -694,7 +699,7 @@ def _advance(session,trip_id,identity,body):
             t.intent=_merge(intent,t.snapshot)
             if not _fresh(session,t):return public(t)
             t.mode,questions=understand.route(t.intent,t.snapshot)
-            if t.intent.state_request and t.intent.state_request.scope in ('current_and_future','selected_future_day'):
+            if t.intent.state_request and t.intent.state_request.scope=='current_and_future':
                 t.mode='scope_unavailable'
             t.events[-1].update(status='ok',source=meta.get('source','mock_model'),fallback=meta['basis']=='rule_fallback',
                 request_sequence=1 if meta['model_calls'] else None,provider_failure=meta.get('provider_failure'))
@@ -709,7 +714,7 @@ def _advance(session,trip_id,identity,body):
                 _finish(session,t,'unavailable',{'state':'model_unavailable','code':'MODEL_NOT_CONFIGURED','model_status':meta['model_availability'],
                     'reply':'聊天模型尚未配置，暂不能理解这段追问。明确起点和终点的问路仍可直接查参考路线。'})
             elif t.mode=='scope_unavailable':
-                _finish(session,t,'unavailable',{'reply':'暂不支持调整后续天；今天的剩余行程仍保持不变，请单独说明今天要改什么。',
+                _finish(session,t,'unavailable',{'reply':'连同今天及后续天一起调整尚未开放；可以只调整今天剩余或指定一个未来日。',
                     'code':'MULTI_DAY_SCOPE_UNAVAILABLE','formal_state_changed':False})
             elif t.mode=='clarify':
                 _defer(session,t);_finish(session,t,'needs_clarification',{'reply':' '.join(questions),'questions':questions})

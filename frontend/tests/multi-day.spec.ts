@@ -67,6 +67,35 @@ test('today ongoing and tomorrow locked share one focus across home, itinerary a
  expect(snapshot.itinerary.days[0].itinerary.ongoing.stop_id).toBe('museum-today')
 })
 
+test('future editor previews, invalidates edits, confirms once and preserves today',async({page})=>{
+ const setup=await prepare(page,'ongoing');const errors:string[]=[];page.on('pageerror',e=>errors.push(e.message));
+ const before=await(await page.request.get(setup.path+'/engine/current')).json();
+ await page.goto('/city-trip/'+setup.trip_id)
+ await expect(page.getByRole('button',{name:'调整这一天',exact:true})).toHaveCount(0)
+ await page.getByLabel('行程日期').getByRole('button').nth(1).click()
+ await page.getByRole('button',{name:'调整这一天',exact:true}).click()
+ const editor=page.getByLabel('未来单日调整')
+ await editor.getByLabel('开始时间',{exact:true}).fill('10:00')
+ await editor.getByLabel('结束时间',{exact:true}).fill('18:00')
+ const submitted=page.waitForRequest(r=>r.url().endsWith('/engine/replan-preview'))
+ await editor.getByRole('button',{name:'预览这一天的调整',exact:true}).click()
+ expect((await submitted).postDataJSON()).toMatchObject({scope:'selected_future_day',day_id:'day:2030-05-02'})
+ await expect(editor.getByLabel('整套行程方案')).toBeVisible()
+ expect((await(await page.request.get(setup.path+'/engine/current')).json()).route_version).toBe(before.route_version)
+ await editor.getByLabel('结束时间',{exact:true}).fill('17:00')
+ await expect(editor.getByLabel('整套行程方案')).toHaveCount(0)
+ await editor.getByRole('button',{name:'预览这一天的调整',exact:true}).click()
+ await expect(editor.getByLabel('整套行程方案')).toBeVisible()
+ await editor.getByRole('button',{name:'确认更新这一天',exact:true}).click()
+ await expect(editor.getByRole('button',{name:'调整这一天',exact:true})).toBeVisible()
+ const after=await(await page.request.get(setup.path+'/engine/current')).json()
+ expect(after.route_version).toBe(before.route_version+1)
+ expect(after.itinerary.days[0]).toEqual(before.itinerary.days[0])
+ expect(after.itinerary.days[1].requirements.starts_at).toBe('2030-05-02T10:00:00+08:00')
+ expect(after.itinerary.days[1].requirements.ends_at).toBe('2030-05-02T17:00:00+08:00')
+ await page.reload();await expect(page.getByLabel('行程日期')).toBeVisible();expect(errors).toEqual([])
+})
+
 test('single-day itinerary keeps one page without a day selector',async({page})=>{
  await page.request.post('/api/v1/sessions')
  await page.clock.install({time:new Date('2030-05-01T08:00:00+08:00')})
@@ -82,7 +111,7 @@ test('single-day itinerary keeps one page without a day selector',async({page})=
 test('unsupported backend scope explanation stays visible and old forms cannot flatten the trip',async({page})=>{
  const setup=await prepare(page,'ongoing')
  const snapshot=await(await page.request.get(setup.path)).json()
- const unavailable=await page.request.post(setup.path+'/engine/replan-preview',{data:{request_id:crypto.randomUUID(),expected_version:snapshot.version,requirements:setup.requirements,scope:'selected_future_day',day_id:'day:2030-05-02'}})
+ const unavailable=await page.request.post(setup.path+'/engine/replan-preview',{data:{request_id:crypto.randomUUID(),expected_version:snapshot.version,requirements:setup.requirements,scope:'current_and_future'}})
  expect(unavailable.status()).toBe(503);const body=await unavailable.json()
  expect(body.detail.status).toBe('unavailable')
  await page.route('**/agent/tasks',route=>route.fulfill({json:{task_id:'synthetic-unavailable',trip_id:setup.trip_id,step:0,status:'unavailable',events:[],understanding:null,result:{reply:body.detail.message}}}))

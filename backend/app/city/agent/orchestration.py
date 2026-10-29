@@ -184,6 +184,10 @@ def _execute(session,t,intent,proposed=None):
 
 
 def execute(session,t,intent,proposed=None):
+    from . import future_planning
+    if future_planning.applies(t.snapshot,intent,t.text):
+        from .service import _preview_result
+        return _preview_result(future_planning.preview(session,t.trip_id,t.snapshot,intent,t.id,t.text),t.snapshot,intent)
     result=_execute(session,t,intent,proposed)
     if any(d['check']=='budget_basis_missing' for d in t.interpretation.get('dropped_fields',())):
         result['reply']+='这笔预算是所有人合计，还是每人？'

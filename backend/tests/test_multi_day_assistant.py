@@ -100,12 +100,38 @@ def test_d4_adapters_keep_historical_and_future_goals_and_whole_candidate(city,m
     assert get(city)==before
 
 
-@pytest.mark.parametrize('quote',['明天休息20分钟','2030-05-02休息20分钟','第三天休息20分钟','接下来的两天都加20分钟休息'])
-def test_future_adjustments_are_explicitly_unavailable(city,monkeypatch,quote):
+@pytest.mark.parametrize('quote', ['明天休息20分钟','2030-05-02休息20分钟','第三天休息20分钟'])
+def test_selected_future_day_adjustment_uses_future_day_without_current_anchor(city,monkeypatch,quote):
     snapshot,session=multi(city)
-    monkeypatch.setattr(engine_service,'preview',lambda *a,**kw:pytest.fail('must not replan today for another day'))
+    calls=[]
+    def preview(s,trip_id,body,replanning=False):
+        calls.append(body)
+        plan=snapshot.multi_itinerary.model_dump(mode='json')
+        changes={'days':[{'day_id':d.day_id,'business_date':d.business_date.isoformat(),'removed':[],'added':[],
+            'start_changes':[],'order_changes':[]} for d in snapshot.multi_itinerary.days]}
+        return {'status':'preview','candidate_id':str(uuid4()),'base_version':snapshot.row['version'],
+            'result':{'itineraries':[plan]},'changes':changes,'alternative_changes':[changes]}
+    monkeypatch.setattr(engine_service,'preview',preview)
+    result=toolbelt.preview_adjustment(session,city['trip']['id'],snapshot,
+        StateIntent(operation='rest',quote=quote,minutes=20,scope='selected_future_day',scope_quote=quote),uuid4())
+    assert calls and calls[0].scope=='selected_future_day' and calls[0].day_id=='day:2030-05-02'
+    assert any(g.kind=='rest' and g.fixed_date.isoformat()=='2030-05-02' for g in calls[0].requirements.goals)
+    assert result['status']=='preview'
+
+
+def test_future_scope_without_a_date_is_clarified(city):
+    snapshot,session=multi(city)
     with pytest.raises(HTTPException) as exc:
-        toolbelt.preview_adjustment(session,city['trip']['id'],snapshot,StateIntent(operation='rest',quote=quote,minutes=20),uuid4())
+        toolbelt.preview_adjustment(session,city['trip']['id'],snapshot,
+            StateIntent(operation='rest',quote='休息20分钟',minutes=20,scope='selected_future_day',scope_quote='休息20分钟'),uuid4())
+    assert exc.value.status_code==422 and exc.value.detail['code']=='FUTURE_DAY_REQUIRED'
+
+
+def test_multi_day_span_stays_unavailable(city):
+    snapshot,session=multi(city)
+    with pytest.raises(HTTPException) as exc:
+        toolbelt.preview_adjustment(session,city['trip']['id'],snapshot,
+            StateIntent(operation='rest',quote='接下来的两天都加20分钟休息',minutes=20),uuid4())
     assert exc.value.status_code==503 and exc.value.detail['code']=='MULTI_DAY_SCOPE_UNAVAILABLE'
 
 
