@@ -38,7 +38,7 @@ class TravelTimeService:
                 or not c.ready(c.facts.get(('source',sid)),req.starts_at,req.ends_at)
                 for sid in j.source_ids)):
             return False
-        if req.budget_fen is not None and journey_cost_upper(j) is None and not c.demo_reference:return False
+        if req.budget_fen is not None and journey_cost_upper(j,req.pricing) is None and not c.demo_reference:return False
         origin=set(c.parks(t.origin_place_id));dest=set(c.parks(t.destination_place_id))
         expected={(p,'exit') for p in origin-dest}|{(p,'entry') for p in dest-origin}
         actual={(b.park_id,b.direction) for b in j.boundaries}
@@ -103,9 +103,9 @@ def entry_deadline(j,req,ctx):
     return latest
 
 
-def journey_cost_upper(j):
-    if j.cost_upper_fen is None or any(b.cost_upper_fen is None for b in j.boundaries):return None
-    return j.cost_upper_fen+sum(b.cost_upper_fen for b in j.boundaries)
+def journey_cost_upper(j,pricing=None):
+    from ..costing import travel_amount
+    return travel_amount(j,pricing)
 
 
 def entry_opening(j,req,ctx):

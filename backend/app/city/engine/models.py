@@ -3,6 +3,7 @@ from datetime import date, timedelta
 from typing import Literal
 from uuid import UUID
 from pydantic import AwareDatetime, Field, model_validator
+from ..budget_models import PricingOptions, BudgetSummary
 from ..schema import (Strict, EntityId, Mode, Evidence, TravelEstimate, Stop, TZ, DayIdentity, DayWindow,
                       DateRange, Overnight, validate_days, validate_overnights)
 
@@ -46,6 +47,7 @@ class Requirements(Strict):
     objective: Literal['balanced','less_walking','less_waiting','lower_cost'] = 'balanced'
     max_walking_seconds: int | None = Field(default=None, ge=1, le=43200)
     budget_fen: int | None = Field(default=None, ge=0, le=100000000)
+    pricing: PricingOptions | None = None
     access_confirmations: tuple[EntityId, ...] = Field(default=(), max_length=60)
     show_buffer_seconds: int = Field(default=300, ge=0, le=3600)
     solve_seconds: float = Field(default=1, ge=0.05, le=3)
@@ -68,6 +70,7 @@ class Boundary(Strict):
     seconds: int = Field(ge=0, le=7200)
     evidence: Evidence
     cost_upper_fen: int | None = Field(default=None, ge=0)
+    cost_unit: Literal['per_person','per_party'] | None = None
 
 
 class Journey(Strict):
@@ -77,7 +80,8 @@ class Journey(Strict):
     distance_m: float = Field(ge=0, le=1000000)
     cost_lower_fen: int | None = Field(default=None, ge=0)
     cost_upper_fen: int | None = Field(default=None, ge=0)
-    # 按车计，不进入每人费用，也不进入求解器。
+    cost_unit: Literal['per_person','per_party'] | None = None
+    # 按车计；全程 pricing 开启时用于打车预算与省钱求解。
     vehicle_cost_fen: int | None = Field(default=None, ge=0)
     tolls_fen: int | None = Field(default=None, ge=0)
     vehicle_cost_source: Literal['amap_taxi_estimate'] | None = None
@@ -102,6 +106,7 @@ class PlaceCost(Strict):
     revision: int = Field(default=1, ge=1)
     lower_fen: int = Field(ge=0)
     upper_fen: int = Field(ge=0)
+    unit: Literal['per_person','per_party'] | None = None
     evidence: Evidence
 
     @model_validator(mode='after')
@@ -248,6 +253,7 @@ class MultiDayRequirements(DateRange):
     show_buffer_seconds: int = Field(default=300,ge=0,le=3600)
     solve_seconds: float = Field(default=1,ge=0.05,le=3)
     alternatives: int = Field(default=3,ge=1,le=3)
+    pricing: PricingOptions | None = None
 
     @model_validator(mode='after')
     def valid(self):
@@ -317,6 +323,16 @@ class MultiDayConstraints(Strict):
     per_person_budget_fen: int | None = Field(default=None,ge=0,le=100000000)
     per_person_budget_daily: bool = False
     party_size: int | None = Field(default=None,ge=1,le=50)
+    pricing: PricingOptions | None = None
+
+    @model_validator(mode='before')
+    @classmethod
+    def pricing_aliases(cls,value):
+        if isinstance(value,dict) and value.get('pricing') is not None:
+            price=PricingOptions.model_validate(value['pricing'])
+            return value|{'party_size':price.party_size,'per_person_budget_fen':price.per_person_budget_fen,
+                'per_person_budget_daily':price.per_person_daily}
+        return value
 
     @model_validator(mode='after')
     def valid(self):
@@ -397,6 +413,7 @@ class MultiDayItinerary(DateRange):
     evidence_mode: Literal['verified_with_estimates','reference_with_estimates','synthetic','unknown']
     navigation_certified: Literal[False] = False
     metrics: dict = Field(default_factory=dict)
+    budget: BudgetSummary | None = None
 
     @model_validator(mode='after')
     def valid(self):
@@ -426,7 +443,8 @@ class MultiDayItinerary(DateRange):
         evidence={'verified':'verified_with_estimates','reference':'reference_with_estimates','synthetic':'synthetic','unknown':'unknown'}
         modes.extend(evidence[v] for o in self.overnights for v in (o.place_evidence,o.stay_evidence))
         if self.evidence_mode!=max(modes,key=ranks.get):raise ValueError('全程证据状态必须取每日与过夜的最弱者')
-        if any(d.itinerary.cost_unknown for d in self.days) and not self.cost_unknown:raise ValueError('未知日费用不能被全程汇总覆盖')
+        if self.budget and (self.known_cost_upper_fen!=self.budget.known_total_fen or self.cost_unknown!=bool(self.budget.unknown_items)):raise ValueError('全程费用必须与预算明细一致')
+        if self.budget is None and any(d.itinerary.cost_unknown for d in self.days) and not self.cost_unknown:raise ValueError('未知日费用不能被全程汇总覆盖')
         return self
 
 

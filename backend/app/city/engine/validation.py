@@ -55,7 +55,7 @@ def validate_itinerary(problem,itinerary):
         if cutoff and leg.arrives_at>cutoff:fail('PARK_LAST_ENTRY','晚于景区停止入园')
         for b in j.boundaries:
             if b.direction=='entry':entries[b.park_id]=entries.get(b.park_id,0)+1
-        cost+=journey_cost_upper(j) or 0;cost_unknown|=journey_cost_upper(j) is None
+        cost+=journey_cost_upper(j,req.pricing) or 0;cost_unknown|=journey_cost_upper(j,req.pricing) is None
         if i<len(stops):
             s=stops[i]
             if s.arrives_at!=leg.arrives_at:fail('ARRIVAL_MISMATCH','活动与交通到达时间不一致')

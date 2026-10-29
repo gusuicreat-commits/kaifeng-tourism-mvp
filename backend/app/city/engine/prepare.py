@@ -5,6 +5,7 @@ from .. import facts
 from .context import Activity, Problem
 from .models import Issue
 from .travel import TravelTimeService
+from ..costing import place_amount
 
 DEFAULT_DURATIONS={'visit':1800,'dining':3600,'rest':900}
 # Planning parameters, not sourced facts: a whole scenic area or night market takes longer than a spot inside one.
@@ -96,7 +97,7 @@ def prepare(req,ctx,prior_order=(),fixed_order=(),*,travel_service=None,timings=
                 if goal.duration_seconds is None:defaults[goal.goal_id]={'duration_seconds':duration,'basis':'sourced_reference' if place.suggested_stay_min else 'planning_parameter'}
                 latest-=duration
             costs=[c for c in ctx.operations.costs if c.place_id==pid and ctx.evidence_ready(c.evidence,req.starts_at,req.ends_at)]
-            cost=costs[0].upper_fen if len(costs)==1 else None
+            cost=place_amount(costs[0] if len(costs)==1 else None,req.pricing,goal.kind,goal.goal_id)
             # Demo mode keeps unknown cost as unknown (cost_unknown on the itinerary) instead of blocking.
             if req.budget_fen is not None and cost is None and not ctx.demo_reference:bad.append('COST_UNKNOWN')
             if bad:

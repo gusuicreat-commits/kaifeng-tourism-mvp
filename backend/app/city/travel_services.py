@@ -6,6 +6,7 @@ from uuid import UUID, uuid4
 from fastapi import APIRouter, Depends, HTTPException
 from pydantic import Field
 from .schema import Strict, TZ
+from .budget_models import StayPriceInput
 from . import hotel_binding
 from . import hotels, state, location_resolution  # compatibility export for existing adapter fakes
 from .providers import CapabilityRequest, default_registry
@@ -303,6 +304,45 @@ class Choice(Strict):
     request_id: UUID
     expected_version: int = Field(ge=1)
     candidate_id: str = Field(min_length=1,max_length=160)
+    rate_id: str | None = Field(default=None,min_length=1,max_length=100)
+    room_id: str | None = Field(default=None,min_length=1,max_length=100)
+    rooms: int = Field(default=1,ge=1,le=20)
+    manual_price: StayPriceInput | None = None
+
+
+def selected_price(item,requirements,body):
+    if body.manual_price and body.rate_id:raise HTTPException(422,detail='请选择接口报价或手动价格中的一种。')
+    if body.manual_price or body.rate_id:
+        if requirements.get('category')!='hotels':raise HTTPException(422,detail='住宿价格只能用于酒店候选。')
+        if not requirements.get('check_in') or not requirements.get('check_out'):raise HTTPException(422,detail='请先明确入住和退房日期。')
+    if body.room_id and not body.rate_id:raise HTTPException(422,detail='房型需要对应的价格计划。')
+    dates={k:requirements.get(k) for k in ('check_in','check_out')}
+    if body.manual_price:
+        return body.manual_price.model_dump()|dates|{'basis':'reported','source':'用户提供的住宿预算价格','expires_at':None}
+    if not body.rate_id:return None
+    rates=[r for r in item.get('rate_plans',[]) if r['rate_id']==body.rate_id and r['room_id']==body.room_id]
+    if len(rates)!=1:raise HTTPException(422,detail='报价或房型不存在，请重新选择。')
+    rate=rates[0];quote=rate.get('quote') or {}
+    if rate.get('currency')!='CNY' or any(quote.get(k)!=dates[k] for k in dates):
+        raise HTTPException(422,detail='报价币种或入住日期不适用，请重新查询。')
+    if quote.get('price_unit') not in ('per_room_night','per_room_stay','party_stay'):
+        raise HTTPException(422,detail='接口未明确报价计价单位，请核对后手动填写住宿价格。')
+    nights=(date.fromisoformat(dates['check_out'])-date.fromisoformat(dates['check_in'])).days
+    for key,too in (('min_stay_days',lambda n:nights<n),('max_stay_days',lambda n:nights>n)):
+        value=rate.get(key)
+        if value is not None:
+            try:invalid=too(int(value))
+            except (ValueError,TypeError):raise HTTPException(422,detail='报价入住晚数条件不明确。') from None
+            if invalid:raise HTTPException(422,detail='入住晚数不符合价格计划条件。')
+    if requirements.get('guests') and rate.get('max_occupancy') is not None:
+        try:capacity=int(rate['max_occupancy'])*body.rooms
+        except (ValueError,TypeError):raise HTTPException(422,detail='报价入住人数条件不明确。') from None
+        if requirements['guests']>capacity:raise HTTPException(422,detail='所选房间数不足以容纳查询人数。')
+    amount=quote.get('total_fen')
+    if type(amount) is not int or not 0<=amount<=100000000:raise HTTPException(422,detail='报价金额无效。')
+    return dates|{'rate_id':rate['rate_id'],'room_id':rate['room_id'],'unit':quote['price_unit'],
+        'rooms':body.rooms,'max_occupancy':rate.get('max_occupancy'),'amount_fen':amount,'basis':'quoted','source':'FlyAI 所选房型价格计划',
+        'expires_at':item['expires_at']}
 
 class Confirm(Strict):
     request_id: UUID
@@ -320,6 +360,9 @@ def preview_choice(session,trip_id,body):
         if body.expected_version!=w['version']:raise HTTPException(409,detail='条件已变化，请重新选择。')
         item=next((i for i in (w['result'] or {}).get('items',[]) if i['id']==body.candidate_id),None)
         if not item or datetime.fromisoformat(item['expires_at'])<=datetime.now(TZ):raise HTTPException(409,detail='候选不存在或已过期，请重新查询。')
+        item=dict(item)
+        price=selected_price(item,w['requirements'],body)
+        if price:item['price_selection']=price
         result={'preview_id':str(uuid4()),'before':w['selection'],'after':item,'expected_version':w['version'],
                 'trip_version':row['version'],'formal_route_changed':False,'planning_status':'needs_data',
                 'affected':['住宿费用','出发地点与转场','后续时间安排'],

@@ -208,6 +208,22 @@
           ],
           "default": null,
           "title": "Cost Upper Fen"
+        },
+        "cost_unit": {
+          "anyOf": [
+            {
+              "enum": [
+                "per_person",
+                "per_party"
+              ],
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Cost Unit"
         }
       },
       "required": [
@@ -884,6 +900,22 @@
           "default": null,
           "title": "Cost Upper Fen"
         },
+        "cost_unit": {
+          "anyOf": [
+            {
+              "enum": [
+                "per_person",
+                "per_party"
+              ],
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Cost Unit"
+        },
         "vehicle_cost_fen": {
           "anyOf": [
             {
@@ -1087,6 +1119,22 @@
           "title": "Upper Fen",
           "type": "integer"
         },
+        "unit": {
+          "anyOf": [
+            {
+              "enum": [
+                "per_person",
+                "per_party"
+              ],
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Unit"
+        },
         "evidence": {
           "$ref": "#/$defs/Evidence"
         }
@@ -1167,6 +1215,106 @@
         "requirements"
       ],
       "title": "PreviewRequest",
+      "type": "object"
+    },
+    "PricingOptions": {
+      "additionalProperties": false,
+      "properties": {
+        "party_size": {
+          "anyOf": [
+            {
+              "maximum": 50,
+              "minimum": 1,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Party Size"
+        },
+        "vehicle_count": {
+          "default": 1,
+          "maximum": 20,
+          "minimum": 1,
+          "title": "Vehicle Count",
+          "type": "integer"
+        },
+        "driving_basis": {
+          "default": "taxi",
+          "enum": [
+            "taxi",
+            "self_drive"
+          ],
+          "title": "Driving Basis",
+          "type": "string"
+        },
+        "total_budget_fen": {
+          "anyOf": [
+            {
+              "maximum": 100000000,
+              "minimum": 0,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Total Budget Fen"
+        },
+        "per_person_budget_fen": {
+          "anyOf": [
+            {
+              "maximum": 100000000,
+              "minimum": 0,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Per Person Budget Fen"
+        },
+        "per_person_daily": {
+          "default": false,
+          "title": "Per Person Daily",
+          "type": "boolean"
+        },
+        "dining_per_person_day_fen": {
+          "anyOf": [
+            {
+              "maximum": 1000000,
+              "minimum": 0,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Dining Per Person Day Fen"
+        },
+        "hard_limit": {
+          "default": false,
+          "title": "Hard Limit",
+          "type": "boolean"
+        },
+        "spending": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/SpendingReport"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        }
+      },
+      "title": "PricingOptions",
       "type": "object"
     },
     "ReplanRequest": {
@@ -1387,6 +1535,17 @@
           ],
           "default": null,
           "title": "Budget Fen"
+        },
+        "pricing": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/PricingOptions"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
         },
         "access_confirmations": {
           "default": [],
@@ -1634,6 +1793,38 @@
         "computed_at"
       ],
       "title": "SolveResult",
+      "type": "object"
+    },
+    "SpendingReport": {
+      "additionalProperties": false,
+      "properties": {
+        "amount_fen": {
+          "maximum": 100000000,
+          "minimum": 0,
+          "title": "Amount Fen",
+          "type": "integer"
+        },
+        "as_of": {
+          "format": "date-time",
+          "title": "As Of",
+          "type": "string"
+        },
+        "covered_cost_ids": {
+          "items": {
+            "type": "string"
+          },
+          "maxItems": 200,
+          "minItems": 1,
+          "title": "Covered Cost Ids",
+          "type": "array"
+        }
+      },
+      "required": [
+        "amount_fen",
+        "as_of",
+        "covered_cost_ids"
+      ],
+      "title": "SpendingReport",
       "type": "object"
     },
     "Stop": {

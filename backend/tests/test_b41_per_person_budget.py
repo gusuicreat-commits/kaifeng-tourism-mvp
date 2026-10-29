@@ -123,16 +123,23 @@ def test_multi_day_preview_checks_a_daily_per_person_budget(city, monkeypatch):
     values = saved(city)
     assert values['per_person_budget_fen'] == 30000 and values['per_person_budget_daily'] is True
     reply = task['result']['reply']
-    assert '按每人预算核对' in reply and '每人每天300元×3天，每人900元' in reply and '住宿' in reply
+    plan=task['result']['planning_workflow']['result']['result']['itineraries'][0]
+    assert values['pricing']['per_person_budget_fen']==30000 and values['pricing']['per_person_daily'] is True
+    assert plan['budget']['limit_fen'] is None  # No stated party size: do not invent one.
+    assert '全程已计入费用' in reply and '住宿' in reply
+    assert '明确旅行人数' in reply
     assert '多天全程预算尚未接通' not in reply and get(city) == before
 
 
-def test_multi_day_total_budget_note_is_unchanged(city, monkeypatch):
+def test_multi_day_total_budget_reaches_the_shared_budget_summary(city, monkeypatch):
     text = daily_text() + '，总预算900元'
     budget = field('budget_fen', 90000, '总预算900元') | {'budget_basis': 'total'}
     model(monkeypatch, text, range_fields() + daily_fields('every_day') + [budget])
-    reply = run(city, text)['result']['reply']
-    assert '多天全程预算尚未接通' in reply and '按每人预算核对' not in reply
+    task=run(city,text);reply=task['result']['reply']
+    plan=task['result']['planning_workflow']['result']['result']['itineraries'][0]
+    assert saved(city)['pricing']['total_budget_fen']==90000
+    assert plan['budget']['limit_fen']==90000
+    assert '全程预算 ¥900.00' in reply and '多天全程预算尚未接通' not in reply
 
 
 @pytest.mark.parametrize('amounts,tolls,expected', [

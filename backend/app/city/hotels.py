@@ -116,11 +116,14 @@ def _quote(raw):
     promotion_total=0
     for promotion in promotions:
         if isinstance(promotion,dict):promotion_total+=_fen(_pick(promotion,'amount')) or 0
-    return {'check_in':check_in,'check_out':check_out,
+    result={'check_in':check_in,'check_out':check_out,
             'stay_days':_pick(date_item,'stay_days','stayDays'),
             'total_fen':total,'original_total_fen':_fen(_pick(date_item,'original_price','originalPrice')),
             'promotion_fen':promotion_total or None,'price_basis':'inclusive',
             'breakfast_count':_pick(date_item,'breakfast_count','breakfastCount')}
+    unit=_pick(date_item,'price_unit','priceUnit') or _pick(raw,'price_unit','priceUnit')
+    if unit in ('per_room_night','per_room_stay','party_stay'):result['price_unit']=unit
+    return result
 
 
 def _room_and_rates(row):

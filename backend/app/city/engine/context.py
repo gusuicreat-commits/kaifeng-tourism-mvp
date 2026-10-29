@@ -17,6 +17,8 @@ class PlanningContext:
     # Presentation-only admission for curated reference material. This is
     # separate from synthetic fixtures and never changes fact provenance.
     demo_reference: bool = False
+    history_costs: tuple = ()
+    stay_costs: tuple = ()  # Server-sourced selected-price snapshot, never a visitor fact.
 
     def canonical(self, kind, identity):
         seen = set()

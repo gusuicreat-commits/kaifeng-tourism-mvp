@@ -1,12 +1,14 @@
 """One candidate and one transaction for a whole trip; only today's suffix is mutable."""
 import json
+from dataclasses import replace
 from datetime import datetime,timedelta
 from uuid import uuid4
 from fastapi import HTTPException
 from pydantic import ValidationError
 from ...db import connect
 from ...memory.storage import encoded,stamp
-from .. import state,hotel_binding,travel_services
+from .. import state,hotel_binding,travel_services,costing
+from ..budget_models import PricingOptions
 from ..schema import TZ,Stop,PositionAnchor
 from ..state_schema import CityDraft,CityDraftV2,DayDraft
 from ..versions import read_draft,read_requirements,read_itinerary
@@ -26,6 +28,41 @@ def unavailable(message):
 
 def day_view(day):
     return CityDraft.model_validate(day.model_dump(include=set(CityDraft.model_fields)))
+
+
+def price_context(db,trip_id,req,ctx):
+    selected=(travel_services.read(db,trip_id).get('selection') or {}).get('hotels')
+    return replace(ctx,stay_costs=costing.stay_item(selected,req.overnights,ctx.assessed_at,req.pricing))
+
+
+def history_context(ctx,previous,day_id=None,prefix=(),ongoing=None,cutoff=None):
+    if not previous or not previous.budget:return ctx
+    from ..budget_models import CostItem
+    today=ctx.assessed_at.astimezone(TZ).date()
+    resolved={s.stop_id for s in prefix}
+    resolved|={s.stop_id for d in previous.days for s in d.itinerary.completed_prefix}
+    resolved|={d.itinerary.ongoing['stop_id'] for d in previous.days if d.itinerary.ongoing}
+    if ongoing:resolved.add(ongoing['stop_id'])
+    historical=[]
+    for item in previous.budget.items:
+        if item.category=='spent':
+            historical.extend(CostItem(cost_id=key,category='other',label=label,amount_fen=0,
+                unit='party_report',basis='reported',source='已支付费用覆盖') for key,label in zip(item.covered_cost_ids,item.notes))
+            continue
+        stay_finished=all(o.night_date<today for o in previous.overnights)
+        consumed=(bool(item.day and item.day<today) and (item.category!='lodging' or stay_finished)
+            or item.cost_id in {'activity:'+gid for gid in resolved})
+        if cutoff and item.cost_id.startswith(('transport:','tolls:')):
+            # Stable IDs include the original departure timestamp, independent of
+            # suffix leg indices. Never regenerate consumed legs at today's price.
+            for d in previous.days:
+                for i,leg in enumerate(d.itinerary.legs):
+                    if d.day_id==day_id and leg.departs_at<cutoff and item.cost_id.endswith(':'+leg.departs_at.isoformat()+':'+str(i)):consumed=True
+            if day_id and item.cost_id.startswith(('transport:'+day_id+':','tolls:'+day_id+':')):
+                stamp_text=item.cost_id.split(day_id+':',1)[1].rsplit(':',1)[0]
+                if datetime.fromisoformat(stamp_text)<cutoff:consumed=True
+        if consumed:historical.append(item)
+    return replace(ctx,history_costs=tuple(historical))
 
 
 def compare(previous,plan):
@@ -57,7 +94,11 @@ def overnight_evidence(req,ctx):
 
 
 def lock_scope(original,req,previous,today,draft):
-    if req.model_dump(exclude={'goals'})!=original.model_dump(exclude={'goals'}):
+    def locked(value):
+        data=value.model_dump(exclude={'goals'})
+        if data.get('pricing'):data['pricing'].pop('spending',None)
+        return data
+    if locked(req)!=locked(original):
         raise HTTPException(409,detail='今天重排不能改写日期范围、原始每日条件、交通偏好或过夜边界。')
     current=next(d for d in previous.days if d.day_id==today.day_id)
     pending={s.stop_id for s in today.stops if s.progress=='pending'}
@@ -93,11 +134,27 @@ def remaining(row,body,ctx,previous,original):
         unavailable('今天剩余重排需要已确认的多天路线，不能将单天历史自动扩为多天。')
     if body.scope!='current_day':unavailable('多天首轮仅支持今天剩余；连后续天调整和指定未来日调整尚未开放，未降为第一天。')
     if body.spent_cost_fen is not None or body.spend_as_of is not None:
-        unavailable('多天全程费用报告与预算口径尚未开放；请保留原路线。')
+        raise HTTPException(422,detail='请在全程费用报告中同时指定金额、时刻和已覆盖费用项，避免重复计费。')
+    report=body.requirements.pricing.spending if body.requirements.pricing else None
+    old_report=original.pricing.spending if original.pricing else None
+    if old_report and (not report or not set(old_report.covered_cost_ids)<=set(report.covered_cost_ids)):
+        raise HTTPException(422,detail='累计费用报告必须保留已覆盖项；请更新累计金额，不能重新从零计费。')
+    if report!=old_report:
+        if not previous.budget:raise HTTPException(422,detail='请先生成带费用明细的全程方案。')
+        if not 0<=(ctx.assessed_at-report.as_of).total_seconds()<=900:raise HTTPException(422,detail='已支付费用需附15分钟内的报告时刻。')
+        allowed={i.cost_id for i in previous.budget.items if i.category!='spent'}|set(old_report.covered_cost_ids if old_report else ())
+        if not set(report.covered_cost_ids)<=allowed:raise HTTPException(422,detail='费用报告含未确认的费用项。')
+        for item in previous.budget.items:
+            if item.cost_id in report.covered_cost_ids and item.cost_id.startswith(('transport:','tolls:')):
+                for d in previous.days:
+                    for i,l in enumerate(d.itinerary.legs):
+                        if item.cost_id.endswith(':'+l.departs_at.isoformat()+':'+str(i)) and l.arrives_at>report.as_of:
+                            raise HTTPException(422,detail='交通费用请在该段完成后报告，避免把未来估价当作已支付。')
     today=current_day(draft,ctx.assessed_at,body.day_id)
     current,goals=lock_scope(original,body.requirements,previous,today,draft)
     req=day_requirements(body.requirements,current.original_requirements,goals,
-                         current.requirements.objective,body.requirements.solve_seconds)
+                         'lower_cost' if body.requirements.pricing and body.requirements.pricing.hard_limit else current.requirements.objective,
+                         body.requirements.solve_seconds)
     anchor=PositionAnchor.model_validate_json(row['anchor_json']) if row['anchor_json'] else None
     if not anchor:raise HTTPException(422,detail='请先确认当前已知地点。')
     done={s.stop_id for s in today.stops if s.progress!='pending'}
@@ -182,6 +239,10 @@ def runtime_errors(req,ctx,plan,previous,day_id,prefix,fixed=(),ongoing=None,exp
         if d.itinerary.ongoing:selected.append(d.itinerary.ongoing['stop_id'])
     for g in req.goals:
         if g.required and selected.count(g.goal_id)!=1:fail('MISSING_REQUIRED','全程必选必须保留一次',g.goal_id)
+    budget=costing.summarize(req,plan.days,ctx)
+    if budget!=plan.budget or budget and (budget.known_total_fen!=plan.known_cost_upper_fen or bool(budget.unknown_items)!=plan.cost_unknown):
+        fail('COST_TOTAL','全程费用与当前报价或已支付记录不一致')
+    if budget and budget.hard_limit and budget.status!='within_budget':fail('BUDGET','全程费用未知或超过硬预算')
     return tuple(errors)
 
 
@@ -197,6 +258,9 @@ def preview_multi_day(session,trip_id,body,replanning=False,planning_version=Non
         state.check_version(row,body.expected_version);service.check_open(row)
         ctx=service.context(db);req=body.requirements;draft=read_draft(row['draft_json'])
         services=travel_services.read(db,trip_id)
+        selected=(services.get('selection') or {}).get('hotels') or {}
+        if req.pricing is None and selected.get('price_selection'):
+            req=req.model_copy(update={'pricing':PricingOptions()})
         hotel_baseline=hotel_binding.baseline(db,services)
         projected,hotel_issues=hotel_binding.project(db,req.model_dump(mode='json'),services,moment=ctx.assessed_at)
         if not hotel_issues:
@@ -221,6 +285,7 @@ def preview_multi_day(session,trip_id,body,replanning=False,planning_version=Non
                 body=body.model_copy(update={'requirements':req,'restore_route_version':None})
             daily,prefix,ongoing,fixed,current,today=remaining(row,body,ctx,previous,original)
         else:
+            if req.pricing and req.pricing.spending:raise HTTPException(422,detail='首次规划不能注入已支付费用，请在途中明确报告。')
             days=draft.days if isinstance(draft,CityDraftV2) else (draft,)
             if row['status']!='DRAFT' or any(s.progress!='pending' for d in days for s in d.stops):
                 raise HTTPException(422,detail='已有执行状态，请使用今天剩余重排。')
@@ -228,6 +293,8 @@ def preview_multi_day(session,trip_id,body,replanning=False,planning_version=Non
         base=row['version'];baseline=service.progress(row);fingerprint=ctx.fingerprint()
         basket_baseline=basket.version(db,trip_id);planning_baseline=exploration_state.read(db,trip_id)['version']
         if planning_version is not None:exploration_state.guard(db,trip_id,planning_version)
+        ctx=price_context(db,trip_id,req,ctx)
+        if replanning:ctx=history_context(ctx,previous,today.day_id,prefix,ongoing,ctx.assessed_at)
     if hotel_issues:
         result=SolveResultV2(schema_version='city-engine-result/2',status='needs_data',
             issues=tuple(Issue.model_validate(i) for i in hotel_issues),computed_at=ctx.assessed_at)
@@ -235,8 +302,8 @@ def preview_multi_day(session,trip_id,body,replanning=False,planning_version=Non
         ctx=live_travel.restore_snapshot(ctx,previous)
         ctx=live_travel._enrich_day(ctx,daily,dated=True)
         solved=replan_trip(daily,ctx,completed_prefix=tuple(s for s in prefix if s.progress=='completed'),
-                prior_itinerary=current.itinerary,ongoing=ongoing,fixed_order=fixed,resolved_count=len(prefix),history_cost_unknown=True)
-        plans=[]
+                prior_itinerary=current.itinerary,ongoing=ongoing,fixed_order=fixed,resolved_count=len(prefix),history_cost_unknown=req.pricing is None)
+        plans=[];replan_issues=[]
         for p in solved.itineraries:
             p=p.model_copy(update={'completed_prefix':prefix})
             day=current.model_copy(update={'requirements':daily,'itinerary':p})
@@ -247,10 +314,15 @@ def preview_multi_day(session,trip_id,body,replanning=False,planning_version=Non
                     # Retire the reservation as history without rewriting its plan or reported evidence.
                     frozen_days.append(d.model_copy(update={'status':'closed'}))
                 else:frozen_days.append(d)
-            candidate=assemble(req,frozen_days,daily.objective)
-            if not runtime_errors(req,ctx,candidate,previous,today.day_id,prefix,fixed,ongoing,daily):plans.append(candidate)
+            candidate=assemble(req,frozen_days,daily.objective,ctx)
+            checked=runtime_errors(req,ctx,candidate,previous,today.day_id,prefix,fixed,ongoing,daily)
+            if not checked:plans.append(candidate)
+            else:replan_issues.extend(checked)
         result=SolveResultV2.model_validate(solved.model_dump(exclude={'itineraries'})|{'schema_version':'city-engine-result/2','itineraries':plans})
-        if solved.status=='feasible' and not plans:result=result.model_copy(update={'status':'invalid','issues':(Issue(code='VALIDATION_FAILED',message='整套重排复核未通过，原路线已保留'),)})
+        if solved.status=='feasible' and not plans:
+            budget_issues=tuple(i for i in replan_issues if i.code=='BUDGET')
+            result=result.model_copy(update={'status':'needs_data' if budget_issues else 'invalid',
+                'issues':budget_issues or (Issue(code='VALIDATION_FAILED',message='整套重排复核未通过，原路线已保留'),)})
     else:
         ctx=live_travel.enrich(ctx,req)
         result=plan_trip(req,ctx)
@@ -260,6 +332,9 @@ def preview_multi_day(session,trip_id,body,replanning=False,planning_version=Non
         quotes=[l.journey.quote_expires_at for p in result.itineraries for d in p.days for l in d.itinerary.legs
                 if l.journey.time_basis=='provider_estimate' and l.journey.quote_expires_at and (not today or d.day_id==today.day_id)]
         if quotes:expiry=min(expiry,stamp(min(quotes)))
+        price=selected.get('price_selection') or {}
+        if req.pricing and price.get('expires_at') and 'lodging:'+selected.get('id','') not in set(req.pricing.spending.covered_cost_ids if req.pricing.spending else ()):
+            expiry=min(expiry,price['expires_at'])
     changes=[compare(previous,p) for p in result.itineraries]
     response={'status':'preview' if candidate_id else result.status,'candidate_id':candidate_id,'trip_id':str(trip_id),
         'base_version':base,'expires_at':expiry if candidate_id else None,'result':result.model_dump(mode='json'),
@@ -333,8 +408,11 @@ def confirm_multi_day(db,session,trip_id,body,row,c,req,result,data,scope):
         if any(l.journey.time_basis=='provider_estimate' and (not l.journey.quote_expires_at or l.journey.quote_expires_at<=ctx.assessed_at) for l in d.itinerary.legs):
             raise HTTPException(409,detail='交通估时已过期，请重新计算。')
     ctx=live_travel.restore_snapshot(ctx,plan)
+    ctx=price_context(db,trip_id,req,ctx)
     if extra['replanning']:
         previous=read_itinerary(previous_row['itinerary_json'])
+        ctx=history_context(ctx,previous,day_id,tuple(Stop.model_validate(s) for s in extra['prefix']),extra['ongoing'],
+            Requirements.model_validate(extra['daily_requirements']).starts_at-timedelta(seconds=120))
         errors=runtime_errors(req,ctx,plan,previous,day_id,tuple(Stop.model_validate(s) for s in extra['prefix']),extra['fixed_order'],extra['ongoing'],
                               Requirements.model_validate(extra['daily_requirements']))
     else:errors=validate_multi_day(req,ctx,plan)
@@ -357,6 +435,7 @@ def read_multi_snapshot(db,row,saved,req,plan):
     from . import service
     ctx=service.context(db);fingerprint=ctx.fingerprint()
     ctx=live_travel.restore_snapshot(ctx,plan);today=ctx.assessed_at.astimezone(TZ).date()
+    ctx=price_context(db,row['id'],req,ctx)
     draft=read_draft(row['draft_json']);states={d.day_id:d for d in draft.days} if isinstance(draft,CityDraftV2) else {}
     errors=[];days=[];refresh=False
     raw=req.model_dump(mode='json');services=travel_services.read(db,row['id'])
@@ -379,8 +458,15 @@ def read_multi_snapshot(db,row,saved,req,plan):
         errors.extend(i.model_copy(update={'affected_ids':(d.day_id,)+i.affected_ids}) for i in problem.issues)
         errors.extend(i.model_copy(update={'affected_ids':(d.day_id,)+i.affected_ids}) for i in validate_itinerary(problem,d.itinerary))
         refresh|=any(l.journey.quote_expires_at and l.journey.quote_expires_at<=ctx.assessed_at for l in d.itinerary.legs)
+    if plan.budget:
+        active=next((d for d in plan.days if d.itinerary.completed_prefix or d.itinerary.ongoing or d.requirements.starts_at!=d.original_requirements.starts_at),None)
+        ctx=history_context(ctx,plan,active.day_id if active else None,
+            active.itinerary.completed_prefix if active else (),active.itinerary.ongoing if active else None,
+            active.requirements.starts_at if active else None)
+        budget=costing.summarize(req,plan.days,ctx)
+        if budget!=plan.budget:errors.append(Issue(code='BUDGET_CHANGED',message='报价已过期、费用依据或已支付记录变化；历史费用快照保留，请重新核对。'))
     stale=saved['state_version']!=row['version'] or saved['fingerprint']!=fingerprint or bool(errors)
     return {'trip_id':row['id'],'version':row['version'],'route_version':saved['route_version'],
-        'itinerary':plan.model_dump(mode='json'),'stale':stale,'issues':[i.model_dump(mode='json') for i in errors],
+        'itinerary':plan.model_dump(mode='json'),'requirements':req.model_dump(mode='json'),'stale':stale,'issues':[i.model_dump(mode='json') for i in errors],
         'days':days,'traffic_refresh_recommended':bool(refresh),
         'notice':'冻结日保留历史快照；今天及后续日依据当前资料复核，实际交通仍有不确定性。' if not stale else '进度或有效资料已变化；完整历史保留，请核对今天及后续日。'}

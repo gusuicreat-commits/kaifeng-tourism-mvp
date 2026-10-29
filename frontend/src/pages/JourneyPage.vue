@@ -7,6 +7,9 @@ import type {SingleDayDraft,CityProposal,CityStop} from '../cityApi'
 import {journey,loadJourney,nameOf,nextCityStop,clone,loadBasket,notify,updateCity,confirmCity,clock,scenicIdFor,plannedActivity,arrivalSummary,usableItinerary,tripDays,focusedDraftDay,focusedRouteDay,focusDay,canUseFocusedDay,tripDateLabel,localDate} from '../journey'
 import {assistantLink} from '../assistantHandoff'
 import ScenicCover from '../components/ScenicCover.vue'
+import BudgetBreakdown from '../components/BudgetBreakdown.vue'
+import BudgetSpending from '../components/BudgetSpending.vue'
+import {isMultiDayItinerary} from '../explorationApi'
 import ItineraryFlow from '../components/ItineraryFlow.vue'
 import {memoryEpoch} from '../voiceDraft'
 const moreMenu=ref<HTMLDetailsElement>()
@@ -68,6 +71,7 @@ onMounted(load);onBeforeUnmount(()=>{disposed=true})
  <nav v-if="tripDays.length>1" class="trip-day-selector" aria-label="行程日期"><button v-for="d in tripDays" :key="d.day_id" type="button" :aria-pressed="focusedDraftDay?.day_id===d.day_id" @click="focusDay(d.day_id)"><strong>{{d.business_date}}</strong><span>{{nameOf(d.origin_place_id)}} → {{nameOf(d.destination_place_id)}}</span><small>{{dayStatus(d)}}</small></button></nav>
  <p v-if="multi&&!canUseFocusedDay" class="trip-evidence-note">正在查看 {{focusedDraftDay?.business_date}} 的安排；此日不执行当前位置或进度修改。</p>
  <p v-if="multi&&journey.route?.stale" class="trip-warning">{{journey.route.notice}}</p>
+ <template v-if="journey.route?.itinerary&&isMultiDayItinerary(journey.route.itinerary)&&journey.route.itinerary.budget"><BudgetBreakdown :budget="journey.route.itinerary.budget" :historical="!!journey.route.stale"/><BudgetSpending v-if="trip&&['ACTIVE','PAUSED'].includes(trip.status)" :trip-id="trip.id" :version="trip.version" :requirements="journey.route.requirements" :budget="journey.route.itinerary.budget" @saved="load"/></template>
  <template v-if="trip&&(total||officialItinerary)">
  <section v-if="next&&!terminal" class="journey-next-card"><div class="next-destination"><MapPin :size="21"/><div><small>下一站</small><strong>{{nameOf(next.place_id)}}</strong><span>{{next.kind==='dining'?'用餐':next.kind==='show'?'演出':'游览'}} · {{arrivalSummary(next.stop_id)}}</span></div></div><div class="journey-next-actions"><RouterLink :to="'/guide?mode=city&place='+encodeURIComponent(next.place_id)" class="button primary"><Navigation :size="15"/>去这里</RouterLink><button v-if="canRecord" type="button" class="button secondary" :disabled="busy" @click="completion=true">标记已游玩</button><button v-if="trip.status==='ACTIVE'" type="button" class="text-link" :disabled="busy" @click="action({operation:'skip_stop',day_id:multi?focusedDraftDay?.day_id:undefined,stop_id:next.stop_id})">跳过本站</button></div></section>
  <div class="journey-itinerary-heading"><h2>行程安排</h2><RouterLink :to="'/guide?mode=city'+(next?'&place='+encodeURIComponent(next.place_id):'')" class="text-link"><Map :size="15"/>在地图查看</RouterLink></div>

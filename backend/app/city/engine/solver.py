@@ -45,14 +45,16 @@ def _solve(problem,*,deadline=None,clock=None):
     objectives=([req.objective]+[o for o in objectives if o!=req.objective])[:req.alternatives]
     circuit=[(last,0,model.NewConstant(1))];arcs={};reentries={};groups={}
     penalties={o:[] for o in objectives};soft_upper={o:1 for o in objectives};rewards=[]
+    known=[a.cost for a in acts if a.cost is not None]+[journey_cost_upper(j,req.pricing) for js in problem.matrix.values() for j in js if journey_cost_upper(j,req.pricing) is not None]
     for i,a in enumerate(acts,1):
         model.Add(times[i]>=a.earliest).OnlyEnforceIf(active[i])
         model.Add(times[i]<=a.latest).OnlyEnforceIf(active[i])
         model.Add(times[i]+a.duration<=budget).OnlyEnforceIf(active[i])
         circuit.append((i,i,active[i].Not()));groups.setdefault(a.goal_id,[]).append(active[i])
         rewards.append(a.reward*active[i])
-        if 'lower_cost' in penalties and a.cost is not None:
-            penalties['lower_cost'].append(a.cost*2*active[i]);soft_upper['lower_cost']+=a.cost*2
+        if 'lower_cost' in penalties:
+            charge=(a.cost or 0)*2 if req.pricing is None else 0
+            penalties['lower_cost'].append(charge*active[i]);soft_upper['lower_cost']+=charge
     for g in req.goals:
         choices=groups.get(g.goal_id,[])
         model.Add(sum(choices)==1 if g.required else sum(choices)<=1)
@@ -84,7 +86,7 @@ def _solve(problem,*,deadline=None,clock=None):
                 for objective in objectives:
                     cost=elapsed+change_cost
                     if objective=='less_walking':cost+=round(metres*4)
-                    elif objective=='lower_cost':cost+=(journey_cost_upper(journey) or 0)*2
+                    elif objective=='lower_cost':cost+=(journey_cost_upper(journey,req.pricing) or 0)*2 if req.pricing is None else 0
                     else:cost+=round(metres/2)
                     penalties[objective].append(cost*var);soft_upper[objective]+=cost
                 gap={'relaxed':600,'standard':180,'compact':0}[req.pace]
@@ -113,7 +115,7 @@ def _solve(problem,*,deadline=None,clock=None):
                     model.Add(times[j]>=times[i]+a.duration).OnlyEnforceIf([active[i],active[j]])
     if req.budget_fen is not None:
         model.Add(problem.history_cost_fen+sum((a.cost or 0)*active[i] for i,a in enumerate(acts,1))+
-                  sum((journey_cost_upper(journey) or 0)*var for var,journey in arcs.values())<=req.budget_fen)
+                  sum((journey_cost_upper(journey,req.pricing) or 0)*var for var,journey in arcs.values())<=req.budget_fen)
     # All user-goal rewards dominate the bounded secondary penalties. This is explicit lexicographic weighting.
     def materialize(solver, objectives):
         indices=[0];chosen=[]
@@ -126,7 +128,7 @@ def _solve(problem,*,deadline=None,clock=None):
         for index,(_,journey) in zip(indices[1:],chosen):
             arrives=t+timedelta(seconds=travel_seconds(journey))
             legs.append(ScheduledLeg(journey=journey,departs_at=t,arrives_at=arrives))
-            known_cost+=journey_cost_upper(journey) or 0;unknown_cost|=journey_cost_upper(journey) is None
+            known_cost+=journey_cost_upper(journey,req.pricing) or 0;unknown_cost|=journey_cost_upper(journey,req.pricing) is None
             if index!=last:
                 a=acts[index-1];start=req.starts_at+timedelta(seconds=solver.Value(times[index]));end=start+timedelta(seconds=a.duration)
                 stops.append(ScheduledActivity(activity_id=a.id,goal_id=a.goal_id,place_id=a.place_id,kind=a.kind,
@@ -145,12 +147,40 @@ def _solve(problem,*,deadline=None,clock=None):
                          evidence_mode='synthetic' if ctx.synthetic else ('reference_with_estimates' if any(s.data_status=='reference' for s in stops) else 'verified_with_estimates')),chosen
     plans=[];statuses=[];selected_arcs=[];solves_done=0
     max_solves=len(objectives)+max(0,req.alternatives-1)
+    price_lock=None
+    def set_objective(objective):
+        nonlocal price_lock
+        model.ClearAssumptions()
+        if price_lock is not None:model.Add(price_lock==0)
+        price_lock=None
+        finish_weight=4 if objective=='less_waiting' else 1
+        upper=soft_upper[objective]+budget*(finish_weight+n)
+        if req.pricing and objective=='lower_cost':
+            # Unknown count is the first key; exact monetary cost is second.
+            unknown_terms=[active[i] for i,a in enumerate(acts,1) if a.cost is None]+[v for v,j in arcs.values() if journey_cost_upper(j,req.pricing) is None]
+            exact=sum((a.cost or 0)*active[i] for i,a in enumerate(acts,1))+sum((journey_cost_upper(j,req.pricing) or 0)*v for v,j in arcs.values())
+            bound=(max(known,default=0)+1)*(2*n+1)
+            primary=sum(unknown_terms)*bound+exact
+            # Run a cost solve first; freeze its optimum before applying preference.
+            price_lock=model.NewBoolVar('price_lock_'+str(attempt));model.AddAssumption(price_lock)
+            cost_solver=cp_model.CpSolver();cost_solver.parameters.max_time_in_seconds=max(0.001,remaining_seconds()/2)
+            cost_solver.parameters.num_search_workers=1;cost_solver.parameters.random_seed=42
+            if not req.pricing.hard_limit:
+                model.Maximize(sum(rewards))
+                reward_status=cost_solver.Solve(model)
+                if reward_status in (cp_model.OPTIMAL,cp_model.FEASIBLE):model.Add(sum(rewards)==int(round(cost_solver.ObjectiveValue()))).OnlyEnforceIf(price_lock)
+            model.Minimize(primary)
+            cost_solver.parameters.max_time_in_seconds=max(0.001,remaining_seconds()/2)
+            price_status=cost_solver.Solve(model)
+            if price_status in (cp_model.OPTIMAL,cp_model.FEASIBLE):model.Add(primary==int(round(cost_solver.ObjectiveValue()))).OnlyEnforceIf(price_lock)
+            model.Minimize(-sum(rewards)*(budget*(n+1)+1)+times[last]+sum(times[1:-1]))
+        else:model.Minimize(-(upper+1)*sum(rewards)+sum(penalties[objective])+finish_weight*times[last]+sum(times[1:-1]))
     for attempt,objective in enumerate(objectives):
         remaining=remaining_seconds()
         if remaining<=0:break
         finish_weight=4 if objective=='less_waiting' else 1
         upper=soft_upper[objective]+budget*(finish_weight+n)
-        model.Minimize(-(upper+1)*sum(rewards)+sum(penalties[objective])+finish_weight*times[last]+sum(times[1:-1]))
+        set_objective(objective)
         # Reserve time for each preference; all solves reuse this model and travel matrix.
         remaining=remaining_seconds()
         if remaining<=0:break
@@ -181,7 +211,7 @@ def _solve(problem,*,deadline=None,clock=None):
         objective=objectives[0]
         finish_weight=4 if objective=='less_waiting' else 1
         upper=soft_upper[objective]+budget*(finish_weight+n)
-        model.Minimize(-(upper+1)*sum(rewards)+sum(penalties[objective])+finish_weight*times[last]+sum(times[1:-1]))
+        set_objective(objective)
         remaining=remaining_seconds()
         if remaining<=0:break
         solver=cp_model.CpSolver();solver.parameters.max_time_in_seconds=remaining/max(1,max_solves-solves_done)

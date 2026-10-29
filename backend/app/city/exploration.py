@@ -108,6 +108,13 @@ def preview_plan(trip_id,body,s,*,execution_guard=None):
             return unknown(hotel_issues[0]['message'],code=hotel_issues[0]['code'])|{
                 'issues':hotel_issues,'constraints':projected,'planning_version':workspace['version'],
                 'basket_version':body.basket_version,'trip_version':body.expected_version}
+        from .budget_models import PricingOptions
+        if projected.get('pricing') is None:
+            with connect() as db:selected=(travel_services.read(db,trip_id).get('selection') or {}).get('hotels') or {}
+            if selected.get('price_selection') or projected.get('per_person_budget_fen') is not None:
+                projected['pricing']=PricingOptions(party_size=projected.get('party_size'),
+                    per_person_budget_fen=projected.get('per_person_budget_fen'),
+                    per_person_daily=projected.get('per_person_budget_daily',False)).model_dump(mode='json')
         body=body.model_copy(update={'constraints':MultiDayConstraints.model_validate(projected)})
         req_data=body.constraints.model_dump(mode='json')
         req_data['days']=[{k:v for k,v in d.items() if k in DayRequirements.model_fields} for d in req_data['days']]

@@ -23,6 +23,16 @@ def _ready_reply(result):
 
 def _budget_reply(constraints,itinerary,days,notes,overnight=False):
     """The per-person budget check replaces the "recorded" note once a plan exists."""
+    budget=itinerary.get('budget') if isinstance(itinerary,dict) else getattr(itinerary,'budget',None)
+    if budget:
+        if hasattr(budget,'model_dump'):budget=budget.model_dump()
+        amount=budget['known_total_fen']/100
+        suffix='；仍有未计入项，暂不能确认预算够用。' if budget['unknown_items'] else '；当前核算超过预算。' if budget['status']=='over' else '；当前核算在预算内（含估计或手填金额）。' if budget['status']=='within_budget' else '。'
+        from .budget_check import recorded_note
+        clean=''.join(n for n in notes if n!=recorded_note(constraints))
+        if budget['limit_fen'] is not None:clean+=f"全程预算 ¥{budget['limit_fen']/100:.2f}，"
+        unknown='待核对：'+'；'.join(budget['unknown_items'][:4])+'。' if budget['unknown_items'] else ''
+        return clean+f'全程已计入费用 ¥{amount:.2f}'+suffix+unknown
     from .budget_check import check,recorded_note
     sentence=check(constraints,itinerary,days=days,overnight=overnight)
     recorded=recorded_note(constraints)

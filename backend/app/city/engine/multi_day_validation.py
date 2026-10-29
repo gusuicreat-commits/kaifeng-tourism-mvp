@@ -4,6 +4,7 @@ from .models import MultiDayItinerary, Issue
 from .prepare import prepare
 from .validation import validate_itinerary
 from ..schema import validate_days, validate_overnights
+from .. import costing
 
 
 def validate_multi_day(req,ctx,plan):
@@ -61,9 +62,16 @@ def validate_multi_day(req,ctx,plan):
         fail('ELAPSED_TOTAL','全程经过时长汇总不一致')
     if plan.travel_seconds!=sum(d.itinerary.travel_seconds for d in plan.days):fail('TRAVEL_TOTAL','全程交通时长汇总不一致')
     if abs(plan.walking_distance_m-sum(d.itinerary.walking_distance_m for d in plan.days))>.001:fail('WALKING_TOTAL','全程步行汇总不一致')
-    if plan.known_cost_upper_fen!=sum(d.itinerary.known_cost_upper_fen for d in plan.days):fail('COST_TOTAL','全程已知费用汇总不一致')
-    if plan.cost_unknown!=(bool(req.overnights) or any(d.itinerary.cost_unknown for d in plan.days)):
-        fail('COST_UNKNOWN','未知费用不能被覆盖或伪称已知')
+    expected_budget=costing.summarize(req,plan.days,ctx)
+    if expected_budget:
+        if plan.budget!=expected_budget or plan.known_cost_upper_fen!=expected_budget.known_total_fen or plan.cost_unknown!=bool(expected_budget.unknown_items):
+            fail('COST_TOTAL','全程费用、单位或报价快照与服务端核算不一致')
+        if expected_budget.hard_limit and expected_budget.status in ('unknown','over'):fail('BUDGET','全程费用未知或超过硬预算')
+    else:
+        if plan.budget is not None:fail('COST_TOTAL','旧口径行程不能自行提供全程预算结果')
+        if plan.known_cost_upper_fen!=sum(d.itinerary.known_cost_upper_fen for d in plan.days):fail('COST_TOTAL','全程已知费用汇总不一致')
+        if plan.cost_unknown!=(bool(req.overnights) or any(d.itinerary.cost_unknown for d in plan.days)):
+            fail('COST_UNKNOWN','未知费用不能被覆盖或伪称已知')
     if plan.days and plan.evidence_mode!=evidence_mode(plan.days,req.overnights):fail('EVIDENCE_MODE','全程证据必须取最弱者')
     if plan.navigation_certified:fail('NAVIGATION_CLAIM','不得声称已通过真实导航验收')
     return tuple(errors)

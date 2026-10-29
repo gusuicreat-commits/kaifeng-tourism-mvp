@@ -41,7 +41,8 @@ with tempfile.TemporaryDirectory(prefix='multi-day-browser-') as folder:
     for record in data['facts']['records']:record['is_demo']=False
     for journey in data['operations']['journeys']:
         journey['travel']['evidence']['kind']='verified';journey['travel']['path_status']='verified';journey['time_basis']='survey_envelope'
-    for cost in data['operations']['costs']:cost['evidence']['kind']='verified'
+    for cost in data['operations']['costs']:
+        cost['evidence']['kind']='verified';cost['unit']='per_person'
     with connect() as db:
         facts.import_bundle(facts.FactBundle.model_validate(data['facts']),db,apply=True)
         facts.import_bundle(facts.FactBundle(records=dated_records(data)),db,apply=True)
@@ -51,11 +52,12 @@ with tempfile.TemporaryDirectory(prefix='multi-day-browser-') as folder:
     def setup(body:dict=Body(default={}),s:session.Session=Depends(session.current)):
         clock[0]=datetime.fromisoformat('2030-05-01T08:00:00+08:00')
         req=browser_requirements()
-        if body.get('kind')=='hotel':
+        if body.get('kind') in ('hotel','budget'):
             req['days'][0]['destination_place_id']='origin'
             req['days'][1]['origin_place_id']='origin'
             req['days'][1]['destination_place_id']='origin'
             req['overnights'][0]['place_id']='origin'
+        if body.get('kind')=='budget':req['pricing']={'party_size':2,'total_budget_fen':100000,'dining_per_person_day_fen':3000}
         draft={'schema_version':'city-draft/2','start_date':req['start_date'],'end_date':req['end_date'],
             'days':[{**d,'stops':[]} for d in req['days']],'overnights':req['overnights']}
         trip=state.create(s,CreateCityTripV2.model_validate({'request_id':str(uuid4()),'draft':draft}))
@@ -69,7 +71,7 @@ with tempfile.TemporaryDirectory(prefix='multi-day-browser-') as folder:
         with connect() as db:
             db.execute('UPDATE city_exploration_states SET result_json=? WHERE trip_id=?',
                 (json.dumps(preview|{'planning_version':1,'rounds':0,'basket_version':0,'trip_version':trip['version']}),trip['id']))
-        if body.get('kind')=='hotel':
+        if body.get('kind') in ('hotel','budget'):
             with connect() as db:
                 hotel_binding.import_binding(db,{'candidate_id':'flyai:browser-hotel','place_id':'hotel',
                     'revision':1,'source':'isolated synthetic browser fixture',
@@ -89,5 +91,15 @@ with tempfile.TemporaryDirectory(prefix='multi-day-browser-') as folder:
             engine.confirm_itinerary(s,identity,ConfirmRequest.model_validate({'request_id':str(uuid4()),
                 'expected_version':confirmed['version'],'candidate_id':preview['candidate_id'],'alternative_index':0}))
         return {'trip_id':trip['id'],'moment':clock[0].isoformat(),'requirements':req,'preview':preview}
+
+    @app.post('/api/e2e/budget-start/{trip_id}',include_in_schema=False)
+    def start_budget(trip_id:UUID,s:session.Session=Depends(session.current)):
+        with connect() as db:
+            row=state.owned(db,s,trip_id);route=engine.route_row(db,trip_id)
+            plan=json.loads(route['itinerary_json']);activity=plan['days'][0]['itinerary']['activities'][0]
+            clock[0]=datetime.fromisoformat(activity['starts_at'])+timedelta(minutes=1)
+            db.execute("UPDATE city_trip_states SET status='ACTIVE',anchor_json=? WHERE id=?",(json.dumps({
+                'place_id':activity['place_id'],'confirmed_at':clock[0].isoformat(),'source':'manual_known_place'}),str(trip_id)))
+        return {'moment':clock[0].isoformat()}
 
     uvicorn.run(app,host='127.0.0.1',port=int(os.getenv('E2E_MULTI_DAY_PORT','8055')),log_level='warning')

@@ -6,6 +6,7 @@ from .prepare import prepare
 from .solver import solve
 from .travel import TravelTimeService, travel_seconds, walking_metres, journey_cost_upper
 from ..schema import validate_overnights
+from .. import costing
 
 MAX_ASSIGNMENTS=8
 MIN_SOLVE_SECONDS=0.05
@@ -17,6 +18,7 @@ def day_requirements(req,day,goals,objective,seconds):
         goals=tuple(Goal.model_validate(g.model_dump(exclude={'allowed_dates','fixed_date'})) for g in goals),
         modes=day.modes or req.modes,pace=day.pace or req.pace,objective=objective,
         max_walking_seconds=day.max_walking_seconds,
+        pricing=req.pricing,
         access_confirmations=day.access_confirmations if day.access_confirmations is not None else tuple(
             a.place_id for a in req.access_confirmations if day.business_date in a.allowed_dates),
         show_buffer_seconds=req.show_buffer_seconds,solve_seconds=seconds,alternatives=1)
@@ -24,7 +26,9 @@ def day_requirements(req,day,goals,objective,seconds):
 
 def objectives(req):
     choices=['less_waiting' if req.objective=='less_waiting' else 'balanced','less_walking','lower_cost']
-    return ([req.objective]+[o for o in choices if o!=req.objective])[:req.alternatives]
+    result=([req.objective]+[o for o in choices if o!=req.objective])[:req.alternatives]
+    if req.pricing and req.pricing.hard_limit and 'lower_cost' not in result:result.append('lower_cost')
+    return result
 
 
 def applicable(goal,day):
@@ -40,17 +44,17 @@ def evidence_mode(days,overnights):
     return max(modes,key=ranks.index)
 
 
-def assemble(req,days,objective):
+def assemble(req,days,objective,ctx=None):
+    summary=costing.summarize(req,days,ctx) if req.pricing is not None and ctx is not None else None
     return MultiDayItinerary(schema_version='city-itinerary/2',start_date=req.start_date,end_date=req.end_date,
         days=tuple(days),overnights=req.overnights,objectives=(objective,),
         active_seconds=sum(d.itinerary.total_seconds for d in days),
         elapsed_seconds=int((days[-1].itinerary.returns_at-req.days[0].starts_at).total_seconds()),
         travel_seconds=sum(d.itinerary.travel_seconds for d in days),
         walking_distance_m=sum(d.itinerary.walking_distance_m for d in days),
-        known_cost_upper_fen=sum(d.itinerary.known_cost_upper_fen for d in days),
-        # Stay prices/conditions have no bounded cost contract until B3/B4.
-        cost_unknown=bool(req.overnights) or any(d.itinerary.cost_unknown for d in days),
-        evidence_mode=evidence_mode(days,req.overnights))
+        known_cost_upper_fen=summary.known_total_fen if summary else sum(d.itinerary.known_cost_upper_fen for d in days),
+        cost_unknown=bool(summary.unknown_items) if summary else bool(req.overnights) or any(d.itinerary.cost_unknown for d in days),
+        evidence_mode=evidence_mode(days,req.overnights),budget=summary)
 
 
 def signature(plan):
@@ -64,10 +68,10 @@ def rank_plan(req,plan,objective):
     reward=sum(1+g.importance for g in req.goals if not g.required and g.goal_id in selected)
     waiting=sum(a.wait_seconds for d in plan.days for a in d.itinerary.activities)
     if objective=='less_walking':cost=(plan.walking_distance_m,plan.travel_seconds,plan.active_seconds)
-    elif objective=='lower_cost':cost=(plan.known_cost_upper_fen,plan.cost_unknown,plan.travel_seconds,plan.active_seconds)
+    elif objective=='lower_cost':cost=((plan.cost_unknown,) if req.pricing else ())+ (plan.known_cost_upper_fen,plan.travel_seconds,plan.active_seconds)
     elif objective=='less_waiting':cost=(waiting,plan.travel_seconds,plan.active_seconds,plan.walking_distance_m)
     else:cost=(2*plan.travel_seconds+waiting+plan.walking_distance_m/2+plan.active_seconds,)
-    return (-reward,)+cost
+    return cost+(-reward,) if req.pricing and req.pricing.hard_limit and objective=='lower_cost' else (-reward,)+cost
 
 
 def assignments(req,problems,available,objective,expired):
@@ -94,8 +98,8 @@ def assignments(req,problems,available,objective,expired):
                     if all(legs):
                         if objective=='less_walking':costs.append(sum(min(walking_metres(j) for j in leg) for leg in legs))
                         elif objective=='lower_cost':
-                            if a.cost is not None and all(any(journey_cost_upper(j) is not None for j in leg) for leg in legs):
-                                costs.append(a.cost+sum(min(journey_cost_upper(j) for j in leg if journey_cost_upper(j) is not None) for leg in legs))
+                            if a.cost is not None and all(any(journey_cost_upper(j,req.pricing) is not None for j in leg) for leg in legs):
+                                costs.append(a.cost+sum(min(journey_cost_upper(j,req.pricing) for j in leg if journey_cost_upper(j,req.pricing) is not None) for leg in legs))
                         else:costs.append(sum(min(travel_seconds(j) for j in leg) for leg in legs))
                 if costs:secondary+=min(costs)
                 else:missing+=1
@@ -129,8 +133,8 @@ def plan_multi_day(req,ctx,*,clock=None,deadline=None):
         if metrics['search_truncated']:
             warnings.append('分天搜索未穷尽，不证明全局最优或无解。')
             if metrics['timeout_scope'] is None:metrics['timeout_scope']='assignment_bound'
-        if any(p.cost_unknown for p in plans):warnings.append('费用资料不全，省钱仅按已知费用比较；住宿费用尚未纳入。')
-        return SolveResultV2(schema_version='city-engine-result/2',status=status,itineraries=tuple(plans),
+        if any(p.cost_unknown for p in plans):warnings.append('费用资料不全，省钱仅按已知费用比较；请核对费用明细中的未计入项。' if req.pricing else '费用资料不全，省钱仅按已知费用比较；住宿费用尚未纳入。')
+        return SolveResultV2(schema_version='city-engine-result/2',status=status,itineraries=tuple(plans[:req.alternatives]),
             computed_at=ctx.assessed_at,issues=tuple(issues),warnings=tuple(dict.fromkeys(warnings)),
             metrics=metrics|{'blocked_candidates':blocked})
     def timeout():
@@ -205,7 +209,12 @@ def plan_multi_day(req,ctx,*,clock=None,deadline=None):
                 days.append(DayItinerary(business_date=day.business_date,original_requirements=day,
                     requirements=dayreq,itinerary=result.itineraries[0].model_copy(update={'objectives':()})))
             if len(days)!=len(req.days):continue
-            plan=assemble(req,days,objective)
+            plan=assemble(req,days,objective,ctx)
+            if plan.budget and plan.budget.hard_limit and plan.budget.status in ('over','unknown'):
+                failures.append(SolveResultV2(schema_version='city-engine-result/2',status='needs_data',computed_at=ctx.assessed_at,
+                    issues=(Issue(code='BUDGET_OVER' if plan.budget.status=='over' else 'BUDGET_UNKNOWN',
+                        message='当前有界搜索未找到满足全程预算的方案；不证明全局无解。' if plan.budget.status=='over' else '全程费用尚有未知，不能确认满足硬预算。'),)))
+                continue
             from .multi_day_validation import validate_multi_day
             before=clock();checked=validate_multi_day(req,ctx,plan)
             metrics['validation_elapsed_ms']+=round((clock()-before)*1000,3)
