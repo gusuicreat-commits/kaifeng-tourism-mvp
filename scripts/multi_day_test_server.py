@@ -1,5 +1,5 @@
 """B2.5 disposable browser fixture. No live model, map, weather or travel providers."""
-import json,os,sys,tempfile
+import copy,json,os,sys,tempfile
 from datetime import datetime,timedelta
 from pathlib import Path
 from uuid import UUID,uuid4
@@ -58,11 +58,23 @@ with tempfile.TemporaryDirectory(prefix='multi-day-browser-') as folder:
             req['days'][1]['destination_place_id']='origin'
             req['overnights'][0]['place_id']='origin'
         if body.get('kind')=='budget':req['pricing']={'party_size':2,'total_budget_fen':100000,'dining_per_person_day_fen':3000}
+        if body.get('kind')=='taxi':
+            req['modes']=['driving'];req['objective']='lower_cost';req['solve_seconds']=3
+            req['pricing']={'party_size':5,'vehicle_count':2,'total_budget_fen':100000,'dining_per_person_day_fen':1000}
+            journeys=[]
+            for original in data['operations']['journeys']:
+                for suffix,price,extra in (('fast',1000,0),('cheap',200,600)):
+                    item=copy.deepcopy(original);item['journey_id']='taxi:'+original['journey_id']+':'+suffix
+                    item['travel']['mode']='driving';item['vehicle_cost_fen']=price;item['cost_unit']='per_person'
+                    item['vehicle_cost_source']='amap_taxi_estimate'
+                    item['travel']['lower_seconds']+=extra;item['travel']['upper_seconds']+=extra
+                    journeys.append(item)
+            with connect() as db:import_operations(db,OperationalBundle(journeys=journeys),facts.records(db),apply=True)
         draft={'schema_version':'city-draft/2','start_date':req['start_date'],'end_date':req['end_date'],
             'days':[{**d,'stops':[]} for d in req['days']],'overnights':req['overnights']}
         trip=state.create(s,CreateCityTripV2.model_validate({'request_id':str(uuid4()),'draft':draft}))
         identity=UUID(trip['id'])
-        constraints=MultiDayConstraints.model_validate({k:v for k,v in req.items() if k!='schema_version'}|{'schema_version':'city-constraints/2'}).model_dump(mode='json')
+        constraints=MultiDayConstraints.model_validate({k:v for k,v in req.items() if k not in ('schema_version','solve_seconds','alternatives')}|{'schema_version':'city-constraints/2'}).model_dump(mode='json')
         with connect() as db:exploration_state.save(db,identity,constraints,None,0)
         preview=engine.preview(s,identity,PreviewRequestV2.model_validate({'request_id':str(uuid4()),
             'expected_version':trip['version'],'requirements':req}),planning_version=1)
