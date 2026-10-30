@@ -8,6 +8,7 @@ from app.city.engine import service
 from test_city_engine_api import engine,preview,confirm,current,rid
 from test_hotel_overnight_binding import hotel_trip
 from test_multi_day_api import multi_engine,committed,start_today,remaining,saved_rows
+from test_city_assistant import city
 
 
 def suffix(e,req,**extra):return remaining(e,req,scope='current_and_future',**extra)
@@ -165,6 +166,44 @@ def test_suffix_agent_accepts_taxi_mode_for_today_and_tomorrow(multi_engine,monk
         assert plan['days'][0]==old['itinerary']['days'][0]
         assert all(tuple(day['requirements']['modes'])==('driving',) for day in plan['days'][1:])
     assert e[0].get('/api/city/v1/trips/'+e[1]['id']).json()==before
+    agent.TASKS.clear()
+
+
+@pytest.mark.parametrize('multi,started',[(True,True),(True,False),(False,True)])
+def test_unadopted_planning_reports_dropped_preference_for_multi_day_only(request,monkeypatch,multi,started):
+    from app import language
+    from app.city.agent import provider,service as agent
+    from app.city.assistant import context,tools
+    from test_city_agent import run
+    from test_city_assistant import walking,get
+    if multi:
+        e,req,old=committed(request.getfixturevalue('multi_engine'))
+        moment=start_today(e,monkeypatch) if started else datetime.fromisoformat('2030-04-30T08:00:00+08:00')
+        for module in (context,tools):monkeypatch.setattr(module,'now',lambda:moment)
+        visitor={'client':e[0],'trip':e[1]}
+    else:
+        visitor=request.getfixturevalue('city');walking(visitor)
+    agent.TASKS.clear();text='今天明天都不打车'
+    raw={'planning':{'operation':'update','quote':text,'fields':[
+        {'field':'mode','value':'walking','quote':text,'scope':'every_day'}]}}
+    monkeypatch.setattr(language,'available',lambda:True)
+    monkeypatch.setattr(provider,'generate',lambda *a,**k:(copy.deepcopy(raw),{'source':'mock_model'}))
+    before=get(visitor);task=run(visitor,text)
+    if multi and not started:
+        assert task['status']=='unavailable' and '旧单日入口' in task['result']['reply'],task
+        assert '比如“今天和明天都坐公交”' not in task['result']['reply'] and get(visitor)==before
+        agent.TASKS.clear();return
+    assert task['status']=='needs_clarification',json.dumps(task,ensure_ascii=False)
+    assert {'field':'mode','check':'preference_not_in_quote' if multi else 'scope_not_in_quote'} in task['interpretation']['dropped_fields']
+    assert task['understanding']['planning'] is None
+    reply=task['result']['reply']
+    assert '没采用' in reply and '旧单日入口' not in reply
+    if multi:
+        assert reply.startswith('这部分我没采用：') and reply.endswith('可以换个说法，比如“今天和明天都坐公交”。')
+    else:
+        assert reply=='这句话我没完全理解，换个说法再试试？这部分我没采用：『今天明天都不打车』（原话与提取的内容对不上）。'
+        assert task['mode']=='clarify'
+    assert get(visitor)==before
     agent.TASKS.clear()
 
 

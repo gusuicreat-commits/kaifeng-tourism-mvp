@@ -12,8 +12,8 @@ from app import language
 from app.city import facts
 from app.city.assistant import context
 from app.city.agent import service, understand, provider, toolbelt
-from app.city.agent.models import Understanding, Constraint, Action
-from test_city_assistant import city, scenic, walking, planned, get, modify, rid, path, confirm
+from app.city.agent.models import Understanding, Constraint, Action, MaterialChoice
+from test_city_assistant import city, scenic, walking, planned, get, modify, rid, path, confirm, revise_fact
 from test_city_engine import sample
 
 
@@ -102,6 +102,53 @@ def test_scenic_reference_uses_v3_without_a_confirmed_route(scenic,monkeypatch,o
     assert '09:00–22:00' in task['result']['reply'] and '看点：虹桥、水榭、古塔' in task['result']['reply']
     assert ('门票价格暂无资料' in task['result']['reply']) == ('门票' in question)
     assert get(scenic)==before and before['route_version']==0
+
+
+@pytest.mark.parametrize('text,raw',[
+    ('来开封玩哪些地方值得去',{'planning':{'operation':'update','quote':'来开封玩哪些地方值得去',
+        'fields':[{'field':'city','value':'开封','quote':'来开封'}],'choices':[]}}),
+    ('推荐几个景点',{'planning':None,'conversation':{'reply':'开封有很多值得游览的景点，比如清明上河园、开封府……请问您计划哪天去？'}}),
+])
+def test_city_highlights_replace_city_only_planning_or_model_conversation(scenic,monkeypatch,text,raw):
+    before=get(scenic)
+    monkeypatch.setattr(provider,'generate',lambda *a,**k:(copy.deepcopy(raw),{'source':'mock_model'}))
+    task=run(scenic,text)
+    assert task['status']=='answered',json.dumps(task,ensure_ascii=False)
+    assert task['result']['reply'].startswith('开封可参考的景区（参考资料，未现场核验）：[合成测试]景区')
+    assert '清明上河园、开封府' not in task['result']['reply']
+    assert task['result']['references']==[{'kind':'place','id':'scenic'}]
+    assert task['metrics']['tools']==0 and get(scenic)==before
+
+
+@pytest.mark.parametrize('text',[
+    '明天推荐几个景点，从开封府出发','包公祠附近有什么好玩的','我的行程里还有哪些好玩的',
+    '这里有什么好玩的','下午三点推荐几个景点','第二天推荐几个景点',
+])
+def test_specific_highlight_questions_keep_original_dispatch(scenic,monkeypatch,text):
+    revise_fact('place','scenic',name='包公祠')
+    raw={'planning':{'operation':'update','quote':text,'fields':[{'field':'city','value':'开封','quote':'开封府'}]}} if '明天' in text else {'conversation':{'reply':'原来的说明。'}}
+    monkeypatch.setattr(provider,'generate',lambda *a,**k:(copy.deepcopy(raw),{'source':'mock_model'}))
+    before=get(scenic);task=run(scenic,text)
+    assert '开封可参考的景区' not in task['result']['reply'],task
+    if '明天' in text:
+        assert task['mode']=='planning' and task['status']=='needs_clarification',task
+    else:assert task['result']['reply']=='原来的说明。'
+    assert get(scenic)==before
+
+
+def test_highlight_planning_with_checked_choices_keeps_planning_dispatch(scenic,monkeypatch):
+    original=understand.parse
+    raw={'planning':{'operation':'update','quote':'推荐几个景点','fields':[],'choices':[]}}
+    monkeypatch.setattr(provider,'generate',lambda *a,**k:(raw,{'source':'mock_model'}))
+    def checked(*a):
+        intent,meta=original(*a)
+        planning=intent.planning.model_copy(update={'choices':(
+            MaterialChoice(name='[合成测试]景区',priority='want',quote='推荐几个景点'),)})
+        return intent.model_copy(update={'planning':planning}),meta
+    monkeypatch.setattr(understand,'parse',checked)
+    task=step(scenic,start(scenic,'推荐几个景点').json()).json()
+    assert task['status']=='running' and task['mode']=='planning',task
+    assert task['understanding']['planning']['choices'] and not task['result']
 
 
 def test_offline_react_fixture_preview_and_confirmation(city):

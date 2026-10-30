@@ -24,7 +24,7 @@ from .. import state
 from ..schema import TZ
 from ..assistant import context, interpret, service as v2service, tools as v2tools
 from ..assistant.models import CityChat
-from . import provider, understand, toolbelt, reference_routes
+from . import provider, understand, toolbelt, reference_routes, date_range
 from .prompt_schema import prompt_schema
 from .. import weather
 from .models import Budget, Decision, Understanding, Constraint
@@ -238,7 +238,7 @@ def trace(t):
             'steps':[[e.get('tool'),e.get('status'),e.get('result_code')] for e in t.events]}
 
 
-def _finish(session,t,status,result):
+def _finish(session,t,status,result,*,dropped_followup=''):
     if t.wait_started is not None:
         t.waited_seconds+=time.monotonic()-t.wait_started;t.wait_started=None
     t.waiting=None
@@ -255,8 +255,12 @@ def _finish(session,t,status,result):
         if queries:
             result['answers']=[_read_query(t,a,t.snapshot) for a in queries]
     if t.intent and not t.cancelled:
-        note=understand.dropped_reply(t.intent,t.interpretation or {},t.text)
+        meta=t.interpretation or {}
+        # Recovering scope did not adopt the value when every planning item was dropped.
+        if dropped_followup:meta={**meta,'recovered_fields':[]}
+        note=understand.dropped_reply(t.intent,meta,t.text)
         if note:result['reply']=result.get('reply','')+note
+        if dropped_followup:result['reply']=result.get('reply','')+dropped_followup
     t.status=status;t.result=result;t.terminal_at=time.monotonic()
     LOG.info(json.dumps(trace(t),ensure_ascii=False,default=str))
     if t.snapshot is not None:
@@ -283,6 +287,20 @@ def cancel(session,trip_id,identity):
     response=public(t)
     if not t.retain_history:_clear_terminal_dialogue(t)
     return response
+
+
+def _city_highlight_question(text,snapshot,intent):
+    if not v2service._CITY_HIGHLIGHTS.search(text) or v2service._OWN_PLAN.search(text) or v2service._DEIXIS.search(text):return False
+    if interpret.place_references(text,snapshot) or date_range.expressions(text) or date_range.DAY_NUMBER.search(text) or understand.clock_values(text):return False
+    actions=intent.actions
+    # The checked planning branch carries a synthetic modify marker, not a separate request.
+    if intent.planning and len(actions)==1:
+        action=actions[0]
+        if action.kind=='modify' and action.quote==intent.planning.quote and not action.target_name and not action.purpose and not action.near and not action.dining:actions=()
+    if actions or intent.constraints or intent.route_query or intent.weather_query or intent.service_query or intent.state_request:return False
+    if intent.corrections or intent.unresolved:return False
+    return bool(intent.conversation and not intent.planning or intent.planning and not intent.conversation
+        and not intent.planning.choices and all(f.field=='city' for f in intent.planning.fields))
 
 
 def _merge(intent,snapshot):
@@ -722,6 +740,8 @@ def _advance(session,trip_id,identity,body):
                 t.events[-1]['status']='failed'
                 _finish(session,t,'unavailable',{'state':'model_unavailable','code':meta['provider_failure'].get('code'),
                     'model_status':meta['provider_failure'],'reply':'刚才模型输出格式有问题，请再试一次。' if meta['provider_failure'].get('code')=='MODEL_OUTPUT_INVALID' else '刚才连接中断了，请再试一次。'})
+            elif _city_highlight_question(t.text,t.snapshot,t.intent):
+                _finish(session,t,'answered',v2service._city_highlights(t.snapshot))
             elif t.mode=='clarify' and t.intent.unresolved and meta.get('model_availability',{}).get('available') is False:
                 _finish(session,t,'unavailable',{'state':'model_unavailable','code':'MODEL_NOT_CONFIGURED','model_status':meta['model_availability'],
                     'reply':'聊天模型尚未配置，暂不能理解这段追问。明确起点和终点的问路仍可直接查参考路线。'})
@@ -861,6 +881,13 @@ def _advance(session,trip_id,identity,body):
             if t.events:t.events[-1].update(status='failed' if attempts else 'blocked_before_request',
                 source=exc.detail.get('source','scheduler'),provider_failure=exc.detail)
         status='stale' if exc.status_code==409 else 'budget_exhausted' if exc.status_code==429 else 'needs_data' if exc.status_code==422 else 'unavailable'
+        if (isinstance(exc.detail,dict) and exc.detail.get('code')=='MULTI_DAY_UNAVAILABLE'
+            and t.snapshot.row['status']=='ACTIVE' and (t.snapshot.multi_draft or t.snapshot.multi_requirements) and t.interpretation.get('dropped_fields')
+            and any(d.get('path','').startswith(('planning.fields','planning.choices')) for d in t.interpretation.get('dropped',()))
+            and t.intent and (not t.intent.planning or not t.intent.planning.fields and not t.intent.planning.choices)
+            and not (t.intent.actions or t.intent.constraints or t.intent.corrections or t.intent.conversation
+                or t.intent.route_query or t.intent.weather_query or t.intent.service_query or t.intent.state_request)):
+            _finish(session,t,'needs_clarification',{'reply':''},dropped_followup='可以换个说法，比如“今天和明天都坐公交”。');return public(t)
         if isinstance(exc.detail,dict) and exc.detail.get('code') in ('MULTI_DAY_UNAVAILABLE','MULTI_DAY_SCOPE_UNAVAILABLE'):
             _finish(session,t,'unavailable',{'reply':exc.detail['message'],'issues':[exc.detail]});return public(t)
         safe=exc.detail if isinstance(exc.detail,dict) and exc.detail.get('code') in ('MODEL_HTTP_ERROR','MODEL_TRANSPORT_ERROR','MODEL_OUTPUT_INVALID','MODEL_SCHEDULE_STOPPED','MODEL_REQUEST_BUDGET','MODEL_TOKEN_BUDGET') else {'code':'BUSINESS_OR_PROVIDER_FAILURE'}
