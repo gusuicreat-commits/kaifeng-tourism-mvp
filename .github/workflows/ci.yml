@@ -105,7 +105,7 @@ jobs:
       fail-fast: false
       max-parallel: 3
       matrix:
-        suite: [default, agent, reference, services, weather, multi-day]
+        suite: [default, agent, reference, services, weather, multi-day, full-flow]
         include:
           - suite: default
             config: playwright.config.ts
@@ -125,6 +125,9 @@ jobs:
             expected_skips: 0
           - suite: multi-day
             config: playwright.multi-day.config.ts
+            expected_skips: 0
+          - suite: full-flow
+            config: playwright.full-flow.config.ts
             expected_skips: 0
     steps:
       - uses: actions/checkout@v4

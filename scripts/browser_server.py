@@ -28,4 +28,9 @@ with tempfile.TemporaryDirectory(prefix='bianyou-e2e-') as test_dir:
                 import json
                 for binding in json.loads(Path(os.environ['E2E_OBJECT_BINDINGS']).read_text()):
                     db.execute('INSERT INTO city_object_bindings VALUES (?,?,?,?)',tuple(binding))
+            if os.getenv('E2E_JOURNEYS'):
+                from app.city.facts import records
+                from app.city.engine.models import OperationalBundle
+                from app.city.engine.storage import import_operations
+                import_operations(db,OperationalBundle.model_validate_json(Path(os.environ['E2E_JOURNEYS']).read_text()),records(db),apply=True)
     uvicorn.run('app.main:app',host='127.0.0.1',port=int(os.getenv('E2E_PORT','8018')))
