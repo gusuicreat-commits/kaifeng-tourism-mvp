@@ -174,3 +174,27 @@ def test_future_agent_to_engine_context_and_confirmation(multi_engine,monkeypatc
     assert response.status_code==200,response.text
     assert current(e).json()['itinerary']['days'][:2]==old['itinerary']['days'][:2]
     agent.TASKS.clear()
+
+
+@pytest.mark.parametrize('text,fields,expected',[
+    ('改成十点出发',[{'field':'start_time','value':'10:00','quote':'十点出发'}],'用于哪一天'),
+    ('6月1日改为十点出发',[{'field':'start_time','value':'10:00','quote':'十点出发','day_ref':'6月1日'}],'尚未到来的日期'),
+])
+def test_future_scope_refusal_is_a_visitor_question_not_a_stop(multi_engine,monkeypatch,text,fields,expected):
+    from app import language
+    from app.city.agent import provider,service as agent
+    from app.city.assistant import context,tools
+    from test_city_agent import run
+    e,req,old=committed(multi_engine)
+    moment=datetime.fromisoformat('2030-04-30T08:00:00+08:00')
+    for module in (context,tools):monkeypatch.setattr(module,'now',lambda:moment)
+    agent.TASKS.clear()
+    raw={'planning':{'operation':'update','quote':text,'fields':fields}}
+    monkeypatch.setattr(language,'available',lambda:True)
+    monkeypatch.setattr(provider,'generate',lambda *a,**k:(copy.deepcopy(raw),{'source':'mock_model'}))
+    city={'client':e[0],'trip':e[1]};before=e[0].get('/api/city/v1/trips/'+e[1]['id']).json()
+    task=run(city,text)
+    assert task['status']=='needs_clarification',json.dumps(task,ensure_ascii=False)
+    assert expected in task['result']['reply'] and '已停止' not in task['result']['reply']
+    assert e[0].get('/api/city/v1/trips/'+e[1]['id']).json()==before
+    agent.TASKS.clear()

@@ -250,10 +250,21 @@ def discard(session, trip_id, body):
         return result
 
 
+# Closed class of "later days" words. Each needs 天/日 (or is 明天/后天), so
+# "今天后面的安排" (the rest of today) never widens the scope to other days.
+_LATER_DAYS=r'(?:明天|后天|明后天|(?:后续|后面|以后|之后|往后|接下来|剩下|余下)(?:的)?(?:几|两|二|三|[23])?(?:天|日))'
+_CONTINUOUS=__import__('re').compile('|'.join((
+    r'今天[^，,。？?！!；;]{0,18}'+_LATER_DAYS,                    # 今天剩下的和明天 / 今天以及之后几天
+    r'今天(?:及|和|以及|跟)?(?:以后|之后|往后)(?=[都全一，,。！!]|$)',  # 今天及以后都…; not 今天之后的那个景点
+    r'从今天(?:起|开始)[^，,。？?！!；;]{0,6}(?:后面|后续|以后|之后|往后)',  # 从今天开始后面的行程
+    r'(?:连同|连着|连|包括|以及)[^，,。？?！!；;]{0,12}'+_LATER_DAYS,   # 连同明天后天
+    r'(?:后续|后面|剩下|接下来|余下|之后|往后)(?:的)?(?:几|两|二|三|[23])?天[^，,。？?！!；;]{0,12}(?:一起|全部|都)',
+)))
+
+
 def has_continuous_scope(quote):
     """Check the model's scope evidence, without guessing a modification operation."""
-    import re
-    return bool(re.search(r'今天.{0,18}(?:后续|后面|以后|明天)|(?:连同|连着|连|包括).{0,12}(?:后续|后面|以后)|(?:后续|后面|剩下|接下来|余下)(?:的)?(?:几|两|二|三|[23])?天.{0,12}(?:一起|全部|都)|今天及后续天',quote))
+    return bool(_CONTINUOUS.search(quote))
 
 
 def continuous_scope(snapshot,quote):

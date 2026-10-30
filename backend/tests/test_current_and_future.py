@@ -231,3 +231,14 @@ def test_single_day_route_cannot_be_reinterpreted_as_a_multi_day_edit(engine,sco
     r=remaining(e,requirements(),scope=scope,day_id='day:2030-05-02')
     assert r.status_code==422,r.text
     assert saved_rows()==before
+
+
+@pytest.mark.parametrize('text,expected',[
+    ('今天剩下的和明天的都重新排一下',True),('今天和后面两天一起调整',True),('从今天开始后面的行程都改成少走路',True),
+    ('今天以及之后几天都不要太赶',True),('连同明天后天一起改',True),('往后几天都改成九点出发',True),('今天及以后都少走路',True),
+    ('今天后面的安排帮我改一下',False),('今天的后面还有什么',False),('今天天气怎么样，明天呢',False),
+    ('今天剩下的时间少走路',False),('今天之后的那个景点几点开门',False),('后面那个景点不去了',False),
+])
+def test_continuous_scope_needs_later_days_not_the_rest_of_today(text,expected):
+    from app.city.assistant.tools import has_continuous_scope
+    assert has_continuous_scope(text) is expected

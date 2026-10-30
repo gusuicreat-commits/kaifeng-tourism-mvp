@@ -16,6 +16,19 @@ def applies(snapshot,intent,text):
 
 
 def preview(session,trip_id,snapshot,intent,request_id,text):
+    """Scope and lock refusals carry visitor-facing text; reply with it instead of "已停止"."""
+    from fastapi import HTTPException
+    try:return _preview(session,trip_id,snapshot,intent,request_id,text)
+    except HTTPException as exc:
+        detail=exc.detail
+        if exc.status_code not in (409,422) or isinstance(detail,dict) and detail.get('code')=='PLANNING_CHANGED':raise
+        message=detail.get('message') if isinstance(detail,dict) else detail if isinstance(detail,str) else None
+        if not message:raise
+        return {'status':'needs_clarification','reply':message,
+                'code':detail.get('code') if isinstance(detail,dict) else 'FUTURE_SCOPE_REFUSED'}
+
+
+def _preview(session,trip_id,snapshot,intent,request_id,text):
     if tools.has_continuous_scope(text):
         from .suffix_planning import preview as preview_suffix
         return preview_suffix(session,trip_id,snapshot,intent,request_id,text)
