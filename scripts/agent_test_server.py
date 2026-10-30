@@ -28,6 +28,12 @@ with tempfile.TemporaryDirectory(prefix='agent-v3-browser-') as folder:
     from planning_model_fixture import install
     install()
     moment=datetime.fromisoformat('2030-05-01T09:40:00+08:00')
+    from fastapi import Body
+    @app.post('/api/e2e/clock',include_in_schema=False)
+    def test_clock(body:dict=Body(...)):
+        global moment
+        moment=datetime.fromisoformat('2030-05-01T'+body['time']+':00+08:00')
+        return {'time':moment.isoformat()}
     for module in (storage,session,state,context,service,tools,engine):module.now=lambda:moment
     seed();init_memory()
     data=json.loads((ROOT/'backend/tests/fixtures/engine_synthetic.json').read_text())

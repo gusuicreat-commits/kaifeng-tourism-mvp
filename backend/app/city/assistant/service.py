@@ -104,16 +104,38 @@ def _query(text, snapshot, intent):
                 reply = f'按当前有效场次资料，{name}于{item.starts_at.astimezone(TZ).strftime("%H:%M")}开始。'
                 reply += f'距开演约{(delta+59)//60}分钟；这不是现场开演监测。' if delta > 0 else '公告开始时刻已到或已过，不能据此判断现场是否正在演出。'
         else:
-            rules = [r for r in snapshot.planning.facts.values() if isinstance(r,facts.OpenRule)
-                     and r.place_id == item.fact_id and r.business_date == now().astimezone(TZ).date()]
-            valid = [r for r in rules if snapshot.planning.ready(r,now())]
-            answer_ready = bool(answer_ready and valid)
-            used_facts.extend(context.fact_view(r,snapshot.planning.facts,now()) for r in rules)
-            inside = [r for r in valid if r.opens_at and r.opens_at <= now() < r.closes_at]
-            reply = context.label(snapshot.planning.facts,item.fact_id) + '：'
-            if not view['ready'] or not valid: reply += '缺少当前有效营业资料，不能判断现在是否营业。'
-            elif inside: reply += '按已核验营业规则，当前处于营业时段；实际营业情况仍需向商家确认。'
-            else: reply += '按当前有效营业规则，此时不在已记录的营业时段。'
+            items = snapshot.planning.facts; moment = now()
+            def readable(record):
+                # Coordinates gate navigation, not reference information; sources still gate its use.
+                return not facts.gaps(record,items,moment) and all(
+                    (source := items.get(('source',identity))) is not None and not facts.gaps(source,items,moment)
+                    for identity in record.source_ids)
+            rules = [r for r in items.values() if isinstance(r,facts.OpenRule)
+                     and r.place_id == item.fact_id and r.business_date == moment.astimezone(TZ).date()]
+            valid = [r for r in rules if readable(r)]
+            highlights = sorted((h for h in items.values() if isinstance(h,facts.Highlight)
+                                 and h.place_id == item.fact_id and facts.planning_visible(h) and readable(h)),
+                                key=lambda h:(h.sort_order,h.fact_id))[:5]
+            answer_ready = bool(valid or highlights)
+            used_facts.extend(context.fact_view(r,items,moment) for r in rules + highlights)
+            name = context.label(items,item.fact_id)
+            if not answer_ready: reply = name + '：暂无今天的营业时间和看点资料。'
+            else:
+                timed = sorted((r for r in valid if r.opens_at and r.closes_at),key=lambda r:r.opens_at)
+                reply = name + '（参考资料，未现场核验）：'
+                if timed:
+                    # Several sources can repeat the same window; show each window once.
+                    windows = dict.fromkeys(f'{r.opens_at.astimezone(TZ):%H:%M}–{r.closes_at.astimezone(TZ):%H:%M}' for r in timed)
+                    reply += '今天 ' + '、'.join(windows) + ' 开放'
+                    last_entry = max((r.last_entry_at for r in timed if r.last_entry_at),default=None)
+                    if last_entry: reply += f'，最晚 {last_entry.astimezone(TZ):%H:%M} 入园'
+                    reply += '，现在在开放时段内' if any(r.opens_at <= moment < r.closes_at for r in timed) else '，现在不在开放时段'
+                else: reply += '今天的营业时间暂无资料'
+                if any(r.reservation == 'required' for r in valid): reply += '；需要预约'
+                if any(r.ticket_required is True for r in valid): reply += '；需购票入园'
+                if highlights: reply += '。看点：' + '、'.join(redact(h.name) for h in highlights)
+                if re.search(r'门票|票价|多少钱|价格',text): reply += '。门票价格暂无资料，请以景区官方渠道为准'
+                reply += '。实际情况以景区当天公告为准。'
         return {'status':'answered' if answer_ready else 'needs_data','reply':reply,
                 'references':[ref.model_dump()], 'facts':used_facts}
     if topic == 'travel':

@@ -59,6 +59,9 @@ def rules(text, snapshot):
     topic = purpose(text)
     data = {'operation':'unknown','purpose':topic,'references':explicit_references(text,snapshot)}
     question = any(w in text for w in ('怎么','什么','哪里','哪家','几点','多久','是否','有没有','？','?'))
+    # Named-place questions use reference facts even before a route exists.
+    if topic == 'trip' and question and any(r.kind == 'place' for r in data['references']):
+        data['purpose'] = 'reference'
     if re.search(r'还是不要改|还是不改|不改了|放弃(?:这次|刚才的)?(?:修改|方案|调整)|取消(?:这次|刚才的)?(?:修改|方案|调整)',text) and not question:
         return Intent(operation='cancel',purpose='modify')
     restored = re.search(r'恢复(?:到)?第?(\d+)版',text)

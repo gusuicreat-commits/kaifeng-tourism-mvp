@@ -13,7 +13,7 @@ from app.city import facts
 from app.city.assistant import context
 from app.city.agent import service, understand, provider, toolbelt
 from app.city.agent.models import Understanding, Constraint, Action
-from test_city_assistant import city, walking, planned, get, modify, rid, path, confirm
+from test_city_assistant import city, scenic, walking, planned, get, modify, rid, path, confirm
 from test_city_engine import sample
 
 
@@ -88,6 +88,20 @@ def test_next_semantic_online_and_deterministic_offline(city,monkeypatch,online)
     assert len(calls)==int(online) and t['metrics']['model_calls']==int(online)
     assert t['mode']=='direct' and t['result']['next_stop']['stop_id']=='lunch'
     assert t['metrics']['tools']==0 and get(city)==before
+
+
+@pytest.mark.parametrize('online',[False,True])
+@pytest.mark.parametrize('question',['有什么好看的？','今天几点关门？','门票多少钱？'])
+def test_scenic_reference_uses_v3_without_a_confirmed_route(scenic,monkeypatch,online,question):
+    before=get(scenic);text='[合成测试]景区'+question
+    monkeypatch.setattr(language,'available',lambda:online)
+    monkeypatch.setattr(provider,'generate',lambda *a,**k:(
+        {'actions':[{'kind':'query','quote':text,'purpose':'reference'}]}, {'source':'mock_model'}))
+    task=run(scenic,text)
+    assert task['result']['status']=='answered',task
+    assert '09:00–22:00' in task['result']['reply'] and '看点：虹桥、水榭、古塔' in task['result']['reply']
+    assert ('门票价格暂无资料' in task['result']['reply']) == ('门票' in question)
+    assert get(scenic)==before and before['route_version']==0
 
 
 def test_offline_react_fixture_preview_and_confirmation(city):

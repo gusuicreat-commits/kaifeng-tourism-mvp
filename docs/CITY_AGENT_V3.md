@@ -1,5 +1,15 @@
 # 小汴梁 V3 实施与验收
 
+## A13 景区参考资料查询（2026-10-28，本地候选）
+
+地点文字问答用 `facts.gaps` 检查当天营业规则和来源，不再递归要求地点坐标齐全；规划/导航的 ready 判断保持原规则。看点同样检查公开可见性及来源，按 sort_order 和 ID 排序取前五项。回复标注参考资料、未现场核验；没有价格时明确缺失，不用模型补价。演出分支保持原行为。
+
+V2 对明确地点引用的普通问句使用 reference；V3 无模型回退也读取这个带引用的 purpose，避免因为纯文本 purpose 为 trip 而阻断本地查询。有模型路径仍只使用经过校验的语义 action，未改提示词或契约。回归入口为 `test_city_assistant.py` 及 `test_city_agent.py`，覆盖无坐标、时段边界、价格缺失、来源不可用、私有/旧地点、看点排序和 V3 无正式路线时查询；V3 的“模型可用”用例使用替身，不是真实模型请求。
+
+旧断言两处按新文案更新：餐厅有效规则由“营业时段”改为“现在在开放时段内”；规则过期由“缺少当前有效”改为 needs_data 及明确暂无资料。讲稿回放断言未修改。后端全量 2976 passed / 9 skipped，专项 103 passed；尚未合并到 main 或加载运行服务。
+
+离线复验命令：`.venv/bin/python -m pytest backend/tests -q -p no:cacheprovider`；前端本地 `vue-tsc --noEmit`、`vite build --configLoader runner`；Playwright 六组配置 `agent / 默认 / services / reference / weather / multi-day`。浏览器共 136 passed / 1 skipped（真实 SDK）；扩展后的素材篮连续闭环用例再以 `--grep 'basket planning uses' --repeat-each 10` 运行，10 passed。原 worktree 输出目录受限，构建及浏览器在 `/tmp` 的源码隔离副本执行，使用同一份源码与共享已安装依赖，未联网安装依赖。到达状态通过测试服务器独有的 `/api/e2e/clock` 及状态 API 准备；该时钟接口不属于生产应用入口。
+
 > 本页保留V3各轮实现与验收。2026-10-23主版本已合并地点搜索和参考问路；总体状态及未通过项见 [PROJECT_STATUS](PROJECT_STATUS.md)，最新主版本记录见 [MAIN_REFERENCE_MERGE_ACCEPTANCE](MAIN_REFERENCE_MERGE_ACCEPTANCE.md)。下文各日期的测试数、BLOCKED或待接通项仅适用于对应轮次。
 
 2026-10-21。依据用户提供的 [V3 设计稿](reference/ASSISTANT_V3_DESIGN.md)，在 V2 上增量实现。**V3.4已在隔离合成数据中完成一次真实Kimi有限ReAct与显式确认闭环；真实开封业务与游客效果尚未验收。**

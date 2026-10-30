@@ -860,7 +860,7 @@ def parse(text,snapshot,*,allow_model=True):
         if planning:return Understanding(actions=(Action(kind='modify',quote=text[:500]),),planning=planning),meta
         if not local.constraints and all(a.kind=='modify' for a in local.actions) and interpret.rules(text,snapshot).operation=='unknown':
             return local.model_copy(update={'unresolved':('小汴梁暂时连不上，可以先用下方选项安排。',)}),meta
-        if not state_read and all(a.kind=='query' for a in local.actions) and interpret.purpose(text)=='trip':
+        if not state_read and all(a.kind=='query' for a in local.actions) and interpret.rules(text,snapshot).purpose=='trip':
             return local.model_copy(update={'unresolved':('暂时无法连接小汴梁，请稍后再试。',)}),meta
         return local,meta
     # With a configured model there are no free-text business-route bypasses.

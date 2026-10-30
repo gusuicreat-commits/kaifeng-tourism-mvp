@@ -1,5 +1,9 @@
 import {test,expect,type Page} from '@playwright/test'
 
+test.afterEach(async({request})=>{
+ await request.post('/api/e2e/clock',{data:{time:'09:40'}})
+})
+
 async function prepare(page:Page){
  const request=page.request
  await request.post('/api/v1/sessions')
@@ -88,6 +92,24 @@ test('basket planning uses the existing engine, blocks stale preview, then confi
  const start=new Date(official.activities[0].starts_at).toLocaleTimeString('zh-CN',{timeZone:'Asia/Shanghai',hour:'2-digit',minute:'2-digit',hour12:false})
  await expect(page.locator('.flow-activity .timeline-clock').first()).toHaveText(start)
  await expect(page.locator('.journey-next-card')).toContainText('预计转场')
+ // Continue the same trip through a confirmed change, rather than starting a second fixture.
+ await page.request.post('/api/e2e/clock',{data:{time:'10:10'}})
+ let active=await(await page.request.get(path)).json()
+ for(const action of [{operation:'transition',status:'ACTIVE'},
+  {operation:'set_anchor',anchor:{place_id:'museum',confirmed_at:'2030-05-01T10:10:00+08:00'}}]){
+  const response=await page.request.patch(path,{data:{request_id:crypto.randomUUID(),expected_version:active.version,action}})
+  expect(response.ok(),await response.text()).toBeTruthy();active=await response.json()
+ }
+ await page.goto('/assistant?city_trip='+trip.id)
+ await page.getByLabel('告诉小汴梁你的问题或想调整的安排').fill('今天后面尽量少走路。')
+ await page.getByRole('button',{name:'发送',exact:true}).click()
+ await expect(page.getByRole('heading',{name:'请核对新安排'})).toBeVisible()
+ expect(await(await page.request.get(path)).json()).toEqual(active)
+ await page.getByRole('button',{name:'确认修改',exact:true}).click()
+ await expect(page.getByLabel('城市旅行对话')).toContainText('确认成功，已读取最新正式路线。')
+ expect((await(await page.request.get(path)).json()).route_version).toBe(2)
+ await page.getByRole('link',{name:'返回行程'}).click()
+ await expect(page.locator('.journey-timeline')).toContainText('[合成测试]museum')
 })
 
 test('conflict negotiation persists a structured choice across refresh, recomputes, and only confirms on request',async({page})=>{

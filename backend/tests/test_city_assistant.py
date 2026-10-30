@@ -339,7 +339,7 @@ def test_position_report_is_confirmed_user_report_not_live_tracking(city):
 def test_restaurant_query_uses_latest_open_rule_and_transport_uses_known_arc(city):
     e=city;walking(e)
     response=ask(e,'那家店现在还营业吗？').json()
-    assert response['status']=='answered' and '营业时段' in response['reply']
+    assert response['status']=='answered' and '现在在开放时段内' in response['reply']
     response=ask(e,'从这里到下一站要多久？').json()
     # Explicit travel question must not be mistaken for a mere next-stop query.
     assert 'travel' in response and response['travel']['upper_seconds']>0
@@ -348,7 +348,119 @@ def test_restaurant_query_uses_latest_open_rule_and_transport_uses_known_arc(cit
         item=rules[0].model_dump(mode='json')|{'version':2,'effective_to':'2029-01-01T00:00:00+08:00'}
         facts.import_bundle(facts.FactBundle(records=[item]),db,apply=True)
     response=ask(e,'那家店现在还营业吗？').json()
-    assert '缺少当前有效' in response['reply']
+    assert response['status']=='needs_data' and response['reply']=='[合成测试]restaurant：暂无今天的营业时间和看点资料。'
+
+
+@pytest.fixture
+def scenic(city,monkeypatch):
+    meta={'planning_status':'reference','planning_note':'合成参考资料，仅用于测试','rights_status':'permitted'}
+    records=[
+        meta|{'kind':'source','fact_id':'scenic-source','name':'合成来源','source_type':'official',
+              'locator':'合成公告','collected_at':'2020-01-01T00:00:00+08:00'},
+        meta|{'kind':'place','fact_id':'scenic','name':'[合成测试]景区','place_type':'scenic','source_ids':['scenic-source']},
+        meta|{'kind':'open_rule','fact_id':'scenic-rule','place_id':'scenic','source_ids':['scenic-source'],
+              'business_date':'2030-05-01','opens_at':'2030-05-01T09:00:00+08:00',
+              'closes_at':'2030-05-01T22:00:00+08:00','last_entry_at':'2030-05-01T21:00:00+08:00',
+              'reservation':'required','ticket_required':True},
+        *(meta|{'kind':'highlight','fact_id':f'scenic-highlight-{i}','place_id':'scenic',
+                'source_ids':['scenic-source'],'name':name,'sort_order':i}
+          for i,name in ((3,'古塔'),(1,'虹桥'),(2,'水榭')))]
+    with connect() as db:facts.import_bundle(facts.FactBundle(records=records),db,apply=True)
+    monkeypatch.setattr(language,'available',lambda:True)
+    monkeypatch.setattr(language,'_call',lambda *_:{'operation':'query','purpose':'reference'})
+    return city
+
+
+def revise_fact(kind,identity,**changes):
+    with connect() as db:
+        item=facts.records(db)[kind,identity]
+        facts.import_bundle(facts.FactBundle(records=[item.model_dump(mode='json')|{'version':item.version+1}|changes]),db,apply=True)
+
+
+@pytest.mark.parametrize('time,inside', [('09:00',True),('14:30',True),('08:00',False),('22:00',False)])
+def test_scenic_reference_hours_and_highlights_do_not_require_coordinates(scenic,time,inside):
+    e=scenic;e['clock'][0]=datetime.fromisoformat(f'2030-05-01T{time}:00+08:00')
+    response=ask(e,'[合成测试]景区有什么好看的？').json()
+    assert response['status']=='answered'
+    assert response['reply']==('[合成测试]景区（参考资料，未现场核验）：今天 09:00–22:00 开放，最晚 21:00 入园，'
+        +('现在在开放时段内' if inside else '现在不在开放时段')
+        +'；需要预约；需购票入园。看点：虹桥、水榭、古塔。实际情况以景区当天公告为准。')
+    assert response['references']==[{'kind':'place','id':'scenic'}]
+    assert [v['id'] for v in response['facts']]==['scenic','scenic-rule','scenic-highlight-1','scenic-highlight-2','scenic-highlight-3']
+    assert 'LOCATION_UNKNOWN' in response['facts'][0]['issues']
+    assert response['facts'][1]['ready'] is False
+    with connect() as db:
+        items=facts.records(db)
+        assert facts.gaps(items['open_rule','scenic-rule'],items,e['clock'][0])==[]
+        assert not engine.context(db).ready(items['open_rule','scenic-rule'],e['clock'][0])
+
+
+def test_scenic_repeated_rule_windows_are_shown_once(scenic):
+    e=scenic;e['clock'][0]=datetime.fromisoformat('2030-05-01T10:00:00+08:00')
+    with connect() as db:
+        rule=facts.records(db)['open_rule','scenic-rule'].model_dump(mode='json')
+        facts.import_bundle(facts.FactBundle(records=[rule|{'fact_id':'scenic-rule-copy','version':1}]),db,apply=True)
+    reply=ask(e,'[合成测试]景区几点关门？').json()['reply']
+    assert '今天 09:00–22:00 开放，最晚 21:00 入园' in reply and reply.count('09:00–22:00')==1
+
+
+@pytest.mark.parametrize('question', ['门票多少钱','票价是多少','价格有资料吗','门票怎么买'])
+def test_scenic_ticket_price_is_explicitly_unknown(scenic,question):
+    response=ask(scenic,'[合成测试]景区'+question+'？').json()
+    assert response['status']=='answered' and '门票价格暂无资料，请以景区官方渠道为准' in response['reply']
+
+
+@pytest.mark.parametrize('reservation,ticket', [('required',True),('not_required',False),('unknown',None)])
+def test_scenic_access_reminders_only_use_explicit_rule_values(scenic,reservation,ticket):
+    revise_fact('open_rule','scenic-rule',reservation=reservation,ticket_required=ticket,last_entry_at=None)
+    response=ask(scenic,'[合成测试]景区有什么好看的？').json()
+    assert ('需要预约' in response['reply']) == (reservation=='required')
+    assert ('需购票入园' in response['reply']) == (ticket is True)
+    assert '最晚' not in response['reply'] and '门票价格暂无资料' not in response['reply']
+
+
+@pytest.mark.parametrize('with_highlights', [True,False])
+def test_scenic_without_today_rule_uses_highlights_or_needs_data(scenic,with_highlights):
+    with connect() as db:
+        db.execute("DELETE FROM city_facts WHERE kind='open_rule' AND id='scenic-rule'")
+        if not with_highlights:db.execute("DELETE FROM city_facts WHERE kind='highlight'")
+    response=ask(scenic,'[合成测试]景区有什么好看的？').json()
+    if with_highlights:
+        assert response['status']=='answered' and '今天的营业时间暂无资料。看点：虹桥、水榭、古塔' in response['reply']
+        assert '需要预约' not in response['reply'] and '需购票入园' not in response['reply']
+    else:
+        assert response['status']=='needs_data' and response['reply']=='[合成测试]景区：暂无今天的营业时间和看点资料。'
+
+
+@pytest.mark.parametrize('missing_source', [False,True])
+def test_scenic_rule_with_unusable_source_is_not_used(scenic,missing_source):
+    if missing_source:
+        with connect() as db:db.execute("DELETE FROM city_facts WHERE kind='source' AND id='scenic-source'")
+    else:revise_fact('source','scenic-source',rights_status='unknown')
+    response=ask(scenic,'[合成测试]景区今天几点关门？').json()
+    assert response['status']=='needs_data' and response['reply']=='[合成测试]景区：暂无今天的营业时间和看点资料。'
+    assert '09:00' not in response['reply'] and '需要预约' not in response['reply']
+
+
+def test_scenic_highlights_are_sorted_limited_and_public(scenic):
+    with connect() as db:
+        template=facts.records(db)['highlight','scenic-highlight-1'].model_dump(mode='json')
+        records=[template|{'fact_id':f'extra-{i}','name':f'看点{i}','sort_order':i} for i in range(4,8)]
+        records.append(template|{'fact_id':'private-highlight','name':'不可公开看点','sort_order':0,'rights_status':'unknown'})
+        facts.import_bundle(facts.FactBundle(records=records),db,apply=True)
+    response=ask(scenic,'[合成测试]景区有什么好看的？').json()
+    assert '看点：虹桥、水榭、古塔、看点4、看点5。' in response['reply']
+    assert [v['name'] for v in response['facts'] if v['kind']=='highlight']==['虹桥','水榭','古塔','看点4','看点5']
+
+
+@pytest.mark.parametrize('changes', [{'superseded_by':'museum'},{'rights_status':'unknown'},
+                                    {'rights_status':'internal_only','planning_status':'candidate'}])
+def test_scenic_hidden_or_superseded_reference_still_cannot_be_answered(scenic,monkeypatch,changes):
+    revise_fact('place','scenic',**changes)
+    monkeypatch.setattr(interpret,'resolve_reference',lambda *_:[service.Reference(kind='place',id='scenic')])
+    response=ask(scenic,'那个景区有什么好看的？').json()
+    assert response['status']=='needs_data'
+    assert response['reply']=='没有可公开使用的对应资料，不能用旧聊天代替当前事实。'
 
 
 def test_formal_plan_does_not_disappear_when_dialogue_summary_is_lost(city):
