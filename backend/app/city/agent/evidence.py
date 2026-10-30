@@ -127,7 +127,7 @@ PREFERENCE_CUES={
     # quote is grounded by the caller; this table only keeps the strict mode gate.
     'pace':{},
     'objective':{},
-    'mode':{'walking':r'步行|走路','driving':r'开车|驾车|自驾','transit':r'公交|公共交通|巴士|地铁'},
+    'mode':{'walking':r'步行|走路','driving':r'开车|驾车|自驾|打车|出租|的士|网约车','transit':r'公交|公共交通|巴士|地铁'},
 }
 
 
@@ -139,5 +139,5 @@ def preference_evidence(field,value,quote):
         return
     pattern=PREFERENCE_CUES[field].get(value,r'(?!)')
     if not re.search(pattern,quote):raise ValueError('invented preference or mode')
-    if re.search(r'(?:不要|不想|不是要|并非要|不用|不坐|不乘).{0,3}(?:'+pattern+r')',quote):
+    if re.search(r'(?:不要|不想|不是要|并非要|不用|(?<!要)不坐|(?<!要)不乘).{0,3}(?:'+pattern+r')',quote) or re.search(r'(?<!要)(?:不|别)(?:'+pattern+r')',quote):
         raise ValueError('negated preference or mode')

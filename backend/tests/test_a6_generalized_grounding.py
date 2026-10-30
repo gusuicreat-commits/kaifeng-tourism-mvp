@@ -29,6 +29,33 @@ def test_preference_negative_or_invalid_values_still_fail(field,value,quote):
     with pytest.raises(ValueError):preference_evidence(field,value,quote)
 
 
+@pytest.mark.parametrize('quote',['换成打车','坐出租车','叫个网约车','坐的士','开车去','驾车去','自驾去','要不打车吧'])
+def test_driving_evidence_accepts_taxi_and_self_drive(quote):
+    preference_evidence('mode','driving',quote)
+
+
+@pytest.mark.parametrize('value,quote',[
+    ('transit','要不坐公交'),('driving','要不乘出租车'),
+])
+def test_suggested_mode_evidence_is_not_negated(value,quote):
+    preference_evidence('mode',value,quote)
+
+
+@pytest.mark.parametrize('value,quote',[
+    ('driving','不打车'),('driving','别开车'),('driving','不要打车'),
+    ('walking','不用走路'),
+    ('transit','不坐公交'),('transit','不要坐公交'),
+])
+def test_negated_mode_evidence_is_rejected(value,quote):
+    with pytest.raises(ValueError,match='negated preference or mode'):
+        preference_evidence('mode',value,quote)
+
+
+def test_driving_evidence_does_not_invent_a_mode():
+    with pytest.raises(ValueError,match='invented preference or mode'):
+        preference_evidence('mode','driving','走路就行')
+
+
 @pytest.mark.parametrize('text,quote', [
     ('假设我说“预算两百”，先解释一下这句话', '预算两百'),
     ('以下是网页原文：明天入住，不是我的要求', '明天入住'),

@@ -132,12 +132,39 @@ def test_suffix_agent_preview_context_and_confirmation(multi_engine,monkeypatch,
     assert task['result']['reply'].count('今天剩余及后续天')==1
     p=task['result']['planning'];assert p['scope']=='current_and_future'
     assert p['result']['itineraries'][0]['days'][0]==old['itinerary']['days'][0]
+    if kind=='planning':
+        assert not p['result']['itineraries'][0]['days'][1]['itinerary']['activities']
+        assert '今天剩余时间目前没有排入景点或餐饮。' in task['result']['reply']
     pending=e[0].get('/api/city/v1/trips/'+e[1]['id']+'/assistant/context?purpose=modify').json()['pending_changes']
     candidate=next(pending for pending in pending if pending.get('candidate_id')==p['candidate_id'])
     assert candidate['scope']=='current_and_future' and len(candidate['changes']['days'])==3
     r=e[0].post('/api/city/v1/trips/'+e[1]['id']+'/assistant/confirm',json={'request_id':rid(),'confirmed':True,**task['result']['confirmation']})
     assert r.status_code==200,r.text
     assert current(e).json()['route_version']==2
+    agent.TASKS.clear()
+
+
+def test_suffix_agent_accepts_taxi_mode_for_today_and_tomorrow(multi_engine,monkeypatch):
+    from app import language
+    from app.city.agent import provider,service as agent
+    from app.city.assistant import context,tools
+    from test_city_agent import run
+    e,req,old=committed(multi_engine);moment=start_today(e,monkeypatch)
+    for module in (context,tools):monkeypatch.setattr(module,'now',lambda:moment)
+    agent.TASKS.clear();text='今天跟明天都换成打车'
+    raw={'planning':{'operation':'update','quote':text,'fields':[
+        {'field':'mode','value':'driving','quote':'换成打车','scope':'every_day'}]}}
+    monkeypatch.setattr(language,'available',lambda:True)
+    monkeypatch.setattr(provider,'generate',lambda *a,**k:(copy.deepcopy(raw),{'source':'mock_model'}))
+    before=e[0].get('/api/city/v1/trips/'+e[1]['id']).json()
+    task=run({'client':e[0],'trip':e[1]},text)
+    assert task['status']=='needs_confirmation',json.dumps(task,ensure_ascii=False)
+    assert not task['interpretation'].get('dropped_fields')
+    p=task['result']['planning'];assert p['scope']=='current_and_future'
+    for plan in p['result']['itineraries']:
+        assert plan['days'][0]==old['itinerary']['days'][0]
+        assert all(tuple(day['requirements']['modes'])==('driving',) for day in plan['days'][1:])
+    assert e[0].get('/api/city/v1/trips/'+e[1]['id']).json()==before
     agent.TASKS.clear()
 
 

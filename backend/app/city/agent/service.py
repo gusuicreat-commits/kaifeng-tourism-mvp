@@ -407,7 +407,7 @@ def _preview_result(result,snapshot,intent=None):
             arrival=returns_at.strftime('%H:%M')
             if returns_at.date().isoformat()!=str(business_date):arrival=f'{returns_at.month}月{returns_at.day}日'+arrival
             detail+=f'预计{arrival}到达结束地点。'
-        else:detail+='这一天目前没有排入景点或餐饮。'
+        else:detail+='今天剩余时间目前没有排入景点或餐饮。' if result.get('scope')=='current_and_future' else '这一天目前没有排入景点或餐饮。'
     return {'status':'needs_confirmation','reply':echo+detail+'方案已准备好，看看是否合适，点“确认方案”后保存。',
             'activity_names':names,
             'planning':result,'changes':result['changes'],
