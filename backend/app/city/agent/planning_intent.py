@@ -120,7 +120,10 @@ def grounded(planning, text, snapshot, dropped=None, meta=None, corrections=()):
             planning=planning.model_copy(update={'operation':'update'})
             return grounded(planning,text,snapshot,dropped,meta,corrections)
         control=planning.quote.strip().rstrip('。！!')
-        if control not in ('好','好的','可以','就这样','就这样吧','就按这个安排','生成安排','开始安排','帮我安排','安排','规划') and not re.search(r'(?:开始|生成|继续|帮我|请).{0,20}(?:安排|规划)',control):
+        if control not in ('好','好的','可以','就这样','就这样吧','就按这个安排','生成安排','开始安排','帮我安排','安排','规划') and not re.search(
+                r'(?:开始|生成|继续|帮我|给我|请|直接)\S{0,20}(?:安排|规划|排)'
+                r'|(?:安排|规划|排|做|出|生成|定)(?:个|一个|一下|一份|份)?(?:一日游)?(?:行程|路线|方案|计划|攻略)'
+                r'|看着(?:安排|排|办)',control):
             raise ValueError('continue needs an explicit planning request')
     from .date_range import day_key,day_reference,quoted_day_ref,scope_check,daily_evidence,multiple_days
     from .requirement_context import planning_values

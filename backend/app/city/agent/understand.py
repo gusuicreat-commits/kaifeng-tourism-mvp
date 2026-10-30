@@ -1101,6 +1101,16 @@ def parse(text,snapshot,*,allow_model=True):
                              corrections=merged_corrections,unresolved=merged_unresolved,
                              planning=result.planning,conversation=result.conversation,route_query=result.route_query,
                              weather_query=result.weather_query,service_query=result.service_query,state_request=result.state_request)
+        if not snapshot.route.get('itinerary') and result.planning is None and result.constraints \
+                and all(c.field in ('pace','objective') for c in result.constraints) \
+                and not result.corrections and not result.state_request and result.actions and all(a.kind=='preference' for a in result.actions):
+            from .models import PlanningIntent,PlanningField
+            # Preferences on an unplanned trip belong to the planning workspace, not a route replan.
+            planning=PlanningIntent(operation='update',quote=text,
+                fields=tuple(PlanningField(field=c.field,value=c.value,quote=c.quote) for c in result.constraints),choices=())
+            planning=planning_intent.grounded(planning,text,snapshot,[],meta)
+            result=result.model_copy(update={'planning':planning,'constraints':(),'actions':()})
+            meta.setdefault('recovered_fields',[]).append({'from':'constraints','to':'planning'})
         meta['basis']='kimi_validated';meta['source']=usage.get('source','mock_model');return result,meta
     except (HTTPException,ValidationError,ValueError,TypeError) as exc:
         # Record which check failed and where, never raw model output or visitor text.

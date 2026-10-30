@@ -151,7 +151,7 @@ watch(memoryEpoch,()=>{resetLocal();error.value='记录已清除';busy.value=fal
     <LocationPicker :query="form.destination_text||''" label="返回地点" :disabled="busy" @confirmed="(name,factId)=>applyLocation('destination',name,factId)"/>
    </div>
   </template>
-  <template v-else-if="step==='party'"><div class="planning-picks" role="group" aria-label="旅行人数"><button v-for="n in 5" :key="n" type="button" :aria-pressed="partySize===n" :disabled="busy" @click="chooseParty(n)">{{n}} 人</button></div><label>旅行人数<input v-model.number="partySize" type="number" min="1" max="50" step="1" required :disabled="busy"></label></template>
+  <template v-else-if="step==='party'"><div class="planning-picks" role="group" aria-label="快捷选择人数"><button v-for="n in 5" :key="n" type="button" :aria-pressed="partySize===n" :disabled="busy" @click="chooseParty(n)">{{n}} 人</button></div><label>旅行人数<input v-model.number="partySize" type="number" min="1" max="50" step="1" required :disabled="busy"></label></template>
   <div v-else-if="step==='mode'" class="planning-mode-cards" role="group" aria-label="选择互动模式"><button v-for="mode in (['deep','quick'] as const)" :key="mode" type="button" :aria-pressed="interactionMode===mode" :disabled="busy" @click="selectMode(mode)"><strong>{{mode==='deep'?'深度互动':'快速安排'}}</strong><span>{{mode==='deep'?'我先问你几个偏好，再排行程':'按默认偏好直接生成，之后随时可改'}}</span></button></div>
   <template v-else-if="step==='preferences'">
    <fieldset class="planning-preference" :disabled="busy"><legend>游玩节奏</legend><div class="planning-picks"><button v-for="option in ([['relaxed','轻松'],['standard','适中'],['compact','紧凑']] as const)" :key="option[0]" type="button" :aria-pressed="form.pace===option[0]" @click="form.pace=option[0]">{{option[1]}}</button></div></fieldset>

@@ -71,7 +71,7 @@ test('快速安排跳过偏好并直接生成，模式刷新保持，已选模�
  await page.reload();await expect(page.getByRole('group',{name:'互动模式',exact:true}).getByRole('button',{name:'快速安排',exact:true})).toHaveAttribute('aria-pressed','true')
  await page.getByLabel('已提供的安排').getByRole('button',{name:'2 人',exact:true}).click();await page.locator('.planning-question').getByRole('button',{name:'3 人',exact:true}).click()
  await expect(page.getByRole('group',{name:'选择互动模式',exact:true})).toHaveCount(0)
- expect(previews.at(-1)?.party_size).toBe(3)
+ await expect.poll(()=>previews.at(-1)?.party_size).toBe(3)
 })
 
 test('ready 和偏好步骤随时切换，聊天和表单立即共用模式',async({page})=>{

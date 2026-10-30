@@ -8,13 +8,16 @@ from uuid import uuid4
 import pytest
 
 from app import language
-from app.city.agent import provider
+from app.city.agent import provider, planning_intent, understand
+from app.city.agent.models import PlanningIntent
 from app.city.agent.orchestration import QUICK_PLACE_ID
 from app.city.assistant import context, service as assistant_service, tools
 from app.city.engine import service as engine_service
 from app.city import state
 from app.memory import session as memory_session, storage as memory_storage
 from app.db import connect
+from test_city_assistant import city, planned
+from test_city_agent import snapshot
 
 
 def _path(e, suffix=''):
@@ -150,3 +153,93 @@ def test_start_task_invalid_interaction_mode_returns_422(reference_city):
         'request_id':str(uuid4()),'text':'安排一下','expected_version':current['version'],
         'expected_route_version':current['route_version'],'interaction_mode':'fast'})
     assert response.status_code==422
+
+
+@pytest.mark.parametrize('text',[
+    '直接帮我排个行程吧','给我安排一下','排个路线','看着安排吧',
+    '请替我们规划一份方案','做个一日游攻略','你看着办吧',
+])
+def test_continue_accepts_explicit_planning_requests(city,text):
+    snap,_=snapshot(city)
+    intent=PlanningIntent(operation='continue',quote=text)
+    assert planning_intent.grounded(intent,text,snap)==intent
+
+
+@pytest.mark.parametrize('text',[
+    '行程排得太满了','我不想排太多景点','这个方案不行','你安排得太紧了',
+])
+def test_continue_rejects_non_planning_requests(city,text):
+    snap,_=snapshot(city)
+    with pytest.raises(ValueError,match='continue needs an explicit planning request'):
+        planning_intent.grounded(PlanningIntent(operation='continue',quote=text),text,snap)
+
+
+@pytest.mark.parametrize('mode',['quick','deep'])
+def test_continue_without_fields_uses_interaction_mode(reference_city,monkeypatch,mode):
+    text='直接帮我排个行程吧'
+    raw={'planning':{'operation':'continue','quote':text,'fields':[],'choices':[]}}
+    task=_run(reference_city,text,mode,raw,monkeypatch)
+    assert task['mode']=='planning',task
+    assert task['understanding']['planning']['operation']=='continue'
+    if mode=='quick':
+        assert task['status']=='answered',task
+        assert '没说的我先按' in task['result']['reply'] and '确认方案' in task['result']['reply']
+        assert saved(reference_city)['business_date']=='2026-10-25'
+    else:
+        assert task['status']=='needs_clarification',task
+        assert task['result']['reply'].startswith('你打算哪天去？')
+
+
+def _preference_output(text):
+    return {'actions':[{'kind':'preference','quote':text}], 'constraints':[
+        {'field':'pace','value':'relaxed','strength':'soft','quote':text},
+        {'field':'objective','value':'lower_cost','strength':'soft','quote':text}]}
+
+
+@pytest.mark.parametrize('mode',['quick','deep'])
+@pytest.mark.parametrize('text',['不想太累，别花太多钱','步调放缓些，花销压低些','轻松一点，尽量省钱'])
+def test_unplanned_preferences_recover_planning(reference_city,monkeypatch,mode,text):
+    task=_run(reference_city,text,mode,_preference_output(text),monkeypatch)
+    assert task['mode']=='planning',task
+    assert {'from':'constraints','to':'planning'} in task['interpretation']['recovered_fields']
+    intent=task['understanding']
+    assert not intent['constraints'] and not intent['actions']
+    assert intent['planning']['operation']=='update' and intent['planning']['quote']==text
+    assert {f['field']:f['value'] for f in intent['planning']['fields']}=={'pace':'relaxed','objective':'lower_cost'}
+    reply=task['result']['reply']
+    if mode=='quick':
+        assert task['status']=='answered' and '没说的我先按' in reply and '确认方案' in reply,task
+    else:
+        assert task['status']=='needs_clarification' and reply.startswith('你打算哪天去？'),task
+        assert '调整为放松' in reply
+    assert reference_city['client'].get(_path(reference_city)).json()['route_version']==0
+
+
+def test_confirmed_preferences_keep_workflow(city,monkeypatch):
+    planned(city)
+    monkeypatch.setattr(language,'available',lambda:True)
+    text='不想太累，别花太多钱'
+    task=_run(city,text,raw=_preference_output(text),monkeypatch=monkeypatch)
+    assert task['mode']=='workflow',task
+    assert task['understanding']['planning'] is None
+    assert len(task['understanding']['constraints'])==2
+    assert {'from':'constraints','to':'planning'} not in task['interpretation'].get('recovered_fields',[])
+
+
+@pytest.mark.parametrize('other',['food','correction','action','empty_actions'])
+def test_mixed_preferences_do_not_recover_planning(city,monkeypatch,other):
+    text='轻松一点，别花太多钱，想吃灌汤包'
+    raw=_preference_output(text)
+    if other=='food':raw['constraints'].append({'field':'food','value':'灌汤包','strength':'soft','quote':'想吃灌汤包'})
+    elif other=='correction':
+        text='紧凑一点，不，轻松一点，别花太多钱'
+        raw=_preference_output(text)
+        raw['corrections']=[{'before':'紧凑一点','after':'轻松一点','quote':text}]
+    elif other=='action':raw['actions'].append({'kind':'query','purpose':'trip','quote':text})
+    else:raw['actions']=[]
+    monkeypatch.setattr(language,'available',lambda:True)
+    monkeypatch.setattr(provider,'generate',lambda *a,**k:(copy.deepcopy(raw),{'source':'mock_model'}))
+    snap,_=snapshot(city)
+    intent,meta=understand.parse(text,snap)
+    assert intent.planning is None
+    assert {'from':'constraints','to':'planning'} not in meta.get('recovered_fields',[])
