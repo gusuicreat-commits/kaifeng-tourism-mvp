@@ -71,6 +71,7 @@ _PLAN_HISTORY=re.compile(r'方案|版本|第\d+版|恢复|撤销|放弃|修改|�
 # Closed class of city-wide "what is worth seeing" questions; own-plan words keep the plan answer.
 _CITY_HIGHLIGHTS=re.compile(r'(?:有什么|有啥|有哪些|哪些|哪里|哪儿|什么地方)(?:是|比较|最|特别)?(?:好玩|好看|好逛|值得|景点|景区|地方可以?[去玩逛])|值得(?:一)?[去玩逛看]|推荐(?:几个|一些|点)?(?:景点|景区|地方|去处)|好玩的(?:地方|景点)?')
 _OWN_PLAN=re.compile(r'下一站|下一个|接下来|还剩|剩下|行程里|路线里|计划里|已确认|我的(?:行程|路线|计划)')
+_DEIXIS=re.compile(r'那个|这个|那家|这家|那里|这里|那儿|这儿|那座|这座|它|刚才|上面')
 
 
 def _city_highlights(snapshot):
@@ -98,7 +99,7 @@ def _query(text, snapshot, intent):
     # "包公祠有什么好看的": a historic site, not plan history. Version words keep the history path.
     if topic == 'history' and interpret.place_references(text,snapshot) and not _PLAN_HISTORY.search(text):
         topic = 'reference'
-    if topic == 'trip' and _CITY_HIGHLIGHTS.search(text) and not _OWN_PLAN.search(text) and not interpret.place_references(text,snapshot):
+    if (topic == 'trip' or topic == 'reference' and not _DEIXIS.search(text)) and _CITY_HIGHLIGHTS.search(text) and not _OWN_PLAN.search(text) and not interpret.place_references(text,snapshot):
         return _city_highlights(snapshot)
     if topic == 'history':
         return {'status':'needs_clarification','reply':'你是要放弃尚未确认的修改，还是恢复某个历史正式版本？恢复请明确版本号，仍需按当前进度重新计算和确认。'}

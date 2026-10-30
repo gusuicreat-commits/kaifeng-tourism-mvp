@@ -597,6 +597,47 @@ def test_city_wide_question_lists_scenic_reference_without_a_route(scenic,monkey
     assert response['references']==[{'kind':'place','id':'scenic'}]
 
 
+@pytest.mark.parametrize('text,expected', [('开封有什么好玩的','city'),('包公祠有什么好看的','place'),('这家店怎么样','clarify')])
+def test_reference_query_keeps_city_place_and_ambiguous_answers(scenic,monkeypatch,text,expected):
+    from app.city.agent import provider
+    from test_city_agent import run
+    revise_fact('place','scenic',name='包公祠')
+    monkeypatch.setattr(provider,'generate',lambda *a,**k:({'actions':[
+        {'kind':'query','quote':text,'target_name':None,'purpose':'reference','near':False}]},{'source':'mock_model'}))
+    before=get(scenic)
+    response=run(scenic,text)['result']
+    if expected=='city':
+        assert response['status']=='answered',response
+        assert response['reply'].startswith('开封可参考的景区（参考资料，未现场核验）：包公祠')
+        assert '你想问哪一场演出或哪家店' not in response['reply']
+        assert response['references']==[{'kind':'place','id':'scenic'}]
+    elif expected=='place':
+        assert response['status']=='answered',response
+        assert response['reply'].startswith('包公祠（参考资料，未现场核验）：')
+        assert '看点：虹桥、水榭、古塔' in response['reply'] and '开封可参考的景区' not in response['reply']
+        assert response['references']==[{'kind':'place','id':'scenic'}]
+    else:
+        assert response['status']=='needs_clarification',response
+        assert response['reply']=='你想问哪一场演出或哪家店？'
+    assert get(scenic)==before
+
+
+def test_reference_deixis_uses_resolved_place_instead_of_city_highlights(scenic,monkeypatch):
+    from app.city.agent import provider
+    from test_city_agent import run
+    text='这里有什么好玩的'
+    monkeypatch.setattr(provider,'generate',lambda *a,**k:({'actions':[
+        {'kind':'query','quote':text,'target_name':None,'purpose':'reference','near':False}]},{'source':'mock_model'}))
+    monkeypatch.setattr(interpret,'resolve_reference',lambda *_:[service.Reference(kind='place',id='scenic')])
+    before=get(scenic)
+    response=run(scenic,text)['result']
+    assert response['status']=='answered',response
+    assert response['reply'].startswith('[合成测试]景区（参考资料，未现场核验）：')
+    assert '看点：虹桥、水榭、古塔' in response['reply'] and '开封可参考的景区' not in response['reply']
+    assert response['references']==[{'kind':'place','id':'scenic'}]
+    assert get(scenic)==before
+
+
 def test_own_plan_question_keeps_the_plan_answer(scenic,monkeypatch):
     monkeypatch.setattr(language,'_call',lambda *_:{'operation':'query','purpose':'trip'})
     response=ask(scenic,'我的行程里还剩哪些景点值得去？').json()
