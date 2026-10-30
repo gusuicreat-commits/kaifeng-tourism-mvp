@@ -22,12 +22,91 @@ async function prepare(page:Page){
  return {trip,path}
 }
 
+async function preparePreferences(page:Page){
+ await page.request.post('/api/v1/sessions')
+ const draft={business_date:'2030-05-01',starts_at:'2030-05-01T10:00:00+08:00',ends_at:'2030-05-01T20:00:00+08:00',origin_place_id:'origin',destination_place_id:'hotel',modes:['walking'],stops:[]}
+ const response=await page.request.post('/api/city/v1/trips',{data:{request_id:crypto.randomUUID(),draft}})
+ expect(response.ok()).toBeTruthy();const trip=await response.json(),path='/api/city/v1/trips/'+trip.id
+ await page.goto('/assistant?city_trip='+trip.id)
+ const card=page.getByRole('region',{name:'出发前问你几个问题',exact:true})
+ await expect(card).toBeVisible()
+ return {trip,path,card}
+}
+
+test('preference card sends the exact selected sentence through the existing task API',async({page})=>{
+ const {trip,path,card}=await preparePreferences(page)
+ await expect(card).not.toContainText('口味能接受多辣')
+ for(const name of ['走太多路','行程太赶','公交地铁'])await card.getByRole('button',{name,exact:true}).click()
+ const request=page.waitForRequest(request=>request.method()==='POST'&&request.url().endsWith(path+'/agent/tasks'))
+ await card.getByRole('button',{name:'按这些安排',exact:true}).click()
+ expect((await request).postDataJSON().text).toBe('少走路，节奏轻松一点，坐公交')
+ await expect(card).toHaveCount(0)
+ await expect(page.getByRole('log',{name:'聊天记录'}).locator('.from-user')).toContainText('少走路，节奏轻松一点，坐公交')
+ expect(await page.evaluate(id=>localStorage.getItem('bianliang:prefs-card:'+id),trip.id)).toBe('1')
+})
+
+test('no preference sentence is sent when nothing is selected',async({page})=>{
+ const {card}=await preparePreferences(page),submit=card.getByRole('button',{name:'按这些安排',exact:true})
+ await expect(submit).toBeDisabled()
+})
+
+test('dismissed preferences stay closed after refresh and can be reopened for this trip',async({page})=>{
+ const {card}=await preparePreferences(page)
+ await card.getByRole('button',{name:'跳过',exact:true}).click();await expect(card).toHaveCount(0)
+ await page.reload();await expect(page.getByLabel('告诉小汴梁你的问题或想调整的安排')).toBeEnabled();await expect(card).toHaveCount(0)
+ await page.getByRole('button',{name:'偏好',exact:true}).click();await expect(card).toBeVisible()
+ await page.reload();await expect(card).toBeVisible()
+ await card.getByRole('button',{name:'跳过',exact:true}).click()
+ await preparePreferences(page)
+})
+
+test('preference choices fit the mobile viewport without horizontal scrolling',async({page})=>{
+ await page.setViewportSize({width:375,height:812})
+ const {card}=await preparePreferences(page)
+ expect(await card.evaluate(el=>el.scrollWidth<=el.clientWidth)).toBeTruthy()
+ expect(await page.getByRole('region',{name:'聊天记录与待确认安排',exact:true}).evaluate(el=>el.scrollWidth<=el.clientWidth)).toBeTruthy()
+ expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBeTruthy()
+})
+
+test('preference choices keep group order and allow replacing or cancelling single selections',async({page})=>{
+ const {path,card}=await preparePreferences(page)
+ for(const name of ['花太多钱','行程太赶','走太多路','走太多路','走路为主','公交地铁','公交地铁','打车'])await card.getByRole('button',{name,exact:true}).click()
+ await expect(card.getByRole('button',{name:'走太多路',exact:true})).toHaveAttribute('aria-pressed','false')
+ await expect(card.getByRole('button',{name:'公交地铁',exact:true})).toHaveAttribute('aria-pressed','false')
+ const request=page.waitForRequest(request=>request.method()==='POST'&&request.url().endsWith(path+'/agent/tasks'))
+ await card.getByRole('button',{name:'按这些安排',exact:true}).click()
+ expect((await request).postDataJSON().text).toBe('节奏轻松一点，尽量省钱，打车')
+})
+
+test('walking preferences submit only the selected travel mode',async({page})=>{
+ const {path,card}=await preparePreferences(page)
+ await card.getByRole('button',{name:'走路为主',exact:true}).click()
+ const request=page.waitForRequest(request=>request.method()==='POST'&&request.url().endsWith(path+'/agent/tasks'))
+ await card.getByRole('button',{name:'按这些安排',exact:true}).click()
+ expect((await request).postDataJSON().text).toBe('走路就行')
+})
+
+test('preferences remain usable when localStorage is unavailable',async({page})=>{
+ await page.addInitScript(()=>{
+  for(const method of ['getItem','setItem','removeItem'] as const){
+   const original=Storage.prototype[method]
+   Object.defineProperty(Storage.prototype,method,{value:function(this:Storage,...args:unknown[]){if(this===window.localStorage)throw new Error('storage unavailable');return Reflect.apply(original,this,args)}})
+  }
+ })
+ const {card}=await preparePreferences(page)
+ await card.getByRole('button',{name:'跳过',exact:true}).click();await expect(card).toHaveCount(0)
+ await page.getByRole('button',{name:'偏好',exact:true}).click();await expect(card).toBeVisible()
+ await page.reload();await expect(card).toBeVisible()
+})
+
 test('city task runs through actual APIs and confirms the shared route version',async({page})=>{
  const errors:string[]=[];page.on('pageerror',e=>errors.push(e.message))
  const {trip,path}=await prepare(page)
  await page.getByLabel('告诉小汴梁你的问题或想调整的安排').fill('附近找个吃饭的地方，下午演出必须保留，最好少走一点。')
  await page.getByRole('button',{name:'发送',exact:true}).click()
  await expect(page.getByRole('heading',{name:'请核对新安排'})).toBeVisible()
+ await expect(page.getByRole('region',{name:'出发前问你几个问题',exact:true})).toHaveCount(0)
+ await expect(page.getByRole('button',{name:'偏好',exact:true})).toHaveCount(0)
  expect(await (await page.request.get(path)).json()).toEqual(trip)
  await expect(page.getByLabel('待确认修改')).toContainText('[合成测试]restaurant')
  await expect(page.getByLabel('待确认修改')).toContainText('12:00')
@@ -36,6 +115,9 @@ test('city task runs through actual APIs and confirms the shared route version',
  await page.getByRole('button',{name:'确认修改',exact:true}).click()
  await expect(page.getByLabel('城市旅行对话')).toContainText('确认成功，已读取最新正式路线。')
  const latest=await (await page.request.get(path)).json();expect(latest.route_version).toBe(1)
+ await expect(page.getByRole('region',{name:'出发前问你几个问题',exact:true})).toHaveCount(0)
+ await page.getByRole('button',{name:'偏好',exact:true}).click()
+ await expect(page.getByRole('region',{name:'出发前问你几个问题',exact:true})).toBeVisible()
  await page.getByRole('link',{name:'返回行程'}).click()
  await expect(page.getByRole('heading',{name:'我的开封游记'})).toBeVisible()
  expect(await (await page.request.get(path)).json()).toEqual(latest)

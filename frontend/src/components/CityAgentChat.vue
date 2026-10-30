@@ -14,6 +14,7 @@ import TravelServiceCards from './TravelServiceCards.vue'
 import WeatherCard from './WeatherCard.vue'
 import {isMultiDayItinerary,objectiveLabel,type PlanningReply} from '../explorationApi'
 import PlanPreview from './PlanPreview.vue'
+import PreferenceCard from './PreferenceCard.vue'
 
 const props=defineProps<{tripId:string;focus?:ObjectRef|null;initialQuestion?:string;planning?:boolean}>()
 const showPlanning=ref(!!props.planning),planningRevision=ref(0),planningBusy=ref(false)
@@ -49,7 +50,14 @@ const candidateChanges=computed(()=>candidate.value?.alternative_changes?.[selec
 watch(()=>candidate.value?.confirmation?.candidate_id,()=>selectedCandidate.value=0)
 const basketProposal=computed(()=>task.value?.result?.basket_proposal)
 const basketChoices=computed(()=>task.value?.result?.basket_choices||[])
-watch(()=>[messages.value.length,busy.value,showPlanning.value,candidate.value,basketProposal.value,basketChoices.value.length,task.value?.status,error.value],async()=>{if(atLatest.value)await scrollLatest()},{flush:'post'})
+const preferenceCardKey=computed(()=>`bianliang:prefs-card:${props.tripId}`)
+const preferenceCardClosed=ref(false),preferenceCardOpened=ref(false)
+const showPreferenceCard=computed(()=>Boolean(ctx.value&&(ctx.value.identity.route_version===0||preferenceCardOpened.value)&&!preferenceCardClosed.value&&!inputBusy.value&&!candidate.value))
+function readPreferenceCardState(){preferenceCardOpened.value=false;try{preferenceCardClosed.value=localStorage.getItem(preferenceCardKey.value)==='1'}catch{preferenceCardClosed.value=false}}
+function closePreferenceCard(){try{localStorage.setItem(preferenceCardKey.value,'1')}catch{}preferenceCardClosed.value=true;preferenceCardOpened.value=false}
+function reopenPreferenceCard(){try{localStorage.removeItem(preferenceCardKey.value)}catch{}preferenceCardClosed.value=false;preferenceCardOpened.value=true;void scrollLatest()}
+function submitPreference(sentence:string){closePreferenceCard();void send(sentence)}
+watch(()=>[messages.value.length,busy.value,showPlanning.value,showPreferenceCard.value,candidate.value,basketProposal.value,basketChoices.value.length,task.value?.status,error.value],async()=>{if(atLatest.value)await scrollLatest()},{flush:'post'})
 const activityName=(id:string)=>candidate.value?.activity_names?.[id]||'待核对活动'
 const clock=(value:string)=>new Date(value).toLocaleTimeString('zh-CN',{hour:'2-digit',minute:'2-digit',timeZone:'Asia/Shanghai'})
 async function refresh(){const guard=memoryEpoch.value,id=props.tripId;const value=await cityAgentApi.context(id);if(!disposed&&guard===memoryEpoch.value&&id===props.tripId)ctx.value=value}
@@ -63,7 +71,7 @@ async function checkWeather(){
   }
  }catch{/* An optional weather check never blocks the existing trip or chat. */}
 }
-async function load(){const guard=memoryEpoch.value,id=props.tripId;try{await api.memorySession();await refresh();const page=await cityAgentApi.messages(id);if(disposed||guard!==memoryEpoch.value||id!==props.tripId)return;if(!props.focus&&!props.initialQuestion&&journey.choices.length&&!journey.trip?.route_version)showPlanning.value=true;earlier.value=page.before;atLatest.value=true;messages.value=page.messages.map(m=>({role:m.role==='user'?'你':'小汴梁',text:m.text}));void checkWeather();if(props.initialQuestion){text.value=props.initialQuestion;await send()}}catch(e){error.value=e instanceof Error?e.message:'暂时无法读取行程'}}
+async function load(){const guard=memoryEpoch.value,id=props.tripId;readPreferenceCardState();try{await api.memorySession();await refresh();const page=await cityAgentApi.messages(id);if(disposed||guard!==memoryEpoch.value||id!==props.tripId)return;if(!props.focus&&!props.initialQuestion&&journey.choices.length&&!journey.trip?.route_version)showPlanning.value=true;earlier.value=page.before;atLatest.value=true;messages.value=page.messages.map(m=>({role:m.role==='user'?'你':'小汴梁',text:m.text}));void checkWeather();if(props.initialQuestion){text.value=props.initialQuestion;await send()}}catch(e){error.value=e instanceof Error?e.message:'暂时无法读取行程'}}
 async function send(inputOverride?:string){
  const input=(inputOverride??text.value).trim()
  if(!input||!ctx.value||inputBusy.value)return
@@ -181,7 +189,7 @@ function selectBasketChoice(choice:BasketChoicePrompt,item:BasketChoicePrompt['c
 }
 function discardBasket(){if(inputBusy.value)return;task.value=null;messages.value.push({role:'小汴梁',text:'已放弃本次素材篮变更。'})}
 watch(memoryEpoch,()=>{epoch++;busy.value=false;continuePlanning.value=false;ctx.value=null;task.value=null;messages.value=[];earlier.value=null;text.value='';error.value=''})
-watch(()=>props.tripId,()=>{epoch++;continuePlanning.value=false;if(task.value&&['running','awaiting_locations'].includes(task.value.status))void cityAgentApi.cancel(task.value).catch(()=>{});task.value=null;messages.value=[];void load()})
+watch(()=>props.tripId,()=>{epoch++;continuePlanning.value=false;if(task.value&&['running','awaiting_locations'].includes(task.value.status))void cityAgentApi.cancel(task.value).catch(()=>{});ctx.value=null;task.value=null;messages.value=[];void load()})
 onMounted(()=>{void load();resizeObserver=new ResizeObserver(()=>{if(atLatest.value)void scrollLatest()});if(chatScroll.value)resizeObserver.observe(chatScroll.value)})
 onBeforeUnmount(()=>{disposed=true;epoch++;resizeObserver?.disconnect();if(task.value&&['running','awaiting_locations'].includes(task.value.status))void cityAgentApi.cancel(task.value).catch(()=>{})})
 </script>
@@ -244,11 +252,12 @@ onBeforeUnmount(()=>{disposed=true;epoch++;resizeObserver?.disconnect();if(task.
   </section>
   <BasketPlanning v-if="showPlanning&&!candidate&&!basketProposal" :key="tripId" :trip-id="tripId" :revision="planningRevision" :auto-plan="continuePlanning" :workflow-result="workflowResult" @busy="planningBusy=$event"/>
   <div v-else-if="!messages.length&&!focus" class="chat-welcome"><p>想怎么逛开封？</p><button type="button" @click="showPlanning=true">一起安排行程</button></div>
+  <div v-if="showPreferenceCard" class="preference-message"><span class="message-author">小汴梁</span><PreferenceCard @submit="submitPreference" @dismiss="closePreferenceCard"/></div>
   </div>
   <form class="chat-composer" @submit.prevent="send()">
    <label for="city-agent-input" class="visually-hidden">告诉小汴梁你的问题或想调整的安排</label>
    <textarea id="city-agent-input" v-model="text" rows="2" maxlength="2000" :disabled="!ctx||inputBusy||!!candidate" placeholder="告诉小汴梁你的想法…"/>
-   <div class="interview-actions"><button class="button" :disabled="!ctx||inputBusy||!text.trim()||!!candidate">发送</button><button v-if="busy" type="button" class="button secondary" @click="cancel">停止处理</button></div>
+   <div class="interview-actions"><button class="button" :disabled="!ctx||inputBusy||!text.trim()||!!candidate">发送</button><button v-if="ctx&&!candidate" type="button" class="button secondary preference-toggle" :disabled="inputBusy" @click="reopenPreferenceCard">偏好</button><button v-if="busy" type="button" class="button secondary" @click="cancel">停止处理</button></div>
   </form>
 
  </section>
@@ -262,6 +271,8 @@ onBeforeUnmount(()=>{disposed=true;epoch++;resizeObserver?.disconnect();if(task.
 .chat-scroll:focus-visible{outline:2px solid #78917e;outline-offset:-3px}.agent-messages{display:flex;flex-direction:column;gap:20px;overflow-wrap:anywhere}.chat-message{display:flex;flex-direction:column;align-items:flex-start;max-width:88%;align-self:flex-start;min-width:0}.message-author{font:12px/1.6 "Songti SC","STSong",serif;color:#907853;letter-spacing:.12em;padding:0 4px 6px}.chat-message p{margin:0;padding:13px 16px;border:1px solid #e4d8c4;border-radius:2px 14px 14px 14px;background:#fffcf6;box-shadow:0 3px 9px #765d3410;color:#304e43;font:17px/1.9 "Songti SC","STSong","Noto Serif CJK SC",serif;white-space:pre-wrap;overflow-wrap:anywhere}.chat-message.from-user{align-self:flex-end;align-items:flex-end}.from-user .message-author{color:#6d816d}.from-user p{border-color:#d5decb;background:#eaf0e3;border-radius:14px 2px 14px 14px}
 .agent-planning-warnings{margin:12px 0;padding:10px 14px;background:#f5eee1;border-left:3px solid #b29567;color:#7d694c;font-size:12px;line-height:1.7}
 .chat-earlier{display:block;margin:0 auto 18px;min-height:44px;color:#88724e;font-size:12px}
+.preference-message{display:flex;flex-direction:column;align-items:flex-start;max-width:100%;align-self:flex-start;min-width:0;margin-top:20px}.preference-message :deep(.preference-card){margin-top:0}
+.chat-composer .button.preference-toggle{padding-inline:12px;font-size:12px}
 .chat-welcome p{font:24px/1.6 "Songti SC",serif;margin:0 0 18px}.chat-welcome button{border:1px solid #c8cfbb;padding:12px 18px;border-radius:6px;color:#456653;min-height:44px}
 .chat-composer{flex-shrink:0;padding:12px 20px 16px;border-top:1px solid #ded4c2;background:#f8f3e9}.chat-composer .interview-actions{justify-content:flex-end;margin-top:8px}.chat-composer .button{background:#29483b;color:#fff8e9;min-height:44px;padding:10px 24px;font-size:14px}.chat-next{font-size:13px;color:#7b846a}.agent-preview{border:1px solid #c7b795;border-radius:3px 14px;padding:1rem;margin-top:20px}.city-agent-chat textarea{display:block;width:100%;box-sizing:border-box;margin:0;padding:10px 12px;border:1px solid #c9baa1;border-radius:3px 10px;font:16px/1.6 "Songti SC","STSong",serif;background:#fffcf6;resize:none;max-height:100px}.city-agent-chat textarea:focus{outline:2px solid #839b82;outline-offset:2px}.city-agent-chat label{display:block}
 @media(max-width:760px){.city-agent-chat{height:clamp(360px,calc(100dvh - 222px),820px)}.chat-heading{padding-inline:14px}.chat-scroll{padding:16px 12px}.chat-message{max-width:92%}.chat-message p{font-size:16px;padding:11px 13px;line-height:1.85}.chat-composer{padding:10px 86px 12px 12px}.chat-composer .button{padding:8px 20px}.chat-composer .interview-actions{justify-content:flex-start;gap:6px}.chat-composer .secondary{padding-inline:10px}}
