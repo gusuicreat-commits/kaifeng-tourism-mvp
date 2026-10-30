@@ -81,6 +81,22 @@ def unknown(message, ids=(), code='DATA_PENDING'):
             'options':[],'planning':None,'formal_state_changed':False}
 
 
+ENDPOINT_REPLACEMENT_WARNING='起终点按同一位置的园外集合点计算，避免把返回误算为再次入园。'
+
+
+def planning_endpoint(items, place_id):
+    place=items.get(('place',place_id))
+    if not isinstance(place,facts.Place) or place.place_type!='entrance' or not place.parent_place_id:
+        return place_id
+    if (place.longitude is None or place.latitude is None or place.coordinate_system=='unknown'
+            or not (-180<=place.longitude<=180 and -90<=place.latitude<=90)):
+        return place_id
+    outside=[p.fact_id for p in items.values() if isinstance(p,facts.Place)
+             and p.parent_place_id is None and p.place_type=='transport'
+             and (p.longitude,p.latitude,p.coordinate_system)==(place.longitude,place.latitude,place.coordinate_system)]
+    return outside[0] if len(outside)==1 else place_id
+
+
 @router.get('/constraints')
 def saved_constraints(trip_id:UUID,s:Session=Depends(current)):
     with connect() as db:
@@ -153,8 +169,12 @@ def preview_plan(trip_id,body,s,*,execution_guard=None):
         collected=basket.snapshot(db,s,trip_id);draft=guard_single_day(db,row)
         ctx=engine.context(db)
         values=body.constraints.model_dump(exclude={'origin_text','destination_text',*AGENT_ONLY})
+        endpoint_replaced=False
         for k in ('origin_place_id','destination_place_id'):
-            if values[k]:values[k]=facts.trip_endpoint(ctx.facts,values[k])
+            if values[k]:
+                endpoint=planning_endpoint(ctx.facts,values[k])
+                endpoint_replaced|=endpoint!=values[k]
+                values[k]=facts.trip_endpoint(ctx.facts,endpoint)
         missing=[k for k in ('business_date','starts_at','ends_at') if values[k] is None]
         missing += [k+'_place_id' for k in ('origin','destination') if not values[k+'_place_id'] and not getattr(body.constraints,k+'_text')]
         unmatched=[k for k in ('origin','destination') if not values[k+'_place_id'] and getattr(body.constraints,k+'_text')]
@@ -201,6 +221,7 @@ def preview_plan(trip_id,body,s,*,execution_guard=None):
         if row['status'] in ('ACTIVE','PAUSED'):
             plan=engine.preview(s,trip_id,ReplanRequest(request_id=uuid5(body.request_id,'engine'),expected_version=body.expected_version,requirements=req),replanning=True,planning_version=planning_version)
         else:plan=engine.preview(s,trip_id,PreviewRequest(request_id=uuid5(body.request_id,'engine'),expected_version=body.expected_version,requirements=req),planning_version=planning_version)
+        if endpoint_replaced:plan['result']['warnings'].append(ENDPOINT_REPLACEMENT_WARNING)
         status=plan['result']['status'];options=[]
         if status=='infeasible':
             # These are requests for authorization, not feasible routes. Never auto-demote a must.

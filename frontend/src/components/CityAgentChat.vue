@@ -21,6 +21,8 @@ const props=defineProps<{tripId:string;focus?:ObjectRef|null;initialQuestion?:st
 const interactionMode=computed(()=>interactionModes.value[props.tripId]??'deep')
 function selectMode(mode:InteractionMode){preferenceCardOpened.value=false;writeMode(props.tripId,mode)}
 const showPlanning=ref(!!props.planning),planningRevision=ref(0),planningBusy=ref(false)
+const planningCompleted=ref(false)
+watch([showPlanning,planningRevision],()=>planningCompleted.value=false)
 const continuePlanning=ref(false),workflowResult=ref<PlanningReply|null>(null)
 const inputBusy=computed(()=>busy.value||planningBusy.value)
 const ctx=ref<CityContext|null>(null),text=ref(''),task=ref<AgentTask|null>(null),busy=ref(false),error=ref('')
@@ -56,7 +58,8 @@ const basketChoices=computed(()=>task.value?.result?.basket_choices||[])
 const preferenceCardKey=computed(()=>`bianliang:prefs-card:${props.tripId}`)
 const preferenceCardClosed=ref(false),preferenceCardOpened=ref(false)
 watch(interactionMode,()=>preferenceCardOpened.value=false)
-const showPreferenceCard=computed(()=>Boolean(ctx.value&&((interactionMode.value==='deep'&&ctx.value.identity.route_version===0)||preferenceCardOpened.value)&&!preferenceCardClosed.value&&!inputBusy.value&&!candidate.value))
+const planningFormVisible=computed(()=>showPlanning.value&&!candidate.value&&!basketProposal.value&&!planningCompleted.value)
+const showPreferenceCard=computed(()=>Boolean(ctx.value&&!planningFormVisible.value&&((interactionMode.value==='deep'&&ctx.value.identity.route_version===0)||preferenceCardOpened.value)&&!preferenceCardClosed.value&&!inputBusy.value&&!candidate.value))
 function readPreferenceCardState(){preferenceCardOpened.value=false;try{preferenceCardClosed.value=localStorage.getItem(preferenceCardKey.value)==='1'}catch{preferenceCardClosed.value=false}}
 function closePreferenceCard(){try{localStorage.setItem(preferenceCardKey.value,'1')}catch{}preferenceCardClosed.value=true;preferenceCardOpened.value=false}
 function reopenPreferenceCard(){try{localStorage.removeItem(preferenceCardKey.value)}catch{}preferenceCardClosed.value=false;preferenceCardOpened.value=true;void scrollLatest()}
@@ -65,6 +68,7 @@ watch(()=>[messages.value.length,busy.value,showPlanning.value,showPreferenceCar
 const activityName=(id:string)=>candidate.value?.activity_names?.[id]||'待核对活动'
 const clock=(value:string)=>new Date(value).toLocaleTimeString('zh-CN',{hour:'2-digit',minute:'2-digit',timeZone:'Asia/Shanghai'})
 async function refresh(){const guard=memoryEpoch.value,id=props.tripId;const value=await cityAgentApi.context(id);if(!disposed&&guard===memoryEpoch.value&&id===props.tripId)ctx.value=value}
+async function completePlanning(){try{await refresh()}catch(e){error.value=e instanceof Error?e.message:'暂时无法读取行程'}finally{planningCompleted.value=true}}
 async function checkWeather(){
  const id=props.tripId,guard=memoryEpoch.value,version=ctx.value?.identity.version,routeVersion=ctx.value?.identity.route_version
  if(version===undefined||routeVersion===undefined)return
@@ -254,7 +258,7 @@ onBeforeUnmount(()=>{disposed=true;epoch++;resizeObserver?.disconnect();if(task.
    <ul v-if="candidate.planning?.result.warnings?.length" class="agent-planning-warnings" aria-label="演示规划提醒"><li v-for="warning in candidate.planning.result.warnings" :key="warning">{{warning}}</li></ul>
    <div class="interview-actions"><button class="button" :disabled="busy" @click="confirm">{{multiCandidate?'确认整套方案':'确认修改'}}</button><button class="button secondary" :disabled="busy" @click="cancel">放弃修改</button></div>
   </section>
-  <BasketPlanning v-if="showPlanning&&!candidate&&!basketProposal" :key="tripId" :trip-id="tripId" :revision="planningRevision" :auto-plan="continuePlanning" :workflow-result="workflowResult" @busy="planningBusy=$event"/>
+  <BasketPlanning v-if="showPlanning&&!candidate&&!basketProposal" :key="tripId" :trip-id="tripId" :revision="planningRevision" :auto-plan="continuePlanning" :workflow-result="workflowResult" @busy="planningBusy=$event" @complete="completePlanning" @close="showPlanning=false"/>
   <div v-else-if="!messages.length&&!focus" class="chat-welcome"><p>想怎么逛开封？</p><button type="button" @click="showPlanning=true">一起安排行程</button></div>
   <div v-if="showPreferenceCard" class="preference-message"><span class="message-author">小汴梁</span><PreferenceCard @submit="submitPreference" @dismiss="closePreferenceCard"/></div>
   </div>
@@ -262,7 +266,7 @@ onBeforeUnmount(()=>{disposed=true;epoch++;resizeObserver?.disconnect();if(task.
    <div class="interaction-mode" role="group" aria-label="互动模式"><button v-for="mode in (['deep','quick'] as const)" :key="mode" type="button" :aria-pressed="interactionMode===mode" :disabled="inputBusy" @click="selectMode(mode)">{{mode==='deep'?'深度互动':'快速安排'}}</button></div>
    <label for="city-agent-input" class="visually-hidden">告诉小汴梁你的问题或想调整的安排</label>
    <textarea id="city-agent-input" v-model="text" rows="2" maxlength="2000" :disabled="!ctx||inputBusy||!!candidate" placeholder="告诉小汴梁你的想法…"/>
-   <div class="interview-actions"><button class="button" :disabled="!ctx||inputBusy||!text.trim()||!!candidate">发送</button><button v-if="ctx&&!candidate" type="button" class="button secondary preference-toggle" :disabled="inputBusy" @click="reopenPreferenceCard">偏好</button><button v-if="busy" type="button" class="button secondary" @click="cancel">停止处理</button></div>
+   <div class="interview-actions"><button class="button" :disabled="!ctx||inputBusy||!text.trim()||!!candidate">发送</button><button v-if="ctx&&!candidate&&!planningFormVisible" type="button" class="button secondary preference-toggle" :disabled="inputBusy" @click="reopenPreferenceCard">偏好</button><button v-if="busy" type="button" class="button secondary" @click="cancel">停止处理</button></div>
   </form>
 
  </section>

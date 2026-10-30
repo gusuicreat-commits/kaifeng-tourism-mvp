@@ -3,7 +3,7 @@ import type {Basket} from '../src/basketApi'
 import type {PlanningConstraints,PlanningResult,PlanningWorkspace} from '../src/explorationApi'
 
 const routePlaces=[['pl_wb_000003','开封府'],['pl_wb_vendor_000001','第一楼寺后街店'],['pl_wb_000013','鼓楼夜市']]
-async function prepare(page:Page,empty=false,complete=false){
+async function prepare(page:Page,empty=false,complete=false,planning=true){
  await page.request.post('/api/v1/sessions')
  const draft=complete?{business_date:'2030-05-01',starts_at:'2030-05-01T09:00:00+08:00',ends_at:'2030-05-01T18:00:00+08:00',origin_place_id:'test:gate',destination_place_id:'test:hotel',modes:['walking']}:{}
  const response=await page.request.post('/api/city/v1/trips',{data:{request_id:crypto.randomUUID(),draft}})
@@ -32,7 +32,7 @@ async function prepare(page:Page,empty=false,complete=false){
   const body=route.request().postDataJSON();tasks.push(body)
   await route.fulfill({json:{task_id:'mode-test',trip_id:trip.id,step:0,status:'answered',mode:'conversation',busy:false,progress:null,events:[],understanding:null,result:{reply:'合成对话已收到'}}})
  })
- await page.goto('/assistant?city_trip='+trip.id+'&plan=basket')
+ await page.goto('/assistant?city_trip='+trip.id+(planning?'&plan=basket':''))
  await expect(page.locator('#city-agent-input')).toBeEnabled()
  return {trip,path,previews,tasks,additions}
 }
@@ -90,7 +90,7 @@ test('ready 和偏好步骤随时切换，聊天和表单立即共用模式',asy
 })
 
 test('对话快速模式隐藏自动偏好卡，仍可手动打开，请求携带当前模式',async({page})=>{
- const {tasks}=await prepare(page,false,true),mode=page.getByRole('group',{name:'互动模式',exact:true}),card=page.getByRole('region',{name:'出发前问你几个问题',exact:true})
+ const {tasks}=await prepare(page,true,true,false),mode=page.getByRole('group',{name:'互动模式',exact:true}),card=page.getByRole('region',{name:'出发前问你几个问题',exact:true})
  await expect(card).toBeVisible()
  const send=async(text:string)=>{await page.locator('#city-agent-input').fill(text);await page.getByRole('button',{name:'发送',exact:true}).click();await expect(page.locator('.agent-messages')).toContainText(text);await expect(page.locator('#city-agent-input')).toBeEnabled()}
  await send('默认模式');expect(tasks.at(-1)?.interaction_mode).toBe('deep')
@@ -124,4 +124,14 @@ test('人数输入严格限制1到50，存储被禁用也能共用本页模式',
 
 test('首页规划入口直接打开素材篮规划表单',async({page})=>{
  await page.goto('/');await expect(page.getByRole('link',{name:'规划我的开封之旅',exact:true})).toHaveAttribute('href','/assistant?context=city&plan=basket')
+})
+
+test('素材篮入口独占偏好收集，普通对话保留原偏好卡',async({page})=>{
+ const {trip}=await prepare(page,true)
+ await page.goto('/assistant?context=city&plan=basket')
+ await expect(page.getByLabel('素材篮规划协商')).toBeVisible()
+ const card=page.getByRole('region',{name:'出发前问你几个问题',exact:true}),button=page.getByRole('button',{name:'偏好',exact:true})
+ await expect(card).toHaveCount(0);await expect(button).toHaveCount(0)
+ await page.goto('/assistant?city_trip='+trip.id)
+ await expect(card).toBeVisible();await expect(button).toBeVisible()
 })

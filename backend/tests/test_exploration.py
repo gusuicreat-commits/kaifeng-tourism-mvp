@@ -254,3 +254,99 @@ def test_reported_location_validation_and_known_place_path(engine):
     assert r.json()['constraints']['origin_text'] is None
     assert r.json()['constraints']['destination_text'] is None
     assert r.json()['issues'][0]['code']=='BASKET_EMPTY'
+
+
+@pytest.mark.parametrize('party_size',[None,2])
+@pytest.mark.parametrize('gate_fields',[('origin_place_id','destination_place_id'),('origin_place_id',),('destination_place_id',)])
+def test_outside_meeting_endpoint_keeps_city_goals_without_reentry(engine,monkeypatch,party_size,gate_fields):
+    from app.city import facts
+    from app.city.agent import orchestration
+    from app.city.engine import live_travel
+    from app.city.engine.amap import Quote
+    from datetime import date
+    c,t,d=engine
+    with connect() as db:
+        catalog=facts.records(db);park=catalog['place','museum'];outside=catalog['place','origin']
+        rule=catalog['open_rule','open:museum']
+        common=outside.model_dump(exclude={'kind','fact_id','name','place_type','longitude','latitude','coordinate_system'})
+        gate=facts.Place(**(common|{'kind':'place','fact_id':'synthetic:gate','name':'合成园内入口',
+            'place_type':'entrance','parent_place_id':park.fact_id,'longitude':outside.longitude,
+            'latitude':outside.latitude,'coordinate_system':outside.coordinate_system}))
+        entrance=facts.Entrance(**{k:v for k,v in common.items() if k in facts.Entrance.model_fields},
+            kind='entrance',fact_id='synthetic:entrance',place_id=park.fact_id,entrance_place_id=gate.fact_id,direction='both')
+        source=catalog['source','fixture:source'].model_copy(update={'fact_id':live_travel.SOURCE_ID})
+        facts.import_bundle(facts.FactBundle(records=[source,gate,entrance,
+            park.model_copy(update={'version':park.version+1,'place_type':'scenic'}),
+            rule.model_copy(update={'version':rule.version+1,'planning_status':'reference','planning_note':'synthetic reference rule for reentry regression','reentry':'unknown'})]),db,apply=True)
+    class FakeProvider:
+        request_count=0
+        interval=0
+        def estimate(self,origin,destination,mode,departure,checked):
+            self.request_count+=1
+            return Quote('estimated',duration_seconds=600,distance_m=700,geometry_available=True,queried_at=checked.isoformat())
+        def close(self):pass
+    monkeypatch.setenv('AMAP_PLANNING_ENABLED','1')
+    monkeypatch.setattr(live_travel,'provider_from_environment',lambda:FakeProvider())
+    for pid in ('museum','restaurant','garden'):assert collect(c,t,'place',pid).status_code==200
+    extra={} if party_size is None else {'party_size':party_size}
+    endpoints={field:gate.fact_id if field in gate_fields else outside.fact_id for field in ('origin_place_id','destination_place_id')}
+    inside=plan(engine,**endpoints,**extra).json()
+    assert inside['status']=='feasible',inside
+    from app.city.exploration import ENDPOINT_REPLACEMENT_WARNING
+    assert inside['planning']['result']['warnings'].count(ENDPOINT_REPLACEMENT_WARNING)==1
+    saved=c.get(base(t)+'/exploration/constraints').json()
+    assert saved['result']['planning']['result']['warnings'].count(ENDPOINT_REPLACEMENT_WARNING)==1
+    for field,identity in endpoints.items():
+        assert inside['constraints'][field]==identity
+        assert saved['constraints'][field]==identity
+        assert saved['result']['constraints'][field]==identity
+    with connect() as db:
+        candidate=db.execute('SELECT requirements_json FROM city_engine_candidates WHERE id=?',
+                             (inside['planning']['candidate_id'],)).fetchone()
+        assert all(json.loads(candidate[0])[field]==outside.fact_id for field in ('origin_place_id','destination_place_id'))
+    # Same missing-field/default workflow as quick chat, using an arbitrary synthetic meeting point.
+    monkeypatch.setattr(orchestration,'QUICK_PLACE_ID',outside.fact_id)
+    initial=c.post(base(t)+'/exploration/preview',json={'request_id':rid(),'expected_version':t['version'],
+        'basket_version':3,'constraints':constraints(d)|{'origin_place_id':None,'destination_place_id':None}|extra}).json()
+    quick,_,_=orchestration._quick_defaults(initial,['origin_place_id','destination_place_id'],date(2030,4,30))
+    direct=plan(engine,origin_place_id=outside.fact_id,destination_place_id=outside.fact_id,**extra).json()
+    chat=plan(engine,**quick).json()
+    for result in (inside,direct,chat):
+        assert result['status']=='feasible',result
+        assert {a['place_id'] for a in result['planning']['result']['itineraries'][0]['activities']}=={'museum','restaurant','garden'}
+    def schedule(result):
+        return [[(a['place_id'],a['starts_at'],a['departs_at']) for a in i['activities']]
+                for i in result['planning']['result']['itineraries']]
+    assert schedule(inside)==schedule(direct)==schedule(chat)
+    assert ENDPOINT_REPLACEMENT_WARNING not in direct['planning']['result']['warnings']
+    assert c.get(base(t)).json()['route_version']==0
+
+
+@pytest.mark.parametrize('gate_changes,outside_changes,duplicate,expected',[
+    ({},{},False,'origin'),
+    ({'place_type':'poi'},{},False,'synthetic:gate'),
+    ({'parent_place_id':None},{},False,'synthetic:gate'),
+    ({'longitude':None,'latitude':None},{},False,'synthetic:gate'),
+    ({'longitude':181},{},False,'synthetic:gate'),
+    ({'latitude':float('nan')},{},False,'synthetic:gate'),
+    ({'coordinate_system':'unknown'},{'coordinate_system':'unknown'},False,'synthetic:gate'),
+    ({},{'parent_place_id':'museum'},False,'synthetic:gate'),
+    ({},{'place_type':'rest'},False,'synthetic:gate'),
+    ({},{'longitude':114.301001},False,'synthetic:gate'),
+    ({},{'latitude':34.801001},False,'synthetic:gate'),
+    ({},{'coordinate_system':'WGS84'},False,'synthetic:gate'),
+    ({},{},True,'synthetic:gate'),
+])
+def test_planning_endpoint_requires_unique_outside_transport_at_exact_coordinates(engine,gate_changes,outside_changes,duplicate,expected):
+    from app.city import facts
+    from app.city.exploration import planning_endpoint
+    with connect() as db:items=facts.records(db)
+    outside=items['place','origin']
+    gate=outside.model_copy(update={'fact_id':'synthetic:gate','place_type':'entrance','parent_place_id':'museum',
+                                  'longitude':114.3,'latitude':34.8,'coordinate_system':'GCJ02'}|gate_changes)
+    outside=outside.model_copy(update={'longitude':114.3,'latitude':34.8,'coordinate_system':'GCJ02'}|outside_changes)
+    items={('place',gate.fact_id):gate,('place',outside.fact_id):outside}
+    if duplicate:items['place','synthetic:duplicate']=outside.model_copy(update={'fact_id':'synthetic:duplicate'})
+    assert planning_endpoint(items,gate.fact_id)==expected
+    assert planning_endpoint(items,outside.fact_id)==outside.fact_id
+    assert planning_endpoint(items,'missing')=='missing'
