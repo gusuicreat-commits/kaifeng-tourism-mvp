@@ -367,3 +367,59 @@ def test_future_scope_refusal_is_a_visitor_question_not_a_stop(multi_engine,monk
     assert expected in task['result']['reply'] and '已停止' not in task['result']['reply']
     assert e[0].get('/api/city/v1/trips/'+e[1]['id']).json()==before
     agent.TASKS.clear()
+
+
+def test_unstarted_confirmed_trip_recovers_unsupported_daily_scope_and_previews_whole_trip(multi_engine,monkeypatch):
+    from app import language
+    from app.city.agent import future_planning,provider,service as agent
+    from app.city.assistant import context,tools
+    from test_city_agent import run
+    e,req,old=committed(multi_engine);moment=datetime.fromisoformat('2030-04-30T08:00:00+08:00')
+    for module in (context,tools):monkeypatch.setattr(module,'now',lambda:moment)
+    agent.TASKS.clear();text='少走点路'
+    raw={'planning':{'operation':'update','quote':text,'fields':[
+        {'field':'objective','value':'less_walking','quote':text,'scope':'every_day'}]}}
+    monkeypatch.setattr(language,'available',lambda:True)
+    monkeypatch.setattr(provider,'generate',lambda *a,**k:(copy.deepcopy(raw),{'source':'mock_model'}))
+    monkeypatch.setattr(future_planning,'preview',lambda *a,**k:pytest.fail('undated DRAFT edits must use whole-trip planning'))
+    before=e[0].get('/api/city/v1/trips/'+e[1]['id']).json();route=current(e).json()
+    task=run({'client':e[0],'trip':e[1]},text)
+    assert task['status']=='needs_confirmation',task
+    assert all(word not in task['result']['reply'] for word in ('请明确要调整哪一天','没采用','旧单日入口'))
+    result=task['result']['planning_workflow']['result']
+    assert result['status']=='preview'
+    for plan in result['result']['itineraries']:
+        assert len(plan['days'])==len(req['days'])
+        assert all(day['requirements']['objective']=='less_walking' for day in plan['days'])
+    assert not task['interpretation'].get('dropped_fields')
+    assert task['interpretation']['recovered_fields']==[{'field':'objective','source':'unsupported_every_day','quote':text}]
+    assert e[0].get('/api/city/v1/trips/'+e[1]['id']).json()==before and current(e).json()==route
+    agent.TASKS.clear()
+
+
+def test_unstarted_confirmed_trip_with_undated_choice_does_not_preview_future_day(multi_engine,monkeypatch):
+    from app import language
+    from app.city.agent import future_planning,orchestration,provider,service as agent
+    from app.city.assistant import context,tools
+    from test_city_agent import run
+    e,req,old=committed(multi_engine);moment=datetime.fromisoformat('2030-04-30T08:00:00+08:00')
+    for module in (context,tools):monkeypatch.setattr(module,'now',lambda:moment)
+    agent.TASKS.clear();text='再加一个包公祠'
+    raw={'planning':{'operation':'update','quote':text,'choices':[
+        {'name':'包公祠','quote':text,'priority':'want'}]}}
+    monkeypatch.setattr(language,'available',lambda:True)
+    monkeypatch.setattr(provider,'generate',lambda *a,**k:(copy.deepcopy(raw),{'source':'mock_model'}))
+    monkeypatch.setattr(future_planning,'preview',lambda *a,**k:pytest.fail('undated DRAFT choices must use whole-trip planning'))
+    calls=[]
+    def whole_trip(session,t,intent,proposed=None):
+        calls.append(intent.planning)
+        return {'status':'needs_clarification','reply':'请核对整套行程的地点。'}
+    monkeypatch.setattr(orchestration,'_execute',whole_trip)
+    before=e[0].get('/api/city/v1/trips/'+e[1]['id']).json();route=current(e).json()
+    task=run({'client':e[0],'trip':e[1]},text)
+    assert task['status']=='needs_clarification',task
+    assert not task['interpretation'].get('dropped_fields')
+    assert len(calls)==1 and calls[0].choices[0].name=='包公祠'
+    assert '请明确要调整哪一天' not in task['result']['reply']
+    assert e[0].get('/api/city/v1/trips/'+e[1]['id']).json()==before and current(e).json()==route
+    agent.TASKS.clear()

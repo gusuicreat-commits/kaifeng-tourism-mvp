@@ -10,7 +10,7 @@ import re
 import threading
 import time
 from dataclasses import dataclass, field
-from datetime import timedelta
+from datetime import datetime, timedelta
 from uuid import uuid4, uuid5, UUID
 
 from fastapi import HTTPException
@@ -21,6 +21,7 @@ from ...memory.context import redact
 from ...memory.storage import stamp, encoded
 from ...memory.session import recheck
 from .. import state
+from ..schema import TZ
 from ..assistant import context, interpret, service as v2service, tools as v2tools
 from ..assistant.models import CityChat
 from . import provider, understand, toolbelt, reference_routes
@@ -387,7 +388,10 @@ def _preview_result(result,snapshot,intent=None):
     if result.get('adjustment_notes') or result.get('scope') in ('selected_future_day','current_and_future'):
         changes=result.get('changes') or {};first=result['result']['itineraries'][0]
         selected_day=result.get('day_id') or snapshot.day_id
-        if 'days' in first:first=next(d['itinerary'] for d in first['days'] if d['day_id']==selected_day)
+        business_date=snapshot.draft.business_date
+        if 'days' in first:
+            day=next(d for d in first['days'] if d['day_id']==selected_day)
+            business_date=day['business_date'];first=day['itinerary']
         if 'days' in changes:changes=next((c for c in changes['days'] if c['day_id']==selected_day),{})
         if result.get('scope')=='current_and_future':
             detail+='本次调整今天剩余及后续天，已处理历史保留。'
@@ -398,7 +402,12 @@ def _preview_result(result,snapshot,intent=None):
         detail+=''.join(f"{names.get(c['goal_id'],c['goal_id'])}：{c['before'][5:16] if getattr(snapshot,'multi_requirements',None) else c['before'][11:16]}→{c['after'][5:16] if getattr(snapshot,'multi_requirements',None) else c['after'][11:16]}。" for c in changes.get('start_changes',()))
         removed=changes.get('removed',())
         if removed:detail+='这版不再安排：'+'、'.join(names.get(g,g) for g in removed)+'。'
-        detail+=f"预计{first['returns_at'][11:16]}到达结束地点。"
+        if first['activities']:
+            returns_at=datetime.fromisoformat(first['returns_at']).astimezone(TZ)
+            arrival=returns_at.strftime('%H:%M')
+            if returns_at.date().isoformat()!=str(business_date):arrival=f'{returns_at.month}月{returns_at.day}日'+arrival
+            detail+=f'预计{arrival}到达结束地点。'
+        else:detail+='这一天目前没有排入景点或餐饮。'
     return {'status':'needs_confirmation','reply':echo+detail+'方案已准备好，看看是否合适，点“确认方案”后保存。',
             'activity_names':names,
             'planning':result,'changes':result['changes'],

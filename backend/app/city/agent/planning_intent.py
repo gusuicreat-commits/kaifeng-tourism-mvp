@@ -147,9 +147,10 @@ def grounded(planning, text, snapshot, dropped=None, meta=None, corrections=()):
             except ValueError as exc:
                 from ..assistant import tools
                 if f.scope!='every_day' or str(exc)!='scope_not_in_quote' or not snapshot.multi_requirements \
-                        or not snapshot.multi_itinerary or not tools.has_continuous_scope(text):raise
+                        or not snapshot.multi_itinerary:raise
                 original=f;f=f.model_copy(update={'scope':None});originals[id(f)]=original
-                if meta is not None:meta.setdefault('recovered_fields',[]).append({'field':f.field,'source':'continuous_scope','quote':f.quote})
+                if meta is not None:meta.setdefault('recovered_fields',[]).append({'field':f.field,
+                    'source':'continuous_scope' if tools.has_continuous_scope(text) else 'unsupported_every_day','quote':f.quote})
             if f.day_ref:
                 fixed=quoted_day_ref(f.day_ref,f.quote,text)
                 if fixed is None:raise ValueError('day_ref_not_in_quote')

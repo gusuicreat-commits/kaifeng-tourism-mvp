@@ -114,6 +114,35 @@ def test_context_selects_server_today_and_keeps_trip_scope(city):
     assert payload['context']['trip_scope']['start_date']=='2030-04-30'
 
 
+@pytest.mark.parametrize('single',[False,True])
+@pytest.mark.parametrize('returns_at,arrival',[
+    ('2030-05-01T06:23:00Z','14:23'),
+    ('2030-05-01T14:23:00+08:00','14:23'),
+    ('2030-05-01T16:23:00Z','5月2日00:23'),
+])
+def test_adjustment_reply_converts_arrival_to_beijing_date_and_time(city,single,returns_at,arrival):
+    snapshot,_=multi(city);plan=snapshot.multi_itinerary.model_dump(mode='json')
+    day=next(d for d in plan['days'] if d['day_id']==snapshot.day_id)
+    assert day['itinerary']['activities']
+    day['itinerary']['returns_at']=returns_at
+    result={'status':'preview','candidate_id':str(uuid4()),'base_version':snapshot.row['version'],
+        'result':{'itineraries':[day['itinerary'] if single else plan]},'changes':{},
+        **({'adjustment_notes':['今天剩余。']} if single else {'scope':'current_and_future','day_id':snapshot.day_id})}
+    output=agent._preview_result(result,snapshot)
+    assert f'预计{arrival}到达结束地点。' in output['reply']
+    assert '预计06:23' not in output['reply'] and '没有排入' not in output['reply']
+
+
+def test_empty_selected_future_day_does_not_report_start_as_arrival(city):
+    snapshot,_=multi(city);plan=snapshot.multi_itinerary.model_dump(mode='json');day=plan['days'][-1]
+    assert not day['itinerary']['activities']
+    result={'status':'preview','candidate_id':str(uuid4()),'base_version':snapshot.row['version'],
+        'result':{'itineraries':[plan]},'changes':{},'scope':'selected_future_day',
+        'day_id':day['day_id'],'business_date':day['business_date']}
+    output=agent._preview_result(result,snapshot)
+    assert '这一天目前没有排入景点或餐饮。' in output['reply'] and '预计' not in output['reply']
+
+
 @pytest.mark.parametrize('operation,minutes,ongoing', [('delay',30,False),('rest',20,False),('extend',15,True),('skip_replan',None,False)])
 def test_d4_adapters_keep_historical_and_future_goals_and_whole_candidate(city,monkeypatch,operation,minutes,ongoing):
     snapshot,session=multi(city,ongoing);before=get(city);calls=[]

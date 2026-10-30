@@ -15,7 +15,10 @@ def preview(session,trip_id,snapshot,intent,request_id,text):
     changes={k:{} for k in active};goals=list(full.goals)
     def clarify(message):return {'status':'needs_clarification','reply':message}
     for f in intent.planning.fields:
-        if f.field=='date' and f.value and date_range.resolve(str(f.value),today)==today:continue
+        if f.field=='date' and f.value:
+            date=date_range.resolve(str(f.value),today)
+            if date<today or not full.start_date<=date<=full.end_date:return clarify('该日期不属于今天及后续未开始的行程。')
+            continue
         if f.field not in ('pace','objective','mode','start_time','end_time') or f.value is None:return clarify('请修改每日时间、节奏或交通偏好；全程日期、预算和酒店边界保持原选择。')
         targets=list(active)
         if f.day_ref:
