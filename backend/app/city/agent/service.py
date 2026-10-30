@@ -24,7 +24,7 @@ from .. import state
 from ..schema import TZ
 from ..assistant import context, interpret, service as v2service, tools as v2tools
 from ..assistant.models import CityChat
-from . import provider, understand, toolbelt, reference_routes, date_range
+from . import provider, understand, toolbelt, reference_routes, date_range, packing
 from .prompt_schema import prompt_schema
 from .. import weather
 from .models import Budget, Decision, Understanding, Constraint
@@ -301,6 +301,20 @@ def _city_highlight_question(text,snapshot,intent):
     if intent.corrections or intent.unresolved:return False
     return bool(intent.conversation and not intent.planning or intent.planning and not intent.conversation
         and not intent.planning.choices and all(f.field=='city' for f in intent.planning.fields))
+
+
+def _packing_question(text,snapshot,intent):
+    if not packing.QUESTION.search(text) or interpret.place_references(text,snapshot):
+        return False
+    if intent.route_query or intent.weather_query or intent.service_query or intent.state_request:
+        return False
+    if intent.planning and (intent.planning.fields or intent.planning.choices):
+        return False
+    if intent.constraints or intent.corrections or intent.unresolved:
+        return False
+    if len(intent.actions) > 1 or any(a.kind != 'query' or a.target_name for a in intent.actions):
+        return False
+    return bool(intent.conversation or intent.actions)
 
 
 def _merge(intent,snapshot):
@@ -742,6 +756,8 @@ def _advance(session,trip_id,identity,body):
                     'model_status':meta['provider_failure'],'reply':'刚才模型输出格式有问题，请再试一次。' if meta['provider_failure'].get('code')=='MODEL_OUTPUT_INVALID' else '刚才连接中断了，请再试一次。'})
             elif _city_highlight_question(t.text,t.snapshot,t.intent):
                 _finish(session,t,'answered',v2service._city_highlights(t.snapshot))
+            elif _packing_question(t.text,t.snapshot,t.intent):
+                _finish(session,t,'answered',packing.checklist(t.snapshot))
             elif t.mode=='clarify' and t.intent.unresolved and meta.get('model_availability',{}).get('available') is False:
                 _finish(session,t,'unavailable',{'state':'model_unavailable','code':'MODEL_NOT_CONFIGURED','model_status':meta['model_availability'],
                     'reply':'聊天模型尚未配置，暂不能理解这段追问。明确起点和终点的问路仍可直接查参考路线。'})
