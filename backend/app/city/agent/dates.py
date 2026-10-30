@@ -28,7 +28,8 @@ DATE_EXPRESSION = (
     rf'|(?<!\d)\d{{4}}年{_DATE_NUMBER}月{_DATE_NUMBER}(?:日|号)(?!\d)'
     rf'|(?<!\d){_DATE_NUMBER}月{_DATE_NUMBER}(?:日|号)(?!\d)'
     rf'|(?<!\d)\d{{1,2}}[./]\d{{1,2}}(?!\d)'
-    rf'|(?<!\d){_DATE_NUMBER}(?:号|日)(?!\d)'
+    # "一日游 / 两日行程" is a duration, not the 1st or 2nd of the month.
+    rf'|(?<!\d){_DATE_NUMBER}(?:号|日(?!游|行程|内|以内|左右))(?!\d)'
     rf')'
 )
 

@@ -38,7 +38,8 @@ def _field_check(f, text, today):
             from .date_range import counts
             if f.field=='trip_days' and '周末' in f.quote:
                 return None if f.value==2 else 'trip_days_not_in_quote'
-            numbers=counts(f.quote,'天' if f.field=='trip_days' else '(?:晚|夜)')
+            # 一日游 / 两日行程 count days; a bare 日 is a calendar date (11月3日), not a duration.
+            numbers=counts(f.quote,'(?:天|日(?=游|行程))' if f.field=='trip_days' else '(?:晚|夜)')
             return None if numbers and f.value==max(numbers) else f.field+'_not_in_quote'
         if f.field=='budget_fen':
             # The model selects the amount; other numbers in its quote are not conflicting budgets.

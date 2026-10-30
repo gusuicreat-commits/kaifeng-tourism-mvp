@@ -1694,3 +1694,15 @@ def test_bare_cancel_naming_no_basket_item_stays_strict(city,monkeypatch):
     monkeypatch.setattr(provider,'generate',lambda *a,**k:({'actions':[{'kind':'cancel','quote':text}]},{'source':'mock_model'}))
     task=run(city,text)
     assert 'basket_proposal' not in task['result'] and task['status']=='needs_clarification'
+
+
+@pytest.mark.parametrize('text,quote', [('帮我排一个开封一日游','一日游'),('2030-05-03来开封一日游','一日游')])
+def test_one_day_tour_is_a_duration_not_the_first_of_the_month(city,monkeypatch,text,quote):
+    fields=[field('city','开封','开封'),{'field':'trip_days','value':1,'quote':quote}]
+    if text.startswith('2030'):fields.insert(0,field('date','2030-05-03','2030-05-03'))
+    model(monkeypatch,text,fields)
+    reply=run(city,text)['result']['reply']
+    assert '没采用' not in reply and '游玩天数没听准' not in reply, reply
+    saved=city['client'].get(path(city,'/exploration/constraints')).json()['constraints'] or {}
+    # No date was said in the first sentence; never invent the 1st of a month.
+    assert saved.get('business_date') == ('2030-05-03' if text.startswith('2030') else None), saved

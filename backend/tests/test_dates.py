@@ -102,3 +102,11 @@ def test_unsupported_or_invalid_dates_raise(expression):
     with pytest.raises(ValueError):
         resolve_date(expression, date(2026, 4, 10))
 
+
+
+@pytest.mark.parametrize('text,found', [
+    ('帮我排一个开封一日游',[]),('两日游从开封府出发',[]),('三日行程',[]),('五日内回来',[]),
+    ('11月1日去',['11月1日']),('1日去清明上河园',['1日']),('一号去',['一号']),
+])
+def test_day_count_words_are_not_calendar_dates(text,found):
+    assert re.findall(DATE_EXPRESSION,text)==found
