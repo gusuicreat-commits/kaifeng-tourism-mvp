@@ -15,8 +15,11 @@ import WeatherCard from './WeatherCard.vue'
 import {isMultiDayItinerary,objectiveLabel,type PlanningReply} from '../explorationApi'
 import PlanPreview from './PlanPreview.vue'
 import PreferenceCard from './PreferenceCard.vue'
+import {interactionModes,readMode,writeMode,type InteractionMode} from '../interactionMode'
 
 const props=defineProps<{tripId:string;focus?:ObjectRef|null;initialQuestion?:string;planning?:boolean}>()
+const interactionMode=computed(()=>interactionModes.value[props.tripId]??'deep')
+function selectMode(mode:InteractionMode){preferenceCardOpened.value=false;writeMode(props.tripId,mode)}
 const showPlanning=ref(!!props.planning),planningRevision=ref(0),planningBusy=ref(false)
 const continuePlanning=ref(false),workflowResult=ref<PlanningReply|null>(null)
 const inputBusy=computed(()=>busy.value||planningBusy.value)
@@ -52,7 +55,8 @@ const basketProposal=computed(()=>task.value?.result?.basket_proposal)
 const basketChoices=computed(()=>task.value?.result?.basket_choices||[])
 const preferenceCardKey=computed(()=>`bianliang:prefs-card:${props.tripId}`)
 const preferenceCardClosed=ref(false),preferenceCardOpened=ref(false)
-const showPreferenceCard=computed(()=>Boolean(ctx.value&&(ctx.value.identity.route_version===0||preferenceCardOpened.value)&&!preferenceCardClosed.value&&!inputBusy.value&&!candidate.value))
+watch(interactionMode,()=>preferenceCardOpened.value=false)
+const showPreferenceCard=computed(()=>Boolean(ctx.value&&((interactionMode.value==='deep'&&ctx.value.identity.route_version===0)||preferenceCardOpened.value)&&!preferenceCardClosed.value&&!inputBusy.value&&!candidate.value))
 function readPreferenceCardState(){preferenceCardOpened.value=false;try{preferenceCardClosed.value=localStorage.getItem(preferenceCardKey.value)==='1'}catch{preferenceCardClosed.value=false}}
 function closePreferenceCard(){try{localStorage.setItem(preferenceCardKey.value,'1')}catch{}preferenceCardClosed.value=true;preferenceCardOpened.value=false}
 function reopenPreferenceCard(){try{localStorage.removeItem(preferenceCardKey.value)}catch{}preferenceCardClosed.value=false;preferenceCardOpened.value=true;void scrollLatest()}
@@ -71,7 +75,7 @@ async function checkWeather(){
   }
  }catch{/* An optional weather check never blocks the existing trip or chat. */}
 }
-async function load(){const guard=memoryEpoch.value,id=props.tripId;readPreferenceCardState();try{await api.memorySession();await refresh();const page=await cityAgentApi.messages(id);if(disposed||guard!==memoryEpoch.value||id!==props.tripId)return;if(!props.focus&&!props.initialQuestion&&journey.choices.length&&!journey.trip?.route_version)showPlanning.value=true;earlier.value=page.before;atLatest.value=true;messages.value=page.messages.map(m=>({role:m.role==='user'?'你':'小汴梁',text:m.text}));void checkWeather();if(props.initialQuestion){text.value=props.initialQuestion;await send()}}catch(e){error.value=e instanceof Error?e.message:'暂时无法读取行程'}}
+async function load(){const guard=memoryEpoch.value,id=props.tripId;if(!(id in interactionModes.value))readMode(id);readPreferenceCardState();try{await api.memorySession();await refresh();const page=await cityAgentApi.messages(id);if(disposed||guard!==memoryEpoch.value||id!==props.tripId)return;if(!props.focus&&!props.initialQuestion&&journey.choices.length&&!journey.trip?.route_version)showPlanning.value=true;earlier.value=page.before;atLatest.value=true;messages.value=page.messages.map(m=>({role:m.role==='user'?'你':'小汴梁',text:m.text}));void checkWeather();if(props.initialQuestion){text.value=props.initialQuestion;await send()}}catch(e){error.value=e instanceof Error?e.message:'暂时无法读取行程'}}
 async function send(inputOverride?:string){
  const input=(inputOverride??text.value).trim()
  if(!input||!ctx.value||inputBusy.value)return
@@ -255,6 +259,7 @@ onBeforeUnmount(()=>{disposed=true;epoch++;resizeObserver?.disconnect();if(task.
   <div v-if="showPreferenceCard" class="preference-message"><span class="message-author">小汴梁</span><PreferenceCard @submit="submitPreference" @dismiss="closePreferenceCard"/></div>
   </div>
   <form class="chat-composer" @submit.prevent="send()">
+   <div class="interaction-mode" role="group" aria-label="互动模式"><button v-for="mode in (['deep','quick'] as const)" :key="mode" type="button" :aria-pressed="interactionMode===mode" :disabled="inputBusy" @click="selectMode(mode)">{{mode==='deep'?'深度互动':'快速安排'}}</button></div>
    <label for="city-agent-input" class="visually-hidden">告诉小汴梁你的问题或想调整的安排</label>
    <textarea id="city-agent-input" v-model="text" rows="2" maxlength="2000" :disabled="!ctx||inputBusy||!!candidate" placeholder="告诉小汴梁你的想法…"/>
    <div class="interview-actions"><button class="button" :disabled="!ctx||inputBusy||!text.trim()||!!candidate">发送</button><button v-if="ctx&&!candidate" type="button" class="button secondary preference-toggle" :disabled="inputBusy" @click="reopenPreferenceCard">偏好</button><button v-if="busy" type="button" class="button secondary" @click="cancel">停止处理</button></div>
@@ -273,6 +278,7 @@ onBeforeUnmount(()=>{disposed=true;epoch++;resizeObserver?.disconnect();if(task.
 .chat-earlier{display:block;margin:0 auto 18px;min-height:44px;color:#88724e;font-size:12px}
 .preference-message{display:flex;flex-direction:column;align-items:flex-start;max-width:100%;align-self:flex-start;min-width:0;margin-top:20px}.preference-message :deep(.preference-card){margin-top:0}
 .chat-composer .button.preference-toggle{padding-inline:12px;font-size:12px}
+.interaction-mode{display:flex;gap:4px;margin-bottom:10px;padding:3px;border:1px solid #d9cdb8;border-radius:8px;width:fit-content}.interaction-mode button{min-height:36px;padding:6px 14px;border:0;border-radius:5px;font:inherit;font-size:13px;color:#6d7968}.interaction-mode button[aria-pressed=true]{background:#29483b;color:#fff8e9}
 .chat-welcome p{font:24px/1.6 "Songti SC",serif;margin:0 0 18px}.chat-welcome button{border:1px solid #c8cfbb;padding:12px 18px;border-radius:6px;color:#456653;min-height:44px}
 .chat-composer{flex-shrink:0;padding:12px 20px 16px;border-top:1px solid #ded4c2;background:#f8f3e9}.chat-composer .interview-actions{justify-content:flex-end;margin-top:8px}.chat-composer .button{background:#29483b;color:#fff8e9;min-height:44px;padding:10px 24px;font-size:14px}.chat-next{font-size:13px;color:#7b846a}.agent-preview{border:1px solid #c7b795;border-radius:3px 14px;padding:1rem;margin-top:20px}.city-agent-chat textarea{display:block;width:100%;box-sizing:border-box;margin:0;padding:10px 12px;border:1px solid #c9baa1;border-radius:3px 10px;font:16px/1.6 "Songti SC","STSong",serif;background:#fffcf6;resize:none;max-height:100px}.city-agent-chat textarea:focus{outline:2px solid #839b82;outline-offset:2px}.city-agent-chat label{display:block}
 @media(max-width:760px){.city-agent-chat{height:clamp(360px,calc(100dvh - 222px),820px)}.chat-heading{padding-inline:14px}.chat-scroll{padding:16px 12px}.chat-message{max-width:92%}.chat-message p{font-size:16px;padding:11px 13px;line-height:1.85}.chat-composer{padding:10px 86px 12px 12px}.chat-composer .button{padding:8px 20px}.chat-composer .interview-actions{justify-content:flex-start;gap:6px}.chat-composer .secondary{padding-inline:10px}}

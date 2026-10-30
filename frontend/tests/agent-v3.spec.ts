@@ -1,4 +1,5 @@
 import {test,expect,type Page} from '@playwright/test'
+import {finishCityPlanningMode} from './interview-helpers'
 
 test.afterEach(async({request})=>{
  await request.post('/api/e2e/clock',{data:{time:'09:40'}})
@@ -158,7 +159,7 @@ test('basket planning uses the existing engine, blocks stale preview, then confi
  const trip=await(await page.request.post('/api/city/v1/trips',{data:{request_id:crypto.randomUUID(),draft}})).json(),path='/api/city/v1/trips/'+trip.id
  await page.goto('/place/museum');await page.getByRole('button',{name:'加入素材篮：[合成测试]museum',exact:true}).click();await expect(page.getByRole('button',{name:'移出素材篮：[合成测试]museum',exact:true})).toBeVisible()
  await page.goto('/basket');await page.getByRole('button',{name:'必去',exact:true}).click();await expect(page.getByRole('button',{name:'必去',exact:true})).toHaveAttribute('aria-pressed','true')
- await page.getByRole('link',{name:'交给小汴梁安排',exact:true}).click();await page.getByRole('button',{name:'生成安排',exact:true}).click()
+ await page.getByRole('link',{name:'交给小汴梁安排',exact:true}).click();await finishCityPlanningMode(page);await page.getByRole('button',{name:'生成安排',exact:true}).click()
  await expect(page.getByLabel('规划检测结果')).toContainText('已有经过校验的候选')
  await page.getByLabel('告诉小汴梁你的问题或想调整的安排').fill('就这样');await page.getByRole('button',{name:'发送',exact:true}).click()
  await expect(page.locator('.agent-messages')).toContainText('方案已准备好。请点“确认方案”保存。')
@@ -204,6 +205,7 @@ test('conflict negotiation persists a structured choice across refresh, recomput
   expect(response.ok()).toBeTruthy();version=(await response.json()).version
  }
  await page.goto('/assistant?city_trip='+trip.id+'&plan=basket')
+ await finishCityPlanningMode(page)
  await page.getByRole('button',{name:'生成安排',exact:true}).click()
  await expect(page.getByLabel('规划检测结果')).toContainText('需要你决定取舍')
  await page.getByLabel('规划检测结果').scrollIntoViewIfNeeded()
@@ -249,6 +251,7 @@ test('chat proposes a basket addition and only saves it after confirmation befor
  expect((await(await page.request.get(path+'/basket')).json()).items).toEqual([])
  await page.getByRole('button',{name:'确认加入',exact:true}).click()
  await expect(card).toHaveCount(0)
+ await finishCityPlanningMode(page,'quick')
  await expect(page.getByLabel('规划检测结果')).toContainText('已有经过校验的候选')
  const basket=await(await page.request.get(path+'/basket')).json()
  expect(basket.items).toHaveLength(1);expect(basket.items[0]).toMatchObject({kind:'place',id:'museum',priority:'must',source:'assistant'})
@@ -368,7 +371,7 @@ test('changing date while a candidate is visible preserves the official trip and
  const draft={business_date:'2030-05-01',starts_at:'2030-05-01T10:00:00+08:00',ends_at:'2030-05-01T20:00:00+08:00',origin_place_id:'origin',destination_place_id:'hotel',modes:['walking'],stops:[]}
  const trip=await(await page.request.post('/api/city/v1/trips',{data:{request_id:crypto.randomUUID(),draft}})).json(),path='/api/city/v1/trips/'+trip.id
  await page.request.patch(path+'/basket',{data:{request_id:crypto.randomUUID(),expected_version:0,item:{kind:'place',object_id:'museum',priority:'must'}}})
- await page.goto('/assistant?city_trip='+trip.id+'&plan=basket');await page.getByRole('button',{name:'生成安排',exact:true}).click()
+ await page.goto('/assistant?city_trip='+trip.id+'&plan=basket');await finishCityPlanningMode(page);await page.getByRole('button',{name:'生成安排',exact:true}).click()
  await expect(page.getByRole('button',{name:/确认方案/})).toBeEnabled()
  const original=(await(await page.request.get(path+'/exploration/constraints')).json()).result.planning
  const input=page.getByLabel('告诉小汴梁你的问题或想调整的安排')

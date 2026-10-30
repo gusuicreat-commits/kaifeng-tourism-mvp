@@ -1,3 +1,4 @@
+import {interactionModes,readMode,type InteractionMode} from './interactionMode'
 import {mutate,request} from './api'
 import type {ObjectRef,BasketChoice} from './basketApi'
 import type {Itinerary,PlanningReply} from './explorationApi'
@@ -57,8 +58,8 @@ export const cityAgentApi={
  messages:(id:string,before?:number)=>request<{messages:{id:string;role:string;text:string}[];before:number|null}>(prefix(id)+'/assistant/messages'+(before?'?before='+before:'')),
  context:(id:string)=>request<CityContext>(prefix(id)+'/assistant/context?purpose=trip'),
  weather:(id:string)=>request<{status:string;reply:string;weather:WeatherReport|null}>(prefix(id)+'/weather',{},30000),
- start:(ctx:CityContext,text:string,page_focus?:ObjectRef|null)=>mutate<AgentTask>(prefix(ctx.identity.trip_id)+'/agent/tasks',{
-  text,expected_version:ctx.identity.version,expected_route_version:ctx.identity.route_version,...(page_focus?{page_focus}:{})}),
+ start:(ctx:CityContext,text:string,page_focus?:ObjectRef|null,interaction_mode:InteractionMode=interactionModes.value[ctx.identity.trip_id]??readMode(ctx.identity.trip_id)??'deep')=>mutate<AgentTask>(prefix(ctx.identity.trip_id)+'/agent/tasks',{
+  text,interaction_mode,expected_version:ctx.identity.version,expected_route_version:ctx.identity.route_version,...(page_focus?{page_focus}:{})}),
  selectLocation:(t:AgentTask,choice:RouteLocationChoice,candidate_id:string)=>mutate<AgentTask>(prefix(t.trip_id)+`/agent/tasks/${t.task_id}/locations/confirm`,{expected_step:t.step,role:choice.role,resolution_id:choice.resolution_id,candidate_id}),
  step:(t:AgentTask)=>mutate<AgentTask>(prefix(t.trip_id)+`/agent/tasks/${t.task_id}/step`,{expected_step:t.step},'POST',16000),
  get:(t:AgentTask)=>request<AgentTask>(prefix(t.trip_id)+`/agent/tasks/${t.task_id}`),
