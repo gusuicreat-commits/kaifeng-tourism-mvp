@@ -98,7 +98,7 @@ def duration_values(text):
     return tuple(dict.fromkeys(int(v) for v in values if 1<=v<=360 and int(v)==v))
 
 
-_CLOCK=re.compile(r'(\d{1,2}|[一二两三四五六七八九十]{1,3})[点:：](\d{1,2}|半|[一二三四五六七八九十]{1,3})?')
+_CLOCK=re.compile(r'(\d{1,2}|[一二两三四五六七八九十]{1,3})[点:：](?:[零〇]([一二三四五六七八九\d])|(\d{1,2}|半|[一二三四五六七八九十]{1,3}))?')
 _PERIOD=re.compile(r'下午|傍晚|晚上|今晚|明晚|今夜|晚饭|晚餐|夜里|中午|午饭|午餐|早上|上午|今早|明早|早饭|早餐|清晨|凌晨')
 
 
@@ -118,7 +118,7 @@ def clock_values(text, afternoon=False):
     """Return every clock in order, so ``17:30到22:00`` yields both endpoints."""
     values=[]
     for m in _CLOCK.finditer(text):
-        h=number(m[1]);minute=30 if m[2]=='半' else number(m[2]) if m[2] else 0
+        h=number(m[1]);minute=number(m[2]) if m[2] else 30 if m[3]=='半' else number(m[3]) if m[3] else 0
         if h is None or minute is None:continue
         period=period_before(text,m.start()) or ('pm' if afternoon else None)
         if h<12 and (period=='pm' or period=='noon' and h<=5):h+=12

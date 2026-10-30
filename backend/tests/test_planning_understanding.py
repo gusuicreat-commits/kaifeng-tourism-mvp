@@ -619,6 +619,13 @@ def test_reported_endpoints_replace_old_ids_without_becoming_facts(city,monkeypa
     ('明早八点出发，十一点半回来',['08:00','11:30']),
     ('中午一点吃饭',['13:00']),
     ('五点半出发',['05:30']),
+    ('下午三点零五开始',['15:05']),
+    ('下午三点零五分开始',['15:05']),
+    ('下午三点〇五',['15:05']),
+    ('九点零八分',['09:08']),
+    ('早上九点零五出发',['09:05']),
+    ('三点零',['03:00']),
+    ('下午三点零',['15:00']),
 ])
 def test_clock_inherits_day_period_stated_earlier(text,expected):
     assert understand.clock_values(text)==expected
@@ -630,6 +637,11 @@ def test_clock_grounding_accepts_pm_reading_of_bare_hour_only_without_period():
     assert not understand.clock_grounded('10:00','十点前回来',text)
     assert understand.clock_grounded('22:00','十点前回来','十点前回来')
     assert not understand.clock_grounded('22:00','早上十点前回来','早上十点前回来')
+
+
+def test_clock_grounding_accepts_zero_prefixed_minute():
+    text='10月30日下午三点零五开始'
+    assert understand.clock_grounded('15:05',text,text)
 
 
 @pytest.mark.parametrize('value,quote,expected',[
