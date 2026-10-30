@@ -110,10 +110,18 @@ def multiple_days(base,fields,today):
 
 def scope_check(field,text):
     from .evidence import request_evidence
-    if field.day_ref and field.scope:raise ValueError('ambiguous_day_scope')
+    if field.day_ref and field.scope:
+        daily=daily_evidence(field.quote,text,field)
+        day=quoted_day_ref(field.day_ref,field.quote,text)
+        if daily and day is None:
+            return field.model_copy(update={'day_ref':None})
+        if day is not None and not daily:
+            return field.model_copy(update={'scope':None})
+        raise ValueError('ambiguous_day_scope')
     if field.scope:
         request_evidence(text,field.quote)
         if not daily_evidence(field.quote,text,field):raise ValueError('scope_not_in_quote')
+    return field
 
 
 def day_key(field,today):

@@ -53,7 +53,7 @@ def lodging_questions(values,locations,catalog):
     return questions
 
 
-def prepare(session,trip_id,snapshot,intent,text,*,today=None,notes=()):
+def prepare(session,trip_id,snapshot,intent,text,*,today=None,notes=(),_nested=False):
     from .requirement_context import planning_values
     from .planning_intent import proposal,_resolve_endpoint,_choice_facts,_fact_names
     p=intent.planning;today=today or snapshot.envelope.identity.generated_at.astimezone(TZ).date()
@@ -176,9 +176,13 @@ def prepare(session,trip_id,snapshot,intent,text,*,today=None,notes=()):
     basket_result={}
     if p.choices:
         single=copy.copy(snapshot);single.workspace={'constraints':{},'version':snapshot.workspace.get('version',0)}
+        for attr in ('multi_draft','multi_requirements','multi_itinerary'):
+            setattr(single,attr,None)
         single.envelope=snapshot.envelope.model_copy(update={'requirements':{}})
         basket_result=proposal(session,trip_id,single,intent.model_copy(update={'planning':p.model_copy(update={
-            'fields':(),'choices':tuple(c.model_copy(update={'day_ref':None}) for c in p.choices)})}),text,today=today)
+            'fields':(),'choices':tuple(c.model_copy(update={'day_ref':None}) for c in p.choices)})}),text,today=today,_nested=True)
+        if basket_result.get('status')=='needs_clarification' and basket_result.get('reply')=='请在素材篮里选择要加入的地点，再生成多天方案。':
+            return basket_result
         notes.extend(basket_result.get('notes',[]))
         for choice in p.choices:
             if not choice.day_ref or not start or not end:continue

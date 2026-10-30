@@ -1,4 +1,5 @@
 """Multi-day assistant projections and D4 adapters use isolated synthetic snapshots."""
+import copy
 import json
 from datetime import date,datetime,timedelta
 from uuid import uuid4
@@ -62,6 +63,47 @@ def test_new_multi_day_times_do_not_inherit_the_previous_days_evening(city,monke
     assert [d['starts_at'] for d in saved['days']]==['2030-11-03T09:00:00+08:00',None,'2030-11-05T12:00:00+08:00']
     assert all(d['ends_at'].endswith('T20:00:00+08:00') for d in saved['days'])
     assert get(city)==before
+
+
+def test_confirmed_multi_day_basket_add_does_not_recurse(city,monkeypatch):
+    from app import language
+    from app.city.agent import provider
+    from test_city_agent import run
+    multi(city)
+    with connect() as db:db.execute("UPDATE city_trip_states SET status='DRAFT' WHERE id=?",(city['trip']['id'],))
+    text='再加一个[合成测试]museum'
+    output={'actions':[{'kind':'modify','quote':text}],
+        'planning':{'quote':text,'fields':[],'choices':[
+            {'name':'[合成测试]museum','priority':'want','quote':text}]}}
+    monkeypatch.setattr(language,'available',lambda:True)
+    monkeypatch.setattr(provider,'generate',lambda *args,**kwargs:(copy.deepcopy(output),{'source':'mock_model'}))
+    task=run(city,text)
+    assert task['status'] in ('needs_confirmation','needs_clarification'),task
+    assert '查询没有成功' not in task['result']['reply']
+
+
+def test_nested_multi_day_basket_guard_returns_guidance(city,monkeypatch):
+    from app.city.agent import planning_intent
+    from app.city.agent.models import Action,MaterialChoice,PlanningIntent,Understanding
+    from datetime import date
+    snapshot,session=multi(city)
+    with connect() as db:db.execute("UPDATE city_trip_states SET status='DRAFT' WHERE id=?",(city['trip']['id'],))
+    original=planning_intent.proposal
+    multi_draft=snapshot.multi_draft
+    assert multi_draft is not None
+
+    def retain_multi_state(session,trip_id,single,intent,text,**kwargs):
+        if kwargs.get('_nested'):
+            single.multi_draft=multi_draft
+        return original(session,trip_id,single,intent,text,**kwargs)
+
+    monkeypatch.setattr(planning_intent,'proposal',retain_multi_state)
+    text='再加一个[合成测试]museum'
+    intent=PlanningIntent(operation='update',quote=text,choices=(MaterialChoice(
+        name='[合成测试]museum',priority='want',quote=text),))
+    result=original(session,city['trip']['id'],snapshot,Understanding(actions=(Action(kind='modify',quote=text),),planning=intent),
+        text,today=date(2030,5,1))
+    assert result=={'status':'needs_clarification','reply':'请在素材篮里选择要加入的地点，再生成多天方案。'}
 
 
 def multi(city,ongoing=False):

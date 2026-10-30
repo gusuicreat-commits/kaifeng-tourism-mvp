@@ -1,4 +1,5 @@
 from datetime import date
+import pytest
 from app.city.agent.models import PlanningField, StateIntent
 from app.city.agent.planning_intent import _field_check
 from app.city.agent.date_range import resolve, counts
@@ -29,6 +30,31 @@ def test_nights_and_day_scope_are_grounded_without_making_up_clock():
     value=f('start_time','09:00','第二天上午9点',day_ref='第二天')
     assert _field_check(value,'第二天上午9点',date(2026,10,26)) is None
     assert _field_check(f('start_time','14:00','第二天下午去开封府',day_ref='第二天下午'),'第二天下午去开封府',date(2026,10,26))=='clock_not_in_quote'
+
+
+@pytest.mark.parametrize('text,day_ref,expected_scope,expected_day_ref',[
+    ('每天晚上九点回开封府','2026-10-30','every_day',None),
+    ('第二天晚上九点回来','第二天',None,'第二天'),
+])
+def test_day_ref_and_scope_recover_the_field_with_quote_evidence(city,monkeypatch,text,day_ref,expected_scope,expected_day_ref):
+    from test_agent_output_tolerance import parse
+    raw={'planning':{'quote':text,'fields':[{
+        'field':'end_time','value':'21:00','quote':text,'scope':'every_day','day_ref':day_ref}]}}
+    intent,meta=parse(city,monkeypatch,raw,text)
+    assert intent.planning is not None
+    field_value=intent.planning.fields[0]
+    assert field_value.scope==expected_scope and field_value.day_ref==expected_day_ref
+    assert meta['recovered_fields']==[{'field':'end_time','source':'scope_or_day_from_quote','quote':text}]
+
+
+def test_day_ref_and_scope_with_both_quotes_drop_only_that_field(city,monkeypatch):
+    from test_agent_output_tolerance import dropped,parse
+    text='每天第二天晚上九点回开封府'
+    raw={'planning':{'quote':text,'fields':[{
+        'field':'end_time','value':'21:00','quote':text,'scope':'every_day','day_ref':'第二天'}]}}
+    intent,meta=parse(city,monkeypatch,raw,text)
+    assert intent.planning is None
+    dropped(meta,'planning.fields[0]',reason='ambiguous_day_scope')
 
 
 def test_future_state_scope_is_evidenced_and_rejected_by_executor_gate():

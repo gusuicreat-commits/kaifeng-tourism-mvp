@@ -143,7 +143,12 @@ def grounded(planning, text, snapshot, dropped=None, meta=None, corrections=()):
             drop(f,f.field,'quote_not_in_request','fields');continue
         try:
             request_evidence(text,f.quote)
-            try:scope_check(f,text)
+            try:
+                checked=scope_check(f,text)
+                if checked is not f:
+                    original=f;f=checked;originals[id(f)]=original
+                    if meta is not None:meta.setdefault('recovered_fields',[]).append({'field':f.field,
+                        'source':'scope_or_day_from_quote','quote':f.quote})
             except ValueError as exc:
                 from ..assistant import tools
                 if f.scope!='every_day' or str(exc)!='scope_not_in_quote' or not snapshot.multi_requirements \
@@ -359,7 +364,7 @@ def _now_departure(planning,text,snapshot,base):
     return None
 
 
-def proposal(session, trip_id, snapshot, intent, text, *, today=None):
+def proposal(session, trip_id, snapshot, intent, text, *, today=None, _nested=False):
     from ...db import connect
     from .. import basket
     from ..exploration import Constraints
@@ -385,7 +390,9 @@ def proposal(session, trip_id, snapshot, intent, text, *, today=None):
     base=planning_values(snapshot)
     from .multi_day_intent import is_multi,prepare
     if is_multi(base,p):
-        return prepare(session,trip_id,snapshot,intent,text,today=today,notes=notes)
+        if _nested:
+            return {'status':'needs_clarification','reply':'请在素材篮里选择要加入的地点，再生成多天方案。'}
+        return prepare(session,trip_id,snapshot,intent,text,today=today,notes=notes,_nested=True)
     c=Constraints.model_validate(base);values=c.model_dump(mode='json');today=today or snapshot.envelope.identity.generated_at.astimezone(TZ).date()
     fields={f.field:f.value for f in p.fields if not (f.field=='budget_fen' and f.budget_basis=='per_person')}
     # The application's city scope is not a navigable waypoint. Require an endpoint role
