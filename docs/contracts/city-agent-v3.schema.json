@@ -963,6 +963,16 @@
             }
           ],
           "default": null
+        },
+        "interaction_mode": {
+          "default": "deep",
+          "description": "deep深度互动；quick快速安排，单日缺少日期、时间或起终点时使用默认值。",
+          "enum": [
+            "deep",
+            "quick"
+          ],
+          "title": "Interaction Mode",
+          "type": "string"
         }
       },
       "required": [

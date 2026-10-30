@@ -314,6 +314,7 @@ class StartTask(Strict):
     expected_version: int = Field(ge=1)
     expected_route_version: int = Field(ge=0)
     page_focus: ObjectRef | None = None
+    interaction_mode: Literal['deep','quick'] = Field(default='deep', description='deep深度互动；quick快速安排，单日缺少日期、时间或起终点时使用默认值。')
 
 
 class AdvanceTask(Strict):

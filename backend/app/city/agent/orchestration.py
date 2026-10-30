@@ -1,5 +1,6 @@
 """Backend coordinator for the existing exploration workflow; never a solver/commit."""
 import time
+from datetime import timedelta
 from uuid import UUID,uuid5
 from fastapi import HTTPException
 from .. import exploration,exploration_state,basket,state,travel_services
@@ -7,6 +8,8 @@ from ..schema import TZ
 from .planning_intent import proposal
 from .dates import resolve_date
 
+QUICK_PLACE_ID='pl_mvp_kaifengfu_meeting'  # data/mvp/city-facts-reference-2026-10-25.json 开封府集合点，有坐标。
+QUICK_FIELDS=frozenset({'business_date','starts_at','ends_at','origin_place_id','destination_place_id'})
 LABELS={'date':'日期','start_time':'出发时间','end_time':'结束时间','origin':'出发地','destination':'返回地',
         'budget_fen':'预算','mode':'出行方式','pace':'节奏','objective':'偏好','city':'城市','trip_days':'游玩天数'}
 
@@ -52,6 +55,45 @@ def _budget_reply(constraints,itinerary,days,notes,overnight=False):
     sentence=check(constraints,itinerary,days=days,overnight=overnight)
     recorded=recorded_note(constraints)
     return ''.join(n for n in notes if not (sentence and n==recorded))+sentence
+
+
+def _quick_defaults(result, missing, today):
+    """Fill the bounded single-day endpoint/time gaps for quick interaction."""
+    constraints=dict(result.get('constraints') or {})
+    missing=set(missing)
+    added=[]
+    if 'business_date' in missing:
+        tomorrow=today+timedelta(days=1)
+        constraints['business_date']=tomorrow.isoformat()
+        added.append(('date',tomorrow))
+    day=constraints.get('business_date')
+    if 'starts_at' in missing:
+        constraints['starts_at']=day+'T09:00:00+08:00'
+        added.append(('start_time',None))
+    if 'ends_at' in missing:
+        constraints['ends_at']=day+'T20:00:00+08:00'
+        added.append(('end_time',None))
+    if 'origin_place_id' in missing:
+        constraints['origin_place_id']=QUICK_PLACE_ID
+        constraints['origin_text']=None
+        added.append(('origin',None))
+    if 'destination_place_id' in missing:
+        constraints['destination_place_id']=QUICK_PLACE_ID
+        constraints['destination_text']=None
+        added.append(('destination',None))
+    parts=[]
+    if any(field=='date' for field,_ in added):
+        value=next(value for field,value in added if field=='date')
+        parts.append(f'明天（{value.month}月{value.day}日）')
+    times={field for field,_ in added if field in ('start_time','end_time')}
+    if times=={'start_time','end_time'}:parts.append('9:00—20:00')
+    elif 'start_time' in times:parts.append('9:00 开始')
+    elif 'end_time' in times:parts.append('20:00 结束')
+    places={field for field,_ in added if field in ('origin','destination')}
+    if places=={'origin','destination'}:parts.append('从开封府出发并返回')
+    elif 'origin' in places:parts.append('从开封府出发')
+    elif 'destination' in places:parts.append('最后回到开封府')
+    return constraints,added,('没说的我先按'+'、'.join(parts)+'安排了，想改直接告诉我。' if parts else '')
 
 
 def _basket_reply(pending,snapshot):
@@ -168,6 +210,22 @@ def _execute(session,t,intent,proposed=None):
         'planning_constraints':{'version':result['planning_version'],'constraints':result['constraints'],'rounds':result['rounds']},
         'basket':env.basket|{'version':basket_version}})
     missing=[q['field'] for q in result.get('questions',[])]
+    quick_reply=''
+    if (t.body.interaction_mode=='quick' and result.get('constraints',{}).get('schema_version')!='city-constraints/2'
+            and missing and set(missing)<=QUICK_FIELDS):
+        today=t.interpretation_date or t.snapshot.envelope.identity.generated_at.astimezone(TZ).date()
+        quick_constraints,_,quick_reply=_quick_defaults(result,missing,today)
+        planning_version=result['planning_version']
+        quick_result=exploration.preview_plan(UUID(t.trip_id),exploration.Plan(
+            request_id=uuid5(UUID(t.id),'planning-preview-quick'),expected_version=action['trip_version'],
+            basket_version=basket_version,planning_version=result['planning_version'],
+            constraints=exploration.Constraints.model_validate(quick_constraints)),session,execution_guard=guard)
+        result=quick_result
+        t.snapshot.workspace={'version':result['planning_version'],'constraints':result['constraints'],'result':result,'rounds':result['rounds']}
+        env=t.snapshot.envelope
+        t.snapshot.envelope=env.model_copy(update={'planning_constraints':{
+            'version':result['planning_version'],'constraints':result['constraints'],'rounds':result['rounds']}})
+        missing=[q['field'] for q in result.get('questions',[])]
     asked=set()
     if missing:
         if 'business_date' in missing:reply='你打算哪天去？';asked={'date'}
@@ -181,6 +239,7 @@ def _execute(session,t,intent,proposed=None):
     else:
         reply=_ready_reply(result) if result['status']=='feasible' else result['reply']
         status='answered' if result['status']=='feasible' else 'needs_clarification' if result['status']=='infeasible' else 'needs_data'
+    reply=quick_reply+reply
     if action['date_changed']:reply='日期已记为 '+result['constraints']['business_date']+'。'+reply
     # Ask only about fields still empty after the workflow (e.g. a return point inferred from "回来" is filled).
     final=result['constraints'] or {}
