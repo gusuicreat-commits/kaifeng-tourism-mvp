@@ -7,7 +7,7 @@ function fixture(){
  const items=['已完成测试点','下一站测试舞台','未核验测试入口','无坐标测试点','万岁山合成视角点','清明上河园合成视角点'].map((name,i)=>({ready:i!==2,issues:[],record:{kind:'place',fact_id:'p'+i,name,place_type:i===2?'entrance':i===1?'stage':'poi',longitude:i===3?null:114.30+i*.001,latitude:i===3?null:34.80,coordinate_system:'GCJ02',validation_status:i===2?'unverified':'verified',business_status:'active',source_ids:['synthetic'],is_demo:false,effective_to:expires}}))
  items.push({ready:true,issues:[],record:{...items[0]!.record,fact_id:'bad',name:'错误坐标系测试点',coordinate_system:'unknown'}})
  const stops=[{stop_id:'g0',place_id:'p0',progress:'completed',locked:false},{stop_id:'g1',place_id:'p1',progress:'pending',locked:true},{stop_id:'g3',place_id:'p3',progress:'pending',locked:false}]
- const trip={id:'test-map-trip',version:3,route_version:2,status:'ACTIVE',draft:{stops,business_date:stamp.slice(0,10)},anchor:null}
+ const trip={id:'test-map-trip',version:3,route_version:2,status:'ACTIVE',draft:{stops,business_date:new Intl.DateTimeFormat('en-CA',{timeZone:'Asia/Shanghai',year:'numeric',month:'2-digit',day:'2-digit'}).format(t)},anchor:null}
  const route={trip_id:trip.id,version:3,route_version:2,itinerary:{activities:stops.map(s=>({goal_id:s.stop_id,place_id:s.place_id,required:s.locked,starts_at:stamp,departs_at:expires})),ongoing:null,legs:[],returns_at:expires}}
  return {items,trip,route}
 }

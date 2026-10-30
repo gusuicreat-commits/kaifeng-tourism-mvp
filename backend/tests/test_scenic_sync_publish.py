@@ -1,5 +1,5 @@
 import json
-from datetime import datetime, time
+from datetime import datetime, time, timedelta
 from pathlib import Path
 from uuid import uuid4
 
@@ -20,7 +20,16 @@ from app.scenic_sync.models import NormalizedSession
 
 URL = __import__('os').environ.get("SCENIC_TEST_DATABASE_URL")
 pytestmark = pytest.mark.postgres
-NOW = datetime.now(TZ).replace(second=0, microsecond=0)
+
+
+def _base_now():
+    now = datetime.now(TZ)
+    if now.time() > time(22):
+        now = (now + timedelta(days=1)).replace(hour=9, minute=0)
+    return now.replace(second=0, microsecond=0)
+
+
+NOW = _base_now()
 DAY = NOW.date()
 
 
