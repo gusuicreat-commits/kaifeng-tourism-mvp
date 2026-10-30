@@ -67,16 +67,44 @@ def _consume_intentions(session, trip_id, snapshot):
                 db.execute('UPDATE city_proposals SET consumed=1 WHERE id=? AND trip_id=?',(p['candidate_id'],str(trip_id)))
 
 
+_PLAN_HISTORY=re.compile(r'方案|版本|第\d+版|恢复|撤销|放弃|修改|改回|上一版|原来')
+# Closed class of city-wide "what is worth seeing" questions; own-plan words keep the plan answer.
+_CITY_HIGHLIGHTS=re.compile(r'(?:有什么|有啥|有哪些|哪些|哪里|哪儿|什么地方)(?:是|比较|最|特别)?(?:好玩|好看|好逛|值得|景点|景区|地方可以?[去玩逛])|值得(?:一)?[去玩逛看]|推荐(?:几个|一些|点)?(?:景点|景区|地方|去处)|好玩的(?:地方|景点)?')
+_OWN_PLAN=re.compile(r'下一站|下一个|接下来|还剩|剩下|行程里|路线里|计划里|已确认|我的(?:行程|路线|计划)')
+
+
+def _city_highlights(snapshot):
+    """Answer a city-wide question from scenic reference facts, not a route that may not exist."""
+    items = snapshot.planning.facts
+    counts = {}
+    for (kind,_),item in items.items():
+        if kind == 'highlight' and facts.planning_visible(item):counts[item.place_id] = counts.get(item.place_id,0)+1
+    scenic = [item for (kind,_),item in items.items() if kind == 'place' and facts.planning_visible(item)
+              and getattr(item,'place_type',None) == 'scenic' and not getattr(item,'parent_place_id',None)]
+    scenic.sort(key=lambda i:(-counts.get(i.fact_id,0),i.name))
+    chosen = [i for i in scenic if counts.get(i.fact_id)][:6] or scenic[:6]
+    if not chosen:return {'status':'needs_data','reply':'暂无可公开使用的景区资料。'}
+    return {'status':'answered','reply':'开封可参考的景区（参考资料，未现场核验）：'+'、'.join(i.name for i in chosen)
+            +'。想了解哪一个可以直接问，比如“'+chosen[0].name+'有什么好看的”；要排行程，告诉我日期和出发地。',
+            'facts':[context.fact_view(i,items,now()) for i in chosen],
+            'references':[{'kind':'place','id':i.fact_id} for i in chosen]}
+
+
 def _query(text, snapshot, intent):
     from ..exploration import answer_focus
     focused=answer_focus(text,snapshot)
     if focused:return focused
     env = snapshot.envelope; topic = intent.purpose
+    # "包公祠有什么好看的": a historic site, not plan history. Version words keep the history path.
+    if topic == 'history' and interpret.place_references(text,snapshot) and not _PLAN_HISTORY.search(text):
+        topic = 'reference'
+    if topic == 'trip' and _CITY_HIGHLIGHTS.search(text) and not _OWN_PLAN.search(text) and not interpret.place_references(text,snapshot):
+        return _city_highlights(snapshot)
     if topic == 'history':
         return {'status':'needs_clarification','reply':'你是要放弃尚未确认的修改，还是恢复某个历史正式版本？恢复请明确版本号，仍需按当前进度重新计算和确认。'}
     if topic in ('shows','dining','reference'):
         kind = 'show_session' if topic == 'shows' or '演出' in text or '那场' in text else 'place'
-        references = interpret.resolve_reference(text,snapshot,kind)
+        references = (kind == 'place' and interpret.place_references(text,snapshot)) or interpret.resolve_reference(text,snapshot,kind)
         if kind == 'show_session' and len(references) > 1 and any(w in text for w in ('哪些','什么节目','还有什么')) and not any(w in text for w in ('那场','刚才','这场')):
             values = []
             for ref in references:

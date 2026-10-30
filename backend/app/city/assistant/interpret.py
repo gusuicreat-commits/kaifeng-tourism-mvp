@@ -40,6 +40,34 @@ def explicit_references(text, snapshot):
     return tuple({(r.kind,r.id):r for r in selected}.values())[:6]
 
 
+_SCENIC_SUFFIX=re.compile(r'(.{2,}?)(?:风景区|景区|公园|景点)')
+
+
+def _place_span(item, text):
+    """Longest known name of a place found in the text; a scenic area also answers to its
+    core name ("龙亭" for 龙亭景区). None when the text names nothing of it."""
+    names=[n for n in (getattr(item,'name',None),*getattr(item,'aliases',())) if n and len(n)>1]
+    if getattr(item,'place_type',None)=='scenic':
+        names+=[m[1] for n in list(names) if (m:=_SCENIC_SUFFIX.fullmatch(n))]
+    found=[n for n in names if n in text]
+    return max(found,key=len) if found else None
+
+
+def place_references(text, snapshot):
+    """Named places for a direct question, longest name first: "铁塔公园" drops the child
+    POI "铁塔"; an equal name keeps the scenic area the child belongs to."""
+    found={}
+    for (kind,identity),item in snapshot.planning.facts.items():
+        if kind!='place' or not facts.planning_visible(item):continue
+        span=_place_span(item,text)
+        if span:found[identity]=(item,span)
+    kept=[identity for identity,(item,span) in found.items() if not any(
+        other!=identity and ((span in ospan and len(span)<len(ospan)) or
+                             (span==ospan and getattr(item,'parent_place_id',None)==other))
+        for other,(_,ospan) in found.items())]
+    return [Reference(kind='place',id=i) for i in kept][:6]
+
+
 def refers_back(text):
     return any(w in text for w in ('刚才','那家','那场','那个','这场','这个','之前'))
 

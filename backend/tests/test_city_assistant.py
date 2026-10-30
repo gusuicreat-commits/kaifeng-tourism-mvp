@@ -568,3 +568,44 @@ def test_history_off_during_interpretation_does_not_recreate_messages_or_intents
     with connect() as db:
         assert db.execute('SELECT count(*) FROM conversation_messages').fetchone()[0]==0
         assert db.execute('SELECT count(*) FROM city_proposals').fetchone()[0]==0
+
+
+@pytest.mark.parametrize('question,place', [
+    ('[合成测试]塔有什么好看的？','tower'),        # core name of 塔景区; the equal-named child POI yields to its area
+    ('[合成测试]塔公园几点关门？','tower'),        # alias; the child "塔" is inside the longer name
+    ('[合成测试]塔大殿几点开？','tower-hall'),     # a longer child name wins over the area's core name
+])
+def test_scenic_question_resolves_core_name_longest_match_and_parent(scenic,question,place):
+    meta={'planning_status':'reference','planning_note':'合成参考资料，仅用于测试','rights_status':'permitted','source_ids':['scenic-source']}
+    records=[meta|{'kind':'place','fact_id':'tower','name':'[合成测试]塔景区','aliases':['[合成测试]塔公园'],'place_type':'scenic'},
+        meta|{'kind':'place','fact_id':'tower-poi','name':'[合成测试]塔','place_type':'poi','parent_place_id':'tower'},
+        meta|{'kind':'place','fact_id':'tower-hall','name':'[合成测试]塔大殿','place_type':'poi','parent_place_id':'tower'},
+        meta|{'kind':'highlight','fact_id':'tower-highlight','place_id':'tower','name':'琉璃塔','sort_order':1}]
+    with connect() as db:facts.import_bundle(facts.FactBundle(records=records),db,apply=True)
+    response=ask(scenic,question).json()
+    assert response['status']!='needs_clarification',response
+    assert response['references']==[{'kind':'place','id':place}]
+
+
+@pytest.mark.parametrize('text', ['开封有什么好玩的？','推荐几个景点'])
+def test_city_wide_question_lists_scenic_reference_without_a_route(scenic,monkeypatch,text):
+    monkeypatch.setattr(language,'_call',lambda *_:{'operation':'query','purpose':'trip'})
+    response=ask(scenic,text).json()
+    assert response['status']=='answered',response
+    assert response['reply'].startswith('开封可参考的景区（参考资料，未现场核验）：[合成测试]景区')
+    assert '还没有正式计算并确认的城市路线' not in response['reply']
+    assert response['references']==[{'kind':'place','id':'scenic'}]
+
+
+def test_own_plan_question_keeps_the_plan_answer(scenic,monkeypatch):
+    monkeypatch.setattr(language,'_call',lambda *_:{'operation':'query','purpose':'trip'})
+    response=ask(scenic,'我的行程里还剩哪些景点值得去？').json()
+    assert '开封可参考的景区' not in response['reply']
+
+
+@pytest.mark.parametrize('text,history', [('[合成测试]景区有什么好看的？',False),('恢复到[合成测试]景区那一版方案',True)])
+def test_historic_site_is_not_plan_history(scenic,monkeypatch,text,history):
+    monkeypatch.setattr(language,'_call',lambda *_:{'operation':'query','purpose':'history'})
+    response=ask(scenic,text).json()
+    assert ('恢复某个历史正式版本' in response['reply']) == history, response
+    if not history:assert response['status']=='answered' and '看点：虹桥' in response['reply']
