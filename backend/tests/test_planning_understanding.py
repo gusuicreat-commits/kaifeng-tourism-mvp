@@ -609,6 +609,24 @@ def test_evening_trip_sentence_keeps_times_return_point_and_food(city,monkeypatc
     assert '灌汤包' in t['result']['reply'] and '没听准' not in t['result']['reply']
 
 
+@pytest.mark.parametrize('time_fields,question,absent',[
+    ([field('start_time','09:00','早上九点')],'最晚几点结束？','几点开始'),
+    ([field('end_time','18:00','下午六点')],'当天几点开始？','最晚'),
+    ([], '当天几点开始，最晚几点结束？',None),
+])
+def test_planning_asks_only_for_missing_times(city,monkeypatch,time_fields,question,absent):
+    text='明天从[合成测试]origin出发'+('，早上九点' if time_fields and time_fields[0]['field']=='start_time' else
+        '，下午六点结束' if time_fields else '')
+    model(monkeypatch,text,[field('date','明天','明天'),field('origin','[合成测试]origin','[合成测试]origin'),*time_fields])
+    task=run(city,text);reply=task['result']['reply']
+    assert task['status']=='needs_clarification' and task['interpretation']['basis']=='kimi_validated'
+    assert reply=='日期已记为 2030-05-02。'+question
+    if absent:assert absent not in reply
+    saved=city['client'].get(path(city,'/exploration/constraints')).json()['constraints']
+    assert bool(saved['starts_at'])==any(f['field']=='start_time' for f in time_fields)
+    assert bool(saved['ends_at'])==any(f['field']=='end_time' for f in time_fields)
+
+
 def test_unsupported_field_is_dropped_and_asked_while_the_rest_is_kept(city,monkeypatch):
     text='明天从开封府出发，九点前结束'
     # The quote has no evening word, so 21:00 is acceptable but 23:00 is invented.

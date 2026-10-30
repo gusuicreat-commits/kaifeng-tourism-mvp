@@ -146,7 +146,9 @@ def _execute(session,t,intent,proposed=None):
     asked=set()
     if missing:
         if 'business_date' in missing:reply='你打算哪天去？';asked={'date'}
-        elif any(k in missing for k in ('starts_at','ends_at')):reply='当天几点开始，最晚几点结束？';asked={'start_time','end_time'}
+        elif set(missing)>={'starts_at','ends_at'}:reply='当天几点开始，最晚几点结束？';asked={'start_time','end_time'}
+        elif 'ends_at' in missing:reply='最晚几点结束？';asked={'end_time'}
+        elif 'starts_at' in missing:reply='当天几点开始？';asked={'start_time'}
         elif set(missing)>={'origin_place_id','destination_place_id'}:reply='从哪里出发，最后返回哪里？';asked={'origin','destination'}
         elif 'origin_place_id' in missing:reply='从哪里出发？';asked={'origin'}
         else:reply='最后回到哪里？';asked={'destination'}

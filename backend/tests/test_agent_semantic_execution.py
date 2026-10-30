@@ -70,3 +70,32 @@ def test_missing_state_target_is_not_arbitrarily_next_stop(city,monkeypatch):
     task=run(city,message)
     assert task['status']=='needs_clarification' and not task['result'].get('confirmation')
     assert get(city)==before
+
+
+@pytest.mark.parametrize('confirmed,version,reply',[
+    (False,None,'这趟行程还没有已确认的历史版本，暂时没有可恢复的方案。'),
+    (False,1,'这趟行程还没有已确认的历史版本，暂时没有可恢复的方案。'),
+    (True,None,'要恢复第几版？可以说"恢复第2版"。恢复后仍需按当前进度重新计算并确认。'),
+])
+def test_restore_without_history_or_version_clarifies_before_dispatch(city,monkeypatch,confirmed,version,reply):
+    if confirmed:planned(city)
+    before=get(city);message='恢复上一版方案' if version is None else '恢复第1版方案'
+    online(monkeypatch,{'actions':[{'kind':'modify','quote':message}],
+        'state_request':{'operation':'restore','quote':message,'restore_version':version}})
+    monkeypatch.setattr(service.v2service,'_dispatch',lambda *a,**k:pytest.fail('restore must clarify before dispatch'))
+    task=run(city,message)
+    assert task['interpretation']['basis']=='kimi_validated'
+    assert task['status']=='needs_clarification' and task['result']['reply']==reply
+    assert '已停止' not in task['result']['reply']
+    assert get(city)==before
+
+
+def test_typed_restore_with_version_keeps_preview_and_completed_history(city,monkeypatch):
+    walking(city);before=get(city);message='恢复第1版方案'
+    online(monkeypatch,{'actions':[{'kind':'modify','quote':message}],
+        'state_request':{'operation':'restore','quote':message,'restore_version':1}})
+    task=run(city,message)
+    assert task['interpretation']['basis']=='kimi_validated'
+    assert task['status']=='needs_confirmation' and task['result']['changes']['history_preserved']==['visit'],task
+    assert 'visit' not in task['result']['changes']['removed']
+    assert get(city)==before

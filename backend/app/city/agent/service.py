@@ -353,6 +353,11 @@ def _workflow(session,t):
         if t.interpretation.get('basis')=='kimi_validated':
             if not t.intent.state_request:
                 return {'status':'needs_clarification','reply':'请明确状态操作及目标；也可以使用相应按钮。'},[]
+            if t.intent.state_request.operation=='restore':
+                if not t.snapshot.row['route_version']:
+                    return {'status':'needs_clarification','reply':'这趟行程还没有已确认的历史版本，暂时没有可恢复的方案。'},[]
+                if t.intent.state_request.restore_version is None:
+                    return {'status':'needs_clarification','reply':'要恢复第几版？可以说"恢复第2版"。恢复后仍需按当前进度重新计算并确认。'},[]
             from .semantic_execution import state_action
             local=state_action(t.intent.state_request,t.snapshot)
         else:local=interpret.rules(t.text,t.snapshot)
