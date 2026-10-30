@@ -143,12 +143,18 @@ def grounded(planning, text, snapshot, dropped=None, meta=None, corrections=()):
             drop(f,f.field,'quote_not_in_request','fields');continue
         try:
             request_evidence(text,f.quote)
-            scope_check(f,text)
+            try:scope_check(f,text)
+            except ValueError as exc:
+                from ..assistant import tools
+                if f.scope!='every_day' or str(exc)!='scope_not_in_quote' or not snapshot.multi_requirements \
+                        or not snapshot.multi_itinerary or not tools.has_continuous_scope(text):raise
+                original=f;f=f.model_copy(update={'scope':None});originals[id(f)]=original
+                if meta is not None:meta.setdefault('recovered_fields',[]).append({'field':f.field,'source':'continuous_scope','quote':f.quote})
             if f.day_ref:
                 fixed=quoted_day_ref(f.day_ref,f.quote,text)
                 if fixed is None:raise ValueError('day_ref_not_in_quote')
                 if fixed!=f.day_ref:
-                    original=f;f=f.model_copy(update={'day_ref':fixed});originals[id(f)]=original
+                    original=f;f=f.model_copy(update={'day_ref':fixed});originals[id(f)]=originals.get(id(original),original)
                     if meta is not None:meta.setdefault('recovered_fields',[]).append({'field':f.field,'source':'day_ref_from_quote','quote':fixed})
                 day_reference(f.day_ref,text,today)
             key=(f.field,day_key(f,today))

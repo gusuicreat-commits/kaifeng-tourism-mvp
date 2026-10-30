@@ -141,6 +141,63 @@ def test_suffix_agent_preview_context_and_confirmation(multi_engine,monkeypatch,
     agent.TASKS.clear()
 
 
+@pytest.mark.parametrize('text,quote',[
+    ('今天和明天都少走路','少走路'),
+    ('今天剩下的和明天的行程一起重新排一下，少走点路','少走点路'),
+    ('从今天开始后面的行程都改成少走路','少走路'),
+    ('每个景点都少走路','少走路'),
+])
+def test_suffix_agent_recovers_daily_scope_only_for_confirmed_continuous_request(multi_engine,monkeypatch,text,quote):
+    from app import language
+    from app.city.agent import provider,service as agent
+    from app.city.assistant import context,tools
+    from test_city_agent import run
+    e,req,old=committed(multi_engine);moment=start_today(e,monkeypatch)
+    for module in (context,tools):monkeypatch.setattr(module,'now',lambda:moment)
+    agent.TASKS.clear()
+    raw={'planning':{'operation':'update','quote':text,'fields':[
+        {'field':'objective','value':'less_walking','quote':quote,'scope':'every_day'}]}}
+    monkeypatch.setattr(language,'available',lambda:True)
+    monkeypatch.setattr(provider,'generate',lambda *a,**k:(copy.deepcopy(raw),{'source':'mock_model'}))
+    before=e[0].get('/api/city/v1/trips/'+e[1]['id']).json()
+    task=run({'client':e[0],'trip':e[1]},text)
+    if text=='每个景点都少走路':
+        assert task['interpretation']['dropped_fields']==[{'field':'objective','check':'scope_not_in_quote'}]
+        assert not task['interpretation'].get('recovered_fields')
+        assert not task['result'].get('planning') and not task['result'].get('confirmation')
+    else:
+        assert task['status']=='needs_confirmation',json.dumps(task,ensure_ascii=False)
+        assert task['result']['planning']['scope']=='current_and_future'
+        assert not task['interpretation'].get('dropped_fields')
+        recovered=[f for f in task['interpretation']['recovered_fields'] if f['field']=='objective']
+        assert recovered==[{'field':'objective','source':'continuous_scope','quote':quote}]
+        assert '没采用' not in task['result']['reply'] and '旧单日入口' not in task['result']['reply']
+    assert e[0].get('/api/city/v1/trips/'+e[1]['id']).json()==before
+    agent.TASKS.clear()
+
+
+def test_continuous_daily_scope_is_not_recovered_for_unconfirmed_multi_day_draft(multi_engine,monkeypatch):
+    from types import SimpleNamespace
+    from app.memory.session import Session
+    from app.city.agent.models import PlanningIntent
+    from app.city.agent.planning_intent import grounded
+    from app.city.assistant import context
+    from app.city.engine.models import MultiDayRequirements
+    e,req=multi_engine;moment=datetime.fromisoformat('2030-05-02T09:00:00+08:00')
+    monkeypatch.setattr(context,'now',lambda:moment)
+    with connect() as db:
+        row=db.execute('SELECT * FROM conversation_sessions LIMIT 1').fetchone();session=Session(row['id'],row['guest_token_hash'],None)
+    snapshot=context.load(session,e[1]['id'],'modify')
+    snapshot=SimpleNamespace(**(vars(snapshot)|{'multi_requirements':MultiDayRequirements.model_validate(req)}))
+    text='今天和明天都少走路';dropped=[];meta={}
+    planning=PlanningIntent(operation='update',quote=text,fields=[
+        {'field':'objective','value':'less_walking','quote':'少走路','scope':'every_day'}])
+    result=grounded(planning,text,snapshot,dropped,meta)
+    assert snapshot.multi_requirements and snapshot.multi_itinerary is None and not result.fields
+    assert dropped==[{'field':'objective','check':'scope_not_in_quote'}]
+    assert not meta.get('recovered_fields')
+
+
 def test_mismatched_agent_scope_cannot_expand_tomorrow_to_whole_suffix(multi_engine,monkeypatch):
     from app.city.assistant import context,tools
     from app.city.agent.toolbelt import preview_adjustment

@@ -226,6 +226,82 @@ def test_future_agent_to_engine_context_and_confirmation(multi_engine,monkeypatc
     agent.TASKS.clear()
 
 
+@pytest.mark.parametrize('status',['ACTIVE','PAUSED'])
+@pytest.mark.parametrize('text,day_ref',[
+    ('今天后面的安排帮我改一下，少走点路',None),
+    ('今天剩余的行程少走路','今天'),
+    ('第二天的行程少走路','第二天'),
+])
+def test_today_only_agent_edit_points_to_trip_page_without_changing_versions(multi_engine,monkeypatch,status,text,day_ref):
+    from app import language
+    from app.city.agent import provider,service as agent
+    from app.city.assistant import context,tools
+    from test_city_agent import run
+    e,req,_=committed(multi_engine);moment=start_today(e,monkeypatch)
+    if status=='PAUSED':
+        with connect() as db:db.execute("UPDATE city_trip_states SET status='PAUSED' WHERE id=?",(e[1]['id'],))
+    for module in (context,tools):monkeypatch.setattr(module,'now',lambda:moment)
+    agent.TASKS.clear()
+    raw={'planning':{'operation':'update','quote':text,'fields':[
+        {'field':'objective','value':'less_walking','quote':text,'day_ref':day_ref}]}}
+    monkeypatch.setattr(language,'available',lambda:True)
+    monkeypatch.setattr(provider,'generate',lambda *a,**k:(copy.deepcopy(raw),{'source':'mock_model'}))
+    before=e[0].get('/api/city/v1/trips/'+e[1]['id']).json();route=current(e).json()
+    task=run({'client':e[0],'trip':e[1]},text)
+    assert task['status']=='needs_clarification',json.dumps(task,ensure_ascii=False)
+    assert task['result']['reply']=='多天行程里只调整今天剩余的安排，请在行程页使用“调整今天剩余”；如果要连同后面几天一起改，可以说“今天和明天都……”。'
+    assert task['result']['planning']=={'status':'needs_clarification','reply':task['result']['reply']}
+    assert not task['result'].get('confirmation')
+    assert e[0].get('/api/city/v1/trips/'+e[1]['id']).json()==before
+    assert current(e).json()==route
+    agent.TASKS.clear()
+
+
+@pytest.mark.parametrize('phrase,day_ref',[
+    ('明天','明天'),('明天',None),('第三天','第三天'),('第三天',None),('5月3日',None),('最后一天',None),
+])
+def test_active_agent_future_reference_still_selects_future_day(multi_engine,monkeypatch,phrase,day_ref):
+    from app import language
+    from app.city.agent import provider,service as agent
+    from app.city.assistant import context,tools
+    from test_city_agent import run
+    e,req,old=committed(multi_engine);moment=start_today(e,monkeypatch)
+    for module in (context,tools):monkeypatch.setattr(module,'now',lambda:moment)
+    agent.TASKS.clear();text=phrase+'改成十点出发'
+    raw={'planning':{'operation':'update','quote':text,'fields':[
+        {'field':'start_time','value':'10:00','quote':'十点出发','day_ref':day_ref}]}}
+    monkeypatch.setattr(language,'available',lambda:True)
+    monkeypatch.setattr(provider,'generate',lambda *a,**k:(copy.deepcopy(raw),{'source':'mock_model'}))
+    task=run({'client':e[0],'trip':e[1]},text)
+    assert task['status']=='needs_confirmation',json.dumps(task,ensure_ascii=False)
+    p=task['result']['planning'];assert p['scope']=='selected_future_day'
+    assert p['result']['itineraries'][0]['days'][:2]==old['itinerary']['days'][:2]
+    assert p['result']['itineraries'][0]['days'][2]['requirements']['starts_at'].endswith('10:00:00+08:00')
+    assert current(e).json()['route_version']==1
+    agent.TASKS.clear()
+
+
+@pytest.mark.parametrize('text',['第九天少走路','2月30日少走路','6月1日少走路'])
+def test_active_invalid_or_outside_date_keeps_existing_future_scope_refusal(multi_engine,monkeypatch,text):
+    from fastapi import HTTPException
+    from app.memory.session import Session
+    from app.city.agent import future_planning
+    from app.city.agent.models import Understanding
+    from app.city.assistant import context,tools
+    e,req,_=committed(multi_engine);moment=start_today(e,monkeypatch)
+    for module in (context,tools):monkeypatch.setattr(module,'now',lambda:moment)
+    with connect() as db:
+        row=db.execute('SELECT * FROM conversation_sessions LIMIT 1').fetchone();session=Session(row['id'],row['guest_token_hash'],None)
+    snapshot=context.load(session,e[1]['id'],'modify');before=saved_rows()
+    with pytest.raises(HTTPException) as exc:tools.selected_future_day_scope(snapshot,text)
+    intent=Understanding(planning={'operation':'update','quote':text,'fields':[
+        {'field':'objective','value':'less_walking','quote':'少走路'}]})
+    result=future_planning.preview(session,e[1]['id'],snapshot,intent,rid(),text)
+    detail=exc.value.detail
+    assert result['status']=='needs_clarification' and result['reply']==(detail['message'] if isinstance(detail,dict) else detail)
+    assert saved_rows()==before
+
+
 @pytest.mark.parametrize('text,quote,field,value,index,ref',[
     ('第三天改为十点出发','第三天改为十点出发','start_time','10:00',2,'2030-05-04'),
     ('第三天改为十点出发','十点出发','start_time','10:00',2,'2030-05-03'),

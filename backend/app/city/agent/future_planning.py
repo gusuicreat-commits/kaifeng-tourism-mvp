@@ -32,10 +32,20 @@ def _preview(session,trip_id,snapshot,intent,request_id,text):
     if tools.has_continuous_scope(text):
         from .suffix_planning import preview as preview_suffix
         return preview_suffix(session,trip_id,snapshot,intent,request_id,text)
+    full=snapshot.multi_requirements;today=snapshot.planning.assessed_at.astimezone(TZ).date()
+    if snapshot.row['status'] in ('ACTIVE','PAUSED') and full.start_date<=today<=full.end_date:
+        try:
+            dates=[date_range.resolve(expression,today) for expression in date_range.expressions(text)]
+            refs=[m[0] for m in date_range.DAY_NUMBER.finditer(text)]+[f.day_ref for f in intent.planning.fields if f.day_ref]
+            dates.extend(date_range.date_for_ref(date_range.day_reference(ref,text,today),full.start_date,full.end_date) for ref in refs)
+            has_future=any(day>today for day in dates)
+        except ValueError:has_future=True  # Keep unresolved dates with the existing dated-edit clarification.
+        if not has_future:
+            return {'status':'needs_clarification','reply':'多天行程里只调整今天剩余的安排，请在行程页使用“调整今天剩余”；如果要连同后面几天一起改，可以说“今天和明天都……”。'}
     from .planning_intent import _resolve_endpoint,_choice_facts
     day_id=tools.selected_future_day_scope(snapshot,text)
-    full=snapshot.multi_requirements;day=next(d for d in full.days if d.day_id==day_id)
-    today=snapshot.planning.assessed_at.astimezone(TZ).date();updates={};goals=list(full.goals);cancel=[]
+    day=next(d for d in full.days if d.day_id==day_id)
+    updates={};goals=list(full.goals);cancel=[]
     allowed={'date','start_time','end_time','pace','objective','mode','origin','destination'}
     def clarify(message):return {'status':'needs_clarification','reply':message}
     for field in intent.planning.fields:
