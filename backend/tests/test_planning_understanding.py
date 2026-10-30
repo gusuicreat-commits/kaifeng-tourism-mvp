@@ -28,6 +28,41 @@ def model(monkeypatch,text,fields=(),**extra):
 def field(name,value,quote):return {'field':name,'value':value,'quote':quote}
 
 
+@pytest.mark.parametrize('prefix,expected',[
+    ('第三天','第三天'),('明天','明天'),('第二天和第三天',None),('',None),
+])
+def test_choice_recovers_only_unique_day_expression(city,monkeypatch,prefix,expected):
+    text=prefix+'想去[合成测试]museum'
+    model(monkeypatch,text,planning={'quote':text,'choices':[
+        {'name':'[合成测试]museum','priority':'want','status':'pending','quote':text,'day_ref':'2030-05-04'}]})
+    intent,meta=understand.parse(text,snapshot(city)[0])
+    assert not meta.get('validation_failure'),meta
+    if expected:
+        assert len(intent.planning.choices)==1 and intent.planning.choices[0].day_ref==expected
+        recovered=[{'field':'date','source':'date_grammar'}] if prefix=='明天' else []
+        assert meta['recovered_fields']==recovered+[{'field':'choice','source':'day_ref_from_quote','quote':expected}]
+        assert not meta.get('dropped_fields')
+        assert understand.dropped_reply(intent,meta,text)==''
+    else:
+        assert intent.planning is None
+        assert meta['dropped_fields']==[{'field':'choice','check':'day_ref_not_in_quote'}]
+        assert meta['dropped'][0]['path']=='planning.choices[0]'
+
+
+@pytest.mark.parametrize('conflict',[False,True])
+def test_recovered_day_ref_preserves_strict_value_checks_and_drop_paths(city,monkeypatch,conflict):
+    text='第三天九点或十点出发，第二天少走点路'
+    fields=[{'field':'start_time','value':'09:00' if conflict else '11:00',
+        'quote':'第三天九点或十点出发','day_ref':'2030-05-04'}]
+    if conflict:fields.append({'field':'start_time','value':'10:00','quote':'第三天九点或十点出发','day_ref':'2030-05-04'})
+    fields.append({'field':'objective','value':'less_walking','quote':'第二天少走点路','day_ref':'第二天'})
+    model(monkeypatch,text,fields);intent,meta=understand.parse(text,snapshot(city)[0])
+    assert not meta.get('validation_failure'),meta
+    assert [(f.field,f.day_ref) for f in intent.planning.fields]==[('objective','第二天')]
+    assert {d['check'] for d in meta['dropped_fields']}=={'conflicting_values' if conflict else 'clock_not_in_quote'}
+    assert {d['path'] for d in meta['dropped']}==({'planning.fields[0]','planning.fields[1]'} if conflict else {'planning.fields[0]'})
+
+
 def choices(monkeypatch,text,*items,fields=(),**extra):
     return model(monkeypatch,text,planning={'quote':text,'fields':list(fields),'choices':[
         {'name':name,'priority':priority,'status':status,'quote':quote,

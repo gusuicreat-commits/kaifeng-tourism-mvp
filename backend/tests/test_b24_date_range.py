@@ -112,10 +112,12 @@ def test_invalid_daily_evidence_only_drops_that_item_and_records_meta(city,monke
     raw={'planning':{'quote':text,'fields':fields,'choices':[
         {'name':'[合成测试]museum','priority':'want','quote':'想去[合成测试]museum','day_ref':'第四天'}]}}
     intent,meta=parse(city,monkeypatch,raw,text)
-    assert [(f.field,f.value) for f in intent.planning.fields]==[('start_time','09:00')]
+    assert [(f.field,f.value,f.day_ref) for f in intent.planning.fields]==[
+        ('start_time','09:00','第一天'),('start_time','10:00','第二天')]
+    assert meta['recovered_fields']==[{'field':'start_time','source':'day_ref_from_quote','quote':'第二天'}]
     assert not intent.planning.choices and not meta.get('planning_conflicts')
-    assert {d['path'] for d in dropped(meta)}=={'planning.fields[1]','planning.fields[2]','planning.fields[3]','planning.choices[0]'}
-    assert {d['check'] for d in meta['dropped_fields']}=={'current request evidence missing','scope_not_in_quote','clock_not_in_quote'}
+    assert {d['path'] for d in dropped(meta)}=={'planning.fields[2]','planning.fields[3]','planning.choices[0]'}
+    assert {d['check'] for d in meta['dropped_fields']}=={'day_ref_not_in_quote','scope_not_in_quote','clock_not_in_quote'}
 
 
 def test_multi_day_conflict_asks_only_that_field_and_never_previews_or_offers_basket(city,monkeypatch):

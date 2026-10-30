@@ -14,6 +14,16 @@ def expressions(quote):
     return [m.group() for m in RANGE_DATE.finditer(quote)]
 
 
+def quoted_day_ref(ref,quote,text):
+    if ref in text:return ref
+    found={m.group() for m in DAY_NUMBER.finditer(quote)}|set(expressions(quote))
+    found={value for value in found if not any(value!=other and value in other for other in found)}
+    if len(found)==1:
+        value=next(iter(found))
+        if value in text:return value
+    return None
+
+
 def explicit_year(expression):
     return bool(re.match(r'\d{4}(?:年|[-/])',expression))
 

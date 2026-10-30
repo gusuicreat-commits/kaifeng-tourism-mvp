@@ -122,19 +122,19 @@ def grounded(planning, text, snapshot, dropped=None, meta=None, corrections=()):
         control=planning.quote.strip().rstrip('。！!')
         if control not in ('好','好的','可以','就这样','就这样吧','就按这个安排','生成安排','开始安排','帮我安排','安排','规划') and not re.search(r'(?:开始|生成|继续|帮我|请).{0,20}(?:安排|规划)',control):
             raise ValueError('continue needs an explicit planning request')
-    from .date_range import day_key,day_reference,scope_check,daily_evidence,multiple_days
+    from .date_range import day_key,day_reference,quoted_day_ref,scope_check,daily_evidence,multiple_days
     from .requirement_context import planning_values
     range_fields=[f for f in planning.fields if f.field in ('date','start_date','end_date','trip_days')
                   and f.quote in text and _field_check(f,text,today) is None]
     multi=any(f.field in ('start_time','end_time','origin','destination') and not f.scope and not f.day_ref for f in planning.fields) \
         and multiple_days(planning_values(snapshot),range_fields,today)
-    seen={};kept=[]
+    seen={};kept=[];originals={}
     def drop(item,field,check,part):
         dropped.append({'field':field,'check':check})
         if meta is not None:
             from .understand import _drop, _drop_category
             sequence=planning.fields if part=='fields' else planning.choices
-            _drop(meta,f'planning.{part}[{sequence.index(item)}]',_drop_category(check),check,item.quote,field=field)
+            _drop(meta,f'planning.{part}[{sequence.index(originals.get(id(item),item))}]',_drop_category(check),check,item.quote,field=field)
     for f in planning.fields:
         # A quote the model did not copy from the request only loses that field;
         # negation/hypothetical checks still protect the whole turn.
@@ -144,7 +144,13 @@ def grounded(planning, text, snapshot, dropped=None, meta=None, corrections=()):
         try:
             request_evidence(text,f.quote)
             scope_check(f,text)
-            if f.day_ref:day_reference(f.day_ref or f.quote,text,today)
+            if f.day_ref:
+                fixed=quoted_day_ref(f.day_ref,f.quote,text)
+                if fixed is None:raise ValueError('day_ref_not_in_quote')
+                if fixed!=f.day_ref:
+                    original=f;f=f.model_copy(update={'day_ref':fixed});originals[id(f)]=original
+                    if meta is not None:meta.setdefault('recovered_fields',[]).append({'field':f.field,'source':'day_ref_from_quote','quote':fixed})
+                day_reference(f.day_ref,text,today)
             key=(f.field,day_key(f,today))
             check=_field_check(f,text,today)
         except ValueError as exc:check=str(exc)
@@ -187,7 +193,13 @@ def grounded(planning, text, snapshot, dropped=None, meta=None, corrections=()):
             drop(choice,'choice','choice_not_in_quote','choices');continue
         try:
             request_evidence(text,choice.quote)
-            if choice.day_ref:day_reference(choice.day_ref,text,today)
+            if choice.day_ref:
+                fixed=quoted_day_ref(choice.day_ref,choice.quote,text)
+                if fixed is None:raise ValueError('day_ref_not_in_quote')
+                if fixed!=choice.day_ref:
+                    original=choice;choice=choice.model_copy(update={'day_ref':fixed});originals[id(choice)]=original
+                    if meta is not None:meta.setdefault('recovered_fields',[]).append({'field':'choice','source':'day_ref_from_quote','quote':fixed})
+                day_reference(choice.day_ref,text,today)
         except ValueError as exc:
             if dropped is None:raise
             drop(choice,'choice',str(exc),'choices');continue

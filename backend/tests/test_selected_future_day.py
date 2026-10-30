@@ -11,6 +11,34 @@ from test_hotel_overnight_binding import hotel_trip
 from test_trip_budget import price_ops,priced_select,options
 
 
+@pytest.mark.parametrize('ref,quote,expected',[
+    ('2026-11-02','第三天改成十点出发','第三天'),
+    ('2026-11-01','第二天少走点路','第二天'),
+    ('2026-10-31','明天早点出发','明天'),
+    ('第三天','第三天改成十点出发','第三天'),
+    ('2026-11-02','2026-11-02改成十点出发','2026-11-02'),
+    ('2026-11-02','第二天和第三天都十点出发',None),
+    ('2026-11-02','改成十点出发',None),
+    ('2026-11-02','第一天九点出发','第一天'),
+    ('2026-11-02','最后一天早点出发','最后一天'),
+    ('2026-11-02','首日早点出发','首日'),
+    ('2026-11-02','末日早点出发','末日'),
+    ('2026-11-02','周六早点出发','周六'),
+    ('2026-11-02','11月2日早点出发','11月2日'),
+    ('2026-11-02','明天和第三天都十点出发',None),
+    ('2026-11-02','第三天早些出门，第三天十点出发','第三天'),
+])
+def test_quoted_day_ref_recovers_only_one_literal_expression(ref,quote,expected):
+    from app.city.agent.date_range import quoted_day_ref
+    assert quoted_day_ref(ref,quote,quote)==expected
+
+
+def test_quoted_day_ref_does_not_recover_an_expression_absent_from_request():
+    from app.city.agent.date_range import quoted_day_ref
+    assert quoted_day_ref('2026-11-02','第三天改成十点出发','改成十点出发') is None
+    assert quoted_day_ref('第三天','十点出发','第三天改成十点出发')=='第三天'
+
+
 def edit_future(e,req,day='day:2030-05-03',**extra):
     return remaining(e,req,scope='selected_future_day',day_id=day,**extra)
 
@@ -173,6 +201,47 @@ def test_future_agent_to_engine_context_and_confirmation(multi_engine,monkeypatc
     response=e[0].post('/api/city/v1/trips/'+e[1]['id']+'/assistant/confirm',json={'request_id':rid(),'confirmed':True,**result['confirmation']})
     assert response.status_code==200,response.text
     assert current(e).json()['itinerary']['days'][:2]==old['itinerary']['days'][:2]
+    agent.TASKS.clear()
+
+
+@pytest.mark.parametrize('text,field,value,index,ref',[
+    ('第三天改为十点出发','start_time','10:00',2,'2030-05-04'),
+    ('第二天少走点路','objective','less_walking',1,'2030-05-02'),
+    ('第二天和第三天都十点出发','start_time','10:00',None,'2030-05-04'),
+])
+def test_future_agent_recovers_iso_day_ref_or_drops_ambiguous_item(multi_engine,monkeypatch,text,field,value,index,ref):
+    from app import language
+    from app.city.agent import provider,service as agent
+    from app.city.assistant import context,tools
+    from test_city_agent import run
+    e,req,old=committed(multi_engine)
+    moment=datetime.fromisoformat('2030-04-30T08:00:00+08:00')
+    for module in (context,tools):monkeypatch.setattr(module,'now',lambda:moment)
+    agent.TASKS.clear()
+    raw={'planning':{'operation':'update','quote':text,'fields':[
+        {'field':field,'value':value,'quote':text,'day_ref':ref}]}}
+    monkeypatch.setattr(language,'available',lambda:True)
+    monkeypatch.setattr(provider,'generate',lambda *a,**k:(copy.deepcopy(raw),{'source':'mock_model'}))
+    before=e[0].get('/api/city/v1/trips/'+e[1]['id']).json()
+    task=run({'client':e[0],'trip':e[1]},text)
+    assert e[0].get('/api/city/v1/trips/'+e[1]['id']).json()==before
+    if index is None:
+        assert task['status']=='unavailable',task
+        assert task['interpretation']['dropped_fields']==[{'field':field,'check':'day_ref_not_in_quote'}]
+        assert not task['result'].get('planning') and not task['result'].get('confirmation')
+        assert current(e).json()['itinerary']==old['itinerary']
+    else:
+        assert task['status']=='needs_confirmation',task
+        p=task['result']['planning'];assert p['scope']=='selected_future_day'
+        assert not task['interpretation'].get('dropped_fields')
+        assert task['interpretation']['recovered_fields']==[{'field':field,'source':'day_ref_from_quote','quote':text[:3]}]
+        assert '没采用' not in task['result']['reply']
+        for plan in p['result']['itineraries']:
+            for i,day in enumerate(plan['days']):
+                if i!=index:assert day==old['itinerary']['days'][i]
+            requirements=plan['days'][index]['requirements']
+            if field=='start_time':assert requirements['starts_at'].endswith('10:00:00+08:00')
+            else:assert requirements['objective']==value
     agent.TASKS.clear()
 
 

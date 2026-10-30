@@ -19,6 +19,33 @@ from test_multi_day_api import multi_engine,committed,start_today
 from test_city_engine_api import engine,confirm as engine_confirm
 
 
+@pytest.mark.parametrize('iso_ref',[False,True])
+def test_new_multi_day_daily_times_accept_normalized_day_refs(city,monkeypatch,iso_ref):
+    from test_planning_understanding import model,field
+    from test_city_agent import run
+    text='5月3日玩两天，每天20点结束；第一天九点出发，从[合成测试]origin到[合成测试]hotel；第二天十点出发，从[合成测试]hotel回[合成测试]origin'
+    fields=[field('start_date','2030-05-03','5月3日'),field('trip_days',2,'两天'),
+        {'field':'end_time','value':'20:00','quote':'每天20点结束','scope':'every_day'}]
+    for day,time,origin,destination,quote in [
+        ('第一天','09:00','origin','hotel','第一天九点出发，从[合成测试]origin到[合成测试]hotel'),
+        ('第二天','10:00','hotel','origin','第二天十点出发，从[合成测试]hotel回[合成测试]origin')]:
+        ref={'第一天':'2030-05-03','第二天':'2030-05-04'}[day] if iso_ref else day
+        fields.extend({'field':name,'value':value,'quote':quote,'day_ref':ref} for name,value in (
+            ('start_time',time),('origin','[合成测试]'+origin),('destination','[合成测试]'+destination)))
+    model(monkeypatch,text,fields);before=get(city);task=run(city,text)
+    assert task['status']=='needs_confirmation',task
+    assert not task['interpretation'].get('dropped_fields') and '没采用' not in task['result']['reply']
+    saved=city['client'].get(path(city,'/exploration/constraints')).json()['constraints']
+    assert saved['schema_version']=='city-constraints/2'
+    for i,day in enumerate(saved['days']):
+        assert day['business_date']==f'2030-05-0{i+3}'
+        assert day['starts_at']==f'2030-05-0{i+3}T{9+i:02d}:00:00+08:00'
+        assert day['ends_at']==f'2030-05-0{i+3}T20:00:00+08:00'
+        assert day['origin_place_id']==('origin' if i==0 else 'hotel')
+        assert day['destination_place_id']==('hotel' if i==0 else 'origin')
+    assert get(city)==before
+
+
 def multi(city,ongoing=False):
     active_current(city) if ongoing else walking(city)
     original=city['data']['requirements'];today=date(2030,5,1)
