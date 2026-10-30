@@ -1,4 +1,5 @@
 import {test,expect} from '@playwright/test'
+import {finishCityPlanningMode} from './interview-helpers'
 
 test('缺资料保留媒体占位，景区已有视频只提供来源外链',async({page})=>{
  const errors:string[]=[];page.on('pageerror',e=>errors.push(e.message))
@@ -111,7 +112,7 @@ test('详情提问携带稳定对象引用，切换对象后不串话，素材�
  await expect(page.locator('.agent-messages p').last()).toContainText('清明上河园：')
  const t0=(await(await page.request.get('/api/city/v1/trips/current')).json()).trip
  await page.request.patch('/api/city/v1/trips/'+t0.id,{data:{request_id:crypto.randomUUID(),expected_version:t0.version,action:{operation:'save_draft',draft:{...t0.draft,business_date:'2026-11-01',starts_at:'2026-11-01T09:00:00+08:00',ends_at:'2026-11-01T19:00:00+08:00',origin_place_id:'test:gate',destination_place_id:'test:hotel'}}}})
- await page.goto('/assistant?context=city&plan=basket');await page.getByRole('button',{name:'生成安排',exact:true}).click()
+ await page.goto('/assistant?context=city&plan=basket');await finishCityPlanningMode(page);await page.getByRole('button',{name:'生成安排',exact:true}).click()
  await expect(page.getByLabel('规划检测结果')).toContainText('信息不足');await expect(page.getByRole('button',{name:/确认方案/})).toHaveCount(0)
  const t=(await(await page.request.get('/api/city/v1/trips/current')).json()).trip;expect(t.route_version).toBe(0)
 })
@@ -161,6 +162,7 @@ test('手机从素材接着问缺项，同一输入框回答、逐步保存，�
  await page.getByRole('combobox',{name:'出发地点',exact:true}).selectOption('test:gate');await page.getByRole('button',{name:'继续',exact:true}).click()
  await expect(page.getByText('最后回到哪里？',{exact:true})).toBeVisible()
  await page.getByRole('combobox',{name:'返程地点',exact:true}).selectOption('test:hotel');await page.getByRole('button',{name:'继续',exact:true}).click()
+ await finishCityPlanningMode(page,'quick')
  await expect(page.getByLabel('规划检测结果')).toContainText('信息不足')
  expect(agentCalls).toBe(2)
  const saved=await(await page.request.get(path+'/exploration/constraints')).json()
@@ -226,6 +228,7 @@ test('缺地点资料时可填写起终点，刷新保留且不生成正式路�
  await page.getByLabel('返回地点',{exact:true}).fill('开封站')
  await page.screenshot({path:'../docs/screenshots/endpoint-input-mobile.png',fullPage:true})
  await page.locator('.planning-question').getByRole('button',{name:'继续',exact:true}).click()
+ await finishCityPlanningMode(page,'quick')
  await expect(page.getByLabel('已提供的安排')).toContainText('从我住的酒店')
  await expect(page.getByLabel('规划检测结果')).toContainText('位置资料待核验')
  const reported=(await(await page.request.get(path+'/exploration/constraints')).json()).constraints

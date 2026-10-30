@@ -30,3 +30,10 @@ export async function submitPlan(page:Page){
  await page.getByRole('button',{name:'确认，生成我的路线',exact:true}).click()
  const body=await (await response).json();return body.plan||body
 }
+export async function finishCityPlanningMode(page:Page,mode:'deep'|'quick'='deep'){
+ const form=page.locator('.planning-question')
+ await expect(form).toContainText('几个人一起去？')
+ await form.getByRole('button',{name:'1 人',exact:true}).click()
+ await form.getByRole('group',{name:'选择互动模式',exact:true}).getByRole('button',{name:mode==='deep'?'深度互动':'快速安排',exact:false}).click()
+ if(mode==='deep')await form.getByRole('button',{name:'继续',exact:true}).click()
+}
