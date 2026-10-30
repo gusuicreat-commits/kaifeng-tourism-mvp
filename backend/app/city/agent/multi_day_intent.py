@@ -170,6 +170,9 @@ def prepare(session,trip_id,snapshot,intent,text,*,today=None,notes=()):
     if not (snapshot.services.get('selection') or {}).get('hotels'):
         values['clarifications'].extend(lodging_questions(values,locations,snapshot.planning.facts))
     values['clarifications'].extend(i['message'] for i in hotel_issues if i['code']!='HOTEL_LOCATION_PENDING')
+    hotel=(snapshot.services.get('selection') or {}).get('hotels') or {}
+    hotel_notes=['已选择'+hotel.get('name','所选酒店')+'，酒店位置尚未关联城市地点，过夜暂按原起终点安排；入住条件仍待核实。'] \
+        if any(i['code']=='HOTEL_LOCATION_PENDING' for i in hotel_issues) else []
     basket_result={}
     if p.choices:
         single=copy.copy(snapshot);single.workspace={'constraints':{},'version':snapshot.workspace.get('version',0)}
@@ -195,7 +198,10 @@ def prepare(session,trip_id,snapshot,intent,text,*,today=None,notes=()):
     values['clarifications']=list(dict.fromkeys(values['clarifications']))
     from .planning_intent import per_person_budget
     notes+=per_person_budget(values,p,text)
-    if values.get('pricing') is not None or values.get('per_person_budget_fen') is not None:
+    notes+=hotel_notes
+    # Whole-trip pricing counts per-person items times the party; without a stated
+    # party it would turn every per-person cost unknown, so the per-person check stays.
+    if values.get('pricing') is not None or (values.get('per_person_budget_fen') is not None and values.get('party_size')):
         from ..budget_models import PricingOptions
         price=values.get('pricing') or PricingOptions().model_dump()
         price.update(party_size=values.get('party_size') or price.get('party_size'),

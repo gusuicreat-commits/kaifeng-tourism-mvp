@@ -123,12 +123,26 @@ def test_multi_day_preview_checks_a_daily_per_person_budget(city, monkeypatch):
     values = saved(city)
     assert values['per_person_budget_fen'] == 30000 and values['per_person_budget_daily'] is True
     reply = task['result']['reply']
-    plan=task['result']['planning_workflow']['result']['result']['itineraries'][0]
-    assert values['pricing']['per_person_budget_fen']==30000 and values['pricing']['per_person_daily'] is True
-    assert plan['budget']['limit_fen'] is None  # No stated party size: do not invent one.
-    assert '全程已计入费用' in reply and '住宿' in reply
-    assert '明确旅行人数' in reply
+    # Without a stated party the per-person check stays; whole-trip pricing is not switched on.
+    assert values.get('pricing') is None
+    assert '按每人预算核对' in reply and '每人每天300元×3天，每人900元' in reply and '住宿' in reply
+    assert '全程已计入费用' not in reply and '明确旅行人数' not in reply
     assert '多天全程预算尚未接通' not in reply and get(city) == before
+
+
+def test_multi_day_per_person_budget_with_a_stated_party_uses_the_trip_summary(city, monkeypatch):
+    text = daily_text() + '，我们三个人，预算每人每天300元'
+    budget = field('budget_fen', 30000, '预算每人每天300元') | {'budget_basis': 'per_person'}
+    model(monkeypatch, text, range_fields() + daily_fields('every_day') + [budget])
+    task = run(city, text)
+    assert task['status'] == 'needs_confirmation', task
+    values = saved(city)
+    assert values['party_size'] == 3 and values['pricing']['party_size'] == 3
+    plan = task['result']['planning_workflow']['result']['result']['itineraries'][0]
+    assert plan['budget']['limit_fen'] == 30000 * 3 * 3
+    assert '全程已计入费用' in task['result']['reply'] and '按每人预算核对' not in task['result']['reply']
+    # Unknown items read like the per-person check: grouped, in visitor words.
+    assert '（未计入：餐饮、住宿）' in task['result']['reply'], task['result']['reply']
 
 
 def test_multi_day_total_budget_reaches_the_shared_budget_summary(city, monkeypatch):
@@ -139,7 +153,8 @@ def test_multi_day_total_budget_reaches_the_shared_budget_summary(city, monkeypa
     plan=task['result']['planning_workflow']['result']['result']['itineraries'][0]
     assert saved(city)['pricing']['total_budget_fen']==90000
     assert plan['budget']['limit_fen']==90000
-    assert '全程预算 ¥900.00' in reply and '多天全程预算尚未接通' not in reply
+    assert '全程预算900元，全程已计入费用约' in reply and '多天全程预算尚未接通' not in reply
+    assert '未计入：' in reply and '：未设置' not in reply and '待核对：' not in reply
 
 
 @pytest.mark.parametrize('amounts,tolls,expected', [

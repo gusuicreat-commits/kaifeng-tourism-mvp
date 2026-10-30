@@ -118,8 +118,17 @@ def project(db, values, workspace, *, moment=None):
                 ready=(binding.valid_from.astimezone(TZ).date()<=date.fromisoformat(a['business_date']) and
                        date.fromisoformat(b['business_date'])<binding.valid_until.astimezone(TZ).date())
         place_id=binding.place_id if ready else None
+        if not place_id:
+            # Degrade, never block: without a mapped place this night keeps its
+            # original endpoints and overnight, and the visitor is told why.
+            if old.get(a['business_date']) and old[a['business_date']].get('source_kind')!='selected_hotel':
+                nights.append(old[a['business_date']])
+            issues.append(issue('HOTEL_LOCATION_PENDING',
+                a['business_date']+'已选择'+selected['name']+'，酒店位置尚未关联城市地点，这一晚暂按原起终点安排；入住条件仍待核实。',
+                'day:'+a['business_date'],'day:'+b['business_date']))
+            continue
         a['destination_place_id']=b['origin_place_id']=place_id
-        a['destination_text']=b['origin_text']=None if place_id else selected['name'][:120]
+        a['destination_text']=b['origin_text']=None
         night={'overnight_id':old.get(a['business_date'],{}).get('overnight_id','night:'+a['business_date']),
             'from_day_id':'day:'+a['business_date'],'to_day_id':'day:'+b['business_date'],
             'night_date':a['business_date'],'place_id':place_id,'source_kind':'selected_hotel',
@@ -130,10 +139,6 @@ def project(db, values, workspace, *, moment=None):
             'check_in':None,'check_out':None,
             'place_evidence':'unknown','stay_evidence':'unknown','evidence_refs':[]}
         nights.append(night)
-        if not place_id:
-            issues.append(issue('HOTEL_LOCATION_PENDING',
-                a['business_date']+'已选择'+selected['name']+'，酒店位置尚未关联有效的城市地点，暂不能核算往返酒店的路线。',
-                night['from_day_id'],night['to_day_id']))
     values['overnights']=nights
     # Solver days have no display-name fields. Constraint days retain them so
     # missing hotel location is never misreported as a missing hotel choice.
@@ -141,6 +146,11 @@ def project(db, values, workspace, *, moment=None):
         for d in days:
             d.pop('origin_text',None);d.pop('destination_text',None)
     return values,issues
+
+
+def blocking(issues):
+    """Issues that stop planning; an unmapped hotel location only degrades to a note."""
+    return [i for i in issues if i['code']!='HOTEL_LOCATION_PENDING']
 
 
 def issue(code,message,*ids):
@@ -167,7 +177,8 @@ def describe(db,row,workspace,candidate=None):
         candidate=dict(candidate,stay={k:workspace['requirements'].get(k) for k in ('check_in','check_out','nights')})
         w['selection']=(w.get('selection') or {})|{'hotels':candidate}
     values,issues=project(db,raw,w)
-    if issues:return {'status':'needs_data','issues':issues,'overnights':values.get('overnights',[]),'message':issues[0]['message']}
+    if blocking(issues):return {'status':'needs_data','issues':issues,'overnights':values.get('overnights',[]),'message':blocking(issues)[0]['message']}
+    if issues:return {'status':'location_pending','issues':issues,'overnights':values.get('overnights',[]),'message':issues[0]['message']}
     hotel=(w.get('selection') or {}).get('hotels')
     if not hotel:return None
     return {'status':'bound_for_preview','overnights':values['overnights'],

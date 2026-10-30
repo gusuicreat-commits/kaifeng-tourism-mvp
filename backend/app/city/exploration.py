@@ -104,6 +104,8 @@ def preview_plan(trip_id,body,s,*,execution_guard=None):
             from . import hotel_binding,travel_services
             projected,hotel_issues=hotel_binding.project(db,body.constraints.model_dump(mode='json'),
                                                         travel_services.read(db,trip_id))
+        pending=[i for i in hotel_issues if i not in hotel_binding.blocking(hotel_issues)]
+        hotel_issues=hotel_binding.blocking(hotel_issues)
         if hotel_issues:
             return unknown(hotel_issues[0]['message'],code=hotel_issues[0]['code'])|{
                 'issues':hotel_issues,'constraints':projected,'planning_version':workspace['version'],
@@ -111,7 +113,7 @@ def preview_plan(trip_id,body,s,*,execution_guard=None):
         from .budget_models import PricingOptions
         if projected.get('pricing') is None:
             with connect() as db:selected=(travel_services.read(db,trip_id).get('selection') or {}).get('hotels') or {}
-            if selected.get('price_selection') or projected.get('per_person_budget_fen') is not None:
+            if selected.get('price_selection') or (projected.get('per_person_budget_fen') is not None and projected.get('party_size')):
                 projected['pricing']=PricingOptions(party_size=projected.get('party_size'),
                     per_person_budget_fen=projected.get('per_person_budget_fen'),
                     per_person_daily=projected.get('per_person_budget_daily',False)).model_dump(mode='json')
@@ -135,7 +137,7 @@ def preview_plan(trip_id,body,s,*,execution_guard=None):
                 row=db.execute('SELECT progress_json FROM city_engine_candidates WHERE id=?',(candidate,)).fetchone()
                 extra=json.loads(row[0]);extra['planning_version']=saved['version']
                 db.execute('UPDATE city_engine_candidates SET progress_json=? WHERE id=?',(json.dumps(extra),candidate))
-        return result|{'constraints':body.constraints.model_dump(mode='json'),'planning_version':saved['version'],
+        return result|{'constraints':body.constraints.model_dump(mode='json'),'planning_version':saved['version'],'hotel_notices':list(dict.fromkeys(i['message'] for i in pending)),
                        'basket_version':body.basket_version,'trip_version':body.expected_version}
     single_day(body.constraints)
     limit('exploration:'+s.id,20)

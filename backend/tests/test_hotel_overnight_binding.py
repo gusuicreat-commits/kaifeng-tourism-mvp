@@ -85,24 +85,29 @@ def test_selection_projects_three_days_and_formal_confirm_connects_both_nights(h
     assert json.loads(export['planning_engine']['versions'][0]['itinerary_json'])==committed.json()['itinerary']
 
 
-def test_missing_mapping_keeps_named_hotel_and_blocks_route_without_provider_id_endpoint(hotel_trip):
+def test_missing_mapping_degrades_to_a_note_and_keeps_original_endpoints(hotel_trip):
+    """An unmapped hotel never blocks planning; it keeps the original overnight and says why."""
     e,req=hotel_trip;c,t,_=e
     with connect() as db:db.execute('DELETE FROM city_hotel_binding_metadata')
     p,r,_=select(e);assert r.status_code==200,r.text
-    assert r.json()['binding']['issues'][0]['code']=='HOTEL_LOCATION_PENDING'
+    binding=r.json()['binding']
+    assert binding['status']=='location_pending' and binding['issues'][0]['code']=='HOTEL_LOCATION_PENDING'
+    assert '暂按原起终点安排' in binding['message']
     response=preview(e,req);assert response.status_code==200,response.text
-    assert response.json()['status']=='needs_data' and response.json()['candidate_id'] is None
-    assert {i['code'] for i in response.json()['result']['issues']}=={'HOTEL_LOCATION_PENDING'}
+    assert response.json()['candidate_id'] is not None
+    assert 'HOTEL_LOCATION_PENDING' not in {i['code'] for i in response.json()['result'].get('issues',[])}
     assert c.get(p).json()['route_version']==0
     with connect() as db:
         from types import SimpleNamespace
         from app.city import exploration_state
         values=planning_values(SimpleNamespace(multi_draft=None,workspace=exploration_state.read(db,t['id']),
             services=travel_services.read(db,t['id'])))
-    assert values['days'][1]['origin_text']=='[合成]甲酒店'
+    # The provider name never becomes an endpoint, and no selected_hotel night is invented.
+    assert values['days'][1].get('origin_text')!='[合成]甲酒店'
+    assert not any(o.get('source_kind')=='selected_hotel' for o in values.get('overnights',[]))
     from app.city.agent.multi_day_intent import _questions
     questions=_questions(values)
-    assert any('已选酒店的位置' in q for q in questions)
+    assert not any('已选酒店的位置' in q for q in questions)
     assert not any('先选择酒店' in q for q in questions)
 
 

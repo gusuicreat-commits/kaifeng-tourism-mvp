@@ -21,18 +21,33 @@ def _ready_reply(result):
     return '方案已准备好。'+(f"时间不够，这版没排进：{'、'.join(left)}。" if left else '')+'请点“确认方案”保存。'
 
 
+def _missing_items(budget):
+    """Group unknown budget items by kind, in visitor words, like the per-person check."""
+    items=[i for i in budget['items'] if i.get('amount_fen') is None]
+    tickets=list(dict.fromkeys(i['label'] for i in items if i['category']=='tickets'))
+    parts=[n+'门票' for n in tickets[:4]]+(['等景点门票'] if len(tickets)>4 else [])
+    if any(i['category']=='transport' for i in items):parts.append('部分交通费用')
+    if any(i['category']=='dining' for i in items):parts.append('餐饮')
+    lodging=[i for i in items if i['category']=='lodging']
+    if lodging:parts.append('住宿' if all(i['label']=='住宿' for i in lodging) else '住宿（'+'、'.join(i['label'] for i in lodging if i['label']!='住宿')+'）')
+    parts+=list(dict.fromkeys(i['label'] for i in items if i['category'] in ('other','spent')))
+    # Requirements that are not cost items (e.g. a missing party size) carry no "：".
+    parts+=[u for u in budget['unknown_items'] if '：' not in u]
+    return '、'.join(parts) or '部分费用'
+
+
 def _budget_reply(constraints,itinerary,days,notes,overnight=False):
     """The per-person budget check replaces the "recorded" note once a plan exists."""
     budget=itinerary.get('budget') if isinstance(itinerary,dict) else getattr(itinerary,'budget',None)
     if budget:
         if hasattr(budget,'model_dump'):budget=budget.model_dump()
-        amount=budget['known_total_fen']/100
-        suffix='；仍有未计入项，暂不能确认预算够用。' if budget['unknown_items'] else '；当前核算超过预算。' if budget['status']=='over' else '；当前核算在预算内（含估计或手填金额）。' if budget['status']=='within_budget' else '。'
-        from .budget_check import recorded_note
+        from .budget_check import recorded_note,_yuan
         clean=''.join(n for n in notes if n!=recorded_note(constraints))
-        if budget['limit_fen'] is not None:clean+=f"全程预算 ¥{budget['limit_fen']/100:.2f}，"
-        unknown='待核对：'+'；'.join(budget['unknown_items'][:4])+'。' if budget['unknown_items'] else ''
-        return clean+f'全程已计入费用 ¥{amount:.2f}'+suffix+unknown
+        if budget['limit_fen'] is not None:clean+=f"全程预算{_yuan(budget['limit_fen'])}元，"
+        missing=_missing_items(budget)
+        suffix=f'；仍有未计入项，暂不能确认预算够用（未计入：{missing}）。' if budget['unknown_items'] else \
+            '；当前核算超过预算，方案仍可确认。' if budget['status']=='over' else '；当前核算在预算内（含估计金额）。' if budget['status']=='within_budget' else '。'
+        return clean+f"全程已计入费用约{_yuan(budget['known_total_fen'])}元"+suffix
     from .budget_check import check,recorded_note
     sentence=check(constraints,itinerary,days=days,overnight=overnight)
     recorded=recorded_note(constraints)

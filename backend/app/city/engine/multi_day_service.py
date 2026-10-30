@@ -287,6 +287,7 @@ def preview_multi_day(session,trip_id,body,replanning=False,planning_version=Non
             req=req.model_copy(update={'pricing':PricingOptions()})
         hotel_baseline=hotel_binding.baseline(db,services)
         projected,hotel_issues=hotel_binding.project(db,req.model_dump(mode='json'),services,moment=ctx.assessed_at)
+        hotel_issues=hotel_binding.blocking(hotel_issues)
         if not hotel_issues:
             req=MultiDayRequirements.model_validate(projected)
         if replanning and (hotel_issues or hotel_binding.route_binding(req.model_dump(mode='json'))!=
@@ -508,7 +509,7 @@ def read_multi_snapshot(db,row,saved,req,plan):
     raw=req.model_dump(mode='json');services=travel_services.read(db,row['id'])
     try:
         projected,hotel_issues=hotel_binding.project(db,raw,services,moment=ctx.assessed_at)
-        if hotel_issues or hotel_binding.route_binding(projected)!=hotel_binding.route_binding(raw):
+        if hotel_binding.blocking(hotel_issues) or hotel_binding.route_binding(projected)!=hotel_binding.route_binding(raw):
             errors.append(Issue(code='HOTEL_SELECTION_CHANGED',message='酒店选择或地点绑定已变化，原路线保留，请重新预览整套行程。'))
     except HTTPException:
         errors.append(Issue(code='HOTEL_SELECTION_CHANGED',message='原路线引用的酒店已撤销，历史路线保留，请重新规划。'))
