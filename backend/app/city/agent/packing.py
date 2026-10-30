@@ -1,17 +1,18 @@
 """Grounded pre-trip packing advice derived from a confirmed itinerary."""
 import re
-from datetime import datetime
+from datetime import date, datetime
 from zoneinfo import ZoneInfo
 
 
 QUESTION = re.compile(
-    r'(?:要|需要|该|得|应该)?(?:带|准备)(?:些|点)?(?:什么|哪些|啥)'
+    r'(?:要|需要|该|得|应该)?(?:带|准备|备|收拾)(?:上|好)?(?:些|点)?(?:什么|哪些|啥)'
     r'|行前准备|出行准备|准备清单|出行清单|行李清单'
 )
 TZ = ZoneInfo('Asia/Shanghai')
 _EMPTY = '先排好并确认行程，我再按你的行程列准备清单。现在可以先告诉我日期和出发地。'
 _OPEN = '按你这趟已确认的行程，出发前可以准备这些：'
 _CLOSE = '出发前也可以问我“明天天气怎么样”，我按预报再提醒你。'
+_WEATHER_CLOSE = '天气依据和风天气预报，会有变化，出发前可以再问我一次。'
 
 
 def _dump(value):
@@ -114,7 +115,106 @@ def _hours(value):
     return f'{number:g}'
 
 
-def checklist(snapshot) -> dict:
+def _date_key(value):
+    if isinstance(value, datetime):
+        return value.astimezone(TZ).date().isoformat()
+    if isinstance(value, date):
+        return value.isoformat()
+    if isinstance(value, str):
+        try:
+            return date.fromisoformat(value).isoformat()
+        except ValueError:
+            return None
+    return None
+
+
+def _date_text(value):
+    try:
+        parsed = date.fromisoformat(value)
+    except (TypeError, ValueError):
+        return value
+    return f'{parsed.month}月{parsed.day}日'
+
+
+def _integer(value):
+    return str(int(round(float(value))))
+
+
+def _decimal(value):
+    text = f'{float(value):.1f}'
+    return text.rstrip('0').rstrip('.')
+
+
+def _weather_items(days, forecast):
+    if forecast is None:
+        return [], set()
+    by_date = {}
+    for item in forecast or ():
+        key = _date_key(_get(item, 'date'))
+        if key:
+            by_date[key] = item
+
+    matched = []
+    for _, _, _, business_date in days:
+        key = _date_key(business_date)
+        if key and key in by_date:
+            matched.append((key, by_date[key]))
+    if not matched:
+        return [], set()
+
+    rainy = []
+    cold = []
+    hot = []
+    for key, item in matched:
+        periods = _get(item, 'periods', ()) or ()
+        probabilities = []
+        amounts = []
+        for period in periods:
+            probability = _get(period, 'precipitation_probability_percent')
+            if isinstance(probability, (int, float)) and not isinstance(probability, bool):
+                probabilities.append(probability)
+            amount = _get(period, 'precipitation_mm')
+            if isinstance(amount, (int, float)) and not isinstance(amount, bool):
+                amounts.append(amount)
+        max_probability = max(probabilities) if probabilities else None
+        max_amount = max(amounts) if amounts else 0
+        if max_probability is not None and max_probability >= 40 or max_amount >= 1:
+            rainy.append((key, max_probability, max_amount))
+
+        minimum = _get(item, 'temperature_min_c')
+        if isinstance(minimum, (int, float)) and not isinstance(minimum, bool) and minimum <= 10:
+            cold.append((key, minimum))
+        maximum = _get(item, 'temperature_max_c')
+        if isinstance(maximum, (int, float)) and not isinstance(maximum, bool) and maximum >= 30:
+            hot.append((key, maximum))
+
+    weather_items = []
+    if rainy:
+        rainy.sort(key=lambda value: value[0])
+        date_text = '、'.join(_date_text(key) for key, _, _ in rainy)
+        probabilities = [value for _, value, _ in rainy if value is not None]
+        if probabilities:
+            probability = max(probabilities)
+            if len(rainy) == 1:
+                weather_items.append(f'· 带把伞：{date_text}预报降水概率最高 {_integer(probability)}%。')
+            else:
+                weather_items.append(f'· 带把伞：{date_text}预报有降水，最高概率 {_integer(probability)}%。')
+        else:
+            amount = max(value for _, _, value in rainy)
+            if len(rainy) == 1:
+                weather_items.append(f'· 带把伞：{date_text}预报降水量约 {_decimal(amount)} 毫米。')
+            else:
+                weather_items.append(f'· 带把伞：{date_text}预报有降水，最高时段降水量约 {_decimal(amount)} 毫米。')
+    if cold:
+        key, minimum = min(cold, key=lambda value: value[1])
+        weather_items.append(f'· 注意保暖：{_date_text(key)}最低约 {_integer(minimum)}°C。')
+    if hot:
+        key, maximum = max(hot, key=lambda value: value[1])
+        weather_items.append(f'· 带好水和防晒：{_date_text(key)}最高约 {_integer(maximum)}°C。')
+    return weather_items, {key for key, _ in matched}
+
+
+def checklist(snapshot, forecast=None) -> dict:
     days = _days(snapshot)
     if not days:
         return {'status': 'answered', 'reply': _EMPTY}
@@ -178,6 +278,16 @@ def checklist(snapshot) -> dict:
         suffix = '，另有部分费用暂无价格' if cost_unknown else ''
         yuan = f'{known_cost / 100:.2f}'.rstrip('0').rstrip('.')
         items.append(f'· 准备好门票和餐饮的钱：已知费用最多约 {yuan} 元{suffix}。')
+    weather_items, forecast_dates = _weather_items(days, forecast)
+    items.extend(weather_items)
     if not items:
         items.append('这趟行程比较轻松，带好手机就行。')
-    return {'status': 'answered', 'reply': _OPEN + '\n' + '\n'.join(items) + '\n' + _CLOSE}
+    if forecast is None or forecast_dates:
+        close = _CLOSE if forecast is None else _WEATHER_CLOSE
+    else:
+        dates = [_date_key(business_date) for _, _, _, business_date in days]
+        dates = [value for value in dates if value]
+        earliest = min(dates) if dates else None
+        close = (f'{_date_text(earliest)}还没有天气预报，临近出发再问我一次，我按预报补充提醒。'
+                 if earliest else _CLOSE)
+    return {'status': 'answered', 'reply': _OPEN + '\n' + '\n'.join(items) + '\n' + close}

@@ -757,7 +757,21 @@ def _advance(session,trip_id,identity,body):
             elif _city_highlight_question(t.text,t.snapshot,t.intent):
                 _finish(session,t,'answered',v2service._city_highlights(t.snapshot))
             elif _packing_question(t.text,t.snapshot,t.intent):
-                _finish(session,t,'answered',packing.checklist(t.snapshot))
+                forecast=None;event=None
+                try:
+                    if weather.enabled():
+                        t.tools+=1
+                        event={'tool':'query_weather','status':'running','parameters':{},'source':'qweather'}
+                        t.events.append(event)
+                        result=weather.answer(t.snapshot,include_current=False)
+                        event.update(status=result['status'],provider_status=result.get('provider_status'),
+                                     provider_events=result.pop('provider_events',[]))
+                        daily=(result.get('weather') or {}).get('daily') or {}
+                        if result['status']=='answered' and daily.get('days'):forecast=daily['days']
+                except Exception:
+                    if event is not None:event.update(status='unavailable')
+                if not _fresh(session,t):return public(t)
+                _finish(session,t,'answered',packing.checklist(t.snapshot,forecast))
             elif t.mode=='clarify' and t.intent.unresolved and meta.get('model_availability',{}).get('available') is False:
                 _finish(session,t,'unavailable',{'state':'model_unavailable','code':'MODEL_NOT_CONFIGURED','model_status':meta['model_availability'],
                     'reply':'聊天模型尚未配置，暂不能理解这段追问。明确起点和终点的问路仍可直接查参考路线。'})
