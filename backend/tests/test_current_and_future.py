@@ -129,6 +129,7 @@ def test_suffix_agent_preview_context_and_confirmation(multi_engine,monkeypatch,
     monkeypatch.setattr(provider,'generate',lambda *a,**k:(copy.deepcopy(raw),{'source':'mock_model'}))
     task=run({'client':e[0],'trip':e[1]},text)
     assert task['status']=='needs_confirmation',json.dumps(task,ensure_ascii=False)
+    assert task['result']['reply'].count('今天剩余及后续天')==1
     p=task['result']['planning'];assert p['scope']=='current_and_future'
     assert p['result']['itineraries'][0]['days'][0]==old['itinerary']['days'][0]
     pending=e[0].get('/api/city/v1/trips/'+e[1]['id']+'/assistant/context?purpose=modify').json()['pending_changes']

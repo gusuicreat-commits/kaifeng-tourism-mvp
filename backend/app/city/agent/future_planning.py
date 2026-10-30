@@ -91,5 +91,5 @@ def _preview(session,trip_id,snapshot,intent,request_id,text):
     changed=MultiDayRequirements.model_validate(full.model_dump()|{'days':[d.model_copy(update=updates) if d.day_id==day_id else d for d in full.days],'goals':goals})
     body=tools.adjustment_request(snapshot,changed,uuid5(UUID(str(request_id)),'future-plan'),scope='selected_future_day',day_id=day_id,skipped_goal_ids=tuple(cancel))
     result=engine.preview(session,trip_id,body,replanning=True)
-    result['adjustment_notes']=[f'本次仅调整{day.business_date.isoformat()}。']
+    result['adjustment_notes']=[]
     return result

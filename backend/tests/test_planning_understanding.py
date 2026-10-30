@@ -632,6 +632,21 @@ def test_clock_grounding_accepts_pm_reading_of_bare_hour_only_without_period():
     assert not understand.clock_grounded('22:00','早上十点前回来','早上十点前回来')
 
 
+@pytest.mark.parametrize('value,quote,expected',[
+    ('09:00','第一天九点出发',True),
+    ('21:00','第一天九点出发',True),
+    ('12:00','第三天中午十二点出发',True),
+    ('09:00','11月4日九点出发',True),
+    ('09:00','明天九点出发',True),
+    ('09:00','第二天晚上九点出发',False),
+    ('21:00','第二天晚上九点出发',True),
+])
+def test_clock_grounding_starts_a_new_period_for_a_quoted_day(value,quote,expected):
+    text='11月3日到5日在开封玩三天，每天从开封府出发晚上八点回来，第一天九点出发，第三天中午十二点出发'
+    if quote not in text:text+='，'+quote
+    assert understand.clock_grounded(value,quote,text) is expected
+
+
 def test_evening_trip_sentence_keeps_times_return_point_and_food(city,monkeypatch):
     text='今晚五点半从开封府出发，想吃灌汤包，十点前回来，走路就行。'
     model(monkeypatch,text,[field('date','今晚','今晚'),field('start_time','17:30','今晚五点半'),

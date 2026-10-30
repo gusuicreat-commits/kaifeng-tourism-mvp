@@ -46,6 +46,24 @@ def test_new_multi_day_daily_times_accept_normalized_day_refs(city,monkeypatch,i
     assert get(city)==before
 
 
+def test_new_multi_day_times_do_not_inherit_the_previous_days_evening(city,monkeypatch):
+    from test_planning_understanding import model,field
+    from test_city_agent import run
+    text='11月3日到5日在开封玩三天，每天从[合成测试]origin出发晚上八点回来，第一天九点出发，第三天中午十二点出发'
+    fields=[field('start_date','2030-11-03','11月3日'),field('trip_days',3,'三天'),
+        {'field':'origin','value':'[合成测试]origin','quote':'每天从[合成测试]origin出发晚上八点回来','scope':'every_day'},
+        {'field':'end_time','value':'20:00','quote':'每天从[合成测试]origin出发晚上八点回来','scope':'every_day'},
+        {'field':'start_time','value':'09:00','quote':'第一天九点出发','day_ref':'第一天'},
+        {'field':'start_time','value':'12:00','quote':'第三天中午十二点出发','day_ref':'第三天'}]
+    model(monkeypatch,text,fields);before=get(city);task=run(city,text)
+    assert task['status']=='needs_clarification',task
+    assert not task['interpretation'].get('dropped_fields') and '没采用' not in task['result']['reply']
+    saved=city['client'].get(path(city,'/exploration/constraints')).json()['constraints']
+    assert [d['starts_at'] for d in saved['days']]==['2030-11-03T09:00:00+08:00',None,'2030-11-05T12:00:00+08:00']
+    assert all(d['ends_at'].endswith('T20:00:00+08:00') for d in saved['days'])
+    assert get(city)==before
+
+
 def multi(city,ongoing=False):
     active_current(city) if ongoing else walking(city)
     original=city['data']['requirements'];today=date(2030,5,1)

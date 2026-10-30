@@ -16,8 +16,12 @@ def expressions(quote):
 
 def quoted_day_ref(ref,quote,text):
     if ref in text:return ref
-    found={m.group() for m in DAY_NUMBER.finditer(quote)}|set(expressions(quote))
-    found={value for value in found if not any(value!=other and value in other for other in found)}
+    def references(source):
+        found={m.group() for m in DAY_NUMBER.finditer(source)}|set(expressions(source))
+        return {value for value in found if not any(value!=other and value in other for other in found)}
+    found=references(quote)
+    if not found:
+        found=set().union(*(references(part) for part in re.split(r'[，,。；;！!？?\n]',text) if quote and quote in part))
     if len(found)==1:
         value=next(iter(found))
         if value in text:return value

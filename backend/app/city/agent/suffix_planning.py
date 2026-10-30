@@ -37,5 +37,5 @@ def preview(session,trip_id,snapshot,intent,request_id,text):
     if intent.planning.choices:return clarify('请在对应日期单独调整目标取舍，再预览今天及后续天；本次没有修改素材篮或目标。')
     req=MultiDayRequirements.model_validate(full.model_dump()|{'days':[d.model_copy(update=changes.get(d.day_id,{})) for d in full.days],'goals':goals})
     body=ReplanRequestV2(request_id=uuid5(UUID(str(request_id)),'suffix-plan'),expected_version=snapshot.row['version'],requirements=req,scope='current_and_future',day_id=day_id)
-    result=engine.preview(session,trip_id,body,replanning=True);result['adjustment_notes']=['今天剩余及后续天一起重新核算，已完成记录与固定安排保留。']
+    result=engine.preview(session,trip_id,body,replanning=True);result['adjustment_notes']=[]
     return result

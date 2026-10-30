@@ -134,8 +134,9 @@ def clock(text, afternoon=False):
 
 def clock_grounded(value, quote, text):
     """The clock digits must appear in the quote; an hour with no stated period may be read as AM or PM."""
+    from . import date_range
     start=text.find(quote)
-    period=period_before(text,start) if start>=0 else None
+    period=period_before(text,start) if start>=0 and not (date_range.DAY_NUMBER.search(quote) or date_range.expressions(quote)) else None
     if value in clock_values(quote,afternoon=period=='pm'):return True
     if period in (None,'noon') and not _PERIOD.search(quote) and re.fullmatch(r'(?:1[2-9]|2[0-3]):[0-5]\d',str(value)):
         h,m=map(int,value.split(':'))

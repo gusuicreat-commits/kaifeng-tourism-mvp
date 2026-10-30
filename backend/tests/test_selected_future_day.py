@@ -39,6 +39,25 @@ def test_quoted_day_ref_does_not_recover_an_expression_absent_from_request():
     assert quoted_day_ref('第三天','十点出发','第三天改成十点出发')=='第三天'
 
 
+@pytest.mark.parametrize('text,expected',[
+    ('第三天改成十点出发','第三天'),
+    ('第二天九点，第三天改成十点出发','第三天'),
+    ('第二天第三天都改成十点出发',None),
+    ('第三天改成十点出发，第二天也十点出发',None),
+    ('第三天早些出门，改成十点出发',None),
+    ('11月2日改成十点出发','11月2日'),
+])
+def test_quoted_day_ref_recovers_only_an_unambiguous_day_in_the_same_clause(text,expected):
+    from app.city.agent.date_range import quoted_day_ref
+    assert quoted_day_ref('2026-11-02','十点出发',text)==expected
+
+
+@pytest.mark.parametrize('separator',list('，,。；;！!？?\n'))
+def test_quoted_day_ref_clause_boundaries(separator):
+    from app.city.agent.date_range import quoted_day_ref
+    assert quoted_day_ref('2026-11-02','十点出发','第二天九点'+separator+'第三天改成十点出发')=='第三天'
+
+
 def edit_future(e,req,day='day:2030-05-03',**extra):
     return remaining(e,req,scope='selected_future_day',day_id=day,**extra)
 
@@ -191,6 +210,9 @@ def test_future_agent_to_engine_context_and_confirmation(multi_engine,monkeypatc
     city={'client':e[0],'trip':e[1]};before=e[0].get('/api/city/v1/trips/'+e[1]['id']).json()
     task=run(city,text);assert task['status']=='needs_confirmation',json.dumps(task,ensure_ascii=False)
     result=task['result'];p=result['planning'];assert p['scope']=='selected_future_day'
+    assert result['reply'].count('本次只调整')==1 and '本次仅调整' not in result['reply']
+    if kind=='planning':assert result['reply'].count('2030-05-03')==1
+    assert ('今天及其他日期' in result['reply']) is active
     assert e[0].get('/api/city/v1/trips/'+e[1]['id']).json()==before
     assert p['result']['itineraries'][0]['days'][:2]==old['itinerary']['days'][:2]
     if kind=='planning':assert p['result']['itineraries'][0]['days'][2]['requirements']['starts_at'].endswith('10:00:00+08:00')
@@ -204,12 +226,14 @@ def test_future_agent_to_engine_context_and_confirmation(multi_engine,monkeypatc
     agent.TASKS.clear()
 
 
-@pytest.mark.parametrize('text,field,value,index,ref',[
-    ('第三天改为十点出发','start_time','10:00',2,'2030-05-04'),
-    ('第二天少走点路','objective','less_walking',1,'2030-05-02'),
-    ('第二天和第三天都十点出发','start_time','10:00',None,'2030-05-04'),
+@pytest.mark.parametrize('text,quote,field,value,index,ref',[
+    ('第三天改为十点出发','第三天改为十点出发','start_time','10:00',2,'2030-05-04'),
+    ('第三天改为十点出发','十点出发','start_time','10:00',2,'2030-05-03'),
+    ('第二天少走点路','第二天少走点路','objective','less_walking',1,'2030-05-02'),
+    ('第二天和第三天都十点出发','第二天和第三天都十点出发','start_time','10:00',None,'2030-05-04'),
+    ('第二天第三天都改为十点出发','十点出发','start_time','10:00',None,'2030-05-03'),
 ])
-def test_future_agent_recovers_iso_day_ref_or_drops_ambiguous_item(multi_engine,monkeypatch,text,field,value,index,ref):
+def test_future_agent_recovers_iso_day_ref_or_drops_ambiguous_item(multi_engine,monkeypatch,text,quote,field,value,index,ref):
     from app import language
     from app.city.agent import provider,service as agent
     from app.city.assistant import context,tools
@@ -219,7 +243,7 @@ def test_future_agent_recovers_iso_day_ref_or_drops_ambiguous_item(multi_engine,
     for module in (context,tools):monkeypatch.setattr(module,'now',lambda:moment)
     agent.TASKS.clear()
     raw={'planning':{'operation':'update','quote':text,'fields':[
-        {'field':field,'value':value,'quote':text,'day_ref':ref}]}}
+        {'field':field,'value':value,'quote':quote,'day_ref':ref}]}}
     monkeypatch.setattr(language,'available',lambda:True)
     monkeypatch.setattr(provider,'generate',lambda *a,**k:(copy.deepcopy(raw),{'source':'mock_model'}))
     before=e[0].get('/api/city/v1/trips/'+e[1]['id']).json()

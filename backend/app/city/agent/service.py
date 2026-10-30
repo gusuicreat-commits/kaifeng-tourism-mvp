@@ -379,8 +379,12 @@ def _preview_result(result,snapshot,intent=None):
     names.update({s.stop_id:context.label(snapshot.planning.facts,s.place_id) for s in snapshot.draft.stops if s.stop_id not in names})
     from .planning_intent import preference_notes
     echo=''.join(preference_notes(intent)) if intent else ''
-    detail=''.join(result.get('adjustment_notes',()))
-    if result.get('adjustment_notes'):
+    notes=result.get('adjustment_notes',())
+    # State adjustments also supply a scope note; render that scope once here.
+    if result.get('scope')=='selected_future_day':notes=[n for n in notes if n!=f"本次仅调整{result.get('business_date')}，其余日期保持原计划。"]
+    if result.get('scope')=='current_and_future':notes=[n for n in notes if n!='已明确选择今天剩余及后续天一起调整。']
+    detail=''.join(notes)
+    if result.get('adjustment_notes') or result.get('scope') in ('selected_future_day','current_and_future'):
         changes=result.get('changes') or {};first=result['result']['itineraries'][0]
         selected_day=result.get('day_id') or snapshot.day_id
         if 'days' in first:first=next(d['itinerary'] for d in first['days'] if d['day_id']==selected_day)
@@ -388,7 +392,9 @@ def _preview_result(result,snapshot,intent=None):
         if result.get('scope')=='current_and_future':
             detail+='本次调整今天剩余及后续天，已处理历史保留。'
             detail+=''.join(f"{names.get(move['goal_id'],move['goal_id'])}：从{move['before_day_id'].removeprefix('day:')}移到{move['after_day_id'].removeprefix('day:')}。" for move in result.get('changes',{}).get('day_moves',()))
-        if result.get('scope')=='selected_future_day':detail+=f"本次只调整{result.get('business_date','所选未来日')}，今天及其他日期保持原计划。"
+        if result.get('scope')=='selected_future_day':
+            others='今天及其他日期' if snapshot.row['status'] in ('ACTIVE','PAUSED') else '其他日期'
+            detail+=f"本次只调整{result.get('business_date','所选未来日')}，{others}保持原计划。"
         detail+=''.join(f"{names.get(c['goal_id'],c['goal_id'])}：{c['before'][5:16] if getattr(snapshot,'multi_requirements',None) else c['before'][11:16]}→{c['after'][5:16] if getattr(snapshot,'multi_requirements',None) else c['after'][11:16]}。" for c in changes.get('start_changes',()))
         removed=changes.get('removed',())
         if removed:detail+='这版不再安排：'+'、'.join(names.get(g,g) for g in removed)+'。'
