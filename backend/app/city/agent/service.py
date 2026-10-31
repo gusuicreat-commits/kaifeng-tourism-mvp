@@ -27,7 +27,7 @@ from ..assistant.models import CityChat
 from . import provider, understand, toolbelt, reference_routes, date_range, packing
 from .prompt_schema import prompt_schema
 from .. import weather
-from .models import Budget, Decision, Understanding, Constraint
+from .models import Budget, Decision, Understanding, Constraint, TaskResult
 
 LOCK=threading.RLock()
 TASKS={}
@@ -261,6 +261,12 @@ def _finish(session,t,status,result,*,dropped_followup=''):
         note=understand.dropped_reply(t.intent,meta,t.text)
         if note:result['reply']=result.get('reply','')+note
         if dropped_followup:result['reply']=result.get('reply','')+dropped_followup
+    result['interaction_mode']=t.body.interaction_mode
+    result['interaction_mode_changed']=bool(t.interpretation.get('interaction_mode_changed'))
+    if t.interpretation.get('interaction_mode_changed') and not t.cancelled:
+        result['reply']=('已切换为快速安排：不再追问，缺的条件按默认补上。' if t.body.interaction_mode=='quick' else
+            '已切换为深度互动：我会先问清楚再排。')+result.get('reply','')
+    result=TaskResult.model_validate(result).model_dump()
     t.status=status;t.result=result;t.terminal_at=time.monotonic()
     LOG.info(json.dumps(trace(t),ensure_ascii=False,default=str))
     if t.snapshot is not None:
@@ -318,7 +324,7 @@ def _packing_question(text,snapshot,intent):
 
 
 def _merge(intent,snapshot):
-    if intent.planning or intent.conversation or intent.route_query or intent.weather_query or intent.service_query or intent.state_request:return intent
+    if intent.interaction_mode or intent.planning or intent.conversation or intent.route_query or intent.weather_query or intent.service_query or intent.state_request:return intent
     active=[p for p in snapshot.pending if p['status']=='valid' and p.get('action',{}).get('operation')=='assistant_v3_intent']
     if len(active)!=1 or all(a.kind in ('query','search_services','cancel','progress','position') for a in intent.actions):return intent
     saved=dict(active[0]['action']['understanding'])
@@ -361,7 +367,7 @@ def _consume_preferences_pending(session,t):
 def _fallback_preferences_pending(t):
     """Turn an unparsed answer into the ordinary saved-condition preview."""
     intent=t.intent
-    if not t.interpretation.get('preferences_pending'):return False
+    if not t.interpretation.get('preferences_pending') or t.intent.interaction_mode:return False
     planning=intent.planning
     executable=bool(planning and (planning.fields or planning.choices or planning.operation in ('continue','weather_replan'))
         or intent.constraints or intent.corrections or intent.service_query or intent.route_query
@@ -779,6 +785,14 @@ def _advance(session,trip_id,identity,body):
             meta['state_versions']=understood_versions
             if t.cancelled:return public(t)
             t.model_calls+=meta['model_calls'];t.usage.extend(meta['usage']);t.interpretation=meta
+            if intent.interaction_mode:
+                meta['interaction_mode_changed']=intent.interaction_mode!=t.body.interaction_mode
+                t.body=t.body.model_copy(update={'interaction_mode':intent.interaction_mode})
+                if not (intent.planning or intent.constraints or intent.corrections or intent.route_query or intent.weather_query
+                        or intent.service_query or intent.state_request or any(a.kind not in ('modify','preference') for a in intent.actions)):
+                    from .models import Action,PlanningIntent
+                    intent=intent.model_copy(update={'conversation':None,'actions':(Action(kind='modify',quote=intent.mode_quote),),
+                        'planning':PlanningIntent(operation='continue',quote=intent.mode_quote)})
             t.intent=_merge(intent,t.snapshot)
             t.interpretation['preferences_pending']=pending
             if not _fresh(session,t):return public(t)

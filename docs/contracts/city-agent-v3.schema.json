@@ -1119,6 +1119,36 @@
       "title": "StateIntent",
       "type": "object"
     },
+    "TaskResult": {
+      "additionalProperties": true,
+      "properties": {
+        "reply": {
+          "title": "Reply",
+          "type": "string"
+        },
+        "interaction_mode": {
+          "description": "quick快速安排；deep深度互动。",
+          "enum": [
+            "quick",
+            "deep"
+          ],
+          "title": "Interaction Mode",
+          "type": "string"
+        },
+        "interaction_mode_changed": {
+          "default": false,
+          "description": "本轮确实切换了互动模式才为true。",
+          "title": "Interaction Mode Changed",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "reply",
+        "interaction_mode"
+      ],
+      "title": "TaskResult",
+      "type": "object"
+    },
     "Understanding": {
       "additionalProperties": false,
       "properties": {
@@ -1164,6 +1194,36 @@
           "maxItems": 8,
           "title": "Unresolved",
           "type": "array"
+        },
+        "interaction_mode": {
+          "anyOf": [
+            {
+              "enum": [
+                "quick",
+                "deep"
+              ],
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "少问直接排=quick;先细聊再排=deep;没提null",
+          "title": "Interaction Mode"
+        },
+        "mode_quote": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "原话",
+          "title": "Mode Quote"
         },
         "planning": {
           "anyOf": [
@@ -1253,6 +1313,9 @@
     }
   },
   "properties": {
+    "result": {
+      "$ref": "#/$defs/TaskResult"
+    },
     "start": {
       "$ref": "#/$defs/StartTask"
     },
@@ -1279,6 +1342,7 @@
     }
   },
   "required": [
+    "result",
     "start",
     "advance",
     "reference_location_selection",

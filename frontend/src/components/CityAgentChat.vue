@@ -106,6 +106,7 @@ async function send(inputOverride?:string){
   task.value=t
   t=await drive(t,current)
   if(current!==epoch||disposed)return
+  if(t.result?.interaction_mode_changed)writeMode(t.trip_id,t.result.interaction_mode!)
   weather.value=t.result?.weather||null
   if(t.result?.planning_workflow){
    if(t.result.planning_workflow.trip_id!==props.tripId)throw new Error('安排已变化，请重新读取当前旅程。')
@@ -136,6 +137,7 @@ async function selectLocation(choice:RouteLocationChoice,candidateId:string){
  const current=++epoch;busy.value=true;error.value=''
  try{let t=await cityAgentApi.selectLocation(task.value,choice,candidateId);if(current!==epoch||disposed)return
   task.value=t;t=await drive(t,current);if(current!==epoch||disposed)return;task.value=t
+  if(t.result?.interaction_mode_changed)writeMode(t.trip_id,t.result.interaction_mode!)
   if(t.result?.reply)messages.value.push({role:'小汴梁',text:t.result.reply})
  }catch(e){if(current===epoch)error.value=(e as Error).message}finally{if(current===epoch)busy.value=false}
 }

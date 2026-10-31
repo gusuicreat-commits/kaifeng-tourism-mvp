@@ -1,7 +1,7 @@
 from types import NoneType, UnionType
 from typing import Literal, Union, get_args, get_origin
 from uuid import UUID
-from pydantic import Field, model_validator
+from pydantic import BaseModel, ConfigDict, Field, model_validator
 from ..schema import Strict as _Strict
 from ..basket import ObjectRef
 
@@ -240,6 +240,8 @@ class Understanding(Strict):
     constraints: tuple[Constraint, ...] = Field(default=(), max_length=16)
     corrections: tuple[Correction, ...] = Field(default=(), max_length=4)
     unresolved: tuple[str, ...] = Field(default=(), max_length=8)
+    interaction_mode: Literal['quick','deep'] | None = Field(default=None, description='少问直接排=quick;先细聊再排=deep;没提null')
+    mode_quote: str | None = Field(default=None, description='原话')
     planning: PlanningIntent | None = None
     conversation: Conversation | None = None
     route_query: ReferenceRouteIntent | None = None
@@ -316,6 +318,13 @@ class StartTask(Strict):
     expected_route_version: int = Field(ge=0)
     page_focus: ObjectRef | None = None
     interaction_mode: Literal['deep','quick'] = Field(default='deep', description='deep深度互动；quick快速安排，单日缺少日期、时间或起终点时使用默认值。')
+
+
+class TaskResult(BaseModel):
+    model_config = ConfigDict(extra='allow')
+    reply: str
+    interaction_mode: Literal['quick','deep'] = Field(description='quick快速安排；deep深度互动。')
+    interaction_mode_changed: bool = Field(default=False, description='本轮确实切换了互动模式才为true。')
 
 
 class AdvanceTask(Strict):

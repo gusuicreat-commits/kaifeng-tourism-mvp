@@ -557,3 +557,26 @@ test.describe('冲突调整：真实后端',()=>{
   await confirm(page,info,trip,[morning.fact_id])
  })
 })
+
+
+test.describe('一句话切换模式：真实后端',()=>{
+ test('深度对话切到快速，模式按钮同步并出现方案',async({page},info)=>{
+  await home(page,info,'mode-switch')
+  await page.goto('/scenic/'+scenic.id)
+  await page.getByRole('button',{name:'加入素材篮：'+scenic.name,exact:true}).click()
+  await expect(page.getByRole('button',{name:'移出素材篮：'+scenic.name,exact:true})).toBeVisible()
+  await page.goto('/assistant?city_trip='+(await current(page)).id)
+  const mode=page.getByRole('group',{name:'互动模式',exact:true}),input=page.locator('#city-agent-input')
+  await mode.getByRole('button',{name:'深度互动',exact:true}).click()
+  await input.fill('我想明天去开封玩');await page.getByRole('button',{name:'发送',exact:true}).click()
+  await expect(page.getByRole('log',{name:'聊天记录',exact:true})).toContainText('当天几点开始，最晚几点结束？')
+  await expect(input).toBeEnabled()
+  await input.fill('别再问了，直接替我安排');await page.getByRole('button',{name:'发送',exact:true}).click()
+  await expect(mode.getByRole('button',{name:'快速安排',exact:true})).toHaveAttribute('aria-pressed','true')
+  await expect(page.getByLabel('规划检测结果',{exact:true}).locator('.plan-option').first()).toBeVisible()
+  await expect(page.getByRole('log',{name:'聊天记录',exact:true})).toContainText('已切换为快速安排：不再追问，缺的条件按默认补上。')
+  const trip=await current(page),workspace=await read<PlanningWorkspace>(page,prefix(trip.id)+'/exploration/constraints')
+  expect((workspace.constraints as PlanningConstraints).starts_at).toContain('T09:00:00')
+  expect(trip.route_version).toBe(0)
+ })
+})

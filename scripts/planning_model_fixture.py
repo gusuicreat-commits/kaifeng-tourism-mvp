@@ -29,13 +29,14 @@ def install():
         '什么叫补齐候选要求？':'就是先补上游玩时间，再试排一份尚未保存的行程草案。',
         '你刚才说的草案是什么意思？':'草案是先给你看的安排，确认后才会保存。',
     }
+    modes={'别再问了，直接替我安排':'quick'}
     def available():return active.get() is not None or original_available()
     def generate(system,payload,**kwargs):
         if active.get() is not None:return active.get(),{'source':'mock_model','http_attempts':0}
         return original_generate(system,payload,**kwargs)
     def parse(text,snapshot,**kwargs):
-        if text not in cases and text not in dialogue:return original_parse(text,snapshot,**kwargs)
-        response=({'conversation':{'reply':dialogue[text]}} if text in dialogue else
+        if text not in cases and text not in dialogue and text not in modes:return original_parse(text,snapshot,**kwargs)
+        response=({'interaction_mode':modes[text],'mode_quote':text} if text in modes else {'conversation':{'reply':dialogue[text]}} if text in dialogue else
                   {'actions':[{'kind':'modify','quote':text}], 'planning':{'quote':text,**cases[text]}})
         token=active.set(response)
         try:return original_parse(text,snapshot,**kwargs)

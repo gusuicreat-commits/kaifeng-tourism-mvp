@@ -217,6 +217,12 @@ def grounded(result,text,meta=None):
         if meta is None:raise exc
         reason=str(exc) or 'ungrounded evidence quote';_drop(meta,path,_drop_category(reason),reason,getattr(item,'quote',None))
 
+    if result.interaction_mode:
+        try:query_evidence(text,result.mode_quote)
+        except ValueError as exc:
+            if meta is None:raise
+            _drop(meta,'interaction_mode',_drop_category(str(exc)),str(exc),result.mode_quote)
+            result=result.model_copy(update={'interaction_mode':None,'mode_quote':None})
     actions=[]
     for index,item in enumerate(result.actions):
         try:
@@ -375,6 +381,15 @@ def _relocate_misplaced_fields(raw,meta=None,text=None):
     (service fields in travel_services.validate_intent, planning in grounded()).
     """
     from .models import Action, ServiceIntent
+    for key in ('interaction_mode','mode_quote'):
+        locations=[(name,item) for name in ('planning','conversation','state_request', 'service_query', 'route_query', 'weather_query')
+                   for item in [raw.get(name)] if isinstance(item,dict) and key in item]
+        locations += [('actions',item) for item in raw.get('actions',[]) if isinstance(item,dict) and key in item] if isinstance(raw.get('actions'),list) else []
+        for name,item in locations:
+            if key not in raw:raw=dict(raw,**{key:item[key]})
+            elif raw[key]!=item[key] and meta is not None:_drop(meta,name+'.'+key,'C','conflicting_location')
+            if meta is not None:meta.setdefault('relocated',[]).append({'from':name+'.'+key,'to':key})
+            del item[key]
     actions=raw.get('actions')
     if isinstance(actions,list):
         moved=[]
@@ -405,7 +420,7 @@ def _relocate_misplaced_fields(raw,meta=None,text=None):
 
 
 _MODEL_BRANCHES=('planning','conversation','route_query','weather_query','service_query','state_request')
-_MODEL_ROOT_FIELDS={'schema_version','actions','constraints','corrections','unresolved',*_MODEL_BRANCHES}
+_MODEL_ROOT_FIELDS={'interaction_mode','mode_quote','schema_version','actions','constraints','corrections','unresolved',*_MODEL_BRANCHES}
 _SCHEMAS={'travel-intent/3.1','travel-intent/3.2','travel-intent/3.3','travel-intent/3.4','travel-intent/3.5','travel-intent/3.6'}
 
 
@@ -483,6 +498,12 @@ def _sanitize_understanding(raw,meta):
     if not isinstance(schema,str) or schema not in _SCHEMAS:
         _drop(meta,'schema_version','C','unknown_schema');schema='travel-intent/3.6'
     value['schema_version']=schema
+    mode=raw.get('interaction_mode');quote=raw.get('mode_quote')
+    if isinstance(mode,str):mode=mode.strip().lower()
+    if mode is not None:
+        if mode not in ('quick','deep') or not isinstance(quote,str):
+            _drop(meta,'interaction_mode','C','invalid_mode',quote if isinstance(quote,str) else None)
+        else:value.update(interaction_mode=mode,mode_quote=quote)
     for key in raw:
         if key not in _MODEL_ROOT_FIELDS:_drop(meta,key,'C','extra_field')
 
@@ -627,14 +648,14 @@ def _sanitize_understanding(raw,meta):
     for index,action in enumerate(before):
         if action not in value['actions']:_drop(meta,f'actions[{index}]','C','duplicate_index')
     value['actions']=_bounded_list(value.get('actions'),'actions',8,meta)
-    return value,bool(value.get('actions') or value.get('constraints') or value.get('corrections') or value.get('unresolved') or any(value.get(k) for k in _MODEL_BRANCHES))
+    return value,bool(value.get('interaction_mode') or value.get('actions') or value.get('constraints') or value.get('corrections') or value.get('unresolved') or any(value.get(k) for k in _MODEL_BRANCHES))
 
 
 def _validate_tolerant(value,meta):
     """Construct the cross-branch model without turning one incompatible branch fatal."""
     try:return Understanding.model_validate(value)
     except (ValidationError,TypeError,ValueError) as first:
-        base={k:value[k] for k in ('schema_version','actions','constraints','corrections','unresolved') if k in value}
+        base={k:value[k] for k in ('schema_version','actions','constraints','corrections','unresolved','interaction_mode','mode_quote') if k in value}
         try:result=Understanding.model_validate(base)
         except (ValidationError,TypeError,ValueError):
             _drop(meta,'understanding','C',_validation_reason(first));return Understanding()
@@ -656,7 +677,7 @@ def _without_branch(result,name):
 
 
 def _has_content(result):
-    return bool(result.actions or result.constraints or result.corrections or result.unresolved or any(getattr(result,k) for k in _MODEL_BRANCHES))
+    return bool(result.interaction_mode or result.actions or result.constraints or result.corrections or result.unresolved or any(getattr(result,k) for k in _MODEL_BRANCHES))
 
 
 def dropped_reply(intent,meta,text):
@@ -683,6 +704,8 @@ def dropped_reply(intent,meta,text):
             coverage=[q for q in quotes if q!=intent.state_request.quote]
         if any(quote in kept or kept in quote for kept in coverage):continue
         seen.add(quote);notices.append('这部分我没采用：『'+quote+'』（'+reasons[item['category']]+'）。')
+    if any(d['path']=='interaction_mode' for d in meta.get('dropped',())):
+        notices.append('互动模式要求未能核对，本次未采用，仍沿用原模式。')
     return ''.join(notices)
 
 
@@ -993,6 +1016,9 @@ def parse(text,snapshot,*,allow_model=True):
                 result=result.model_copy(update={'planning':result.planning.model_copy(update={
                     'fields':(*result.planning.fields,PlanningField(field='date',value=found[0],quote=found[0]))})})
                 meta.setdefault('recovered_fields',[]).append({'field':'date','source':'date_grammar'})
+        if (result.interaction_mode and result.planning and not result.planning.fields and not result.planning.choices
+                and result.planning.operation in ('continue','update')):
+            result=_without_branch(result,'planning')
         if result.planning:
             dropped=[];original_planning=result.planning
             try:planning_checked=planning_intent.grounded(result.planning,text,snapshot,dropped,meta,result.corrections)
@@ -1125,7 +1151,7 @@ def parse(text,snapshot,*,allow_model=True):
         merged_constraints=tuple(Constraint.model_validate(c) for c in _dedupe([c.model_dump(mode='json') for c in keyed.values()]))
         if len(merged_constraints)>16:raise ValueError('intent capacity exceeded')
         merged_corrections=result.corrections if service_branch else local.corrections or result.corrections
-        result=Understanding(actions=merged_actions,constraints=merged_constraints,
+        result=Understanding(interaction_mode=result.interaction_mode,mode_quote=result.mode_quote,actions=merged_actions,constraints=merged_constraints,
                              corrections=merged_corrections,unresolved=merged_unresolved,
                              planning=result.planning,conversation=result.conversation,route_query=result.route_query,
                              weather_query=result.weather_query,service_query=result.service_query,state_request=result.state_request)

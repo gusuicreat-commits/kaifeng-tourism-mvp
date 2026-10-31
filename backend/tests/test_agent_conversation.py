@@ -66,7 +66,7 @@ def test_continuous_help_explanation_and_next_action_reach_model_with_recent_rep
     for i,text in enumerate(texts):
         task=run(city,text)
         assert task['mode']=='conversation' and task['status']=='answered',task
-        assert task['result']=={'reply':replies[i]}
+        assert task['result']=={'reply':replies[i],'interaction_mode':'deep','interaction_mode_changed':False}
         assert task['metrics']['model_calls']==1 and task['metrics']['tools']==0
         assert business(city)==before
         if i:assert calls[-1]['context']['recent_messages'][-1]=={'role':'assistant','text':replies[i-1]}

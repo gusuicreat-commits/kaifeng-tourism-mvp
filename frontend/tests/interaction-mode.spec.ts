@@ -283,3 +283,36 @@ test('深度偏好可取消单选，切到快速模式不发送偏好',async({pa
  for(const name of ['能吃辣吗','更感兴趣（可多选）','不想安排（可多选）'])await expect(page.getByRole('group',{name,exact:true})).toHaveCount(0)
  await expect(page.getByLabel('已提供的安排').getByRole('button',{name:'不吃辣',exact:true})).toHaveCount(0)
 })
+
+
+test('对话结果更新模式、保存并用于下一次请求',async({page})=>{
+ const {trip,path,tasks}=await prepare(page,false,true,false)
+ await page.route('**'+path+'/agent/tasks',async route=>{
+  tasks.push(route.request().postDataJSON())
+  await route.fulfill({json:{task_id:'mode-switch',trip_id:trip.id,step:0,status:'answered',mode:'conversation',busy:false,progress:null,events:[],understanding:null,result:{reply:'已切换为快速安排',interaction_mode:'quick',interaction_mode_changed:true}}})
+ })
+ const mode=page.getByRole('group',{name:'互动模式',exact:true}),input=page.locator('#city-agent-input')
+ await mode.getByRole('button',{name:'深度互动',exact:true}).click()
+ await input.fill('请你直接决定');await page.getByRole('button',{name:'发送',exact:true}).click()
+ await expect(mode.getByRole('button',{name:'快速安排',exact:true})).toHaveAttribute('aria-pressed','true')
+ expect(tasks[0].interaction_mode).toBe('deep')
+ expect(await page.evaluate(id=>localStorage.getItem('bianliang:interaction-mode:'+id),trip.id)).toBe('quick')
+ await expect(input).toBeEnabled();await input.fill('接着安排');await page.getByRole('button',{name:'发送',exact:true}).click()
+ await expect.poll(()=>tasks.length).toBe(2);expect(tasks[1].interaction_mode).toBe('quick')
+ await page.reload()
+ await expect(mode.getByRole('button',{name:'快速安排',exact:true})).toHaveAttribute('aria-pressed','true')
+})
+
+
+test('对话结果未切换模式时，规划表单仍询问互动模式',async({page})=>{
+ const {trip,path,tasks}=await prepare(page);await fillDay(page)
+ await page.route('**'+path+'/agent/tasks',async route=>{
+  tasks.push(route.request().postDataJSON())
+  await route.fulfill({json:{task_id:'mode-stay',trip_id:trip.id,step:0,status:'answered',mode:'conversation',busy:false,progress:null,events:[],understanding:null,result:{reply:'合成对话已收到',interaction_mode:'deep',interaction_mode_changed:false}}})
+ })
+ const form=page.locator('.planning-question')
+ await expect(form.getByRole('group',{name:'选择互动模式',exact:true})).toBeVisible()
+ await page.locator('#city-agent-input').fill('先聊聊');await page.getByRole('button',{name:'发送',exact:true}).click()
+ await expect(page.getByRole('log',{name:'聊天记录',exact:true})).toContainText('合成对话已收到')
+ await expect(form.getByRole('group',{name:'选择互动模式',exact:true})).toBeVisible()
+})
