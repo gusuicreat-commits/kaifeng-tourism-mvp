@@ -98,6 +98,19 @@ def resolve(db, ref, items=None):
             'data_status':'available' if fact else 'pending_addition'}
 
 
+def _program_places(items,program_id):
+    """Places that host a program: its own place and stages plus their parent places."""
+    program=items.get(('program',program_id))
+    seeds={program.place_id} if program and program.place_id else set()
+    seeds|={r.stage_place_id for r in items.values() if isinstance(r,facts.ShowSession) and r.program_id==program_id}
+    out=set()
+    for pid in seeds:
+        seen=0
+        while pid and pid not in out and seen<8:
+            out.add(pid);place=items.get(('place',pid));pid=getattr(place,'parent_place_id',None);seen+=1
+    return out
+
+
 def snapshot(db, session, trip_id):
     row=state.owned(db,session,trip_id);items=facts.records(db)
     draft=read_draft(row['draft_json']);result=[]
@@ -107,9 +120,12 @@ def snapshot(db, session, trip_id):
         try:value=resolve(db,ref,items)
         except HTTPException:value={'key':r['object_key'],'kind':ref.kind,'id':ref.object_id,'name':'资料待添加','fact_kind':None,'fact_id':None,'data_status':'pending_addition'}
         fid=value['fact_id'];stop_ids=[];arranged=[]
+        park_ids=_program_places(items,fid) if value['fact_kind']=='program' and fid else set()
         for day,stop in ((day,s.model_dump(mode='json')) for day in days for s in day.stops):
             same=stop['session_id']==fid if value['fact_kind']=='show_session' else stop['place_id']==fid if value['fact_kind']=='place' else False
             if value['fact_kind']=='vendor' and fid:same=stop['place_id']==items['vendor',fid].place_id
+            # 园内节目随所属景区的游览一起安排。
+            if park_ids:same=stop['place_id'] in park_ids
             # A dish is arranged only when a planned dining stop has a verified supply relationship.
             if value['fact_kind']=='food' and fid and stop['kind']=='dining':
                 moment=(day.starts_at or datetime.combine(day.business_date,time(),facts.TZ)) if isinstance(draft,CityDraftV2) else facts.now()

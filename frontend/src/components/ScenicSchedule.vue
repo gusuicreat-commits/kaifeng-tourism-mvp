@@ -3,6 +3,8 @@ import {computed,onBeforeUnmount,ref,watch} from 'vue'
 import {CalendarCheck,Clock3,MapPin,ShieldCheck} from 'lucide-vue-next'
 import {scenicScheduleApi,type Schedule} from '../scenicScheduleApi'
 import {isFeaturedProgram} from '../data/scenicPresentation'
+import DestinationActions from './DestinationActions.vue'
+import {matchPrograms,programIdFor} from '../programMatch'
 const props=defineProps<{parkId:string;serviceDate:string;featuredOnly?:boolean}>()
 const schedule=ref<Schedule>(),error=ref(''),busy=ref(false)
 let sequence=0,controller:AbortController|undefined
@@ -23,6 +25,8 @@ async function load(){
  finally{if(current===sequence)busy.value=false}
 }
 watch(()=>[props.parkId,props.serviceDate],load,{immediate:true})
+const scenicId=computed(()=>props.parkId==='qmsy'?'qingming':props.parkId)
+watch(groups,list=>{if(list.length)void matchPrograms(scenicId.value,list.map(g=>g[0].program_name))})
 onBeforeUnmount(()=>controller?.abort())
 const time=(value:string|null)=>value?.slice(0,5)||'时刻待确认'
 </script>
@@ -37,7 +41,7 @@ const time=(value:string|null)=>value?.slice(0,5)||'时刻待确认'
   <div v-if="!groups.length" class="schedule-state">{{featuredOnly?'暂无该日期已审核的主要演出场次。':'没有该日期已审核的场次。'}}<small>不会用其他日期的节目表补齐。</small></div>
   <div v-else class="schedule-groups">
    <article v-for="group in groups" :key="group[0].performance_id" class="schedule-program">
-    <div><h4>{{group[0].program_name}}</h4><p><MapPin :size="13"/>{{group[0].area?group[0].area+' · ':''}}{{group[0].venue_name}}</p></div>
+    <div><h4>{{group[0].program_name}}</h4><p><MapPin :size="13"/>{{group[0].area?group[0].area+' · ':''}}{{group[0].venue_name}}</p><DestinationActions v-if="programIdFor(scenicId,group[0].program_name)" class="schedule-actions" kind="program" :id="programIdFor(scenicId,group[0].program_name)!" :name="group[0].program_name"/></div>
     <ul><li v-for="show in group" :key="show.performance_id"><Clock3 :size="14"/><strong>{{time(show.start_time)}}</strong><span v-if="show.operating_status==='cancelled'">已取消</span><span v-else-if="show.schedule_note">{{show.schedule_note}}</span><span v-else>时长与入场规则待核验</span></li></ul>
    </article>
   </div>
@@ -46,6 +50,7 @@ const time=(value:string|null)=>value?.slice(0,5)||'时刻待确认'
 </section>
 </template>
 <style scoped>
+.schedule-actions{margin:10px 0 0;padding:0;max-width:280px}
 .scenic-schedule{margin:22px 0 26px;padding:20px;border:1px solid #ddd4c0;border-radius:18px;background:linear-gradient(135deg,#fffdf6,#f4f0e5)}
 .schedule-heading{display:flex;align-items:center;justify-content:space-between;gap:16px}.schedule-heading h3{margin:4px 0 0;font-size:21px}.schedule-notice{display:flex;gap:10px;margin:16px 0;padding:12px;background:#e9efe4;border-radius:12px;color:#345340}.schedule-notice[data-status=stale_reference_only],.schedule-notice[data-status=today_unconfirmed]{background:#f4ead7;color:#70572c}.schedule-notice p{margin:4px 0 0;font-size:12px;line-height:1.65}.schedule-pending{padding:10px 12px;background:#f7e8d6;color:#80502c;font-size:13px}.schedule-groups{display:grid;gap:10px}.schedule-program{padding:14px 0;border-top:1px solid #ddd4c0}.schedule-program h4{margin:0 0 5px;font-size:16px}.schedule-program p{display:flex;align-items:center;gap:4px;margin:0;color:#6e6a5d;font-size:12px}.schedule-program ul{display:flex;flex-wrap:wrap;gap:8px;padding:0;margin:12px 0 0;list-style:none}.schedule-program li{display:flex;align-items:center;gap:6px;padding:7px 9px;background:#fff;border:1px solid #e0d8c8;border-radius:9px;font-size:12px}.schedule-program li span{color:#827866;font-size:11px}.schedule-source{margin-top:16px;color:#7c7566;font-size:11px;line-height:1.7;overflow-wrap:anywhere}.schedule-source a{display:inline-block;margin-left:10px}.schedule-state{padding:20px 0;color:#756e60}.schedule-state small{display:block;margin-top:6px}.schedule-state button{display:block;padding:8px 0}
 @media(max-width:640px){.scenic-schedule{padding:16px;margin-inline:0}.schedule-program ul{display:grid}.schedule-program li{flex-wrap:wrap}.schedule-program li span{flex-basis:100%;padding-left:20px}}

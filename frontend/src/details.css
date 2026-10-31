@@ -44,3 +44,10 @@
 .scenic-handmap img{display:inline-block;max-width:100%;max-height:70vh;width:auto;height:auto;border-radius:6px;object-fit:contain}
 .scenic-handmap small{display:block;margin-top:10px;color:#8a7c62;font-size:12px;text-align:left}
 @media(max-width:760px){.scenic-handmap{max-height:60vh}.scenic-handmap img{max-height:50vh}}
+
+/* 节目卡片中的加入素材篮，与节目标题左对齐 */
+.detail-show .show-actions{margin:14px 0 0 40px;padding:0;max-width:300px}
+@media(max-width:760px){.detail-show .show-actions{margin-left:32px}}
+/* 景区内安排的节目，缩进显示在景区下方 */
+.plan-option .plan-program-note{display:block;margin-top:6px;padding-left:10px;border-left:2px solid #c9b98f;color:#6b7e5e;font-size:12px}
+.timeline-stop .timeline-program{margin-top:4px;padding-left:9px;border-left:2px solid #c9b98f;color:#6b7e5e;font-size:12px}

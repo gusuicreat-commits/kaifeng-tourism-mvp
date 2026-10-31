@@ -50,6 +50,18 @@ def object_detail(kind:Kind,object_id:str):
     with connect() as db:return resolve(db,ObjectRef(kind=kind,object_id=object_id))
 
 
+@router.get('/scenic/{scenic_id}/programs/match')
+def scenic_programs_match(scenic_id:str,name:list[str]=Query(default=[],max_length=80)):
+    """Map program names shown on a scenic page to program facts of that park, exactly."""
+    from .basket import resolve
+    from .engine import service as engine
+    from .exploration import match_programs
+    with connect() as db:
+        try:park=resolve(db,ObjectRef(kind='scenic',object_id=scenic_id))['fact_id']
+        except HTTPException:park=None
+        return {'matches':match_programs(engine.context(db),park,[n[:120] for n in name])}
+
+
 @router.patch('/trips/{trip_id}/basket')
 def basket_change(trip_id:UUID,body:BasketMutation,s:Session=Depends(current)):
     from .basket import mutate

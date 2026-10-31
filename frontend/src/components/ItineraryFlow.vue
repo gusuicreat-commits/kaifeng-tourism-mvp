@@ -43,6 +43,13 @@ const points=computed(()=>{
  const next=result.find(p=>p.state==='pending');if(next&&!ongoing&&props.actionable!==false){next.state='next';next.status='下一站'}
  return result
 })
+// 园内节目：确认后素材篮把节目关联到所属景区的停靠点，这里显示在该景区下方。
+const dayDraft=computed(()=>draftDays(props.trip.draft).find(d=>d.day_id===props.dayId)||draftDays(props.trip.draft)[0]||emptyCityDraft())
+function programsAt(point:Point){
+ if(!point.place||['origin','return','resume'].includes(point.kind))return []
+ const ids=new Set(dayDraft.value.stops.filter(s=>s.place_id===point.place).map(s=>s.stop_id))
+ return journey.choices.filter(c=>c.kind==='program'&&c.stop_ids?.some(id=>ids.has(id)))
+}
 function legBetween(from:Point,to:Point){const leg=to.incoming;return leg&&leg.journey.travel.origin_place_id===from.place&&leg.journey.travel.destination_place_id===to.place?leg:null}
 function travelText(leg:ScheduledLeg){const seconds=(Date.parse(leg.arrives_at)-Date.parse(leg.departs_at))/1000
  if(leg.journey.time_basis==='provider_estimate'&&leg.journey.estimated_seconds!=null){
@@ -63,7 +70,7 @@ function travelText(leg:ScheduledLeg){const seconds=(Date.parse(leg.arrives_at)-
     <div class="flow-card-meta"><span>{{labels[point.kind]||'活动'}}</span><span class="flow-status">{{point.status}}</span></div>
     <h3><RouterLink v-if="point.place" :to="'/place/'+encodeURIComponent(point.place)">{{point.title||nameOf(point.place)}}</RouterLink><span v-else>地点待核验</span><LockKeyhole v-if="point.locked" :size="13" aria-label="必去"/></h3>
     <p v-if="point.kind==='show'&&point.title!==nameOf(point.place)" class="flow-place">{{nameOf(point.place)}}</p>
-    <p v-if="point.duration!=null" class="flow-duration">{{point.kind==='dining'?'用餐':point.kind==='show'?'演出':'停留'}} {{Math.round(point.duration/60)}} 分钟</p>
+    <p v-if="point.duration!=null" class="flow-duration">{{point.kind==='dining'?'用餐':point.kind==='show'?'演出':'停留'}} {{Math.round(point.duration/60)}} 分钟</p><p v-for="c in programsAt(point)" :key="c.key" class="flow-program">园内观看《{{c.name.replace(/^《|》$/g,'')}}》 · 场次以景区当日公告为准</p>
     <RouterLink v-if="point.place&&point.state!=='completed'&&point.state!=='skipped'&&point.state" class="flow-location" :to="'/guide?mode=city&place='+encodeURIComponent(point.place)">查看位置 <MapPin :size="12"/></RouterLink>
    </article>
    <div v-if="index<points.length-1" class="flow-transfer">
@@ -75,6 +82,7 @@ function travelText(leg:ScheduledLeg){const seconds=(Date.parse(leg.arrives_at)-
 </template>
 
 <style scoped>
+.flow-program{margin:6px 0 0;padding-left:9px;border-left:2px solid #c9b98f;font-size:12px;line-height:1.7;color:#6b7e5e}
 .journey-timeline.journey-flow{--clock:62px;--rail:24px;--gap:12px;list-style:none;margin:22px 0 8px;padding:0}
 .journey-flow>.flow-point{position:relative;display:grid;grid-template-columns:var(--clock) var(--rail) minmax(0,1fr);column-gap:var(--gap);min-height:0;isolation:isolate}
 .journey-flow>.flow-point:not(:last-child):before{content:'';position:absolute;left:calc(var(--clock) + var(--gap) + var(--rail)/2 - 1px);top:25px;bottom:-25px;border-left:1px solid #c8baa0;z-index:-1}

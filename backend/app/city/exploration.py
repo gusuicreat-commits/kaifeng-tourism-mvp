@@ -171,10 +171,11 @@ def _unscheduled(solve_result, req, ctx, goal_keys, goal_meta):
     try:problem=engine.prepare(req,ctx)
     except Exception:problem=None
     solo_cache={};solo_count=0
+    requested={g.goal_id for g in req.goals}  # 并入景区的节目不再单独计为未安排
     output={}
     for alternative_index,itinerary in enumerate(itineraries):
         kept={a.get('goal_id') for a in itinerary.get('activities') or ()}
-        omitted=[gid for gid in goal_keys if gid not in kept and goal_meta.get(gid,{}).get('status') not in ('standby','arranged')]
+        omitted=[gid for gid in goal_keys if gid in requested and gid not in kept and goal_meta.get(gid,{}).get('status') not in ('standby','arranged')]
         rows=[]
         for gid in omitted:
             meta=goal_meta.get(gid,{})
@@ -392,6 +393,130 @@ def _preference_result(result,excluded,notices,pending=()):
     if notices:result['reply']=result.get('reply','请比较整套方案并确认，正式行程尚未改变。')+' '+''.join(notices)
 
 
+# 园内节目：节目不作为独立城市停靠点，而是把所属景区的游览时段扩到能包住演出时间。
+INTRA_PARK_BUFFER_SECONDS=600  # 园内步行缓冲（演出前后各 10 分钟），演示假设
+SHOW_DEFAULT_SECONDS=1800  # 场次缺结束时间时按 30 分钟计，演示假设
+SHOW_ARRIVAL_LEAD_SECONDS=1800  # 出发后至少留 30 分钟到达景区，返回前同样预留
+
+
+def _program_sessions(ctx,program_id,business_date):
+    """当天真实场次；演示模式下当天没有场次时，按最近有场次日期的同钟点作参考。"""
+    sessions=sorted((s for s in ctx.facts.values() if isinstance(s,facts.ShowSession) and s.program_id==program_id),
+                    key=lambda s:(s.business_date,s.starts_at))
+    pick=lambda s,delta:(s.starts_at+delta,(s.ends_at+delta) if s.ends_at else s.starts_at+delta+timedelta(seconds=SHOW_DEFAULT_SECONDS))
+    real=[pick(s,timedelta())+(None,) for s in sessions if s.business_date==business_date]
+    if real or not getattr(ctx,'demo_reference',False) or not sessions:return real
+    earlier=[s.business_date for s in sessions if s.business_date<business_date]
+    source=max(earlier) if earlier else min(s.business_date for s in sessions)
+    return [pick(s,business_date-source)+(source,) for s in sessions if s.business_date==source]
+
+
+def _program_park(ctx,program_id):
+    program=ctx.facts.get(('program',program_id))
+    places=[getattr(program,'place_id',None)]+[s.stage_place_id for s in ctx.facts.values()
+                                             if isinstance(s,facts.ShowSession) and s.program_id==program_id]
+    for pid in filter(None,places):
+        parks=ctx.parks(pid)
+        if parks:return parks[-1]
+    return None
+
+
+def _nest_programs(goals,goal_meta,ctx,business_date,starts_at,ends_at,exclude=frozenset()):
+    """Return goals with park programs folded into park visits, plus display notes and pending rows."""
+    from .engine.prepare import default_stay
+    buffer=timedelta(seconds=INTRA_PARK_BUFFER_SECONDS);lead=timedelta(seconds=SHOW_ARRIVAL_LEAD_SECONDS)
+    notes={};pending=[];notices=[];chosen={}
+    for goal in [g for g in goals if g.target_kind=='program']:
+        park=_program_park(ctx,goal.target_id)
+        if not park:continue
+        meta=goal_meta.get(goal.goal_id,{});name=meta.get('name') or getattr(ctx.facts.get(('program',goal.target_id)),'name','节目')
+        sessions=[x for x in sorted(_program_sessions(ctx,goal.target_id,business_date)) if (goal.goal_id,x[0].isoformat()) not in exclude]
+        taken=chosen.setdefault(park,[])
+        free=lambda st,en:all(en+2*buffer<=a or st>=b+2*buffer for a,b,_ in taken)
+        fits=[]
+        for margin in (3*lead,2*lead,lead):
+            fits=[x for x in sessions if x[0]-buffer>=starts_at+margin and x[1]+buffer<=ends_at-lead and free(x[0],x[1])]
+            if fits:break
+        goals=[g for g in goals if g.goal_id!=goal.goal_id];goal_meta.pop(goal.goal_id,None)
+        if not fits:
+            pending.append({'goal_id':goal.goal_id,'key':meta.get('key',goal.goal_id),'name':name,'reason_code':'session_pending',
+                            'reason':'当天场次不在你的出行时段内' if sessions else '当天场次资料待添加'})
+            continue
+        session=fits[0];taken.append(session)
+        notes.setdefault(park,[]).append({'goal_id':goal.goal_id,'key':meta.get('key'),'name':name.strip('《》'),'starts_at':session[0].isoformat(),
+            'ends_at':session[1].isoformat(),'reference_date':session[2].isoformat() if session[2] else None,
+            'required':goal.required,'importance':goal.importance})
+    result_notes={}
+    for park,items in notes.items():
+        place=ctx.facts.get(('place',park))
+        existing=next((g for g in goals if g.target_kind=='place' and ctx.canonical('place',g.target_id)==park),None)
+        if not existing:
+            existing=Goal(goal_id='park:'+uuid5(UUID(int=0),park).hex,target_kind='place',target_id=park,kind='visit')
+            goal_meta[existing.goal_id]={'key':'park:'+park,'name':getattr(place,'name','景区'),'status':'pending','goal':existing,'locked':False}
+            goals.append(existing)
+            notices.append('已把'+getattr(place,'name','所属景区')+'加入路线，用来安排'+'、'.join('《'+i['name']+'》' for i in items)+'。')
+        start=min(datetime_from(i['starts_at']) for i in items)-buffer;end=max(datetime_from(i['ends_at']) for i in items)+buffer
+        stay=existing.duration_seconds or (place.suggested_stay_min*60 if place and place.suggested_stay_min else default_stay('visit',place) if place else 5400)
+        duration=min(21600,max(stay,int((end-start).total_seconds())))
+        updated=existing.model_copy(update={'duration_seconds':duration,'window_start':end-timedelta(seconds=duration),
+            'window_end':start+timedelta(seconds=duration),'required':existing.required or any(i['required'] for i in items),
+            'importance':max([existing.importance]+[i['importance'] for i in items])})
+        goals=[updated if g.goal_id==existing.goal_id else g for g in goals]
+        if updated.goal_id in goal_meta:goal_meta[updated.goal_id]['goal']=updated
+        result_notes[updated.goal_id]=[{k:i[k] for k in ('goal_id','key','name','starts_at','ends_at','reference_date')} for i in sorted(items,key=lambda i:i['starts_at'])]
+    if any(i['reference_date'] for items in result_notes.values() for i in items):
+        notices.append('演出时间为参考场次，以景区当日公告为准。')
+    return goals,result_notes,tuple(pending),notices
+
+
+def _park_programs_multi(goals,ctx,notices):
+    """多天每天场次不同：园内节目先并入所属景区的游览，场次以当天公告为准。"""
+    out=list(goals);notices=list(notices)
+    for goal in [g for g in goals if g.target_kind=='program']:
+        park=_program_park(ctx,goal.target_id)
+        if not park:continue
+        out=[g for g in out if g.goal_id!=goal.goal_id]
+        existing=next((g for g in out if g.target_kind=='place' and ctx.canonical('place',g.target_id)==park),None)
+        if existing:
+            out=[g.model_copy(update={'required':g.required or goal.required,'importance':max(g.importance,goal.importance)})
+                 if g.goal_id==existing.goal_id else g for g in out]
+        else:
+            out.append(TripGoal(goal_id='park:'+uuid5(UUID(int=0),park).hex,target_kind='place',target_id=park,kind='visit',
+                                required=goal.required,importance=goal.importance,allowed_dates=goal.allowed_dates))
+        name=getattr(ctx.facts.get(('program',goal.target_id)),'name','节目').strip('《》')
+        notices.append(f'《{name}》安排在{getattr(ctx.facts.get(("place",park)),"name","所属景区")}的游览中，场次以当天公告为准。')
+    return out,notices
+
+
+_PROGRAM_NAME_NOISE=str.maketrans('','',' 　《》·•・．.')
+
+
+def match_programs(ctx,park,names):
+    """Exact program-name matching inside one park; punctuation and spacing are ignored, ambiguity returns null."""
+    park=ctx.canonical('place',park) if park else None
+    index={}
+    if park:
+        for program in (r for r in ctx.facts.values() if isinstance(r,facts.Program)):
+            owner=_program_park(ctx,program.fact_id)
+            if not owner or ctx.canonical('place',owner)!=park:continue
+            for label in (program.name,*program.aliases):
+                index.setdefault(label.translate(_PROGRAM_NAME_NOISE),set()).add(program.fact_id)
+    result={}
+    for name in names:
+        found=index.get(name.translate(_PROGRAM_NAME_NOISE),set())
+        if len(found)>1:
+            # 资料里同名重复时，只有一条有场次才采用它；否则不替游客选择。
+            timed={f for f in found if any(isinstance(r,facts.ShowSession) and r.program_id==f for r in ctx.facts.values())}
+            found=timed if len(timed)==1 else found
+        result[name]=next(iter(found)) if len(found)==1 else None
+    return result
+
+
+def datetime_from(value):
+    from datetime import datetime
+    return datetime.fromisoformat(value)
+
+
 def _unmapped_rows(collected):
     return tuple({'goal_id':'unmapped:'+item['key'],'key':item['key'],'name':item['name'],
                   'reason_code':'data_pending','reason':'资料待添加，暂时排不进行程'}
@@ -461,8 +586,9 @@ def preview_plan(trip_id,body,s,*,execution_guard=None):
             projected,hotel_issues=hotel_binding.project(db,link_overnights(body.constraints.model_dump(mode='json')),
                                                         travel_services.read(db,trip_id))
             if not body.constraints.days:raise HTTPException(422,detail='请补齐多天每日时段、端点和过夜条件。')
-            collected,_,goals,unmapped,_,_,grouped,excluded,notices=_basket_goals(db,s,trip_id,body.constraints.goals,
+            collected,multi_ctx,goals,unmapped,_,_,grouped,excluded,notices=_basket_goals(db,s,trip_id,body.constraints.goals,
                 tuple(d.business_date for d in body.constraints.days),preferences=body.constraints.preferences)
+            goals,notices=_park_programs_multi(goals,multi_ctx,notices)
             pending=_unmapped_rows(collected)
             projected['goals']=[g.model_dump(mode='json') for g in goals]
         hotel_pending=[i for i in hotel_issues if i not in hotel_binding.blocking(hotel_issues)]
@@ -551,6 +677,7 @@ def preview_plan(trip_id,body,s,*,execution_guard=None):
                    for x in draft.stops if x.progress=='pending' and x.kind!='return']
         collected,ctx,goals,unmapped,key_by_goal,goal_meta,grouped,excluded,notices=_basket_goals(db,s,trip_id,goals,ctx=ctx,preferences=body.constraints.preferences)
         pending=_unmapped_rows(collected)
+    program_notes={};program_pending=()
     if missing:
         result=unknown('请补充'+ '、'.join({'business_date':'日期','starts_at':'开始时间','ends_at':'结束时间','origin_place_id':'出发地点','destination_place_id':'返程地点'}[k] for k in missing),'','PERSONAL_CHOICE_MISSING')
         result['questions']=[{'field':k} for k in missing]
@@ -560,6 +687,13 @@ def preview_plan(trip_id,body,s,*,execution_guard=None):
         result=unknown('所选内容的地点、商家或场次资料待添加；暂不能核验完整路线。',unmapped) if unmapped else unknown(
             '先从详情页加入想去的地方或美食。',code='BASKET_EMPTY')
     else:
+        base_goals=list(goals);base_notices=list(notices);base_meta=dict(goal_meta)
+        goals,program_notes,program_pending,program_notices=_nest_programs(goals,goal_meta,ctx,values['business_date'],values['starts_at'],values['ends_at'])
+        pending=tuple(pending)+program_pending;notices=list(notices)+program_notices
+    if not missing and not unmatched and not grouped and goals==[] and program_pending:
+        result=unknown('所选节目当天没有可安排的场次，暂不能生成路线。',code='SESSION_PENDING')
+        result['unscheduled']={'0':list(program_pending)}
+    elif not missing and not unmatched and not grouped and goals:
         try:req=Requirements.model_validate(values|{'goals':goals,'alternatives':3})
         except ValidationError:raise HTTPException(422,detail='请检查同日开始、结束时间、目标数量与交通方式。') from None
         diagnosis={}
@@ -571,6 +705,31 @@ def preview_plan(trip_id,body,s,*,execution_guard=None):
         if row['status'] in ('ACTIVE','PAUSED'):
             plan=engine.preview(s,trip_id,ReplanRequest(request_id=uuid5(body.request_id,'engine'),expected_version=body.expected_version,requirements=req),replanning=True,planning_version=planning_version,explain=explain)
         else:plan=engine.preview(s,trip_id,PreviewRequest(request_id=uuid5(body.request_id,'engine'),expected_version=body.expected_version,requirements=req),planning_version=planning_version,explain=explain)
+        if plan['result']['status']!='feasible' and program_notes and row['status'] not in ('ACTIVE','PAUSED'):
+            # 先换同一节目的下一场再试一次。
+            tried=frozenset((n['goal_id'],n['starts_at']) for items in program_notes.values() for n in items)
+            retry_meta=dict(base_meta)
+            retry_goals,retry_notes,retry_pending,retry_notices=_nest_programs(list(base_goals),retry_meta,ctx,values['business_date'],values['starts_at'],values['ends_at'],tried)
+            if retry_notes and not retry_pending:
+                retry_req=Requirements.model_validate(values|{'goals':retry_goals,'alternatives':3})
+                goal_meta.update(retry_meta);first_diagnosis=dict(diagnosis);diagnosis.clear()
+                retry_plan=engine.preview(s,trip_id,PreviewRequest(request_id=uuid5(body.request_id,'engine-program-retry'),expected_version=body.expected_version,requirements=retry_req),planning_version=planning_version,explain=explain)
+                if retry_plan['result']['status']=='feasible':
+                    plan,req,goals,program_notes=retry_plan,retry_req,retry_goals,retry_notes
+                    notices=base_notices+retry_notices
+                else:diagnosis.clear();diagnosis.update(first_diagnosis)
+        if plan['result']['status']!='feasible' and program_notes and row['status'] not in ('ACTIVE','PAUSED'):
+            # 演出场次把景区游览卡得太紧时，退回普通游览，节目如实列入暂不安排。
+            by_id={g.goal_id:g for g in base_goals}
+            goals=[(by_id.get(g.goal_id) or g.model_copy(update={'duration_seconds':None,'window_start':None,'window_end':None}))
+                   if g.goal_id in program_notes else g for g in goals]
+            pending=tuple(pending)+tuple({'goal_id':'program:'+(n['key'] or n['name']),'key':n['key'] or n['name'],'name':'《'+n['name']+'》',
+                'reason_code':'session_pending','reason':'演出时间和行程衔接不上，可调整出发时间或改乘打车'} for items in program_notes.values() for n in items)
+            added=[goal_meta.get(gid,{}).get('name','所属景区') for gid in program_notes if gid not in by_id]
+            notices=base_notices+['已把'+'、'.join(added)+'加入路线，园内演出场次请以当日公告为准。'] if added else base_notices
+            program_notes={};diagnosis.clear()
+            req=Requirements.model_validate(values|{'goals':goals,'alternatives':3})
+            plan=engine.preview(s,trip_id,PreviewRequest(request_id=uuid5(body.request_id,'engine-program-fallback'),expected_version=body.expected_version,requirements=req),planning_version=planning_version,explain=explain)
         if endpoint_replaced:plan['result']['warnings'].append(ENDPOINT_REPLACEMENT_WARNING)
         status=plan['result']['status'];options=[]
         if status=='infeasible':
@@ -583,6 +742,7 @@ def preview_plan(trip_id,body,s,*,execution_guard=None):
                 'issues':plan['result']['issues'],'options':options,'planning':plan,'formal_state_changed':False,
                 'goal_keys':key_by_goal,'activity_names':{a['goal_id']:getattr(ctx.facts.get(('place',a['place_id'])),'name','资料待添加') for i in plan['result']['itineraries'] for a in i['activities']}}
         result['unscheduled']=plan.get('unscheduled',{})
+        if program_notes:result['program_notes']=program_notes
         if diagnosis:
             result.update(diagnosis,status='infeasible')
             reasons={r['goal_id']:r['name']+'：'+r['reason'] for r in diagnosis['conflicts']}
