@@ -29,7 +29,10 @@ def dated(monkeypatch):
     records['source',live_travel.SOURCE_ID]=records['source','fixture:source'].model_copy(update={'fact_id':live_travel.SOURCE_ID})
     ctx=replace(ctx,facts=records,synthetic=False,operations=ctx.operations.model_copy(update={'journeys':()}))
     data=requirements(3)
-    for d in data['days']:d.update(origin_place_id='origin',destination_place_id='origin')
+    # Distinct departure times exercise separate estimates while dates alone reuse quotes.
+    for i,d in enumerate(data['days']):
+        d.update(origin_place_id='origin',destination_place_id='origin',
+                 starts_at=d['business_date']+f'T09:{i:02d}:00+08:00')
     for o in data['overnights']:o['place_id']='origin'
     data['goals']=[{'goal_id':'museum','target_kind':'place','target_id':'museum',
                     'allowed_dates':[d['business_date'] for d in data['days']]}]

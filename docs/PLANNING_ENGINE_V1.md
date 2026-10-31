@@ -4,6 +4,12 @@
 
 2026-10-23状态复核：前端素材篮/协商、V3助手与正式行程确认已接通，真实高德报价和参考问路已有分轮证据；正式交通时段准入、真实业务资料和现场验收仍待完成。完整现状见 [PROJECT_STATUS](PROJECT_STATUS.md)，不能继续把2026-10-21的未接线项当作现状。
 
+## E12 多天交通报价复用（2026-10-31，待 Claude 验收）
+
+`live_travel.enrich` 在一次多天补全过程中，按起终点坐标、交通方式和北京时间 `HH:MM` 缓存报价（含失败结果）；跨日期同一时刻复用，不同出发时刻分别请求。命中不等待请求间隔、不消耗请求额度；各日 Journey 的 identity、证据有效期和快照仍独立生成。单日及未传缓存的 `_enrich_day` 保持原行为，缓存不跨调用保存。模块 INFO 日志记录本次 `provider_requests` 与 `cache_hits`，不改变 API 契约。
+
+验收入口为 `backend/tests/test_live_travel_multi_day_cache.py`：合成 5 地点加同一起终点，三天同一出发时刻原需 90 次报价（上限 60 时预览失败），复用后请求 30 次、命中 60 次，三天均有完整路段和活动。另覆盖不同出发时刻、北京时间归一、失败缓存、双交通方式、额度用满后命中、单日兼容及调用间隔离；只使用合成资料与假 provider，真实交通与现场仍待验收。
+
 ## B2.1 多天契约与只读边界
 
 新增 `MultiDayRequirements(city-engine/2)`、`DayRequirements`、`TripGoal(allowed_dates/fixed_date)`、带日期的票务确认、`MultiDayConstraints` 及 `MultiDayItinerary(city-itinerary/2)`。每日结果保存原始需求和当前剩余需求、日内计划/历史/ongoing、日状态与问题；全程包含过夜边界、objectives、active/elapsed/travel/步行指标、费用摘要与最弱证据状态。每日 24 站、全程 30 目标；日内 60 候选上限保留在原 prepare 中。计算预算仍为全程默认 1 秒、上限 3 秒。

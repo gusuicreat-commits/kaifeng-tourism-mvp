@@ -1,5 +1,6 @@
 """Request-scoped provider estimates; only derived leg values enter trip snapshots."""
 import hashlib
+import logging
 import math
 import os
 import time
@@ -7,11 +8,12 @@ from dataclasses import replace
 from datetime import timedelta
 
 from .. import facts
-from ..schema import Evidence, TravelEstimate
+from ..schema import Evidence, TravelEstimate, TZ
 from .amap import AmapProvider
 from .models import Boundary, Journey, MultiDayRequirements, MultiDayItinerary
 
 SOURCE_ID = 'src_mvp_amap'
+logger = logging.getLogger(__name__)
 
 
 def enabled():
@@ -87,18 +89,22 @@ def enrich(ctx, req, *, provider=None, deadline=None, clock=None):
     from .multi_day import applicable,day_requirements
     clock=clock or time.monotonic;deadline=clock()+15 if deadline is None else deadline
     own=provider is None;provider=provider or provider_from_environment()
+    quotes={};metrics={'cache_hits':0};initial_requests=provider.request_count
     try:
         for day in req.days:
             if clock()>=deadline:break
             daily=day_requirements(req,day,[g for g in req.goals if applicable(g,day)],
                                    day.objective or req.objective,req.solve_seconds)
-            ctx=_enrich_day(ctx,daily,provider=provider,deadline=deadline,clock=clock,dated=True)
+            ctx=_enrich_day(ctx,daily,provider=provider,deadline=deadline,clock=clock,dated=True,
+                            quotes=quotes,metrics=metrics)
         return ctx
     finally:
+        logger.info('Multi-day travel estimates: provider_requests=%s cache_hits=%s',
+                    provider.request_count-initial_requests,metrics['cache_hits'])
         if own:provider.close()
 
 
-def _enrich_day(ctx, req, *, provider=None, deadline=None, clock=None, dated=False):
+def _enrich_day(ctx, req, *, provider=None, deadline=None, clock=None, dated=False, quotes=None, metrics=None):
     if ctx.synthetic or not enabled():
         return ctx
     source = ctx.facts.get(('source', SOURCE_ID))
@@ -144,12 +150,19 @@ def _enrich_day(ctx, req, *, provider=None, deadline=None, clock=None, dated=Fal
                     if (origin.longitude, origin.latitude) == (destination.longitude, destination.latitude):
                         seconds, metres, buffer = 0, 0, 0
                     else:
-                        if provider.request_count:
-                            time.sleep(provider.interval)
-                        if (deadline is not None and clock()>=deadline
-                                or provider.request_count>=getattr(provider,'max_requests',60)):
-                            return replace(ctx,operations=ctx.operations.model_copy(update={'journeys':tuple(journeys)}))
-                        quote = provider.estimate(origin, destination, mode, req.starts_at, checked)
+                        quote_key=(origin.longitude,origin.latitude,destination.longitude,destination.latitude,
+                                   mode,req.starts_at.astimezone(TZ).strftime('%H:%M'))
+                        if quotes is not None and quote_key in quotes:
+                            quote=quotes[quote_key]
+                            if metrics is not None:metrics['cache_hits']+=1
+                        else:
+                            if provider.request_count:
+                                time.sleep(provider.interval)
+                            if (deadline is not None and clock()>=deadline
+                                    or provider.request_count>=getattr(provider,'max_requests',60)):
+                                return replace(ctx,operations=ctx.operations.model_copy(update={'journeys':tuple(journeys)}))
+                            quote = provider.estimate(origin, destination, mode, req.starts_at, checked)
+                            if quotes is not None:quotes[quote_key]=quote
                         if quote.status != 'estimated' or quote.duration_seconds is None or not quote.geometry_available:
                             continue
                         seconds, metres = quote.duration_seconds, quote.distance_m
