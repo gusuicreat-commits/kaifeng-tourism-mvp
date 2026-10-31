@@ -9,7 +9,7 @@ import pytest
 
 from app import language
 from app.city.agent import provider, planning_intent, understand
-from app.city.agent.models import PlanningIntent
+from app.city.agent.models import PlanningIntent, Understanding
 from app.city.agent.orchestration import QUICK_PLACE_ID
 from app.city.assistant import context, service as assistant_service, tools
 from app.city.engine import service as engine_service
@@ -18,6 +18,8 @@ from app.memory import session as memory_session, storage as memory_storage
 from app.db import connect
 from test_city_assistant import city, planned
 from test_city_agent import snapshot
+from test_city_engine_api import engine
+from test_multi_day_api import multi_engine
 
 
 def _path(e, suffix=''):
@@ -213,6 +215,85 @@ def test_unplanned_preferences_recover_planning(reference_city,monkeypatch,mode,
         assert task['status']=='needs_clarification' and reply.startswith('你打算哪天去？'),task
         assert '调整为放松' in reply
     assert reference_city['client'].get(_path(reference_city)).json()['route_version']==0
+
+
+def _planning_output(text,fields):
+    return {'actions':[{'kind':'modify','quote':text}],
+            'planning':{'operation':'update','quote':text,'fields':fields,'choices':[]}}
+
+
+def test_new_single_day_pace_and_mode_are_echoed_in_order_and_saved(reference_city,monkeypatch):
+    text='明天九点到六点，节奏轻松点，坐公交'
+    fields=[
+        {'field':'date','value':'明天','quote':'明天'},
+        {'field':'start_time','value':'09:00','quote':'九点'},
+        {'field':'end_time','value':'18:00','quote':'六点'},
+        {'field':'pace','value':'relaxed','quote':'节奏轻松点'},
+        {'field':'mode','value':'transit','quote':'坐公交'},
+    ]
+    task=_run(reference_city,text,'quick',_planning_output(text,fields),monkeypatch)
+    assert task['status'] in ('answered','needs_confirmation','needs_data'),task
+    reply=task['result']['reply']
+    pace='已按“节奏轻松点”调整为放松。';mode='已按“坐公交”把交通方式改为公交。'
+    assert pace in reply and mode in reply and reply.index(pace)<reply.index(mode)
+    assert saved(reference_city)['modes']==['transit']
+
+
+@pytest.mark.parametrize('value,quote,label',[('walking','改成步行','步行'),('transit','坐公交','公交'),('driving','打车','打车 / 自驾')])
+def test_mode_preference_note_uses_all_supported_labels(city,value,quote,label):
+    intent=Understanding(actions=[{'kind':'modify','quote':quote}],planning=PlanningIntent(operation='update',quote=quote,fields=[
+        {'field':'mode','value':value,'quote':quote}]))
+    assert planning_intent.preference_notes(intent)==[f'已按“{quote}”把交通方式改为{label}。']
+
+
+def test_duplicate_mode_notes_are_deduplicated_after_existing_preferences(city):
+    intent=Understanding(actions=[{'kind':'modify','quote':'节奏轻松点，坐公交'}],planning=PlanningIntent(operation='update',quote='节奏轻松点，坐公交',fields=[
+        {'field':'mode','value':'transit','quote':'坐公交'},
+        {'field':'pace','value':'relaxed','quote':'节奏轻松点'},
+        {'field':'mode','value':'transit','quote':'坐公交'}]))
+    assert planning_intent.preference_notes(intent)==[
+        '已按“节奏轻松点”调整为放松。','已按“坐公交”把交通方式改为公交。']
+
+
+def test_negated_mode_is_dropped_without_transport_note(city,monkeypatch):
+    monkeypatch.setattr(language,'available',lambda:True)
+    text='不要坐公交'
+    task=_run(city,text,raw=_planning_output(text,[
+        {'field':'mode','value':'transit','quote':text}]),monkeypatch=monkeypatch)
+    assert task['interpretation']['dropped_fields']==[{'field':'mode','check':'preference_not_in_quote'}]
+    assert '把交通方式改为' not in task['result']['reply']
+
+
+def test_confirmed_single_day_mode_change_is_echoed(city,monkeypatch):
+    planned(city)
+    monkeypatch.setattr(language,'available',lambda:True)
+    text='改成公交'
+    task=_run(city,text,raw=_planning_output(text,[
+        {'field':'mode','value':'transit','quote':text}]),monkeypatch=monkeypatch)
+    assert task['status'] in ('needs_confirmation','needs_data'),task
+    assert '已按“改成公交”把交通方式改为公交。' in task['result']['reply']
+
+
+def test_confirmed_multiday_mode_replan_echoes_note(multi_engine,monkeypatch):
+    from app import language
+    from app.city.agent import provider,service as agent
+    from app.city.assistant import context,tools
+    from test_city_agent import run
+    from test_multi_day_api import committed,start_today
+    e,_,_=committed(multi_engine);moment=start_today(e,monkeypatch)
+    for module in (context,tools):monkeypatch.setattr(module,'now',lambda:moment)
+    text='今天跟明天都改成打车'
+    raw=_planning_output(text,[{'field':'mode','value':'driving','quote':'改成打车','scope':'every_day'}])
+    agent.TASKS.clear()
+    monkeypatch.setattr(language,'available',lambda:True)
+    monkeypatch.setattr(provider,'generate',lambda *a,**k:(copy.deepcopy(raw),{'source':'mock_model'}))
+    task=run({'client':e[0],'trip':e[1]},text)
+    assert task['status'] in ('needs_confirmation','needs_data'),task
+    assert '已按“改成打车”把交通方式改为打车 / 自驾。' in task['result']['reply']
+    plan=task['result']['planning']['result']['itineraries'][0]
+    assert all(tuple(day['requirements']['modes'])==('driving',) for day in plan['days'][1:])
+    assert e[0].get('/api/city/v1/trips/'+e[1]['id']).json()['route_version']==1
+    agent.TASKS.clear()
 
 
 def test_confirmed_preferences_keep_workflow(city,monkeypatch):

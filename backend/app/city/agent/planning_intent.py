@@ -322,16 +322,24 @@ def _choice_attitude(choice,planning,resolved,matches,snapshot):
 
 
 PREFERENCE_LABELS={'pace':{'relaxed':'放松','standard':'标准','compact':'紧凑'},
-                   'objective':{'balanced':'均衡','less_walking':'少走路','less_waiting':'少等待','lower_cost':'省钱'}}
+                   'objective':{'balanced':'均衡','less_walking':'少走路','less_waiting':'少等待','lower_cost':'省钱'},
+                   'mode':{'walking':'步行','transit':'公交','driving':'打车 / 自驾'}}
 
 
 def preference_notes(intent):
     """Name every model-classified preference so the visitor sees it before confirming."""
     fields=intent.planning.fields if intent.planning else ()
-    notes=[f'已按“{f.quote}”调整为{PREFERENCE_LABELS[f.field].get(f.value,f.value)}。' for f in fields if f.field in PREFERENCE_LABELS]
-    planned={f.field for f in fields if f.field in PREFERENCE_LABELS}
+    notes=[f'已按“{f.quote}”调整为{PREFERENCE_LABELS[f.field].get(f.value,f.value)}。'
+           for f in fields if f.field in ('pace','objective') and f.value is not None]
+    planned={f.field for f in fields if f.field in ('pace','objective')}
     notes+=[f'已按“{c.quote}”调整为{PREFERENCE_LABELS[c.field].get(c.value,c.value)}。' for c in intent.constraints
             if c.field in PREFERENCE_LABELS and c.field not in planned and c.value is not None]
+    mode_notes=[]
+    for f in fields:
+        if f.field!='mode' or f.value is None:continue
+        note=f'已按“{f.quote}”把交通方式改为{PREFERENCE_LABELS["mode"].get(f.value,f.value)}。'
+        if note not in mode_notes:mode_notes.append(note)
+    notes.extend(mode_notes)
     return notes
 
 
