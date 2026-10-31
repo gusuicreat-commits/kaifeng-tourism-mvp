@@ -7,11 +7,14 @@ export function datedFacts(now=new Date()){
 }
 export const scenic={id:'kaifengfu',name:'开封府',fact_id:'test:park'}
 export const food={id:'chaoliangfen',name:'炒凉粉',fact_id:'test:food',place_id:'test:restaurant'}
+export const morning={id:'full-flow:morning',name:'[合成测试]上午展馆',fact_id:'full-flow:morning'}
 export const endpoints={origin_place_id:'test:gate',destination_place_id:'test:hotel'}
 export function fullFlowFixtures(now=new Date()){
  const facts=JSON.parse(datedFacts(now)),records=facts.records
  const rule=records.find(r=>r.kind==='open_rule')
  records.push({...rule,fact_id:'full-flow:open-park',place_id:scenic.fact_id,reentry:'allowed',last_entry_at:rule.closes_at})
+ records.push({...records.find(r=>r.kind==='place'&&r.fact_id==='test:restaurant'),fact_id:morning.fact_id,name:morning.name,place_type:'poi'})
+ records.push({...rule,fact_id:'full-flow:open-morning',place_id:morning.fact_id,opens_at:rule.business_date+'T08:00:00+08:00',closes_at:rule.business_date+'T12:00:00+08:00'})
  const dated=records.filter(r=>r.business_date),first=rule.business_date
  for(let offset=1;offset<3;offset++){
   const date=new Date(first+'T12:00:00+08:00');date.setUTCDate(date.getUTCDate()+offset)

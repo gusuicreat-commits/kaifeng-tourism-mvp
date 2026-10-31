@@ -4,8 +4,8 @@ import {fileURLToPath} from 'node:url'
 import type {Basket} from '../src/basketApi'
 import type {CityTripState} from '../src/cityApi'
 import {draftDays} from '../src/days'
-import type {EnginePreview,MultiDayPlanningConstraints,MultiDayItinerary,PlanningConstraints,PlanningResult,PlanningWorkspace,RouteSnapshot} from '../src/explorationApi'
-import {scenic,food,endpoints} from '../playwright.full-flow.fixture.mjs'
+import type {EnginePreview,MultiDayPlanningConstraints,MultiDayItinerary,PlanningConstraints,PlanningInput,PlanningReply,PlanningResult,PlanningWorkspace,RouteSnapshot,SingleDayItinerary} from '../src/explorationApi'
+import {scenic,food,morning,endpoints} from '../playwright.full-flow.fixture.mjs'
 
 const cityFacts=JSON.parse(readFileSync(fileURLToPath(new URL('../../backend/tests/fixtures/city_facts.json',import.meta.url)),'utf8')) as {records:Array<{kind:string;fact_id:string;name?:string}>}
 const nightPlaces=['pl_wb_000003','pl_wb_vendor_000001','pl_wb_000013']
@@ -53,14 +53,14 @@ async function openBasketPlanning(page:Page,info:TestInfo,names:string[]){
  await expect(form(page).getByRole('button',{name:'明天',exact:true})).toBeEnabled()
  return trip
 }
-async function fillDay(page:Page,info:TestInfo,days=1){
+async function fillDay(page:Page,info:TestInfo,days=1,start='09:00',end='20:00'){
  const question=form(page)
  const tomorrow=new Intl.DateTimeFormat('en-CA',{timeZone:'Asia/Shanghai',year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date(Date.now()+86400000))
  await question.getByRole('button',{name:'明天',exact:true}).click()
  await expect(page.getByLabel('已提供的安排',{exact:true})).toContainText(tomorrow)
  await question.getByRole('button',{name:days+'天',exact:true}).click()
- await question.getByLabel('开始时间',{exact:true}).fill('09:00')
- await question.getByLabel('最晚结束',{exact:true}).fill('20:00')
+ await question.getByLabel('开始时间',{exact:true}).fill(start)
+ await question.getByLabel('最晚结束',{exact:true}).fill(end)
  await question.getByRole('button',{name:'继续',exact:true}).click()
  await question.getByRole('combobox',{name:'出发地点',exact:true}).selectOption(days>1?endpoints.destination_place_id:endpoints.origin_place_id)
  await question.getByRole('button',{name:'继续',exact:true}).click()
@@ -145,6 +145,27 @@ async function confirm(page:Page,info:TestInfo,trip:CityTripState,placeIds:strin
  if(place?.name)await expect(flow).toContainText(place.name)
  await shot(page,info,'itinerary')
  return read<PlanningWorkspace>(page,prefix(trip.id)+'/exploration/constraints')
+}
+
+async function addPair(page:Page){
+ await page.getByRole('button',{name:'景点',exact:true}).click()
+ await page.locator(`.scenic-card a[href="/scenic/${scenic.id}"]`).click()
+ await page.getByRole('button',{name:'加入素材篮：'+scenic.name,exact:true}).click()
+ await expect(page.getByRole('button',{name:'移出素材篮：'+scenic.name,exact:true})).toBeVisible()
+ await page.getByRole('link',{name:'汴梁游记首页',exact:true}).click()
+ await addFood(page)
+}
+async function capturePreview(page:Page,info:TestInfo,action:()=>Promise<unknown>,step:string){
+ const waiting=page.waitForResponse(r=>r.request().method()==='POST'&&r.url().endsWith('/exploration/preview'))
+ await action()
+ const response=await waiting
+ expect(response.ok(),await response.text()).toBeTruthy()
+ const request=response.request().postDataJSON() as {constraints:PlanningInput},result=await response.json() as PlanningReply
+ await info.attach(step,{body:JSON.stringify({request,result},null,2),contentType:'application/json'})
+ await expect(page.getByLabel('规划检测结果',{exact:true})).toBeVisible()
+ await expect(page.getByRole('alert')).toHaveCount(0)
+ await shot(page,info,step)
+ return {request,result}
 }
 
 test.describe('完整规划流程：真实后端与合成资料',()=>{
@@ -241,6 +262,169 @@ test.describe('完整规划流程：真实后端与合成资料',()=>{
   await page.locator('.planning-success').getByRole('link',{name:'查看行程',exact:true}).click()
   await expect(page.getByRole('heading',{name:'我的开封游记',exact:true})).toBeVisible()
   await shot(page,info,'multi-day-itinerary')
+ })
+
+ test('5 短时段排不下两个地点，暂不安排逐项显示后端原因',async({page},info)=>{
+  await home(page,info,'5-unscheduled')
+  await addPair(page)
+  const trip=await openBasketPlanning(page,info,[scenic.name,food.name])
+  await fillDay(page,info,1,'09:00','10:30')
+  const {request,result:reply}=await capturePreview(page,info,()=>form(page).getByRole('button',{name:/^快速安排/}).click(),'short-window-candidate')
+  const result=reply as PlanningResult,c=request.constraints as PlanningConstraints
+  expect(c.starts_at).toBe(c.business_date+'T09:00:00+08:00');expect(c.ends_at).toBe(c.business_date+'T10:30:00+08:00')
+  expect(result.status).toBe('feasible')
+  const plans=result.planning!.result.itineraries as SingleDayItinerary[],options=page.getByLabel('规划检测结果',{exact:true}).locator('.plan-option')
+  expect(plans.length).toBeGreaterThan(0)
+  await expect(options).toHaveCount(plans.length)
+  for(const [index,plan] of plans.entries()){
+   expect(plan.activities).toHaveLength(1)
+   const rows=result.unscheduled?.[String(index)]||[]
+   expect(rows).toHaveLength(1)
+   for(const row of rows){
+    expect(['time_conflict','too_far_alone','closed_in_window','opening_unknown','no_session','access_unconfirmed','cost_unknown','data_missing']).toContain(row.reason_code)
+    expect(row.reason).toBeTruthy()
+    expect([scenic.name,food.name]).toContain(row.name)
+    expect(plan.activities.map(a=>a.goal_id)).not.toContain(row.goal_id)
+    await expect(options.nth(index).locator('p').filter({hasText:'暂不安排：'})).toContainText(`${row.name}（${row.reason}）`)
+   }
+  }
+  expect((await read<CityTripState>(page,prefix(trip.id))).route_version).toBe(0)
+  await shot(page,info,'unscheduled-reasons')
+ })
+
+ test('6 下午安排上午营业地点，显示开放时间不匹配',async({page},info)=>{
+  await home(page,info,'6-closed-in-window')
+  await page.goto('/place/'+encodeURIComponent(morning.id))
+  await page.getByRole('button',{name:'加入素材篮：'+morning.name,exact:true}).click()
+  await expect(page.getByRole('button',{name:'移出素材篮：'+morning.name,exact:true})).toBeVisible()
+  await page.getByRole('link',{name:'汴梁游记首页',exact:true}).click()
+  await addFood(page)
+  await openBasketPlanning(page,info,[morning.name,food.name])
+  await fillDay(page,info,1,'14:00','20:00')
+  const {request,result:reply}=await capturePreview(page,info,()=>form(page).getByRole('button',{name:/^快速安排/}).click(),'afternoon-candidate')
+  const result=reply as PlanningResult,c=request.constraints as PlanningConstraints
+  expect(c.starts_at).toBe(c.business_date+'T14:00:00+08:00')
+  expect(result.status).toBe('feasible')
+  const plans=result.planning!.result.itineraries as SingleDayItinerary[],options=page.getByLabel('规划检测结果',{exact:true}).locator('.plan-option')
+  expect(plans.length).toBeGreaterThan(0)
+  await expect(options).toHaveCount(plans.length)
+  for(const [index,plan] of plans.entries()){
+   expect(plan.activities.map(a=>a.place_id)).toEqual([food.place_id])
+   const rows=result.unscheduled?.[String(index)]||[]
+   expect(rows).toHaveLength(1)
+   expect(rows[0]).toMatchObject({key:'poi:'+morning.id,name:morning.name,reason_code:'closed_in_window',reason:'开放时间和你的出行时段对不上'})
+   await expect(options.nth(index).locator('p').filter({hasText:'暂不安排：'})).toContainText(`${rows[0].name}（${rows[0].reason}）`)
+   await expect(options.nth(index).locator('ol')).not.toContainText(morning.name)
+  }
+  await shot(page,info,'closed-reason')
+ })
+
+ test('7 三天快速安排把两个地点分到两天，确认后保留三天',async({page},info)=>{
+  await home(page,info,'7-three-days')
+  await addPair(page)
+  const trip=await openBasketPlanning(page,info,[scenic.name,food.name])
+  await fillDay(page,info,3)
+  const {request,result:reply}=await capturePreview(page,info,()=>form(page).getByRole('button',{name:/^快速安排/}).click(),'three-day-candidate')
+  const c=request.constraints as MultiDayPlanningConstraints,result=reply as EnginePreview
+  expect(c).toMatchObject({schema_version:'city-constraints/2',trip_days:3})
+  expect(c.days).toHaveLength(3)
+  expect(result.result.status).toBe('feasible')
+  expect(result.result.itineraries.length).toBeGreaterThan(0)
+  for(const plan of result.result.itineraries as MultiDayItinerary[]){
+   expect(plan.schema_version).toBe('city-itinerary/2');expect(plan.days).toHaveLength(3)
+   expect(plan.days.filter(d=>d.itinerary.activities.length)).toHaveLength(2)
+   expect(plan.days.flatMap(d=>d.itinerary.activities).map(a=>a.place_id).sort()).toEqual([scenic.fact_id,food.place_id].sort())
+  }
+  const assessment=page.getByLabel('规划检测结果',{exact:true}),days=assessment.locator('.preview-day'),plan=result.result.itineraries[0] as MultiDayItinerary
+  await expect(assessment.getByLabel('整套行程方案',{exact:true})).toBeVisible()
+  await expect(days).toHaveCount(3)
+  for(const [index,day] of plan.days.entries()){
+   await expect(days.nth(index).locator('summary')).toContainText(`第 ${index+1} 天`)
+   await expect(days.nth(index).locator('summary')).toContainText(`${day.itinerary.activities.length} 项`)
+   await expect(days.nth(index).locator('ol li')).toHaveCount(day.itinerary.activities.length)
+  }
+  expect((await read<CityTripState>(page,prefix(trip.id))).route_version).toBe(0)
+  const waiting=page.waitForResponse(r=>r.request().method()==='POST'&&r.url().endsWith(prefix(trip.id)+'/engine/confirm'))
+  await assessment.getByRole('button',{name:'确认整套方案',exact:true}).click()
+  const confirmed=await waiting
+  expect(confirmed.ok(),await confirmed.text()).toBeTruthy()
+  await expect(page.getByRole('status').filter({hasText:'已确认并更新正式路线'})).toBeVisible()
+  const saved=await read<CityTripState>(page,prefix(trip.id)),route=await read<RouteSnapshot>(page,prefix(trip.id)+'/engine/current')
+  expect(route).toMatchObject({route_version:1,stale:false,itinerary:{schema_version:'city-itinerary/2'}})
+  const official=route.itinerary as MultiDayItinerary
+  expect(official.days).toHaveLength(3);expect(official.days.filter(d=>d.itinerary.activities.length)).toHaveLength(2)
+  expect(official.days).toEqual(plan.days)
+  expect(saved.route_version).toBe(1);expect(saved.version).toBeGreaterThan(trip.version)
+  expect(draftDays(saved.draft)).toHaveLength(3)
+  await page.locator('.planning-success').getByRole('link',{name:'查看行程',exact:true}).click()
+  await expect(page.getByRole('heading',{name:'我的开封游记',exact:true})).toBeVisible()
+  await expect(page.getByRole('navigation',{name:'行程日期',exact:true}).getByRole('button')).toHaveCount(3)
+  await shot(page,info,'three-day-itinerary')
+ })
+
+ for(const days of [1,3])test(`8 深度互动 ${days} 天填预算 1000 元后展示后端结果`,async({page},info)=>{
+  await home(page,info,'8-budget-'+days)
+  await addPair(page)
+  const trip=await openBasketPlanning(page,info,[scenic.name,food.name])
+  await fillDay(page,info,days)
+  const question=form(page)
+  await question.getByRole('button',{name:/^深度互动/}).click()
+  await question.getByRole('button',{name:'轻松',exact:true}).click()
+  await question.getByRole('button',{name:'公交地铁',exact:true}).click()
+  await question.getByRole('button',{name:'少走路',exact:true}).click()
+  await question.getByLabel('预算上限（选填）',{exact:true}).fill('1000')
+  await shot(page,info,'budget-input')
+  await question.getByRole('button',{name:'继续',exact:true}).click()
+  const {request,result}=await capturePreview(page,info,()=>question.getByRole('button',{name:'生成安排',exact:true}).click(),'budget-result')
+  expect(request.constraints).toMatchObject({party_size:2,pace:'relaxed',objective:'less_walking',modes:['transit']})
+  if(days===1){
+   expect(request.constraints).toMatchObject({budget_fen:100000})
+   expect(request.constraints).not.toHaveProperty('pricing')
+  }else{
+   expect(request.constraints).toMatchObject({schema_version:'city-constraints/2',trip_days:3,pricing:{total_budget_fen:100000,party_size:2,hard_limit:true}})
+   expect(request.constraints).not.toHaveProperty('budget_fen')
+  }
+  const assessment=page.getByLabel('规划检测结果',{exact:true})
+  if('planning' in result){
+   await expect(assessment).toContainText(result.reply)
+   expect(result.planning?.result.issues?.length).toBeGreaterThan(0)
+  }else{
+   expect(result.result.issues?.length).toBeGreaterThan(0)
+   for(const issue of result.result.issues||[])await expect(assessment).toContainText(issue.message)
+  }
+  const saved=await read<PlanningWorkspace>(page,prefix(trip.id)+'/exploration/constraints')
+  expect(saved.constraints).toMatchObject(days===1?{budget_fen:100000}:{pricing:{total_budget_fen:100000}})
+  expect((await read<CityTripState>(page,prefix(trip.id))).route_version).toBe(0)
+  await shot(page,info,'budget-assessment')
+ })
+
+ test('9 素材设为候补后保留名称标注，所有方案均排除它',async({page},info)=>{
+  await home(page,info,'9-standby')
+  await addPair(page)
+  const trip=await openBasketPlanning(page,info,[scenic.name,food.name])
+  await page.goto('/basket')
+  const item=page.locator('.basket-item').filter({hasText:scenic.name})
+  await item.getByRole('button',{name:'先放候补',exact:true}).click()
+  await expect(item.getByRole('button',{name:'恢复待安排',exact:true})).toBeVisible()
+  const basket=await read<Basket>(page,prefix(trip.id)+'/basket')
+  expect(basket.items.find(i=>i.id===scenic.id)).toMatchObject({status:'standby'})
+  await shot(page,info,'standby-basket')
+  await page.getByRole('link',{name:'交给小汴梁安排',exact:true}).click()
+  await fillDay(page,info)
+  const {result:reply}=await capturePreview(page,info,()=>form(page).getByRole('button',{name:/^快速安排/}).click(),'standby-candidate')
+  const result=reply as PlanningResult
+  expect(result.status).toBe('feasible')
+  const plans=result.planning!.result.itineraries as SingleDayItinerary[],options=page.getByLabel('规划检测结果',{exact:true}).locator('.plan-option')
+  expect(plans.length).toBeGreaterThan(0)
+  await expect(options).toHaveCount(plans.length)
+  for(const [index,plan] of plans.entries()){
+   expect(plan.activities.map(a=>a.place_id)).toEqual([food.place_id])
+   expect((result.unscheduled?.[String(index)]||[]).map(r=>r.key)).not.toContain('scenic:'+scenic.id)
+   await expect(options.nth(index).locator('p').filter({hasText:'暂不安排：'})).toContainText(scenic.name+'（候补）')
+   await expect(options.nth(index).locator('ol')).not.toContainText(scenic.name)
+  }
+  expect((await read<Basket>(page,prefix(trip.id)+'/basket')).items).toHaveLength(2)
+  await shot(page,info,'standby-omitted')
  })
 
 })
