@@ -128,7 +128,8 @@ test('city task runs through actual APIs and confirms the shared route version',
 test('对话步骤超过旧时限仍等待回复，并在八秒后显示查询提示',async({page})=>{
  test.setTimeout(60000)
  const {path}=await prepare(page)
- await page.route('**'+path+'/agent/tasks/*/step',async route=>{await new Promise(resolve=>setTimeout(resolve,18000));await route.continue()})
+ let delayNextStep=true
+ await page.route('**'+path+'/agent/tasks/*/step',async route=>{if(delayNextStep){delayNextStep=false;await new Promise(resolve=>setTimeout(resolve,18000))}await route.continue()})
  const input=page.getByLabel('告诉小汴梁你的问题或想调整的安排')
  await input.fill('附近找个吃饭的地方，下午演出必须保留，最好少走一点。');await page.getByRole('button',{name:'发送',exact:true}).click()
  await expect(page.getByRole('status')).toContainText('正在向高德查询路线和计算方案，地点较多时可能需要半分钟…',{timeout:12000})

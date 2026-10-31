@@ -11,6 +11,7 @@ async function prepare(page:Page,empty=false,complete=false,planning=true,previe
  const basket:Basket={trip_id:trip.id,version:empty?0:1,items:empty?[]:[{key:'place:test:gate',kind:'place',id:'test:gate',name:'[合成测试]入口',status:'pending'}]}
  const additions:string[]=[],previews:PlanningInput[]=[],tasks:{text:string;interaction_mode:string}[]=[]
  let workspace:PlanningWorkspace={version:0,constraints:null,result:null,rounds:0}
+ let delayNextPreview=false
  await page.route('**'+path+'/basket',async route=>{
   if(route.request().method()==='PATCH'){
    const body=route.request().postDataJSON();expect(body.expected_version).toBe(basket.version)
@@ -22,7 +23,7 @@ async function prepare(page:Page,empty=false,complete=false,planning=true,previe
  await page.route('**'+path+'/exploration/constraints',route=>route.fulfill({json:workspace}))
  await page.route('**'+path+'/exploration/preview',async route=>{
   const body=route.request().postDataJSON(),c=body.constraints as PlanningInput
-  if(previewDelayMs)await new Promise(resolve=>setTimeout(resolve,previewDelayMs))
+  if(previewDelayMs&&delayNextPreview){delayNextPreview=false;await new Promise(resolve=>setTimeout(resolve,previewDelayMs))}
   expect(body.planning_version).toBe(workspace.version);previews.push(c)
   const missing='schema_version' in c?!(c.days as PlanningConstraints[]).every(d=>d.starts_at&&d.ends_at&&d.origin_place_id&&d.destination_place_id):!c.business_date||!c.starts_at||!c.ends_at||!c.origin_place_id||!c.destination_place_id
   const result:PlanningResult={planning_version:workspace.version+1,rounds:0,status:'unknown',reply:missing?'请补齐条件':'合成规划请求已收到，仍待确认',constraints:c,basket_version:basket.version,trip_version:trip.version,issues:missing?[{code:'PERSONAL_CHOICE_MISSING',message:'待填写',affected_ids:[]}]:[],options:[],planning:null}
@@ -35,13 +36,14 @@ async function prepare(page:Page,empty=false,complete=false,planning=true,previe
  })
  await page.goto('/assistant?city_trip='+trip.id+(planning?'&plan=basket':''))
  await expect(page.locator('#city-agent-input')).toBeEnabled()
- return {trip,path,basket,previews,tasks,additions}
+ return {trip,path,basket,previews,tasks,additions,armPreviewDelay:()=>{delayNextPreview=true}}
 }
 
 test('规划预览超过旧时限仍等待结果，并在八秒后显示查询提示',async({page})=>{
  test.setTimeout(60000)
- const {previews}=await prepare(page,false,false,true,18000);await fillDay(page)
+ const {previews,armPreviewDelay}=await prepare(page,false,false,true,18000);await fillDay(page)
  const form=page.locator('.planning-question')
+ armPreviewDelay()
  await form.getByRole('button',{name:'快速安排',exact:false}).click()
  await expect(page.getByRole('status')).toContainText('正在向高德查询路线和计算方案，地点较多时可能需要半分钟…',{timeout:12000})
  await expect(page.getByLabel('规划检测结果')).toContainText('合成规划请求已收到',{timeout:30000})
