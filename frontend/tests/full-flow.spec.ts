@@ -40,6 +40,12 @@ async function addFood(page:Page){
  await page.getByRole('button',{name:'加入素材篮：'+food.name,exact:true}).click()
  await expect(page.getByRole('button',{name:'移出素材篮：'+food.name,exact:true})).toBeVisible()
 }
+async function addUnmappedFood(page:Page){
+ const name='宫廷杏仁茶'
+ await page.goto('/food/xingrentea')
+ await page.getByRole('button',{name:'加入素材篮：'+name,exact:true}).click()
+ await expect(page.getByRole('button',{name:'移出素材篮：'+name,exact:true})).toBeVisible()
+}
 async function openBasketPlanning(page:Page,info:TestInfo,names:string[]){
  await page.getByRole('link',{name:'汴梁游记首页',exact:true}).click()
  await page.locator('.selection-basket').getByRole('link',{name:'旅行素材篮',exact:true}).click()
@@ -459,5 +465,29 @@ test.describe('偏好条件：真实后端',()=>{
   const itinerary=route.itinerary!
   expect('days' in itinerary).toBeFalsy()
   if(!('days' in itinerary))expect(itinerary.activities.map(a=>a.place_id)).not.toContain(food.place_id)
+ })
+})
+
+test.describe('资料待补项：真实后端',()=>{
+ test.setTimeout(60000)
+ test('资料待补美食不阻断景区方案并显示暂不安排原因',async({page},info)=>{
+  await home(page,info,'E18-unmapped-food')
+  await page.goto('/scenic/'+scenic.id)
+  await page.getByRole('button',{name:'加入素材篮：'+scenic.name,exact:true}).click()
+  await expect(page.getByRole('button',{name:'移出素材篮：'+scenic.name,exact:true})).toBeVisible()
+  await addUnmappedFood(page)
+  await page.getByRole('link',{name:'汴梁游记首页',exact:true}).click()
+  await page.locator('.selection-basket').getByRole('link',{name:'旅行素材篮',exact:true}).click()
+  await expect(page.locator('.basket-item')).toHaveCount(2)
+  await expect(page.locator('.basket-item').filter({hasText:'宫廷杏仁茶'})).toContainText('具体资料待添加')
+  const trip=await current(page),basket=await read<Basket>(page,prefix(trip.id)+'/basket')
+  expect(basket.items.find(i=>i.id==='xingrentea')).toMatchObject({name:'宫廷杏仁茶',fact_id:null,data_status:'pending_addition'})
+  await page.getByRole('link',{name:'交给小汴梁安排',exact:true}).click()
+  await fillDay(page,info)
+  const {result}=await capturePreview(page,info,()=>form(page).getByRole('button',{name:/^快速安排/}).click(),'unmapped-food-candidate')
+  expect(result.status).toBe('feasible')
+  expect(result.planning?.result.itineraries.some(plan=>!('days' in plan)&&plan.activities.some(a=>a.place_id===scenic.fact_id))).toBeTruthy()
+  for(const rows of Object.values(result.unscheduled||{}))expect(rows).toEqual(expect.arrayContaining([expect.objectContaining({name:'宫廷杏仁茶',reason_code:'data_pending',reason:'资料待添加，暂时排不进行程'})]))
+  await expect(page.locator('.plan-option').first()).toContainText('宫廷杏仁茶（资料待添加，暂时排不进行程）')
  })
 })

@@ -122,9 +122,11 @@ def test_unmapped_basket_item_is_reported_without_entering_goals(basket_trip):
     e,values=basket_trip;c,t,_=e
     collect(c,t,'place','museum');collect(c,t,'food','chaoliangfen')
     result=preview(e,values)
-    assert result['status']=='needs_data' and result['issues'][0]['affected_ids']==['food:chaoliangfen']
+    assert result['status']=='preview' and result['result']['status']=='feasible',result
     assert [g['target_id'] for g in result['constraints']['goals']]==['museum']
-    assert not result.get('candidate_id')
+    assert result['unscheduled']['0']==[{'goal_id':'unmapped:food:chaoliangfen','key':'food:chaoliangfen',
+        'name':'炒凉粉','reason_code':'data_pending','reason':'资料待添加，暂时排不进行程'}]
+    assert result.get('candidate_id')
 
 
 def test_parent_park_and_child_share_single_day_pending_gate(basket_trip):

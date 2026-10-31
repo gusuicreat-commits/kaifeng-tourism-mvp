@@ -199,12 +199,23 @@ def _spice_exceeded(goal,items,spice):
     return bool(vendors) and all(getattr(v,'spiciness',None) in rejected for v in vendors)
 
 
-def _preference_result(result,excluded,notices):
-    if excluded:
+def _preference_result(result,excluded,notices,pending=()):
+    if excluded or pending:
         plans=(result.get('planning') or {}).get('result',result.get('result') or {}).get('itineraries') or [None]
         existing=result.get('unscheduled',{})
-        result['unscheduled']={str(i):excluded+existing.get(str(i),[]) for i in range(len(plans))}
+        # Unmapped basket entries have no solver goal, so only attach them when
+        # a real plan exists. An all-unmapped response keeps the existing
+        # DATA_PENDING result instead of turning it into a fake explanation row.
+        usable_pending=pending if any(plan is not None for plan in plans) else ()
+        if excluded or usable_pending:
+            result['unscheduled']={str(i):excluded+list(usable_pending)+existing.get(str(i),[]) for i in range(len(plans))}
     if notices:result['reply']=result.get('reply','请比较整套方案并确认，正式行程尚未改变。')+' '+''.join(notices)
+
+
+def _unmapped_rows(collected):
+    return tuple({'goal_id':'unmapped:'+item['key'],'key':item['key'],'name':item['name'],
+                  'reason_code':'data_pending','reason':'资料待添加，暂时排不进行程'}
+                 for item in collected['items'] if item['status']!='standby' and not item['fact_id'])
 
 
 def _basket_goals(db,s,trip_id,goals,dates=None,*,ctx=None,preferences=None):
@@ -270,10 +281,11 @@ def preview_plan(trip_id,body,s,*,execution_guard=None):
             projected,hotel_issues=hotel_binding.project(db,link_overnights(body.constraints.model_dump(mode='json')),
                                                         travel_services.read(db,trip_id))
             if not body.constraints.days:raise HTTPException(422,detail='请补齐多天每日时段、端点和过夜条件。')
-            _,_,goals,unmapped,_,_,grouped,excluded,notices=_basket_goals(db,s,trip_id,body.constraints.goals,
+            collected,_,goals,unmapped,_,_,grouped,excluded,notices=_basket_goals(db,s,trip_id,body.constraints.goals,
                 tuple(d.business_date for d in body.constraints.days),preferences=body.constraints.preferences)
+            pending=_unmapped_rows(collected)
             projected['goals']=[g.model_dump(mode='json') for g in goals]
-        pending=[i for i in hotel_issues if i not in hotel_binding.blocking(hotel_issues)]
+        hotel_pending=[i for i in hotel_issues if i not in hotel_binding.blocking(hotel_issues)]
         hotel_issues=hotel_binding.blocking(hotel_issues)
         if hotel_issues:
             return unknown(hotel_issues[0]['message'],code=hotel_issues[0]['code'])|{
@@ -294,14 +306,15 @@ def preview_plan(trip_id,body,s,*,execution_guard=None):
         req_data['schema_version']='city-engine/2'
         try:requirements=MultiDayRequirements.model_validate(req_data)
         except ValidationError:raise HTTPException(422,detail='请补齐多天每日时段、端点和过夜条件。') from None
-        if unmapped:result=unknown('所选内容的地点、商家或场次资料待添加；暂不能核验完整路线。',unmapped)
-        elif grouped:result=unknown('景区与内部看点的时长、路径关系待添加；暂不重复计算成独立城市停靠点。',grouped,'PARENT_CHILD_PENDING')
-        elif not goals:result=unknown('请先在素材篮里加入想去的地点，再生成多天方案。',code='BASKET_EMPTY')
+        if grouped:result=unknown('景区与内部看点的时长、路径关系待添加；暂不重复计算成独立城市停靠点。',grouped,'PARENT_CHILD_PENDING')
+        elif not goals:
+            result=unknown('所选内容的地点、商家或场次资料待添加；暂不能核验完整路线。',unmapped) if unmapped else unknown(
+                '请先在素材篮里加入想去的地点，再生成多天方案。',code='BASKET_EMPTY')
         else:
             result=engine.preview(s,trip_id,PreviewRequestV2(request_id=body.request_id,expected_version=body.expected_version,
                 requirements=requirements),planning_version=workspace['version'])
         if result['status']=='unknown':result['status']='needs_data'
-        _preference_result(result,excluded,notices)
+        _preference_result(result,excluded,notices,pending)
         with connect() as db:
             db.execute('BEGIN IMMEDIATE')
             if execution_guard:execution_guard(db)
@@ -315,7 +328,7 @@ def preview_plan(trip_id,body,s,*,execution_guard=None):
                 row=db.execute('SELECT progress_json FROM city_engine_candidates WHERE id=?',(candidate,)).fetchone()
                 extra=json.loads(row[0]);extra['planning_version']=saved['version']
                 db.execute('UPDATE city_engine_candidates SET progress_json=? WHERE id=?',(json.dumps(extra),candidate))
-        return result|{'constraints':body.constraints.model_dump(mode='json'),'planning_version':saved['version'],'hotel_notices':list(dict.fromkeys(i['message'] for i in pending)),
+        return result|{'constraints':body.constraints.model_dump(mode='json'),'planning_version':saved['version'],'hotel_notices':list(dict.fromkeys(i['message'] for i in hotel_pending)),
                        'basket_version':body.basket_version,'trip_version':body.expected_version}
     single_day(body.constraints)
     limit('exploration:'+s.id,20)
@@ -352,13 +365,15 @@ def preview_plan(trip_id,body,s,*,execution_guard=None):
                         kind=x.kind,required=x.locked,duration_seconds=x.duration_seconds,window_start=x.window_start,window_end=x.window_end)
                    for x in draft.stops if x.progress=='pending' and x.kind!='return']
         collected,ctx,goals,unmapped,key_by_goal,goal_meta,grouped,excluded,notices=_basket_goals(db,s,trip_id,goals,ctx=ctx,preferences=body.constraints.preferences)
+        pending=_unmapped_rows(collected)
     if missing:
         result=unknown('请补充'+ '、'.join({'business_date':'日期','starts_at':'开始时间','ends_at':'结束时间','origin_place_id':'出发地点','destination_place_id':'返程地点'}[k] for k in missing),'','PERSONAL_CHOICE_MISSING')
         result['questions']=[{'field':k} for k in missing]
     elif unmatched:result=unknown('已记下出发和返回地点，位置资料待核验，暂不能生成路线。',code='ENDPOINT_MATCH_PENDING')
-    elif unmapped:result=unknown('所选内容的地点、商家或场次资料待添加；暂不能核验完整路线。',unmapped)
     elif grouped:result=unknown('景区与内部看点的时长、路径关系待添加；暂不重复计算成独立城市停靠点。',grouped,'PARENT_CHILD_PENDING')
-    elif not goals:result=unknown('先从详情页加入想去的地方或美食。',code='BASKET_EMPTY')
+    elif not goals:
+        result=unknown('所选内容的地点、商家或场次资料待添加；暂不能核验完整路线。',unmapped) if unmapped else unknown(
+            '先从详情页加入想去的地方或美食。',code='BASKET_EMPTY')
     else:
         try:req=Requirements.model_validate(values|{'goals':goals,'alternatives':3})
         except ValidationError:raise HTTPException(422,detail='请检查同日开始、结束时间、目标数量与交通方式。') from None
@@ -379,7 +394,7 @@ def preview_plan(trip_id,body,s,*,execution_guard=None):
                 'issues':plan['result']['issues'],'options':options,'planning':plan,'formal_state_changed':False,
                 'goal_keys':key_by_goal,'activity_names':{a['goal_id']:getattr(ctx.facts.get(('place',a['place_id'])),'name','资料待添加') for i in plan['result']['itineraries'] for a in i['activities']}}
         result['unscheduled']=plan.get('unscheduled',{})
-    _preference_result(result,excluded,notices)
+    _preference_result(result,excluded,notices,pending)
     if old and result.get('planning'):
         for a in json.loads(old['itinerary_json'])['activities']:
             result['activity_names'].setdefault(a['goal_id'],getattr(ctx.facts.get(('place',a['place_id'])),'name','资料待添加'))
