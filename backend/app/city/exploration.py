@@ -24,6 +24,8 @@ router=APIRouter(prefix='/api/city/v1/trips/{trip_id}/exploration',tags=['Travel
 
 class Constraints(Strict):
     preferences:TripPreferences | None = None
+    preferences_asked:bool=False
+    preferences_pending:bool=False
     business_date:date | None = None
     starts_at:AwareDatetime | None = None
     ends_at:AwareDatetime | None = None
@@ -56,7 +58,7 @@ class Constraints(Strict):
         return value
 
 
-AGENT_ONLY=('per_person_budget_fen','per_person_budget_daily','party_size')
+AGENT_ONLY=('per_person_budget_fen','per_person_budget_daily','party_size','preferences_asked','preferences_pending')
 
 
 class Plan(Strict):

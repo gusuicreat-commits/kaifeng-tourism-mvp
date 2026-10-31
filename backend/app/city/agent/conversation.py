@@ -12,6 +12,8 @@ def model_payload(text, snapshot, system):
     from .requirement_context import read
     view=read(snapshot)
     data_missing=view['planning_readiness']['missing_data_fields']
+    saved_constraints=view['planning_constraints'].get('constraints') or {}
+    awaiting_preferences=bool(saved_constraints.get('preferences_pending'))
     result=snapshot.workspace.get('result') or {}
     ctx={
         'current_date':env.identity.generated_at.astimezone(ZoneInfo('Asia/Shanghai')).date().isoformat(),
@@ -33,6 +35,7 @@ def model_payload(text, snapshot, system):
         },
         'planning_readiness':{
             **view['planning_readiness'],
+            **({'awaiting':'preferences'} if awaiting_preferences else {}),
             # Raw generic preview messages can incorrectly suggest asking the user to fix missing catalog data.
             'next_step':('可以先询问missing_user_fields中尚未提供的出发和返回地点名称，保存为未核验意向；已有名称不重复问。正式行程的位置资料仍需核验，暂不能生成正式行程；独立高德参考问路可按明确起终点查询，不受本项阻断。'
                          if data_missing else '只补问missing_user_fields中尚未提供的内容；已有条件不重复问。'),
@@ -47,28 +50,30 @@ def model_payload(text, snapshot, system):
     # Work on a projection, never trim or mutate the authoritative snapshot.
     ctx=copy.deepcopy(ctx)
     payload={'text':text,'context':ctx}
-    budget={'limit_characters':provider.MODEL_INPUT_CHARACTERS,'system_characters':len(system),'characters':0,'trimmed':[]}
+    # Reserve the final count's digits so metadata cannot grow past the target.
+    budget={'limit_characters':provider.MODEL_INPUT_CHARACTERS,'system_characters':len(system),
+            'characters':provider.MODEL_INPUT_CHARACTERS,'trimmed':[]}
     ctx['input_budget']=budget
     def size():return len(system)+len(json.dumps(payload,ensure_ascii=False))
     def record(section):
         if section not in budget['trimmed']:budget['trimmed'].append(section)
     # Keep compatibility with the historical 12k understanding fixture while the
     # provider budget remains MODEL_INPUT_CHARACTERS. Authoritative requirements stay.
-    if size()>12000:
+    if size()>provider.COMPACT_TARGET_CHARACTERS:
         ctx['planning_readiness'].update(assessment={},issues=[]);record('previous_assessment')
-    while size()>12000 and ctx.get('recent_messages'):
+    while size()>provider.COMPACT_TARGET_CHARACTERS and ctx.get('recent_messages'):
         ctx['recent_messages'].pop(0);record('oldest_messages')
-    if size()>12000:
+    if size()>provider.COMPACT_TARGET_CHARACTERS:
         ctx['references']=[];ctx['page_focus']=None;record('reference_details')
-    if size()>12000:
+    if size()>provider.COMPACT_TARGET_CHARACTERS:
         ctx['official_plan']={};record('official_plan')
-    if size()>12000:
+    if size()>provider.COMPACT_TARGET_CHARACTERS:
         ctx['progress']={};record('progress')
     while size()>provider.MODEL_INPUT_CHARACTERS and ctx['recent_messages']:
         ctx['recent_messages'].pop(0);record('oldest_messages')
     if size()>provider.MODEL_INPUT_CHARACTERS:
         ctx['planning_readiness'].update(assessment={},issues=[]);record('previous_assessment')
-    if size()>provider.MODEL_INPUT_CHARACTERS:
+    if size()>provider.COMPACT_TARGET_CHARACTERS:
         # Exact duplicate values can be read from requirements. No authoritative
         # requirement (including hard limits) is discarded or shortened.
         planning=ctx['planning_constraints']
@@ -83,12 +88,15 @@ def model_payload(text, snapshot, system):
                            for stop in progress.get(key,[])]
         if progress.get('next'):progress['next']={k:progress['next'][k] for k in ('stop_id','name','place_id','session_id','day_id','business_date') if k in progress['next']}
         record('progress_timing_details')
-    if size()>provider.MODEL_INPUT_CHARACTERS:
+    if size()>provider.COMPACT_TARGET_CHARACTERS:
         # Provider status and field inventory are useful for ordinary turns but
         # expendable after the authoritative requirements and user text remain.
         capability=ctx.get('travel_service_capability',{})
         ctx['travel_service_capability']={k:capability[k] for k in ('scope','search_request') if k in capability}
         record('travel_service_details')
+    services=ctx['travel_service_workspace']
+    if size()>provider.COMPACT_TARGET_CHARACTERS and not any(services['requirements'].values()) and not services['selection']:
+        ctx['travel_service_workspace']={'version':services['version']};record('empty_service_workspace')
     # Include budget metadata in its own measurement; no raw text in errors.
     for _ in range(3):budget['characters']=size()
     if size()>provider.MODEL_INPUT_CHARACTERS:

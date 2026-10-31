@@ -157,6 +157,7 @@ def test_assistant_multi_day_preview_uses_the_same_basket_projection(basket_trip
     from app.city.agent import provider
     from test_city_agent import run
     e,values=basket_trip;c,t,_=e
+    values['preferences']={'interests':['scenic']}
     collect(c,t,'place','museum');collect(c,t,'place','garden')
     from app.city import exploration_state
     with connect() as db:exploration_state.save(db,t['id'],values,None,0)

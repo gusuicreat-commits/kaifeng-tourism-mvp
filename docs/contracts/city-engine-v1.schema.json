@@ -394,6 +394,16 @@
           ],
           "default": null
         },
+        "preferences_asked": {
+          "default": false,
+          "title": "Preferences Asked",
+          "type": "boolean"
+        },
+        "preferences_pending": {
+          "default": false,
+          "title": "Preferences Pending",
+          "type": "boolean"
+        },
         "business_date": {
           "anyOf": [
             {

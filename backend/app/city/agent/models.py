@@ -29,7 +29,7 @@ class Action(Strict):
     target_name: str | None = Field(default=None, max_length=120,
                                     description='具体菜/店/地名/节目；泛指null。')
     purpose: Literal['trip','next','shows','dining','travel','history','reference'] | None = Field(
-        default=None, description='普通query给purpose=trip/next/shows/dining/travel/history/reference。trip=行程;next=下一站;shows=演出;dining=餐饮;travel=交通;history=历史;reference=引用。')
+        default=None, description='普通query给purpose=trip/next/shows/dining/travel/history/reference。依次为行程/下一站/演出/餐饮/交通/历史/引用。')
     # search_dining only: the visitor limited the search to where they are now.
     near: bool = Field(default=False, description='true=附近；false=不限。')
     dining: dict = Field(default_factory=dict, description='taste口味顿号隔;spicy=none不辣/mild微辣/hot辣;max_fen人均上限分;period早餐/午餐/晚餐/夜宵;dish=true招牌')
@@ -59,7 +59,7 @@ IN_TRIP_CHANGES=frozenset({'skip_replan','delay','extend','rest'})
 
 class StateIntent(Strict):
     operation: Literal['complete','skip','skip_replan','delay','extend','rest','position','cancel','restore'] = Field(
-        description='状态操作用state_request：complete/skip/position/cancel/restore；目标用原文完整名称，缺对象不猜。complete=完成;skip=跳过;position=位置;cancel=取消;restore=恢复。途中delay=已耽误(堵车/排队X分钟);extend=当前站多待/多逛;rest=歇/坐会儿;skip_replan=不去下一站或某站。否定不填。')
+        description='状态操作用state_request：complete/skip/position/cancel/restore；目标用原文完整名称，缺对象不猜。完成/跳过/位置/取消/恢复；delay耽误;extend多待;rest休息;skip_replan不去下一站/某站。否定不填。')
     quote: str = Field(min_length=1,max_length=500)
     target_name: str | None = Field(default=None,max_length=120)
     minutes: int | None = Field(default=None,ge=1,le=360,description='分钟须对应原话；缺失null追问。')
@@ -74,7 +74,7 @@ class StateIntent(Strict):
 
 class Constraint(Strict):
     field: Literal['food','preserve_shows','walking_seconds','return_by','meal_at','visit_at','objective','pace'] = Field(
-        description='food=菜;preserve_shows=保演出;walking_seconds=步行上限;return_by=返回;meal_at=用餐;visit_at=活动;objective=目标;pace=节奏。')
+        description='food=想吃的具体菜品或小吃名称；口味/辣度不是菜名，放planning.fields的spice；preserve_shows=保演出;walking_seconds=步行上限;return_by=返回;meal_at=用餐;visit_at=活动;objective=目标;pace=节奏。')
     strength: Literal['hard','soft','optional','unknown'] = Field(
         description='hard=必须;soft=尽量;optional=可放弃;unknown=不明。')
     value: str | int | None = Field(default=None)
@@ -103,20 +103,21 @@ class Correction(Strict):
 
 
 class PlanningField(Strict):
-    field: Literal['city','date','start_date','end_date','start_time','end_time','origin','destination','pace','objective','mode','budget_fen','trip_days','trip_nights'] = Field(
-        description='city城市;date日期;start_time/end_time起止;origin/destination起终点;pace节奏;objective目标;mode交通;budget_fen分;trip_days天;start_date首日;end_date含末日;trip_nights晚。')
-    value: str | int | None = Field(description='日期抄原文；晚间沿用到后续钟点（今晚五点半…十点回→17:30、22:00），无钟点不猜，几点前回来用end_time。pace=relaxed/standard/compact;objective=balanced均衡/less_walking少走路/less_waiting/lower_cost;少走路/走不动/腿脚不便=less_walking；无分钟不填walking_seconds。')
+    field: Literal['city','date','start_date','end_date','start_time','end_time','origin','destination','pace','objective','mode','budget_fen','trip_days','trip_nights','spice','interest','avoid'] = Field(
+        description='city/date;start_time/end_time;origin/destination;pace;objective;mode;budget_fen;trip_days;start_date/end_date;trip_nights。spice辣度none不辣/mild微辣/any能吃辣/都行；interest多排/avoid不排:shows演出/food美食/night夜游/scenic景区；美食是兴趣非新增菜品。')
+    value: str | int | None = Field(description='日期抄原文；晚间沿用到后续钟点（今晚五点半…十点回→17:30、22:00），无钟点不猜，几点前回来用end_time。pace=relaxed/standard/compact;objective=balanced均衡/less_walking少走路/走不动/腿脚不便/less_waiting/lower_cost；无分钟不填walking_seconds。')
     quote: str = Field(min_length=1, max_length=500, description='quote连续摘本轮，field.quote含value；往返复用origin.quote。')
     budget_basis: Literal['total','per_person'] | None = Field(
-        default=None, description='trip_days填整数，“两三天”取上限；budget_fen同时给budget_basis（total总预算/per_person每人预算），由你判断口径，系统会把理解结果告诉游客。分：300元=30000；每人金额不乘人数。')
+        default=None, description='trip_days填整数，“两三天”取上限；budget_fen同时给budget_basis（total总预算/per_person每人预算），由你判断口径，系统会把理解结果告诉游客。单位分，每人不乘人数。')
     day_ref: str | None = Field(default=None,max_length=120)
-    scope: Literal['every_day'] | None = Field(default=None,description='各天相同用every_day；quote含每天原话。')
+    scope: Literal['every_day'] | None = Field(default=None,description='every_day各天相同；含每天原话。')
 
     @model_validator(mode='after')
     def typed_value(self):
         allowed={'pace':('relaxed','standard','compact'),
                  'objective':('balanced','less_walking','less_waiting','lower_cost'),
-                 'mode':('walking','driving','transit')}
+                 'mode':('walking','driving','transit'),'spice':('none','mild','any'),
+                 'interest':('shows','food','night','scenic'),'avoid':('shows','food','night','scenic')}
         if self.value is None:return self
         if self.field=='budget_fen':
             if type(self.value) is not int or not 0<=self.value<=100000000:raise ValueError('invalid budget')

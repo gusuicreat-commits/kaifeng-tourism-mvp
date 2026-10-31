@@ -57,7 +57,7 @@
             }
           ],
           "default": null,
-          "description": "普通query给purpose=trip/next/shows/dining/travel/history/reference。trip=行程;next=下一站;shows=演出;dining=餐饮;travel=交通;history=历史;reference=引用。",
+          "description": "普通query给purpose=trip/next/shows/dining/travel/history/reference。依次为行程/下一站/演出/餐饮/交通/历史/引用。",
           "title": "Purpose"
         },
         "near": {
@@ -344,7 +344,7 @@
       "additionalProperties": false,
       "properties": {
         "field": {
-          "description": "food=菜;preserve_shows=保演出;walking_seconds=步行上限;return_by=返回;meal_at=用餐;visit_at=活动;objective=目标;pace=节奏。",
+          "description": "food=想吃的具体菜品或小吃名称；口味/辣度不是菜名，放planning.fields的spice；preserve_shows=保演出;walking_seconds=步行上限;return_by=返回;meal_at=用餐;visit_at=活动;objective=目标;pace=节奏。",
           "enum": [
             "food",
             "preserve_shows",
@@ -588,7 +588,7 @@
       "additionalProperties": false,
       "properties": {
         "field": {
-          "description": "city城市;date日期;start_time/end_time起止;origin/destination起终点;pace节奏;objective目标;mode交通;budget_fen分;trip_days天;start_date首日;end_date含末日;trip_nights晚。",
+          "description": "city/date;start_time/end_time;origin/destination;pace;objective;mode;budget_fen;trip_days;start_date/end_date;trip_nights。spice辣度none不辣/mild微辣/any能吃辣/都行；interest多排/avoid不排:shows演出/food美食/night夜游/scenic景区；美食是兴趣非新增菜品。",
           "enum": [
             "city",
             "date",
@@ -603,7 +603,10 @@
             "mode",
             "budget_fen",
             "trip_days",
-            "trip_nights"
+            "trip_nights",
+            "spice",
+            "interest",
+            "avoid"
           ],
           "title": "Field",
           "type": "string"
@@ -620,7 +623,7 @@
               "type": "null"
             }
           ],
-          "description": "日期抄原文；晚间沿用到后续钟点（今晚五点半…十点回→17:30、22:00），无钟点不猜，几点前回来用end_time。pace=relaxed/standard/compact;objective=balanced均衡/less_walking少走路/less_waiting/lower_cost;少走路/走不动/腿脚不便=less_walking；无分钟不填walking_seconds。",
+          "description": "日期抄原文；晚间沿用到后续钟点（今晚五点半…十点回→17:30、22:00），无钟点不猜，几点前回来用end_time。pace=relaxed/standard/compact;objective=balanced均衡/less_walking少走路/走不动/腿脚不便/less_waiting/lower_cost；无分钟不填walking_seconds。",
           "title": "Value"
         },
         "quote": {
@@ -644,7 +647,7 @@
             }
           ],
           "default": null,
-          "description": "trip_days填整数，“两三天”取上限；budget_fen同时给budget_basis（total总预算/per_person每人预算），由你判断口径，系统会把理解结果告诉游客。分：300元=30000；每人金额不乘人数。",
+          "description": "trip_days填整数，“两三天”取上限；budget_fen同时给budget_basis（total总预算/per_person每人预算），由你判断口径，系统会把理解结果告诉游客。单位分，每人不乘人数。",
           "title": "Budget Basis"
         },
         "day_ref": {
@@ -671,7 +674,7 @@
             }
           ],
           "default": null,
-          "description": "各天相同用every_day；quote含每天原话。",
+          "description": "every_day各天相同；含每天原话。",
           "title": "Scope"
         }
       },
@@ -988,7 +991,7 @@
       "additionalProperties": false,
       "properties": {
         "operation": {
-          "description": "状态操作用state_request：complete/skip/position/cancel/restore；目标用原文完整名称，缺对象不猜。complete=完成;skip=跳过;position=位置;cancel=取消;restore=恢复。途中delay=已耽误(堵车/排队X分钟);extend=当前站多待/多逛;rest=歇/坐会儿;skip_replan=不去下一站或某站。否定不填。",
+          "description": "状态操作用state_request：complete/skip/position/cancel/restore；目标用原文完整名称，缺对象不猜。完成/跳过/位置/取消/恢复；delay耽误;extend多待;rest休息;skip_replan不去下一站/某站。否定不填。",
           "enum": [
             "complete",
             "skip",

@@ -307,6 +307,8 @@ class PendingDayField(Strict):
 
 class MultiDayConstraints(Strict):
     preferences: TripPreferences | None = None
+    preferences_asked: bool = False
+    preferences_pending: bool = False
     schema_version: Literal['city-constraints/2']
     start_date: date | None = None
     end_date: date | None = None

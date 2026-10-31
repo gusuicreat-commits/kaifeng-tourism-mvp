@@ -30,6 +30,9 @@ def safe_request_id(value):
 # System prompt plus payload. Raised from 12000 on 2026-10-27: the typed schema grew with
 # in-trip changes, show and dining fields, and the long-turn context no longer fit. The
 # model accepts far more; this bounds cost and latency per call.
+# Tests require system prompt plus payload to fit 12000 characters after
+# compaction; the hard upper limit remains MODEL_INPUT_CHARACTERS.
+COMPACT_TARGET_CHARACTERS = 12000
 MODEL_INPUT_CHARACTERS = 16000
 
 
