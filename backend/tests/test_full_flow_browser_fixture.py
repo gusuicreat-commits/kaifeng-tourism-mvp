@@ -148,3 +148,38 @@ def test_full_flow_inputs_are_feasible(full_flow_client,full_flow_data,case,deep
         'candidate_id':candidate['planning']['candidate_id']})
     assert confirmed.status_code==200,confirmed.text
     assert c.get(base(trip)+'/engine/current').json()['route_version']==1
+
+
+@pytest.mark.parametrize('days',[2,3])
+def test_full_flow_multi_day_inputs_are_feasible(full_flow_client,full_flow_data,days):
+    c=full_flow_client;data=full_flow_data
+    assert c.post('/api/v1/sessions').status_code==200
+    response=c.post('/api/city/v1/trips',json={'request_id':rid(),'draft':{}})
+    assert response.status_code==201,response.text
+    trip=response.json()
+    added=collect(c,trip,'food',data['food']['id'])
+    assert added.status_code==200,added.text
+    first=date.fromisoformat(next(r['business_date'] for r in data['facts']['records'] if r['kind']=='open_rule'))
+    dates=[(first+timedelta(days=i)).isoformat() for i in range(days)]
+    constraints={'schema_version':'city-constraints/2','start_date':dates[0],'end_date':dates[-1],'trip_days':days,
+        'days':[{'day_id':'day:'+day,'business_date':day,'starts_at':day+'T09:00:00+08:00','ends_at':day+'T20:00:00+08:00',
+            'origin_place_id':data['endpoints']['destination_place_id'],'destination_place_id':data['endpoints']['destination_place_id']} for day in dates],
+        'party_size':2,'pace':'standard','objective':'balanced','modes':['walking']}
+    result=c.post(base(trip)+'/exploration/preview',json={'request_id':rid(),'expected_version':trip['version'],
+        'basket_version':1,'planning_version':0,'constraints':constraints})
+    assert result.status_code==200,result.text
+    candidate=result.json()
+    assert candidate['result']['status']=='feasible',candidate
+    plan=candidate['result']['itineraries'][0]
+    assert plan['schema_version']=='city-itinerary/2'
+    assert [d['business_date'] for d in plan['days']]==dates
+    assert len(plan['overnights'])==days-1
+    assert all(o['source_kind']=='user_place' for o in plan['overnights'])
+    assert {a['place_id'] for d in plan['days'] for a in d['itinerary']['activities']}=={data['food']['place_id']}
+    assert c.get(base(trip)).json()['route_version']==0
+    confirmed=c.post(base(trip)+'/engine/confirm',json={'request_id':rid(),'expected_version':trip['version'],
+        'candidate_id':candidate['candidate_id']})
+    assert confirmed.status_code==200,confirmed.text
+    current=c.get(base(trip)+'/engine/current').json()
+    assert current['route_version']==1 and current['itinerary']['schema_version']=='city-itinerary/2'
+    assert len(current['itinerary']['days'])==days

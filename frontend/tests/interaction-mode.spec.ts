@@ -1,6 +1,6 @@
 import {test,expect,type Page} from '@playwright/test'
 import type {Basket} from '../src/basketApi'
-import type {PlanningConstraints,PlanningResult,PlanningWorkspace} from '../src/explorationApi'
+import type {PlanningInput,PlanningConstraints,PlanningResult,PlanningWorkspace} from '../src/explorationApi'
 
 const routePlaces=[['pl_wb_000003','开封府'],['pl_wb_vendor_000001','第一楼寺后街店'],['pl_wb_000013','鼓楼夜市']]
 async function prepare(page:Page,empty=false,complete=false,planning=true){
@@ -9,7 +9,7 @@ async function prepare(page:Page,empty=false,complete=false,planning=true){
  const response=await page.request.post('/api/city/v1/trips',{data:{request_id:crypto.randomUUID(),draft}})
  expect(response.ok()).toBeTruthy();const trip=await response.json(),path='/api/city/v1/trips/'+trip.id
  const basket:Basket={trip_id:trip.id,version:empty?0:1,items:empty?[]:[{key:'place:test:gate',kind:'place',id:'test:gate',name:'[合成测试]入口',status:'pending'}]}
- const additions:string[]=[],previews:PlanningConstraints[]=[],tasks:{text:string;interaction_mode:string}[]=[]
+ const additions:string[]=[],previews:PlanningInput[]=[],tasks:{text:string;interaction_mode:string}[]=[]
  let workspace:PlanningWorkspace={version:0,constraints:null,result:null,rounds:0}
  await page.route('**'+path+'/basket',async route=>{
   if(route.request().method()==='PATCH'){
@@ -21,9 +21,9 @@ async function prepare(page:Page,empty=false,complete=false,planning=true){
  })
  await page.route('**'+path+'/exploration/constraints',route=>route.fulfill({json:workspace}))
  await page.route('**'+path+'/exploration/preview',async route=>{
-  const body=route.request().postDataJSON(),c=body.constraints as PlanningConstraints
+  const body=route.request().postDataJSON(),c=body.constraints as PlanningInput
   expect(body.planning_version).toBe(workspace.version);previews.push(c)
-  const missing=!c.business_date||!c.starts_at||!c.ends_at||!c.origin_place_id||!c.destination_place_id
+  const missing='schema_version' in c?!(c.days as PlanningConstraints[]).every(d=>d.starts_at&&d.ends_at&&d.origin_place_id&&d.destination_place_id):!c.business_date||!c.starts_at||!c.ends_at||!c.origin_place_id||!c.destination_place_id
   const result:PlanningResult={planning_version:workspace.version+1,rounds:0,status:'unknown',reply:missing?'请补齐条件':'合成规划请求已收到，仍待确认',constraints:c,basket_version:basket.version,trip_version:trip.version,issues:missing?[{code:'PERSONAL_CHOICE_MISSING',message:'待填写',affected_ids:[]}]:[],options:[],planning:null}
   workspace={version:result.planning_version,constraints:c,result,rounds:0}
   await route.fulfill({json:result})
@@ -36,9 +36,10 @@ async function prepare(page:Page,empty=false,complete=false,planning=true){
  await expect(page.locator('#city-agent-input')).toBeEnabled()
  return {trip,path,basket,previews,tasks,additions}
 }
-async function fillDay(page:Page){
+async function fillDay(page:Page,days=1){
  const form=page.locator('.planning-question')
  await form.getByLabel('旅行日期',{exact:true}).fill('2030-05-01');await form.getByRole('button',{name:'继续',exact:true}).click()
+ await form.getByRole('button',{name:days+'天',exact:true}).click()
  await form.getByLabel('开始时间',{exact:true}).fill('09:00');await form.getByLabel('最晚结束',{exact:true}).fill('18:00');await form.getByRole('button',{name:'继续',exact:true}).click()
  await form.getByRole('combobox',{name:'出发地点',exact:true}).selectOption('test:gate');await form.getByRole('button',{name:'继续',exact:true}).click()
  await form.getByRole('combobox',{name:'返程地点',exact:true}).selectOption('test:hotel');await form.getByRole('button',{name:'继续',exact:true}).click()
@@ -153,4 +154,49 @@ test('素材篮入口独占偏好收集，普通对话保留原偏好卡',async(
  await expect(card).toHaveCount(0);await expect(button).toHaveCount(0)
  await page.goto('/assistant?city_trip='+trip.id)
  await expect(card).toBeVisible();await expect(button).toBeVisible()
+})
+
+
+test('三天快速安排共用每天时间与端点，天数标签可修改回单日',async({page})=>{
+ const {previews}=await prepare(page);await fillDay(page,3)
+ const form=page.locator('.planning-question'),known=page.getByLabel('已提供的安排')
+ await known.getByRole('button',{name:'2030-05-01',exact:true}).click()
+ await expect(form).toContainText('第一天是哪天？');await form.getByRole('button',{name:'继续',exact:true}).click()
+ await known.getByRole('button',{name:'09:00—18:00',exact:true}).click()
+ await expect(form).toContainText('每天几点开始、几点结束？');await form.getByRole('button',{name:'继续',exact:true}).click()
+ await known.getByRole('button',{name:'从[测试]入口',exact:true}).click()
+ await expect(form).toContainText('每天从哪里出发？');await form.getByRole('button',{name:'继续',exact:true}).click()
+ await known.getByRole('button',{name:'回到[测试]返程点',exact:true}).click()
+ await expect(form).toContainText('每天最后回到哪里？');await form.getByRole('button',{name:'继续',exact:true}).click()
+ const count=previews.length
+ await form.getByRole('button',{name:'快速安排',exact:false}).click()
+ await expect(page.getByLabel('规划检测结果')).toContainText('合成规划请求已收到')
+ expect(previews).toHaveLength(count+1)
+ expect(previews.at(-1)).toEqual({schema_version:'city-constraints/2',start_date:'2030-05-01',end_date:'2030-05-03',trip_days:3,days:[1,2,3].map(n=>({day_id:'day:2030-05-0'+n,business_date:'2030-05-0'+n,starts_at:`2030-05-0${n}T09:00:00+08:00`,ends_at:`2030-05-0${n}T18:00:00+08:00`,origin_place_id:'test:gate',destination_place_id:'test:hotel'})),pace:'standard',objective:'balanced',modes:['walking'],party_size:2})
+ await known.getByRole('button',{name:'3 天',exact:true}).click()
+ await expect(form.getByLabel('游玩天数',{exact:true})).toHaveValue('3')
+ await form.getByRole('button',{name:'1天',exact:true}).click()
+ await expect(known.getByRole('button',{name:'1 天',exact:true})).toBeVisible()
+ await expect.poll(()=>previews.length).toBe(count+2)
+ expect(previews.at(-1)).toEqual({business_date:'2030-05-01',starts_at:'2030-05-01T09:00:00+08:00',ends_at:'2030-05-01T18:00:00+08:00',origin_place_id:'test:gate',destination_place_id:'test:hotel',pace:'standard',objective:'balanced',modes:['walking'],budget_fen:null,party_size:2})
+})
+
+test('天数只接受1到3的整数，跨年多天沿用深度偏好与预算',async({page})=>{
+ const {previews}=await prepare(page),form=page.locator('.planning-question')
+ await form.getByLabel('旅行日期',{exact:true}).fill('2030-12-31');await form.getByRole('button',{name:'继续',exact:true}).click()
+ const input=form.getByLabel('游玩天数',{exact:true})
+ await expect(input).toHaveValue('1');await expect(input).toHaveAttribute('max','3')
+ for(const value of ['','0','4','1.5']){await input.fill(value);await expect(form.getByRole('button',{name:'继续',exact:true})).toBeDisabled()}
+ await input.fill('3');await form.getByRole('button',{name:'继续',exact:true}).click()
+ await form.getByLabel('开始时间',{exact:true}).fill('10:00');await form.getByLabel('最晚结束',{exact:true}).fill('19:00');await form.getByRole('button',{name:'继续',exact:true}).click()
+ await form.getByRole('combobox',{name:'出发地点',exact:true}).selectOption('test:hotel');await form.getByRole('button',{name:'继续',exact:true}).click()
+ await form.getByRole('combobox',{name:'返程地点',exact:true}).selectOption('test:hotel');await form.getByRole('button',{name:'继续',exact:true}).click()
+ await form.getByRole('button',{name:'3 人',exact:true}).click();await form.getByRole('button',{name:'深度互动',exact:false}).click()
+ await form.getByRole('button',{name:'轻松',exact:true}).click();await form.getByRole('button',{name:'公交地铁',exact:true}).click();await form.getByRole('button',{name:'少走路',exact:true}).click();await form.getByLabel('预算上限（选填）',{exact:true}).fill('1000')
+ const count=previews.length
+ await form.getByRole('button',{name:'继续',exact:true}).click();expect(previews).toHaveLength(count)
+ await form.getByRole('button',{name:'生成安排',exact:true}).click()
+ await expect(page.getByLabel('规划检测结果')).toContainText('合成规划请求已收到')
+ expect(previews.at(-1)).toMatchObject({schema_version:'city-constraints/2',start_date:'2030-12-31',end_date:'2031-01-02',trip_days:3,days:[{business_date:'2030-12-31'},{business_date:'2031-01-01'},{business_date:'2031-01-02'}],pace:'relaxed',objective:'less_walking',modes:['transit'],party_size:3,pricing:{total_budget_fen:100000,party_size:3,hard_limit:true}})
+ expect(previews.at(-1)).not.toHaveProperty('goals');expect(previews.at(-1)).not.toHaveProperty('overnights')
 })

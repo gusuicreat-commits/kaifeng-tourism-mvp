@@ -4,7 +4,7 @@ import {fileURLToPath} from 'node:url'
 import type {Basket} from '../src/basketApi'
 import type {CityTripState} from '../src/cityApi'
 import {draftDays} from '../src/days'
-import type {PlanningConstraints,PlanningResult,PlanningWorkspace,RouteSnapshot} from '../src/explorationApi'
+import type {EnginePreview,MultiDayPlanningConstraints,MultiDayItinerary,PlanningConstraints,PlanningResult,PlanningWorkspace,RouteSnapshot} from '../src/explorationApi'
 import {scenic,food,endpoints} from '../playwright.full-flow.fixture.mjs'
 
 const cityFacts=JSON.parse(readFileSync(fileURLToPath(new URL('../../backend/tests/fixtures/city_facts.json',import.meta.url)),'utf8')) as {records:Array<{kind:string;fact_id:string;name?:string}>}
@@ -53,15 +53,16 @@ async function openBasketPlanning(page:Page,info:TestInfo,names:string[]){
  await expect(form(page).getByRole('button',{name:'明天',exact:true})).toBeEnabled()
  return trip
 }
-async function fillDay(page:Page,info:TestInfo){
+async function fillDay(page:Page,info:TestInfo,days=1){
  const question=form(page)
  const tomorrow=new Intl.DateTimeFormat('en-CA',{timeZone:'Asia/Shanghai',year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date(Date.now()+86400000))
  await question.getByRole('button',{name:'明天',exact:true}).click()
  await expect(page.getByLabel('已提供的安排',{exact:true})).toContainText(tomorrow)
+ await question.getByRole('button',{name:days+'天',exact:true}).click()
  await question.getByLabel('开始时间',{exact:true}).fill('09:00')
  await question.getByLabel('最晚结束',{exact:true}).fill('20:00')
  await question.getByRole('button',{name:'继续',exact:true}).click()
- await question.getByRole('combobox',{name:'出发地点',exact:true}).selectOption(endpoints.origin_place_id)
+ await question.getByRole('combobox',{name:'出发地点',exact:true}).selectOption(days>1?endpoints.destination_place_id:endpoints.origin_place_id)
  await question.getByRole('button',{name:'继续',exact:true}).click()
  await question.getByRole('combobox',{name:'返程地点',exact:true}).selectOption(endpoints.destination_place_id)
  await question.getByRole('button',{name:'继续',exact:true}).click()
@@ -199,4 +200,47 @@ test.describe('完整规划流程：真实后端与合成资料',()=>{
   await expect(page.getByRole('group',{name:'互动模式',exact:true}).getByRole('button',{name:'深度互动',exact:true})).toHaveAttribute('aria-pressed','true')
   await shot(page,info,'dialogue-mode')
  })
+
+ test('4 两天快速安排复用素材篮并确认整套方案',async({page},info)=>{
+  await home(page,info,'4-multi-day')
+  await addFood(page)
+  const trip=await openBasketPlanning(page,info,[food.name])
+  await fillDay(page,info,2)
+  await expect(page.getByLabel('已提供的安排',{exact:true})).toContainText('2 天')
+  const waiting=page.waitForResponse(r=>r.request().method()==='POST'&&r.url().endsWith('/exploration/preview'))
+  await form(page).getByRole('button',{name:/^快速安排/}).click()
+  const response=await waiting
+  expect(response.ok(),await response.text()).toBeTruthy()
+  const request=response.request().postDataJSON() as {constraints:MultiDayPlanningConstraints},result=await response.json() as EnginePreview
+  await info.attach('multi-day-candidate',{body:JSON.stringify({request,result},null,2),contentType:'application/json'})
+  expect(request.constraints).toMatchObject({schema_version:'city-constraints/2',trip_days:2,party_size:2,pace:'standard',objective:'balanced',modes:['walking']})
+  expect(request.constraints.days).toHaveLength(2)
+  for(const d of request.constraints.days as {business_date:string;starts_at:string;ends_at:string}[])expect(d).toMatchObject({starts_at:d.business_date+'T09:00:00+08:00',ends_at:d.business_date+'T20:00:00+08:00',origin_place_id:endpoints.destination_place_id,destination_place_id:endpoints.destination_place_id})
+  expect(request.constraints).not.toHaveProperty('goals');expect(request.constraints).not.toHaveProperty('overnights')
+  expect(result.result.status).toBe('feasible')
+  const plan=result.result.itineraries[0] as MultiDayItinerary
+  expect(plan.schema_version).toBe('city-itinerary/2');expect(plan.days).toHaveLength(2)
+  expect(plan.overnights).toHaveLength(1)
+  expect(plan.days.flatMap(d=>d.itinerary.activities).map(a=>a.place_id)).toContain(food.place_id)
+  const assessment=page.getByLabel('规划检测结果',{exact:true})
+  await expect(assessment.getByLabel('整套行程方案',{exact:true})).toBeVisible()
+  await expect(assessment.locator('.preview-day')).toHaveCount(2)
+  await expect(page.getByRole('group',{name:'游玩节奏',exact:true})).toHaveCount(0)
+  expect((await read<CityTripState>(page,prefix(trip.id))).route_version).toBe(0)
+  await shot(page,info,'multi-day-candidate')
+  const confirming=page.waitForResponse(r=>r.request().method()==='POST'&&r.url().endsWith(prefix(trip.id)+'/engine/confirm'))
+  await assessment.getByRole('button',{name:'确认整套方案',exact:true}).click()
+  const confirmed=await confirming
+  expect(confirmed.ok(),await confirmed.text()).toBeTruthy()
+  await expect(page.getByRole('status').filter({hasText:'已确认并更新正式路线'})).toBeVisible()
+  const saved=await read<CityTripState>(page,prefix(trip.id)),route=await read<RouteSnapshot>(page,prefix(trip.id)+'/engine/current')
+  expect(saved.route_version).toBe(1);expect(saved.version).toBeGreaterThan(trip.version)
+  expect(route).toMatchObject({route_version:1,stale:false,itinerary:{schema_version:'city-itinerary/2',start_date:request.constraints.start_date,end_date:request.constraints.end_date}})
+  expect(draftDays(saved.draft)).toHaveLength(2)
+  expect(draftDays(saved.draft).flatMap(d=>d.stops).map(s=>s.place_id)).toContain(food.place_id)
+  await page.locator('.planning-success').getByRole('link',{name:'查看行程',exact:true}).click()
+  await expect(page.getByRole('heading',{name:'我的开封游记',exact:true})).toBeVisible()
+  await shot(page,info,'multi-day-itinerary')
+ })
+
 })

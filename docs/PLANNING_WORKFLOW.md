@@ -2,6 +2,12 @@
 
 核对日期：2026-10-23。下面的交互规则以 [PRD](PRD.md) 为准；已有代码与验收边界见 [PROJECT_STATUS](PROJECT_STATUS.md)。产品要求不因代码已有分支就自动算通过。
 
+## E10b 素材篮表单的游玩天数（2026-10-31，待 Claude 浏览器验收）
+
+日期后新增天数步骤，默认 1 天，可选或输入 1–3 天；已知条件中的天数标签可返回修改。单日沿用原请求；多天按首日与天数生成连续日期，共用每天时间、起终点、节奏、交通、人数和偏好，预算上限转为全程 `pricing.total_budget_fen`。快速安排补齐基础条件后直接预览，深度互动仍由游客点击生成。前端不构造目标和过夜：素材篮映射与相邻日同端点的过夜衔接由现有预览接口处理，不同端点仍需补齐住宿衔接。
+
+实际规划上限来自 `backend/app/city/engine/models.py` 的 `MultiDayConstraints.days(max_length=3)` 与连续日期范围校验（1–3 天）；`trip_days` 的字段级上限 30 不代表可执行 30 天。复用现有多天方案预览与整套确认，刷新后从工作区进入原有每日条件面板。浏览器用例见 `frontend/tests/interaction-mode.spec.ts`、`frontend/tests/full-flow.spec.ts`，三天合成资料与两天/三天可行性见 `backend/tests/test_full_flow_browser_fixture.py`。
+
 ## 当前实现
 
 发现、详情和地图可加入同一旅程素材篮；`journey.ts`、`cityApi.ts`、`explorationApi.ts` 与 `BasketPlanning.vue` 连接服务端需求工作区及城市引擎。小汴梁可理解日期、时段、地点、预算和偏好，并复用结构化条件。城市状态、素材篮、工作区与正式路线各有版本，不能混为一个已提交安排。
