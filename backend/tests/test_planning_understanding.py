@@ -1031,6 +1031,48 @@ def test_weekend_dates_share_planning_and_hotel_resolution(today,weekend,next_we
         assert req['check_in']==expected
 
 
+@pytest.mark.parametrize('expression,offset',[('今明两天',0),('明后两日',1),('后大天',2)])
+@pytest.mark.parametrize('value_form',['iso','relative','range'])
+def test_contracted_hotel_dates_share_range_roles(expression,offset,value_form):
+    from datetime import date, timedelta
+    from app.city.agent.models import ServiceIntent
+    from app.city.travel_services import semantic_requirements
+    today=date(2026,12,31);start=today+timedelta(days=offset);end=start+timedelta(days=1)
+    relative={0:'今天',1:'明天',2:'后天',3:'大后天'}
+    values=[start.isoformat(),end.isoformat()] if value_form=='iso' else [
+        relative[offset],relative[offset+1]] if value_form=='relative' else [expression,expression]
+    text='查'+expression+'的酒店'
+    req=semantic_requirements(ServiceIntent(quote=text,fields=[
+        field('check_in',values[0],expression),field('check_out',values[1],expression)]),text,{},today)
+    assert req['check_in']==start.isoformat() and req['check_out']==end.isoformat()
+    assert req['nights']==1
+
+
+def test_wrong_contracted_hotel_endpoint_only_drops_that_field():
+    from datetime import date
+    from app.city.agent.models import ServiceIntent
+    from app.city.travel_services import semantic_requirements
+    text='查明后两天的酒店，要干净';dropped=[]
+    req=semantic_requirements(ServiceIntent(quote=text,fields=[
+        field('check_in','2026-11-01','明后两天'),field('check_out','2026-11-03','明后两天'),
+        field('clean',True,'干净')]),text,{},date(2026,10,31),dropped)
+    assert req['check_in']=='2026-11-01' and 'check_out' not in req
+    assert req['attributes']['clean']['value'] is True
+    assert [(d['field'],d['check']) for d in dropped]==[('check_out','value_not_in_quote')]
+
+
+def test_legacy_hotel_parser_uses_contracted_range_endpoints(monkeypatch):
+    from datetime import datetime
+    from app.city import travel_services
+    class Clock:
+        @staticmethod
+        def now(tz):return datetime.fromisoformat('2026-12-31T08:00:00+08:00')
+    monkeypatch.setattr(travel_services,'datetime',Clock)
+    req,questions=travel_services.parse('查明后两日的酒店')
+    assert req['check_in']=='2027-01-01' and req['check_out']=='2027-01-02'
+    assert req['nights']==1 and not questions
+
+
 @pytest.mark.parametrize('duration',['玩两天','三天两晚','2天','游玩 3 天'])
 def test_multiday_request_asks_for_daily_time_and_overnight_before_preview(city,monkeypatch,duration):
     text='2030-05-03去开封'+duration

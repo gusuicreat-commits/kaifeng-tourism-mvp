@@ -1,7 +1,7 @@
 """Date/count evidence for trip ranges. Single-date and hotel resolution stay unchanged."""
 import re
 from datetime import date, timedelta
-from .dates import DATE_EXPRESSION, resolve_date, _number
+from .dates import DATE_EXPRESSION, resolve_date, relative_date_range, _number
 
 
 RANGE_DATE = re.compile(r'(?<!\d)\d{4}[-/]\d{1,2}[-/]\d{1,2}(?!\d)|(?<!\d)(?:\d{4}年)?[\d一二三四五六七八九十两]+月[\d一二三四五六七八九十两]+(?:日|号)?|(?<![\d-])\d{1,2}[-./]\d{1,2}(?![\d-])|'+DATE_EXPRESSION)
@@ -48,9 +48,13 @@ def field_date(field,today):
     if not found:raise ValueError('date_not_in_quote')
     # Start/end roles are positional within one continuous date-range quote.
     source=found[0] if field.field in ('date','start_date') else found[-1]
+    if field.field=='date' and relative_date_range(source,today):raise ValueError('date_not_in_quote')
+    def bound(expression,end=False):
+        span=relative_date_range(expression,today)
+        return span[int(end)] if span else resolve(expression,today)
     if len(found)>1 and field.field=='end_date' and not all(explicit_year(e) for e in (found[0],found[-1])):
-        if resolve(found[-1],today)<resolve(found[0],today):raise ValueError('cross_year_requires_year')
-    expected=resolve(source,today)
+        if bound(found[-1],True)<bound(found[0]):raise ValueError('cross_year_requires_year')
+    expected=bound(source,field.field=='end_date')
     if resolve(str(field.value),today)!=expected:raise ValueError('date_not_in_quote')
     return expected
 

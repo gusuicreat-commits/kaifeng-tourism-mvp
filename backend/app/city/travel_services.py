@@ -10,7 +10,7 @@ from .budget_models import StayPriceInput
 from . import hotel_binding
 from . import hotels, state, location_resolution  # compatibility export for existing adapter fakes
 from .providers import CapabilityRequest, default_registry
-from .agent.dates import find_date_expressions, resolve_date
+from .agent.dates import find_date_expressions, resolve_date, relative_date_range
 from ..db import connect
 from ..memory.session import Session, current, limit
 from ..memory.storage import encoded, stamp
@@ -91,6 +91,16 @@ def _field_value(f,text,quote,today):
     try:service_condition_evidence(text,f.quote,quote,literal_name=f.field in ('location_text','room_type'))
     except ValueError:raise ValueError('invalid_evidence') from None
     if f.field in ('check_in','check_out'):
+        dates=find_date_expressions(f.quote)
+        source=(dates[0] if f.field=='check_in' else dates[-1]) if dates else ''
+        span=relative_date_range(source,today)
+        if span and isinstance(f.value,str):
+            expected=span[int(f.field=='check_out')]
+            if f.value==source:return expected.isoformat()
+            try:
+                if resolve_date(f.value,today)==expected:return expected.isoformat()
+            except ValueError:pass
+            raise ValueError('value_not_in_quote')
         if not isinstance(f.value,str) or f.value not in f.quote:raise ValueError('value_not_in_quote')
         try:return resolve_date(f.value,today).isoformat()
         except ValueError:raise ValueError('date_unresolved') from None
@@ -158,7 +168,8 @@ def parse(text,previous=None):
     category='hotels' if re.search(r'酒店|住宿|民宿',text) else 'parking' if '停车场' in text else 'merchants' if re.search(r'餐厅|饭店|美食|商家',text) else req.get('category','hotels')
     req['category']=category
     # Full dates and relative check-in dates. Never infer room count or guest count.
-    dates=find_date_expressions(text)
+    dates=[day.isoformat() if isinstance(day,date) else day for expression in find_date_expressions(text)
+           for day in (relative_date_range(expression,today) or (expression,))]
     try:
         if dates:
             req['check_in']=resolve_date(dates[0],today).isoformat()
