@@ -2,6 +2,7 @@
 from dataclasses import replace
 from datetime import timedelta
 from types import SimpleNamespace
+import pytest
 from app.db import connect
 from app.city import exploration,facts
 from app.city.engine.models import Goal
@@ -78,14 +79,14 @@ def test_next_day_uses_actual_dated_rule_and_patch_repreviews(engine):
     assert apply_patch(engine,result,option(result,'adjust:date'))['status']=='feasible'
 
 
-def test_no_feasible_adjustment_keeps_only_consent_to_relax(engine):
+def test_missing_next_day_data_keeps_consent_to_relax_and_reports_unfinished(engine):
     c,t,_=engine;collect(c,t,'place','museum','must')
     opening(opens_at='2030-05-01T06:00:00+08:00',closes_at='2030-05-01T07:00:00+08:00')
     result=plan(engine,starts_at='2030-05-01T14:00:00+08:00').json()
     assert result['status']=='infeasible'
     assert not any(o['kind']=='constraints' for o in result['options'])
     assert option(result,'relax:place:museum')['requires_consent']
-    assert '或换个地点' in result['reply']
+    assert '没来得及核算完' in result['reply']
     assert '已核算能排进' not in result['reply']
 
 
@@ -107,46 +108,113 @@ def diagnose(req,ctx):
     return solved,lambda:exploration._conflict_adjustments(solved,req,ctx,keys,meta)
 
 
-def test_all_extra_solves_including_solo_are_capped_at_five(sample,monkeypatch):
+@pytest.mark.parametrize('duration,minutes,tried',[(10800,180,[180,60,120]),(7200,120,[180,60,120]),(3000,60,[180,60])])
+def test_largest_start_relaxation_is_refined_to_smallest_feasible(sample,monkeypatch,duration,minutes,tried):
     req,ctx=sample
-    goals=tuple(Goal(goal_id=pid,target_kind='place',target_id=pid,required=True,duration_seconds=5400) for pid in ('museum','garden'))
-    req=req.model_copy(update={'goals':goals,'ends_at':req.starts_at+timedelta(hours=2)})
-    _,run=diagnose(req,ctx);original=exploration.engine.plan_trip;calls=[]
+    req=req.model_copy(update={'starts_at':req.starts_at.replace(hour=14),'ends_at':req.ends_at.replace(hour=15),
+        'goals':(Goal(goal_id='visit',target_kind='place',target_id='museum',required=True,duration_seconds=duration),)})
+    ctx=change_fact(ctx,'open_rule','open:museum',closes_at=req.ends_at)
+    solved,run=diagnose(req,ctx);prepared=[];prepare=exploration.engine.prepare
+    def preflight(candidate,context):prepared.append(candidate);return prepare(candidate,context)
+    monkeypatch.setattr(exploration.engine,'prepare',preflight)
+    result=run();choice=option(result,'adjust:start')
+    assert not solved.itineraries and solved.status in ('infeasible','needs_data')
+    assert choice['patch']=={'starts_at':(req.starts_at-timedelta(minutes=minutes)).isoformat()}
+    # 先试最大、再试最小，最后才试中间；同一天仍为必去的“提前开始”候选去重后应等于 tried。
+    tried_start=[]
+    for c in prepared:
+        if c.business_date==req.business_date and c.goals[0].required and c.starts_at<req.starts_at:
+            offset=int((req.starts_at-c.starts_at).total_seconds()/60)
+            if offset not in tried_start:tried_start.append(offset)
+    assert tried_start==tried
+    plan=exploration.engine.plan_trip
+    assert plan(req.model_copy(update={'starts_at':req.starts_at-timedelta(minutes=minutes)}),ctx).status=='feasible'
+    assert all(not plan(req.model_copy(update={'starts_at':req.starts_at-timedelta(minutes=m)}),ctx).itineraries
+               for m in (60,120) if m<minutes)
+
+
+def test_infeasible_maximum_prunes_each_time_direction(sample,monkeypatch):
+    req,ctx=sample
+    req=req.model_copy(update={'starts_at':req.starts_at.replace(hour=14),'ends_at':req.ends_at.replace(hour=15),
+        'goals':(Goal(goal_id='visit',target_kind='place',target_id='museum',required=True,duration_seconds=18000),)})
+    ctx=change_fact(ctx,'open_rule','open:museum',closes_at=req.ends_at)
+    _,run=diagnose(req,ctx);prepared=[];prepare=exploration.engine.prepare
+    def preflight(candidate,context):prepared.append(candidate);return prepare(candidate,context)
+    monkeypatch.setattr(exploration.engine,'prepare',preflight)
+    result=run()
+    same_day=[c for c in prepared if c.business_date==req.business_date and c.goals[0].required]
+    assert [(c.starts_at,c.ends_at) for c in same_day]==[
+        (req.starts_at,req.ends_at+timedelta(hours=3)),(req.starts_at-timedelta(hours=3),req.ends_at)]
+    assert not any(o['kind']=='constraints' for o in result['options'])
+
+
+@pytest.mark.parametrize('status',['needs_data','timeout'])
+def test_unfinished_maximum_skips_smaller_candidates_but_tries_next_direction(sample,monkeypatch,status):
+    req,ctx=sample
+    req=req.model_copy(update={'starts_at':req.starts_at.replace(hour=12),'ends_at':req.ends_at.replace(hour=14),
+        'goals':(Goal(goal_id='visit',target_kind='place',target_id='museum',required=True),)})
+    solved=SimpleNamespace(itineraries=(),status='infeasible',issues=(SimpleNamespace(code='HARD_CONSTRAINT_CONFLICT'),),metrics={})
+    calls=[];solve=exploration.engine.plan_trip
+    def track(candidate,context):
+        calls.append(candidate)
+        if candidate.ends_at>req.ends_at:return SimpleNamespace(status=status,itineraries=())
+        return solve(candidate,context)
+    monkeypatch.setattr(exploration.engine,'plan_trip',track)
+    result=exploration._conflict_adjustments(solved,req,ctx,{'visit':'place:museum'},
+        {'visit':{'name':'[合成测试]museum','status':'pending','locked':True}})
+    assert [c.ends_at for c in calls if c.ends_at>req.ends_at]==[req.ends_at+timedelta(hours=3)]
+    assert [c.starts_at for c in calls if c.starts_at<req.starts_at]==[
+        req.starts_at-timedelta(minutes=m) for m in (180,60)]
+    assert option(result,'adjust:start')['patch']=={'starts_at':(req.starts_at-timedelta(hours=1)).isoformat()}
+
+
+def test_required_pair_solo_not_counted_and_offers_end_start_relax(sample,monkeypatch):
+    req,ctx=sample
+    goals=tuple(Goal(goal_id=pid,target_kind='place',target_id=pid,required=True,duration_seconds=3600) for pid in ('museum','garden'))
+    req=req.model_copy(update={'goals':goals,'ends_at':req.starts_at+timedelta(minutes=90)})
+    solved,run=diagnose(req,ctx);original=exploration.engine.plan_trip;calls=[]
     def solve(candidate,context):
         calls.append(candidate)
         assert candidate.alternatives==1 and candidate.solve_seconds<=min(req.solve_seconds,1)
         return original(candidate,context)
     monkeypatch.setattr(exploration.engine,'plan_trip',solve)
     result=run()
-    assert result['conflicts'] and len(calls)==5
-    assert option(result,'adjust:end')
+    assert solved.status=='infeasible' and result['conflicts']
+    assert {'adjust:end','adjust:start','relax:conflicts'}<= {o['id'] for o in result['options']}
+    # 单独试排是诊断，不计入 8 次调整候选上限。
+    assert len([c for c in calls if len(c.goals)==1])==2
+    assert len([c for c in calls if len(c.goals)>1])==4
 
 
-def test_budget_stops_after_eight_seconds_and_keeps_verified_options(sample,monkeypatch):
+def test_budget_stops_after_fifteen_seconds_and_keeps_verified_options(sample,monkeypatch):
     req,ctx=sample
     req=req.model_copy(update={'goals':(Goal(goal_id='visit',target_kind='place',target_id='museum',required=True),),
         'ends_at':req.starts_at+timedelta(minutes=40)})
-    _,run=diagnose(req,ctx);original=exploration.engine.plan_trip;calls=[];ticks=[0]
+    solved=SimpleNamespace(itineraries=(),status='infeasible',issues=(SimpleNamespace(code='HARD_CONSTRAINT_CONFLICT'),),metrics={})
+    original=exploration.engine.plan_trip;calls=[];ticks=[0]
     monkeypatch.setattr(exploration,'time',SimpleNamespace(monotonic=lambda:ticks[0]))
     def solve(candidate,context):
         calls.append(candidate);result=original(candidate,context)
-        if len(calls)==2:ticks[0]=9
+        if len(calls)==2:ticks[0]=16
         return result
     monkeypatch.setattr(exploration.engine,'plan_trip',solve)
-    result=run()
+    result=exploration._conflict_adjustments(solved,req,ctx,{'visit':'place:museum'},
+        {'visit':{'name':'[合成测试]museum','status':'pending','locked':True}})
     assert len(calls)==2 and result['conflicts'][0]['reason_code']=='too_far_alone'
     assert [o['id'] for o in result['options'] if o['kind']=='constraints']==['adjust:end']
 
 
-def test_uncertain_solve_never_creates_verified_option(sample,monkeypatch):
+@pytest.mark.parametrize('status',['needs_data','timeout'])
+def test_uncertain_solve_never_creates_verified_option(sample,monkeypatch,status):
     req,ctx=sample
     req=req.model_copy(update={'goals':(Goal(goal_id='visit',target_kind='place',target_id='museum',required=True),),
         'ends_at':req.starts_at+timedelta(minutes=40)})
     _,run=diagnose(req,ctx)
-    monkeypatch.setattr(exploration.engine,'plan_trip',lambda *a:SimpleNamespace(status='timeout',itineraries=()))
+    monkeypatch.setattr(exploration.engine,'plan_trip',lambda *a:SimpleNamespace(status=status,itineraries=()))
     result=run()
     assert not any(o.get('patch') for o in result['options'])
     assert '已核算' not in result['reply']
+    assert '没来得及核算完' in result['reply'] and '本轮核算未找到' not in result['reply']
 
 
 def test_session_unknown_or_transport_missing_is_not_time_conflict(sample):
@@ -210,16 +278,17 @@ def test_conflict_preview_is_idempotent_and_shares_enriched_context(engine,monke
     c,t,_=engine;collect(c,t,'place','museum','must')
     opening(opens_at='2030-05-01T08:00:00+08:00',closes_at='2030-05-01T12:00:00+08:00')
     enriched=[];contexts=[];original=exploration.engine.plan_trip
-    def enrich(ctx,req):enriched.append(ctx);return ctx
+    def enrich(ctx,req,**kwargs):enriched.append(ctx);return ctx
     def solve(req,ctx):contexts.append(ctx);return original(req,ctx)
     monkeypatch.setattr(exploration.engine.live_travel,'enrich',enrich)
     monkeypatch.setattr(exploration.engine,'plan_trip',solve)
     response=plan(engine,starts_at='2030-05-01T14:00:00+08:00')
     result=response.json();count=len(contexts)
-    assert result['status']=='infeasible' and len(enriched)==1
+    assert result['status']=='infeasible' and len(enriched)>1
+    enrich_count=len(enriched)
     assert contexts and all(ctx is enriched[0] for ctx in contexts)
     assert c.post(base(t)+'/exploration/preview',json=__import__('json').loads(response.request.content)).json()==result
-    assert len(contexts)==count and len(enriched)==1
+    assert len(contexts)==count and len(enriched)==enrich_count
     assert c.get(base(t)+'/exploration/constraints').json()['result']==result
     assert c.get(base(t)).json()['route_version']==0
 
@@ -263,3 +332,190 @@ def test_relaxation_matches_preference_projection_when_must_becomes_want(engine)
     agreed=plan(engine,**result['constraints']).json()
     assert agreed['status']=='feasible'
     assert [a['place_id'] for a in agreed['planning']['result']['itineraries'][0]['activities']]==['garden']
+
+
+def timed_travel(monkeypatch,*,count=2,modes=('walking',),destination=None):
+    from test_live_travel_multi_day_cache import travel_trip,Provider
+    from test_multi_day_travel import daily
+    from app.city.engine import live_travel
+    multi,ctx,_=travel_trip(monkeypatch,count=count)
+    req=daily(multi,multi.days[0])
+    req=req.model_copy(update={'modes':modes,'destination_place_id':destination or req.destination_place_id,
+        'goals':tuple(g.model_copy(update={'duration_seconds':5400}) for g in req.goals),
+        'ends_at':req.starts_at+timedelta(hours=2)})
+    ctx=live_travel.enrich(ctx,req,provider=Provider(max_requests=1000))
+    return req,ctx
+
+
+def test_closed_afternoon_skips_travel_and_solve_until_feasible_earlier_start(monkeypatch):
+    from app.city.engine import live_travel
+    from test_live_travel_multi_day_cache import Provider
+    req,ctx=timed_travel(monkeypatch)
+    req=req.model_copy(update={'starts_at':req.starts_at.replace(hour=16,minute=30),
+        'ends_at':req.ends_at.replace(hour=18),
+        'goals':(req.goals[0],req.goals[1].model_copy(update={'required':False}))})
+    ctx=change_fact(ctx,'open_rule','open:candidate:0',closes_at=req.starts_at.replace(hour=15))
+    _,run=diagnose(req,ctx);provider=Provider();prepared=[];enriched=[];solved=[]
+    prepare=exploration.engine.prepare;enrich=live_travel.enrich;solve=exploration.engine.plan_trip
+    monkeypatch.setattr(live_travel,'provider_from_environment',lambda:provider)
+    def preflight(candidate,context):
+        prepared.append((candidate,context,provider.request_count));return prepare(candidate,context)
+    def track(context,candidate,**kwargs):
+        enriched.append((candidate,provider.request_count));return enrich(context,candidate,**kwargs)
+    def checked(candidate,context):solved.append(candidate);return solve(candidate,context)
+    monkeypatch.setattr(exploration.engine,'prepare',preflight)
+    monkeypatch.setattr(live_travel,'enrich',track)
+    monkeypatch.setattr(exploration.engine,'plan_trip',checked)
+    result=run();choice=option(result,'adjust:start')
+    assert choice['patch']=={'starts_at':req.starts_at.replace(hour=13).isoformat()}
+    delayed=[row for row in prepared if row[0].ends_at>req.ends_at and row[0].business_date==req.business_date]
+    assert len(delayed)==1 and delayed[0][1] is ctx
+    # 改为想去与原时段相同，先 enrich；随后才是提前开始候选。
+    assert enriched[0][1]==0 and enriched[0][0].starts_at==req.starts_at and not any(g.required for g in enriched[0][0].goals)
+    assert any(c.starts_at==req.starts_at.replace(hour=13) for c,_ in enriched)
+    assert all(candidate.ends_at<=req.ends_at or candidate.business_date!=req.business_date for candidate,_ in enriched)
+    assert all(candidate.ends_at<=req.ends_at or candidate.business_date!=req.business_date for candidate in solved)
+    assert '已核算能排进' in choice['label'] and '没来得及' not in result['reply']
+    assert provider.closed==1
+
+
+@pytest.mark.parametrize('target_kind',['place','session'])
+def test_all_prepare_time_conflicts_skip_provider_and_report_no_feasible_option(monkeypatch,target_kind):
+    from app.city.engine import live_travel
+    from test_live_travel_multi_day_cache import Provider
+    req,ctx=timed_travel(monkeypatch,count=1)
+    if target_kind=='place':
+        for rule in tuple(ctx.facts.values()):
+            if isinstance(rule,facts.OpenRule) and rule.place_id=='candidate:0':
+                ctx=change_fact(ctx,'open_rule',rule.fact_id,opens_at=rule.opens_at.replace(hour=6),
+                    closes_at=rule.closes_at.replace(hour=7))
+    else:
+        req=req.model_copy(update={'starts_at':req.starts_at.replace(hour=14),'ends_at':req.ends_at.replace(hour=16),
+            'goals':(Goal(goal_id='show',target_kind='session',target_id='s1',kind='show',required=True),)})
+        ctx=change_fact(ctx,'show_session','s1',stage_place_id='candidate:0')
+    solved=exploration.engine.plan_trip(req,ctx);provider=Provider();created=[];prepared=[];prepare=exploration.engine.prepare
+    def factory():created.append(provider);return provider
+    def preflight(candidate,context):prepared.append(candidate);return prepare(candidate,context)
+    monkeypatch.setattr(exploration.engine,'prepare',preflight)
+    monkeypatch.setattr(live_travel,'provider_from_environment',factory)
+    monkeypatch.setattr(live_travel,'enrich',lambda *a,**kw:pytest.fail('time conflict needs no travel'))
+    monkeypatch.setattr(exploration.engine,'plan_trip',lambda *a:pytest.fail('time conflict needs no solve'))
+    goal=req.goals[0]
+    result=exploration._conflict_adjustments(solved,req,ctx,{goal.goal_id:'place:'+goal.target_id},
+        {goal.goal_id:{'name':'[合成测试]'+goal.target_id,'status':'pending','locked':True}},replanning=target_kind=='session')
+    assert len(prepared)==(4 if target_kind=='place' else 1) and not created and provider.request_count==0
+    assert not any(o.get('patch') for o in result['options'])
+    assert '本轮核算未找到延后、提前或换一天的可行方案' in result['reply']
+    assert '没来得及' not in result['reply']
+
+
+@pytest.mark.parametrize('demo_reference',[False,True])
+def test_changed_horizon_enriches_each_candidate_and_reuses_quotes(monkeypatch,demo_reference):
+    from app.city.engine import live_travel
+    from test_live_travel_multi_day_cache import Provider
+    req,ctx=timed_travel(monkeypatch);ctx=replace(ctx,demo_reference=demo_reference)
+    candidate=req.model_copy(update={'ends_at':req.ends_at+timedelta(hours=2)})
+    before=exploration.engine.plan_trip(candidate,ctx)
+    assert before.status=='needs_data' and any(i.code=='TRAVEL_DATA_INCOMPLETE' for i in before.issues)
+    solved,run=diagnose(req,ctx)
+    assert solved.status=='infeasible'
+    provider=Provider();created=[];enrichments=[];enrich=live_travel.enrich
+    def factory():created.append(provider);return provider
+    def track(context,candidate,**kwargs):
+        enriched=enrich(context,candidate,**kwargs)
+        enrichments.append((candidate,kwargs,enriched));return enriched
+    monkeypatch.setattr(live_travel,'provider_from_environment',factory)
+    monkeypatch.setattr(live_travel,'enrich',track)
+    result=run();choice=option(result,'adjust:end')
+    assert choice['patch']=={'ends_at':candidate.ends_at.isoformat()}
+    assert '已核算能排进' in choice['label'] and '可以这样调整' in result['reply']
+    assert created==[provider] and provider.closed==1
+    assert len(enrichments)>1 and all(row[1]['provider'] is provider for row in enrichments)
+    assert all(row[1]['quotes'] is enrichments[0][1]['quotes'] for row in enrichments)
+    assert enrichments[-1][1]['metrics']['cache_hits']>0
+    keys=[(*call[:-1],call[-1].strftime('%H:%M')) for call in provider.calls]
+    assert len(keys)==len(set(keys))==provider.request_count
+    checked=next(context for request,_,context in enrichments if request.ends_at==candidate.ends_at and len(request.goals)==2)
+    assert exploration.engine.plan_trip(candidate,checked).status=='feasible'
+
+
+def test_request_limit_stops_candidates_and_reports_unfinished(monkeypatch):
+    from app.city.engine import live_travel
+    from test_live_travel_multi_day_cache import Provider
+    req,ctx=timed_travel(monkeypatch,count=6,modes=('walking','driving','transit'),destination='candidate:5')
+    _,run=diagnose(req,ctx);provider=Provider();calls=[];enrich=live_travel.enrich
+    monkeypatch.setattr(live_travel,'provider_from_environment',lambda:provider)
+    def track(*args,**kwargs):calls.append(args[1]);return enrich(*args,**kwargs)
+    monkeypatch.setattr(live_travel,'enrich',track)
+    result=run()
+    assert provider.max_requests==provider.request_count==30 and provider.closed==1
+    assert len(calls)==2<len(req.goals) and all(len(candidate.goals)==1 for candidate in calls)
+    assert not any(o.get('patch') for o in result['options'])
+    assert '没来得及核算完' in result['reply'] and '稍后再试' in result['reply']
+    assert '本轮核算未找到' not in result['reply']
+
+
+def test_enrichment_time_uses_total_budget_and_closes_provider(monkeypatch):
+    from app.city.engine import live_travel
+    from test_live_travel_multi_day_cache import Clock,TimedProvider
+    req,ctx=timed_travel(monkeypatch);_,run=diagnose(req,ctx);clock=Clock()
+    provider=TimedProvider(clock,seconds=8);calls=[];enrich=live_travel.enrich
+    monkeypatch.setattr(exploration,'time',SimpleNamespace(monotonic=clock))
+    monkeypatch.setattr(live_travel.time,'sleep',clock.sleep)
+    monkeypatch.setattr(live_travel,'provider_from_environment',lambda:provider)
+    def track(*args,**kwargs):calls.append(kwargs);return enrich(*args,**kwargs)
+    monkeypatch.setattr(live_travel,'enrich',track)
+    monkeypatch.setattr(exploration.engine,'plan_trip',lambda *a:pytest.fail('budget expired before solve'))
+    result=run()
+    assert len(calls)==1 and calls[0]['deadline']==15
+    assert provider.request_count==2 and provider.closed==1
+    assert '没来得及核算完' in result['reply'] and not any(o.get('patch') for o in result['options'])
+
+
+def test_all_infeasible_candidates_keep_original_reply(sample,monkeypatch):
+    req,ctx=sample
+    req=req.model_copy(update={'goals':(Goal(goal_id='visit',target_kind='place',target_id='museum',required=True),),
+        'ends_at':req.starts_at+timedelta(minutes=40),'starts_at':req.starts_at.replace(hour=7)})
+    # Force an initial conflict; an infeasible maximum extension prunes smaller ones.
+    solved=SimpleNamespace(itineraries=(),status='infeasible',issues=(SimpleNamespace(code='HARD_CONSTRAINT_CONFLICT'),),metrics={})
+    calls=[]
+    def solve(candidate,context):calls.append(candidate);return SimpleNamespace(status='infeasible',itineraries=())
+    monkeypatch.setattr(exploration.engine,'plan_trip',solve)
+    result=exploration._conflict_adjustments(solved,req,ctx,{'visit':'place:museum'},
+        {'visit':{'name':'[合成测试]museum','status':'pending'}})
+    assert len(calls)==3 and not any(o.get('patch') for o in result['options'])
+    assert '本轮核算未找到延后、提前或换一天的可行方案' in result['reply']
+    assert '没来得及核算完' not in result['reply']
+
+
+def test_date_and_relaxation_candidates_also_enrich_new_horizons(monkeypatch):
+    from app.city.engine import live_travel
+    from test_live_travel_multi_day_cache import Provider
+    req,ctx=timed_travel(monkeypatch,count=1)
+    rule=ctx.planning_rules('candidate:0',req.business_date,req.starts_at,req.ends_at)[0]
+    ctx=change_fact(ctx,'open_rule',rule.fact_id,opens_at=req.starts_at.replace(hour=7),closes_at=req.starts_at.replace(hour=8))
+    tomorrow=req.model_copy(update={'business_date':req.business_date+timedelta(days=1),
+        'starts_at':req.starts_at+timedelta(days=1),'ends_at':req.ends_at+timedelta(days=1)})
+    before=exploration.engine.plan_trip(tomorrow,ctx)
+    assert before.status=='needs_data' and any(i.code=='TRAVEL_DATA_INCOMPLETE' for i in before.issues)
+    _,run=diagnose(req,ctx);provider=Provider();calls=[];enrich=live_travel.enrich
+    monkeypatch.setattr(live_travel,'provider_from_environment',lambda:provider)
+    def track(context,candidate,**kwargs):calls.append(candidate);return enrich(context,candidate,**kwargs)
+    monkeypatch.setattr(live_travel,'enrich',track)
+    result=run()
+    assert option(result,'adjust:date')['patch']=={'business_date':tomorrow.business_date.isoformat()}
+    assert any(candidate.business_date==tomorrow.business_date for candidate in calls)
+    assert any(not any(goal.required for goal in candidate.goals) for candidate in calls)
+    keys=[(*call[:-1],call[-1].strftime('%H:%M')) for call in provider.calls]
+    assert len(keys)==len(set(keys))==provider.request_count and provider.closed==1
+
+
+def test_provider_is_closed_if_candidate_enrichment_raises(monkeypatch):
+    from app.city.engine import live_travel
+    from test_live_travel_multi_day_cache import Provider
+    req,ctx=timed_travel(monkeypatch);_,run=diagnose(req,ctx);provider=Provider()
+    monkeypatch.setattr(live_travel,'provider_from_environment',lambda:provider)
+    def fail(*args,**kwargs):raise RuntimeError('synthetic enrichment failure')
+    monkeypatch.setattr(live_travel,'enrich',fail)
+    with pytest.raises(RuntimeError,match='synthetic enrichment failure'):run()
+    assert provider.closed==1

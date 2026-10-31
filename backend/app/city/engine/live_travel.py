@@ -82,14 +82,16 @@ def applies_to_day(journey, req):
     return not identity.startswith('amap:day:') or identity.split(':',3)[2]==str(req.business_date)
 
 
-def enrich(ctx, req, *, provider=None, deadline=None, clock=None):
+def enrich(ctx, req, *, provider=None, deadline=None, clock=None, quotes=None, metrics=None):
     if not isinstance(req,MultiDayRequirements):
-        return _enrich_day(ctx,req,provider=provider,deadline=deadline,clock=clock)
+        return _enrich_day(ctx,req,provider=provider,deadline=deadline,clock=clock,quotes=quotes,metrics=metrics)
     if ctx.synthetic or not enabled():return ctx
     from .multi_day import applicable,day_requirements
     clock=clock or time.monotonic;deadline=clock()+15 if deadline is None else deadline
     own=provider is None;provider=provider or provider_from_environment()
-    quotes={};metrics={'cache_hits':0,'budget_skipped':0};initial_requests=provider.request_count
+    quotes={} if quotes is None else quotes
+    metrics={'cache_hits':0,'budget_skipped':0} if metrics is None else metrics
+    initial_requests=provider.request_count
     try:
         for day in req.days:
             daily=day_requirements(req,day,[g for g in req.goals if applicable(g,day)],
