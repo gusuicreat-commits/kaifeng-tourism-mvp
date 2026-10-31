@@ -6,13 +6,40 @@ from uuid import UUID,uuid5
 from fastapi import HTTPException
 from .. import exploration,exploration_state,basket,state,travel_services
 from ..schema import TZ
+from . import understand
 from .planning_intent import proposal
 from .dates import resolve_date
 
 QUICK_PLACE_ID='pl_mvp_kaifengfu_meeting'  # data/mvp/city-facts-reference-2026-10-25.json 开封府集合点，有坐标。
 QUICK_FIELDS=frozenset({'business_date','starts_at','ends_at','origin_place_id','destination_place_id'})
 LABELS={'date':'日期','start_time':'出发时间','end_time':'结束时间','origin':'出发地','destination':'返回地',
-        'budget_fen':'预算','mode':'出行方式','pace':'节奏','objective':'偏好','city':'城市','trip_days':'游玩天数'}
+        'budget_fen':'预算','mode':'出行方式','pace':'节奏','objective':'偏好','city':'城市','trip_days':'游玩天数',
+        'spice':'口味','interest':'兴趣','avoid':'不想安排的类别'}
+
+
+def _preference_question(t,constraints):
+    if t.body.interaction_mode!='deep' or constraints.get('preferences_asked'):return ''
+    preferences=constraints.get('preferences') or {}
+    items=[i for i in t.snapshot.materials if i['status']!='standby']
+    dining=any(i['fact_kind'] in ('food','vendor') or getattr(t.snapshot.planning.facts.get(
+        (i['fact_kind'],i['fact_id'])),'place_type',None)=='restaurant' for i in items)
+    spice=dining and not preferences.get('spice')
+    interests=len(items)>=2 and not preferences.get('interests') and not preferences.get('avoid')
+    if not spice and not interests:return ''
+    return '开始排之前问一下：'+('能吃辣吗？' if spice else '')+(
+        '更想多安排演出、美食、夜景还是景区古迹，有没有不想安排的？' if interests else '')+'直接说“都行”也可以。'
+
+
+def _preference_reply(constraints,result=None):
+    from ..preferences import CATEGORY_NAMES
+    preferences=constraints.get('preferences') or {};reply=''
+    if preferences.get('spice'):
+        reply+='已按“'+{'none':'不吃辣','mild':'微辣可以','any':'辣度都行'}[preferences['spice']]+'”核对口味。'
+    for key,label in (('interests','优先安排'),('avoid','不想安排的类别')):
+        if preferences.get(key):reply+=label+'：'+'、'.join(CATEGORY_NAMES[k] for k in preferences[key])+'。'
+    excluded=[i for i in ((result or {}).get('unscheduled') or {}).get('0',()) if i.get('reason_code')=='preference_excluded']
+    if excluded:reply+='按你的偏好没有安排：'+'、'.join(i['name']+'（'+i['reason']+'）' for i in excluded)+'。'
+    return reply
 
 
 
@@ -210,6 +237,27 @@ def _execute(session,t,intent,proposed=None):
         exploration_state.guard(db,t.trip_id,planning_version)
         if travel_services.read(db,t.trip_id)['version']!=service_version:
             raise HTTPException(409,detail={'code':'SERVICE_CONDITIONS_CHANGED'})
+    values=action['constraints']
+    if values.get('schema_version')=='city-constraints/2':
+        from .multi_day_intent import _questions
+        ready=not _questions(values)
+    else:
+        ready=all(values.get(k) for k in ('business_date','starts_at','ends_at')) and all(
+            values.get(role+'_place_id') or values.get(role+'_text') for role in ('origin','destination'))
+    question=_preference_question(t,values) if ready and not conflicts and not proposed.get('basket_proposal') and not proposed.get('basket_choices') else ''
+    if question:
+        from ...db import connect
+        values=dict(values,preferences_asked=True,preferences_pending=True)
+        with connect() as db:
+            db.execute('BEGIN IMMEDIATE');guard(db)
+            saved=exploration_state.save(db,t.trip_id,values,None,t.snapshot.workspace.get('rounds',0))
+        from ..assistant import context as assistant_context
+        t.snapshot=assistant_context.load(session,t.trip_id,'modify',t.text)
+        return {'status':'needs_clarification','reply':question+''.join(proposed.get('notes',[])),
+            'formal_state_changed':False,'planning_workflow':{'trip_id':t.trip_id,'execution':'completed_backend',
+                'operation':action['operation'],'date_changed':action['date_changed'],'result':{
+                    'status':'needs_clarification','constraints':values,'planning_version':saved['version'],
+                    'basket_version':basket_version,'trip_version':action['trip_version'],'rounds':saved['rounds']}}}
     if action['constraints'].get('schema_version')=='city-constraints/2':
         from ..engine.models import MultiDayConstraints
         from .multi_day_intent import _questions
@@ -252,7 +300,8 @@ def _execute(session,t,intent,proposed=None):
         plan=(((result.get('result') or {}).get('itineraries') or [None])[0]) if result.get('status') in ('preview','feasible') else None
         return {'status':'needs_confirmation' if result.get('status') in ('preview','feasible') else 'needs_data',
             'reply':quick_reply+('多天方案已准备好，请核对整套行程后确认保存。' if result.get('status') in ('preview','feasible') else
-                     result.get('reply') or '当前条件未产生可确认的多天路线，请核对缺项或约束冲突。')+_budget_reply(
+                     result.get('reply') or '当前条件未产生可确认的多天路线，请核对缺项或约束冲突。')+_preference_reply(
+                         constraints.model_dump(mode='json'),result)+_budget_reply(
                          constraints.model_dump(mode='json'),plan,[{'activities':d['itinerary']['activities'],'legs':d['itinerary']['legs'],
                              'starts_at':d['requirements']['starts_at'],'ends_at':d['requirements']['ends_at']} for d in (plan or {}).get('days',())],
                          proposed.get('notes',[]),overnight=bool((plan or {}).get('overnights'))),
@@ -331,9 +380,10 @@ def _execute(session,t,intent,proposed=None):
             'origin':final.get('origin_place_id') or final.get('origin_text'),
             'destination':final.get('destination_place_id') or final.get('destination_text'),'budget_fen':final.get('budget_fen')}
     dropped=[LABELS[f] for f in dict.fromkeys(d['field'] for d in t.interpretation.get('dropped_fields',()) if d['check'] not in ('budget_basis_missing','choice_not_in_quote'))
-             if f in LABELS and f not in asked and not filled.get(f)]
+             if f in LABELS and f not in ('spice','interest','avoid') and f not in asked and not filled.get(f)]
     if dropped:reply+=f"另外，{'、'.join(dropped)}没听准，能再说一下吗？"
     plan=(((result.get('planning') or {}).get('result') or {}).get('itineraries') or [None])[0] if result['status']=='feasible' and not missing else None
+    reply+=_preference_reply(final)
     reply+=_budget_reply(final,plan,[{'activities':plan['activities'],'legs':plan['legs'],
         'starts_at':final.get('starts_at'),'ends_at':final.get('ends_at')}] if plan else [],proposed.get('notes',[]))
     return {'status':status,'reply':reply,'formal_state_changed':False,
@@ -347,6 +397,12 @@ def execute(session,t,intent,proposed=None):
         from .service import _preview_result
         return _preview_result(future_planning.preview(session,t.trip_id,t.snapshot,intent,t.id,t.text),t.snapshot,intent)
     result=_execute(session,t,intent,proposed)
+    if t.interpretation.get('preference_fallback'):
+        result['reply']='没有听出具体偏好，先按默认安排；之后想多安排或不想安排什么，随时告诉我。'+result.get('reply','')
+    labels={k:LABELS[k] for k in ('spice','interest','avoid')}
+    dropped=list(dict.fromkeys(labels[d['field']] for d in t.interpretation.get('dropped_fields',()) if d['field'] in labels
+        and not understand.dropped_field_overlaps(t.intent,t.interpretation,d['field'])))
+    if dropped:result['reply']+='有一项'+ '、'.join(dropped)+'条件没听准，本次未采用，请核对。'
     if any(d['check']=='budget_basis_missing' for d in t.interpretation.get('dropped_fields',())):
         result['reply']+='这笔预算是所有人合计，还是每人？'
     return result

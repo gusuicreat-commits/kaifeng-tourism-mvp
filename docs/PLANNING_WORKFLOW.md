@@ -2,6 +2,18 @@
 
 核对日期：2026-10-23。下面的交互规则以 [PRD](PRD.md) 为准；已有代码与验收边界见 [PROJECT_STATUS](PROJECT_STATUS.md)。产品要求不因代码已有分支就自动算通过。
 
+## E14 偏好对话理解与深度追问（2026-10-31，本地实现，待 Claude 验收）
+
+模型通过 `PlanningField.spice/interest/avoid` 理解偏好，逐项核对本轮原话，单日、多天共用合并逻辑：没提到的保留，同类别冲突按原话先后取最后一项。格式走样沿用挪位、去重与单项丢弃，未采用的偏好会在回复中说明；不通过关键词表推断口味或兴趣。
+
+深度模式在基础条件齐全、素材篮变更已确认后，按素材相关性只追问一次尚未明确的辣度或兴趣；`constraints.preferences_asked` 保存已问状态，单日转多天也保留。明确无偏向的类别可用 `interest/avoid=null` 标记已回答；快速模式不追问，主动表达的偏好仍生效。下一轮按已存条件预览，回复回显偏好，多天回复补充 E13 `unscheduled` 中的偏好排除名称与原因。共用回复气泡，不新增前端组件，不改 E13 的目标投影规则。
+
+追问同时保存 Agent 内部的 `preferences_pending`，仅下一轮模型输入带 `planning_readiness.awaiting=preferences`，理解结束后无论成功与否都清除。该轮若理解为 clarify 或没有可执行动作，就按已存条件预览并说明未听出具体偏好；餐馆搜索等已理解动作沿用原处理。辣度枚举 `hot/spicy` 归一为 `any`；丢弃内容的原话与本轮已采用字段任一方向包含时，不再提示该内容“没采用”。
+
+E14-fix2：`food` 只表示具体菜品，辣度由 `planning.fields.spice` 表达；本轮两者 quote 任一方向包含时移除重复 food 并记录 `duplicate_constraint`，没有 spice 时不推断。`interest/avoid` 的字符串或列表可按空白、逗号、顿号、斜杠拆开，所有分段均为合法类别才全部采用，否则整项丢弃，保留其他字段。
+
+验证入口：`backend/tests/test_preference_dialogue.py`，仅使用合成事实和模型替身；真实模型说法、浏览器与现场仍由 Claude 后续验收。
+
 ## E13 深度互动偏好进入规划（2026-10-31，待 Claude 验收）
 
 单日 `Constraints` 和 `MultiDayConstraints` 共用 `TripPreferences`，在工作区保存口味、兴趣与不想安排的类别；同类兴趣与排斥互斥，错误提示为中文。深度模式偏好步骤提供可取消的辣度单选及两组类别多选，选择一组时取消另一组同类，已知条件显示标签；快速模式不显示三组控件、不发送 `preferences`。

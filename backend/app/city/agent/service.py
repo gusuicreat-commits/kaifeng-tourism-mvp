@@ -20,7 +20,7 @@ from ...db import connect
 from ...memory.context import redact
 from ...memory.storage import stamp, encoded
 from ...memory.session import recheck
-from .. import state
+from .. import state, exploration_state
 from ..schema import TZ
 from ..assistant import context, interpret, service as v2service, tools as v2tools
 from ..assistant.models import CityChat
@@ -336,6 +336,42 @@ def _merge(intent,snapshot):
         return Understanding(unresolved=('待补充要求太多，请分开确认；未丢弃或放宽原有约束。',))
     return Understanding(actions=tuple({a.kind:a for a in (*previous.actions,*intent.actions)}.values()),
         constraints=tuple(merged),corrections=intent.corrections,unresolved=intent.unresolved)
+
+
+def _consume_preferences_pending(session,t):
+    """Consume the one-turn preference prompt marker before routing the answer."""
+    from .requirement_context import planning_values
+    values=planning_values(t.snapshot)
+    if not values.get('preferences_pending'):return False
+    values=dict(values,preferences_pending=False)
+    with connect() as db:
+        db.execute('BEGIN IMMEDIATE')
+        row=state.owned(db,session,t.trip_id);state.check_version(row,t.body.expected_version)
+        workspace=exploration_state.read(db,t.trip_id)
+        exploration_state.guard(db,t.trip_id,t.snapshot.workspace['version'])
+        saved=exploration_state.save(db,t.trip_id,values,None,workspace['rounds'])
+    # Only our own workspace write is fresh; concurrent basket/fact edits must
+    # still be caught by the ordinary snapshot check.
+    t.snapshot.workspace=saved
+    t.snapshot.envelope=t.snapshot.envelope.model_copy(update={
+        'planning_constraints':{k:saved[k] for k in ('version','constraints','rounds')}})
+    return True
+
+
+def _fallback_preferences_pending(t):
+    """Turn an unparsed answer into the ordinary saved-condition preview."""
+    intent=t.intent
+    if not t.interpretation.get('preferences_pending'):return False
+    planning=intent.planning
+    executable=bool(planning and (planning.fields or planning.choices or planning.operation in ('continue','weather_replan'))
+        or intent.constraints or intent.corrections or intent.service_query or intent.route_query
+        or intent.weather_query or intent.state_request or any(a.kind not in ('modify','preference') for a in intent.actions))
+    if t.mode!='clarify' and executable:return False
+    from .models import Action,PlanningIntent
+    t.intent=Understanding(actions=(Action(kind='modify',quote=t.text[:500]),),
+                           planning=PlanningIntent(operation='continue',quote=t.text[:500]))
+    t.mode='planning';t.interpretation['preference_fallback']=True
+    return True
 
 
 def _defer(session,t):
@@ -738,13 +774,16 @@ def _advance(session,trip_id,identity,body):
             from .requirement_context import read as requirement_view
             understood_versions=requirement_view(t.snapshot)['state_versions']
             t.interpretation_date=t.snapshot.envelope.identity.generated_at.astimezone(__import__('zoneinfo').ZoneInfo('Asia/Shanghai')).date()
-            intent,meta=understand.parse(t.text,t.snapshot)
+            try:intent,meta=understand.parse(t.text,t.snapshot)
+            finally:pending=_consume_preferences_pending(session,t)
             meta['state_versions']=understood_versions
             if t.cancelled:return public(t)
             t.model_calls+=meta['model_calls'];t.usage.extend(meta['usage']);t.interpretation=meta
             t.intent=_merge(intent,t.snapshot)
+            t.interpretation['preferences_pending']=pending
             if not _fresh(session,t):return public(t)
             t.mode,questions=understand.route(t.intent,t.snapshot)
+            if _fallback_preferences_pending(t):questions=[]
             t.events[-1].update(status='ok',source=meta.get('source','mock_model'),fallback=meta['basis']=='rule_fallback',
                 request_sequence=1 if meta['model_calls'] else None,provider_failure=meta.get('provider_failure'))
             if meta.get('context_budget'):t.events[-1]['context_budget']=meta['context_budget']

@@ -95,10 +95,14 @@ def lodging_questions(values,locations,catalog):
 
 def prepare(session,trip_id,snapshot,intent,text,*,today=None,notes=(),_nested=False):
     from .requirement_context import planning_values
-    from .planning_intent import proposal,_resolve_endpoint,_choice_facts,_fact_names
+    from .planning_intent import proposal,_resolve_endpoint,_choice_facts,_fact_names,apply_preferences
     p=intent.planning;today=today or snapshot.envelope.identity.generated_at.astimezone(TZ).date()
     base=planning_values(snapshot);multi=base.get('schema_version')=='city-constraints/2'
     values=MultiDayConstraints.model_validate(base if multi else {'schema_version':'city-constraints/2'}).model_dump(mode='json')
+    if not multi:
+        values.update(preferences=base.get('preferences'),preferences_asked=base.get('preferences_asked',False),
+                      preferences_pending=base.get('preferences_pending',False))
+    apply_preferences(values,p.fields,text)
     before=copy.deepcopy(values);notes=list(notes);fields=p.fields
     range_fields=[f for f in fields if f.field in ('date','start_date','end_date','trip_days','trip_nights')]
     if range_fields:values['clarifications']=[]

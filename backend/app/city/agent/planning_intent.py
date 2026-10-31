@@ -6,7 +6,26 @@ from .. import facts
 from ..schema import TZ
 from .models import PlanningIntent, PlanningField, BasketProposal, BasketProposalItem, BasketChoicePrompt, MaterialChoice, Action, Understanding
 from .dates import DATE_EXPRESSION, find_date_expressions, resolve_date
-from .evidence import request_evidence, effective_clock, preference_evidence
+from .evidence import request_evidence, query_evidence, effective_clock, preference_evidence
+
+PREFERENCE_FIELDS=('spice','interest','avoid')
+
+
+def apply_preferences(values,fields,text):
+    selected=[f for f in fields if f.field in PREFERENCE_FIELDS]
+    if not selected:return
+    from ..preferences import TripPreferences
+    preferences=TripPreferences.model_validate(values.get('preferences') or {}).model_dump(mode='json')
+    # Spoken order, rather than the model's field order, decides a correction.
+    for f in sorted(selected,key=lambda f:text.rfind(f.quote)+len(f.quote)):
+        if f.field=='spice':preferences['spice']=f.value
+        elif f.value is None:
+            values['preferences_asked']=True
+        else:
+            key,other=('interests','avoid') if f.field=='interest' else ('avoid','interests')
+            preferences[other]=[v for v in preferences[other] if v!=f.value]
+            if f.value not in preferences[key]:preferences[key].append(f.value)
+    values['preferences']=TripPreferences.model_validate(preferences).model_dump(mode='json')
 
 
 def _fact_names(fact,snapshot):
@@ -114,7 +133,7 @@ def grounded(planning, text, snapshot, dropped=None, meta=None, corrections=()):
     """
     today=snapshot.envelope.identity.generated_at.astimezone(TZ).date()
     if planning.quote not in text:raise ValueError('planning quote absent')
-    request_evidence(text,planning.quote)
+    (query_evidence if any(f.field in PREFERENCE_FIELDS for f in planning.fields) else request_evidence)(text,planning.quote)
     if planning.operation=='continue':
         if planning.fields or planning.choices:
             planning=planning.model_copy(update={'operation':'update'})
@@ -131,7 +150,16 @@ def grounded(planning, text, snapshot, dropped=None, meta=None, corrections=()):
                   and f.quote in text and _field_check(f,text,today) is None]
     multi=any(f.field in ('start_time','end_time','origin','destination') and not f.scope and not f.day_ref for f in planning.fields) \
         and multiple_days(planning_values(snapshot),range_fields,today)
-    seen={};kept=[];originals={}
+    seen={};kept=[];originals={};request_text=text
+    for f in planning.fields:
+        if f.field not in PREFERENCE_FIELDS:continue
+        try:query_evidence(text,f.quote)
+        except ValueError:continue
+        # A negative preference is an instruction about that category, not a
+        # denial of independent date/time updates elsewhere in this turn.
+        if not any(other.quote in f.quote for other in (*planning.fields,*planning.choices) if other is not f
+                   and getattr(other,'field',None) not in PREFERENCE_FIELDS):
+            request_text=request_text.replace(f.quote,' '*len(f.quote))
     def drop(item,field,check,part):
         dropped.append({'field':field,'check':check})
         if meta is not None:
@@ -145,7 +173,8 @@ def grounded(planning, text, snapshot, dropped=None, meta=None, corrections=()):
             if dropped is None:raise ValueError('planning evidence absent')
             drop(f,f.field,'quote_not_in_request','fields');continue
         try:
-            request_evidence(text,f.quote)
+            if f.field in PREFERENCE_FIELDS:query_evidence(text,f.quote)
+            else:request_evidence(request_text if f.quote in request_text else text,f.quote)
             try:
                 checked=scope_check(f,text)
                 if checked is not f:
@@ -172,6 +201,8 @@ def grounded(planning, text, snapshot, dropped=None, meta=None, corrections=()):
         if check is not None:
             if dropped is None:raise ValueError(check)
             drop(f,f.field,check,'fields');continue
+        if f.field in PREFERENCE_FIELDS:
+            kept.append(f);continue
         if multi and f.field in ('start_time','end_time','origin','destination') and not f.scope and not f.day_ref \
                 and len({item.value for item in planning.fields if item.field==f.field})==1 and daily_evidence(f.quote,text,f):
             f=f.model_copy(update={'scope':'every_day'});key=(f.field,day_key(f,today))
@@ -451,6 +482,7 @@ def proposal(session, trip_id, snapshot, intent, text, *, today=None, _nested=Fa
         if field in fields:values[field]=fields[field]
     if 'mode' in fields:values['modes']=[fields['mode']]
     notes+=per_person_budget(values,p,text)
+    apply_preferences(values,p.fields,text)
     validated=Constraints.model_validate(values)
     changes=[];ambiguities=[];asked=set()
     if p.choices:

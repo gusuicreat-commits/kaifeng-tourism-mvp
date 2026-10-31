@@ -221,7 +221,9 @@ def grounded(result,text,meta=None):
     for index,item in enumerate(result.actions):
         try:
             if item.quote not in text:raise ValueError('ungrounded evidence quote')
-            if item.kind in ('query','search_services','search_dining'):query_evidence(text,item.quote)
+            preference=bool(item.kind in ('modify','preference') and result.planning and item.quote==result.planning.quote
+                and any(f.field in planning_intent.PREFERENCE_FIELDS for f in result.planning.fields))
+            if item.kind in ('query','search_services','search_dining') or preference:query_evidence(text,item.quote)
             else:request_evidence(text,item.quote)
         except ValueError as exc:reject(f'actions[{index}]',item,exc);continue
         try:
@@ -313,24 +315,33 @@ def failure(exc):
     return {'kind':'evidence','at':where,'check':message if _CODE.fullmatch(message) else 'unclassified'}
 
 
-PLANNING_FIELDS=('city','date','start_date','end_date','start_time','end_time','origin','destination','mode','budget_fen','trip_days','trip_nights')
+PLANNING_FIELDS=('city','date','start_date','end_date','start_time','end_time','origin','destination','mode','budget_fen','trip_days','trip_nights','spice','interest','avoid')
 
 
 # Plain-English synonyms the model uses for the enumerated preferences.
-_PREFERENCE_SYNONYMS={'pace':{'slow':'relaxed','slower':'relaxed','leisurely':'relaxed','normal':'standard','fast':'compact','tight':'compact'}}
+_PREFERENCE_SYNONYMS={
+    'pace':{'slow':'relaxed','slower':'relaxed','leisurely':'relaxed','normal':'standard','fast':'compact','tight':'compact'},
+    'spice':{'hot':'any','spicy':'any'},
+}
 
 
 def _canonical_preferences(raw):
-    """Map synonym values ("slow") to the enum ("relaxed"); the quote is still checked against cues."""
+    """Normalize enum synonyms and split category values; evidence checks still apply."""
     def fix(item):
-        if not isinstance(item,dict):return item
+        if not isinstance(item,dict):return [item]
         field=item.get('field');original=item.get('value')
+        if field in ('interest','avoid') and isinstance(original,(str,list)):
+            values=original if isinstance(original,list) else [original]
+            if values and all(isinstance(v,str) and v.strip() for v in values):
+                parts=[p for v in values for p in re.split(r'[\s,，、/]+',v) if p]
+                if parts and all(p in ('shows','food','night','scenic') for p in parts):
+                    return [dict(item,value=p) for p in parts]
         value=_PREFERENCE_SYNONYMS.get(field,{}).get(original) if isinstance(field,str) and isinstance(original,str) else None
-        return dict(item,value=value) if value else item
-    if isinstance(raw.get('constraints'),list):raw=dict(raw,constraints=[fix(c) for c in raw['constraints']])
+        return [dict(item,value=value) if value else item]
+    if isinstance(raw.get('constraints'),list):raw=dict(raw,constraints=[f for c in raw['constraints'] for f in fix(c)])
     planning=raw.get('planning')
     if isinstance(planning,dict) and isinstance(planning.get('fields'),list):
-        raw=dict(raw,planning=dict(planning,fields=[fix(f) for f in planning['fields']]))
+        raw=dict(raw,planning=dict(planning,fields=[f for item in planning['fields'] for f in fix(item)]))
     return raw
 
 
@@ -402,6 +413,7 @@ def _drop(meta,path,category,reason,quote=None,*,field=None):
     """Keep a full audit entry while retaining the old compact dropped_fields API."""
     entry={'path':path,'category':category,'reason':reason}
     if quote:entry['quote']=quote
+    if field:entry['field']=field
     meta.setdefault('dropped',[]).append(entry)
     field=field or (path.removeprefix('planning.') if path.startswith('planning.') and '[' not in path else path)
     compact={'field':field,'check':reason}
@@ -413,6 +425,17 @@ def _drop_category(reason):
     if any(token in reason for token in ('negated','hypothetical','quoted','authorization','consent')):return 'B'
     if any(token in reason for token in ('quote','evidence','not_in_quote','invented','absent','value_not','duration_')):return 'A'
     return 'C'
+
+
+def dropped_field_overlaps(intent, meta, field):
+    """Return true when a dropped quote is covered by an adopted field quote."""
+    accepted=[]
+    if intent.planning:accepted.extend(f.quote for f in intent.planning.fields)
+    if intent.service_query:accepted.extend(f.quote for f in intent.service_query.fields)
+    accepted.extend(c.quote for c in intent.constraints)
+    items=[item for item in meta.get('dropped',()) if item.get('field')==field]
+    return bool(items) and all(isinstance(item.get('quote'),str)
+        and any(item['quote'] in quote or quote in item['quote'] for quote in accepted) for item in items)
 
 
 def _validation_reason(exc):
@@ -658,7 +681,7 @@ def dropped_reply(intent,meta,text):
         coverage=quotes
         if item['path']=='state_request.start_time' and intent.state_request:
             coverage=[q for q in quotes if q!=intent.state_request.quote]
-        if any(quote in kept for kept in coverage):continue
+        if any(quote in kept or kept in quote for kept in coverage):continue
         seen.add(quote);notices.append('这部分我没采用：『'+quote+'』（'+reasons[item['category']]+'）。')
     return ''.join(notices)
 
@@ -670,7 +693,8 @@ def _normalize_model_output(raw,text=None,meta=None):
     impossible values (e.g. meal_at="第一楼", visit_at="开封府",
     objective="全程步行"). Those copies duplicate facts already in
     planning.fields or planning.choices, and their malformed value would reject
-    an otherwise-valid turn. Well-formed constraints are always preserved, but
+    an otherwise-valid turn. Food copies sharing spice evidence are duplicates too.
+    Other well-formed constraints are preserved, but
     defaults invented without a grounding cue (e.g. objective="balanced" quoting
     "全程步行") are dropped too.
     """
@@ -691,7 +715,8 @@ def _normalize_model_output(raw,text=None,meta=None):
     if not isinstance(raw_constraints,(list,tuple)):
         return raw
     # Date, time, endpoints, mode and budget have one home: planning.fields.
-    moved=[c for c in raw_constraints if isinstance(c,dict) and c.get('field') in PLANNING_FIELDS and c.get('value') is not None and c.get('quote')]
+    moved=[c for c in raw_constraints if isinstance(c,dict) and c.get('field') in PLANNING_FIELDS
+           and (c.get('value') is not None or c.get('field') in planning_intent.PREFERENCE_FIELDS) and c.get('quote')]
     if moved:
         planning=dict(raw['planning']) if isinstance(raw.get('planning'),dict) else {'operation':'update','quote':moved[0]['quote']}
         existing=planning.get('fields',[])
@@ -705,10 +730,11 @@ def _normalize_model_output(raw,text=None,meta=None):
         raw=dict(raw,planning=planning,constraints=[c for c in raw_constraints if c not in moved])
         raw_constraints=raw['constraints']
     planning=raw.get('planning')
-    planning_fields={};window_quotes={}
+    planning_fields={};window_quotes={};spice_quotes=[]
     if isinstance(planning,dict):
         for f in planning.get('fields') if isinstance(planning.get('fields'),(list,tuple)) else []:
             if isinstance(f,dict) and isinstance(f.get('field'),str) and 'value' in f:
+                if f['field']=='spice' and isinstance(f.get('quote'),str) and f['quote']:spice_quotes.append(f['quote'])
                 if text is not None:
                     try:
                         request_evidence(text,planning.get('quote'));request_evidence(text,f.get('quote'))
@@ -723,6 +749,8 @@ def _normalize_model_output(raw,text=None,meta=None):
         if not isinstance(c,dict):
             kept.append(c);continue
         field=c.get('field');val=c.get('value')
+        if field=='food' and isinstance(c.get('quote'),str) and c['quote'] and any(c['quote'] in q or q in c['quote'] for q in spice_quotes):
+            discarded('duplicate_constraint');continue
         if field not in ('food','preserve_shows','walking_seconds','return_by','meal_at','visit_at','objective','pace'):
             discarded('invalid_constraint');continue
         if field in ('meal_at','return_by','visit_at') and val is not None:
