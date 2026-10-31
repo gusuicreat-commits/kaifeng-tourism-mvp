@@ -66,7 +66,9 @@ def validate_multi_day(req,ctx,plan):
     if expected_budget:
         if plan.budget!=expected_budget or plan.known_cost_upper_fen!=expected_budget.known_total_fen or plan.cost_unknown!=bool(expected_budget.unknown_items):
             fail('COST_TOTAL','全程费用、单位或报价快照与服务端核算不一致')
-        if expected_budget.hard_limit and expected_budget.status in ('unknown','over'):fail('BUDGET','全程费用未知或超过硬预算')
+        if expected_budget.hard_limit and (expected_budget.status=='over' or
+                                           (expected_budget.status=='unknown' and not getattr(ctx,'demo_reference',False))):
+            fail('BUDGET','全程费用未知或超过硬预算')
     else:
         if plan.budget is not None:fail('COST_TOTAL','旧口径行程不能自行提供全程预算结果')
         if plan.known_cost_upper_fen!=sum(d.itinerary.known_cost_upper_fen for d in plan.days):fail('COST_TOTAL','全程已知费用汇总不一致')

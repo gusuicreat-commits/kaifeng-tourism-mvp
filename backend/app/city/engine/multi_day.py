@@ -142,6 +142,8 @@ def plan_multi_day(req,ctx,*,clock=None,deadline=None):
     def timeout():
         if deadline is not None and clock()>=deadline:plans.clear()
         metrics.update(search_truncated=True,timeout_scope='whole_trip')
+        if not plans and failures and all(r.issues and all(i.code in ('BUDGET_OVER','BUDGET_UNKNOWN') for i in r.issues) for r in failures):
+            return response('needs_data',failures[0].issues)
         return response('feasible' if plans else 'timeout',() if plans else (
             Issue(code='SEARCH_TIMEOUT',message='全程限时或有界分配搜索未穷尽；未找到完整方案不证明无解'),))
     try:validate_overnights(req.days,req.overnights,complete=True)
@@ -212,7 +214,8 @@ def plan_multi_day(req,ctx,*,clock=None,deadline=None):
                     requirements=dayreq,itinerary=result.itineraries[0].model_copy(update={'objectives':()})))
             if len(days)!=len(req.days):continue
             plan=assemble(req,days,objective,ctx)
-            if plan.budget and plan.budget.hard_limit and plan.budget.status in ('over','unknown'):
+            demo_unknown=bool(getattr(ctx,'demo_reference',False) and plan.budget and plan.budget.status=='unknown')
+            if plan.budget and plan.budget.hard_limit and (plan.budget.status=='over' or plan.budget.status=='unknown' and not demo_unknown):
                 failures.append(SolveResultV2(schema_version='city-engine-result/2',status='needs_data',computed_at=ctx.assessed_at,
                     issues=(Issue(code='BUDGET_OVER' if plan.budget.status=='over' else 'BUDGET_UNKNOWN',
                         message='当前有界搜索未找到满足全程预算的方案；不证明全局无解。' if plan.budget.status=='over' else '全程费用尚有未知，不能确认满足硬预算。'),)))
