@@ -28,15 +28,14 @@ class Provider:
     def close(self):self.closed+=1
 
 
-@pytest.fixture
-def trip(monkeypatch):
-    req,ctx=multi_sample(case(5),3,alternatives=1)
+def travel_trip(monkeypatch,count=5,days=3):
+    req,ctx=multi_sample(case(count),days,alternatives=1)
     data=req.model_dump()
     for d in data['days']:d.update(origin_place_id='origin',destination_place_id='origin')
     for o in data['overnights']:o['place_id']='origin'
     for g in data['goals']:g['required']=True
     records={k:r.model_copy(update={'is_demo':False}) for k,r in ctx.facts.items()}
-    for i in range(5):
+    for i in range(count):
         key=('place',f'candidate:{i}')
         records[key]=records[key].model_copy(update={'longitude':114.31+i*.001})
     records['source',live_travel.SOURCE_ID]=records['source','fixture:source'].model_copy(update={'fact_id':live_travel.SOURCE_ID})
@@ -45,6 +44,25 @@ def trip(monkeypatch):
     monkeypatch.setenv('AMAP_PLANNING_ENABLED','1')
     sleeps=[];monkeypatch.setattr(live_travel.time,'sleep',sleeps.append)
     return MultiDayRequirements.model_validate(data),ctx,sleeps
+
+
+@pytest.fixture
+def trip(monkeypatch):
+    return travel_trip(monkeypatch)
+
+
+class Clock:
+    def __init__(self):self.elapsed=0;self.sleeps=[]
+    def __call__(self):return self.elapsed
+    def sleep(self,seconds):self.sleeps.append(seconds);self.elapsed+=seconds
+
+
+class TimedProvider(Provider):
+    def __init__(self,clock,seconds=1,**kwargs):
+        super().__init__(**kwargs);self.clock=clock;self.seconds=seconds
+    def estimate(self,*args):
+        result=super().estimate(*args);self.clock.elapsed+=self.seconds
+        return result
 
 
 def day_journeys(ctx,req,day):
@@ -125,6 +143,74 @@ def test_quotes_do_not_survive_an_enrich_call_and_request_log_is_per_call(trip,c
         live_travel.enrich(ctx,req,provider=provider)
     assert provider.request_count==60
     assert caplog.text.count('provider_requests=30 cache_hits=60')==2
+
+
+@pytest.mark.parametrize('budget',['request_deadline','wait_deadline','requests'])
+def test_partial_first_day_keeps_cached_arcs_on_second_day(monkeypatch,caplog,budget):
+    req,ctx,_=travel_trip(monkeypatch,days=2);clock=Clock()
+    monkeypatch.setattr(live_travel.time,'sleep',clock.sleep)
+    provider=TimedProvider(clock,seconds=2 if budget=='request_deadline' else 1,
+                           max_requests=7 if budget=='requests' else 60)
+    deadline=100 if budget=='requests' else 15
+    with caplog.at_level('INFO',logger=live_travel.__name__):
+        enriched=live_travel.enrich(ctx,req,provider=provider,clock=clock,deadline=deadline)
+    count=12 if budget=='wait_deadline' else 7
+    ids=live_travel.selected_places(daily(req,req.days[0]),ctx)
+    expected=set([(a,b) for a in ids for b in ids if a!=b][:count])
+    assert provider.request_count==count
+    assert all(call[-1].date()==req.days[0].business_date for call in provider.calls)
+    assert clock.sleeps==[provider.interval]*(count if budget=='wait_deadline' else count-1)
+    for day in req.days:
+        journeys=day_journeys(enriched,req,day)
+        assert {(j.travel.origin_place_id,j.travel.destination_place_id)
+                for j in journeys if j.estimated_seconds}==expected
+        assert all(j.journey_id.startswith(f'amap:day:{day.business_date}:') for j in journeys)
+        assert all(j.travel.evidence.valid_until>day.ends_at for j in journeys)
+    skipped=72-len(enriched.operations.journeys)
+    assert f'provider_requests={count} cache_hits={count} budget_skipped={skipped}' in caplog.text
+    assert skipped>0
+
+
+@pytest.mark.parametrize('deadline,limit,requests,journeys',[
+    (0,60,0,0),(1,60,1,2),(1.25,60,1,2),(15,60,12,15),
+    (None,0,0,1),(None,1,1,2),(None,5,5,6),(None,6,6,8),(None,7,7,9)])
+def test_single_day_budget_keeps_original_journey_prefix(trip,monkeypatch,caplog,deadline,limit,requests,journeys):
+    req,ctx,_=trip;day=daily(req,req.days[0])
+    complete=live_travel.enrich(ctx,day,provider=Provider())
+    clock=Clock();provider=TimedProvider(clock,max_requests=limit)
+    monkeypatch.setattr(live_travel.time,'sleep',clock.sleep)
+    with caplog.at_level('INFO',logger=live_travel.__name__):
+        enriched=live_travel.enrich(ctx,day,provider=provider,clock=clock,deadline=deadline)
+    assert provider.request_count==requests
+    assert enriched.operations.journeys==complete.operations.journeys[:journeys]
+    assert f'budget_skipped={36-journeys}' in caplog.text
+
+
+def test_two_day_preview_uses_cached_arcs_after_first_day_deadline(client,monkeypatch,caplog):
+    req,ctx,_=travel_trip(monkeypatch,count=6,days=2)
+    with connect() as db:
+        facts.import_bundle(facts.FactBundle(records=tuple(ctx.facts.values())),db,apply=True)
+        import_operations(db,ctx.operations,facts.records(db),apply=True)
+    clock=Clock();provider=TimedProvider(clock,seconds=.15)
+    monkeypatch.setattr(live_travel.time,'sleep',clock.sleep)
+    monkeypatch.setattr(live_travel,'provider_from_environment',lambda:provider)
+    enrich=live_travel.enrich
+    monkeypatch.setattr(live_travel,'enrich',lambda *args,**kwargs:enrich(*args,**kwargs,clock=clock))
+    monkeypatch.setattr(service,'now',lambda:ctx.assessed_at)
+    client.post('/api/v1/sessions')
+    trip=client.post('/api/city/v1/trips',json={'request_id':rid(),'draft':{}}).json()
+    with caplog.at_level('INFO',logger=live_travel.__name__):
+        response=client.post(f"/api/city/v1/trips/{trip['id']}/engine/preview",json={
+            'request_id':rid(),'expected_version':trip['version'],'requirements':req.model_dump(mode='json')})
+    assert response.status_code==200,response.text
+    result=response.json()
+    assert result['status']=='preview' and result['result']['status']=='feasible',result
+    assert clock.elapsed>=15 and provider.request_count==38<42 and provider.closed==1
+    assert all(call[-1].date()==req.days[0].business_date for call in provider.calls)
+    assert 'provider_requests=38 cache_hits=38' in caplog.text
+    for plan in result['result']['itineraries']:
+        assert len(plan['days'])==2 and all(day['itinerary']['activities'] for day in plan['days'])
+        assert sorted(a['goal_id'] for day in plan['days'] for a in day['itinerary']['activities'])==sorted(g.goal_id for g in req.goals)
 
 
 def test_three_day_preview_with_five_places_fits_sixty_request_budget(trip,client,monkeypatch):

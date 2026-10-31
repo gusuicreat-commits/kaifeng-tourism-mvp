@@ -89,18 +89,17 @@ def enrich(ctx, req, *, provider=None, deadline=None, clock=None):
     from .multi_day import applicable,day_requirements
     clock=clock or time.monotonic;deadline=clock()+15 if deadline is None else deadline
     own=provider is None;provider=provider or provider_from_environment()
-    quotes={};metrics={'cache_hits':0};initial_requests=provider.request_count
+    quotes={};metrics={'cache_hits':0,'budget_skipped':0};initial_requests=provider.request_count
     try:
         for day in req.days:
-            if clock()>=deadline:break
             daily=day_requirements(req,day,[g for g in req.goals if applicable(g,day)],
                                    day.objective or req.objective,req.solve_seconds)
             ctx=_enrich_day(ctx,daily,provider=provider,deadline=deadline,clock=clock,dated=True,
                             quotes=quotes,metrics=metrics)
         return ctx
     finally:
-        logger.info('Multi-day travel estimates: provider_requests=%s cache_hits=%s',
-                    provider.request_count-initial_requests,metrics['cache_hits'])
+        logger.info('Multi-day travel estimates: provider_requests=%s cache_hits=%s budget_skipped=%s',
+                    provider.request_count-initial_requests,metrics['cache_hits'],metrics['budget_skipped'])
         if own:provider.close()
 
 
@@ -119,7 +118,7 @@ def _enrich_day(ctx, req, *, provider=None, deadline=None, clock=None, dated=Fal
         if own: provider.close()
         return ctx
     checked = ctx.assessed_at
-    clock=clock or time.monotonic
+    clock=clock or time.monotonic;stopped=False;skipped=0
     evidence = Evidence(evidence_id='amap:planning', revision='1', kind='estimate',
                         source='AMap Web Service v5', checked_at=checked, valid_from=checked,
                         valid_until=max(req.ends_at + timedelta(seconds=1), checked + timedelta(minutes=15)))
@@ -145,9 +144,13 @@ def _enrich_day(ctx, req, *, provider=None, deadline=None, clock=None, dated=Fal
                     origin, destination, boundaries = to_gcj02(ctx.facts['place', a]), to_gcj02(ctx.facts['place', b]), []
                 for mode in req.modes:
                     quote = None
-                    if deadline is not None and clock()>=deadline:
-                        return replace(ctx,operations=ctx.operations.model_copy(update={'journeys':tuple(journeys)}))
+                    expired=deadline is not None and clock()>=deadline
+                    # Uncached calls keep the old prefix, including zero-distance hops.
+                    if quotes is None and (stopped or expired):
+                        stopped=True;skipped+=1;continue
                     if (origin.longitude, origin.latitude) == (destination.longitude, destination.latitude):
+                        if expired:
+                            skipped+=1;continue
                         seconds, metres, buffer = 0, 0, 0
                     else:
                         quote_key=(origin.longitude,origin.latitude,destination.longitude,destination.latitude,
@@ -156,11 +159,13 @@ def _enrich_day(ctx, req, *, provider=None, deadline=None, clock=None, dated=Fal
                             quote=quotes[quote_key]
                             if metrics is not None:metrics['cache_hits']+=1
                         else:
+                            if expired or provider.request_count>=getattr(provider,'max_requests',60):
+                                stopped=True;skipped+=1;continue
                             if provider.request_count:
                                 time.sleep(provider.interval)
                             if (deadline is not None and clock()>=deadline
                                     or provider.request_count>=getattr(provider,'max_requests',60)):
-                                return replace(ctx,operations=ctx.operations.model_copy(update={'journeys':tuple(journeys)}))
+                                stopped=True;skipped+=1;continue
                             quote = provider.estimate(origin, destination, mode, req.starts_at, checked)
                             if quotes is not None:quotes[quote_key]=quote
                         if quote.status != 'estimated' or quote.duration_seconds is None or not quote.geometry_available:
@@ -183,6 +188,8 @@ def _enrich_day(ctx, req, *, provider=None, deadline=None, clock=None, dated=Fal
                         tolls_fen=(quote.tolls_fen if quote else 0) if mode=='driving' else None,
                         vehicle_cost_source='amap_taxi_estimate' if mode=='driving' and quote and quote.taxi_cost_fen is not None else None))
     finally:
+        if metrics is not None:metrics['budget_skipped']+=skipped
+        logger.info('Daily travel estimates: date=%s budget_skipped=%s',req.business_date,skipped)
         if own: provider.close()
     return replace(ctx, operations=ctx.operations.model_copy(update={'journeys':tuple(journeys)}))
 
