@@ -952,7 +952,7 @@ def parse(text,snapshot,*,allow_model=True):
         if result.conversation:
             # Conversation is an answer part and may coexist with typed requests.
             if not result.conversation.reply.strip():raise ValueError('empty conversation reply')
-        if result.planning and result.planning.operation=='update' and not any(f.field=='date' for f in result.planning.fields):
+        if result.planning and result.planning.operation=='update' and not any(f.field in ('date','start_date','end_date') for f in result.planning.fields):
             # On long multi-part turns ("我准备周末…玩两天…酒店…") the live model can leave
             # the date out. The shared date grammar supplies it only when the planning
             # quote holds exactly one date expression that is not the hotel request's own;

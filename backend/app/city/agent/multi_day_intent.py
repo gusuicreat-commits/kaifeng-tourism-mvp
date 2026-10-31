@@ -38,6 +38,43 @@ def _questions(values):
     return list(dict.fromkeys(questions))
 
 
+def link_overnights(values):
+    """Derive user-place overnights from adjacent, matching daily endpoints."""
+    nights=[]
+    for a,b in zip(values.get('days',()),values.get('days',())[1:]):
+        place=a.get('destination_place_id');other=b.get('origin_place_id')
+        if place and other and place==other:
+            nights.append({
+                'overnight_id':'night:'+a['business_date'],'from_day_id':'day:'+a['business_date'],
+                'to_day_id':'day:'+b['business_date'],'night_date':a['business_date'],'place_id':place,'source_kind':'user_place'})
+    values['overnights']=nights
+    return values
+
+
+def apply_day_fields(values,catalog):
+    from .planning_intent import _resolve_endpoint
+    start=date.fromisoformat(values['start_date']) if values.get('start_date') else None
+    end=date.fromisoformat(values['end_date']) if values.get('end_date') else None
+    remaining=[]
+    for f in values['pending_fields']:
+        if not start or not end or not (f.get('scope') or f.get('day_ref')):
+            remaining.append(f);continue
+        selected=values['days'] if f.get('scope') else [d for d in values['days'] if date.fromisoformat(d['business_date'])==date_range.date_for_ref(f['day_ref'],start,end)]
+        if not selected:
+            remaining.append(f);values['clarifications'].append('指定的日不在这趟日期范围内，请核对。');continue
+        for d in selected:
+            key={'start_time':'starts_at','end_time':'ends_at','origin':'origin_place_id','destination':'destination_place_id'}[f['field']]
+            if f['field'].endswith('_time'):
+                d[key]=d['business_date']+'T'+f['value']+':00+08:00' if f['value'] else None
+                if d.get('starts_at') and d.get('ends_at') and d['ends_at']<=d['starts_at']:
+                    d[key]=None;values['clarifications'].append(d['business_date']+'结束时间须晚于开始时间，请核对。')
+            else:
+                place,_=_resolve_endpoint(catalog,f['value']) if f['value'] else (None,False)
+                d[key]=place.fact_id if place else None;d[f['field']+'_text']=None if place else f['value']
+    values['pending_fields']=remaining
+    return values
+
+
 def lodging_questions(values,locations,catalog):
     from .planning_intent import _resolve_endpoint
     days=values.get('days',[]);questions=[]
@@ -132,31 +169,10 @@ def prepare(session,trip_id,snapshot,intent,text,*,today=None,notes=(),_nested=F
             price['total_budget_fen']=f.value;values['pricing']=price
         elif f.field=='city' and f.value not in ('开封','开封市'):
             return {'status':'needs_data','reply':'目前只支持开封的行程。'}
-    remaining=[]
-    for f in pending:
-        if not start or not end or not (f.get('scope') or f.get('day_ref')):
-            remaining.append(f);continue
-        selected=values['days'] if f.get('scope') else [d for d in values['days'] if date.fromisoformat(d['business_date'])==date_range.date_for_ref(f['day_ref'],start,end)]
-        if not selected:
-            remaining.append(f);values['clarifications'].append('指定的日不在这趟日期范围内，请核对。');continue
-        for d in selected:
-            key={'start_time':'starts_at','end_time':'ends_at','origin':'origin_place_id','destination':'destination_place_id'}[f['field']]
-            if f['field'].endswith('_time'):
-                d[key]=d['business_date']+'T'+f['value']+':00+08:00' if f['value'] else None
-                if d.get('starts_at') and d.get('ends_at') and d['ends_at']<=d['starts_at']:
-                    d[key]=None;values['clarifications'].append(d['business_date']+'结束时间须晚于开始时间，请核对。')
-            else:
-                place,_=_resolve_endpoint(snapshot.planning.facts,f['value']) if f['value'] else (None,False)
-                d[key]=place.fact_id if place else None;d[f['field']+'_text']=None if place else f['value']
-    values['pending_fields']=remaining
+    values['pending_fields']=pending
+    values=apply_day_fields(values,snapshot.planning.facts)
     # A known overnight boundary joins the two adjacent endpoints; no hotel selection is promoted.
-    nights=[]
-    for a,b in zip(values['days'],values['days'][1:]):
-        place=a.get('destination_place_id');other=b.get('origin_place_id')
-        if place and other and place==other:
-            nights.append({'overnight_id':'night:'+a['business_date'],'from_day_id':'day:'+a['business_date'],
-                'to_day_id':'day:'+b['business_date'],'night_date':a['business_date'],'place_id':place,'source_kind':'user_place'})
-    values['overnights']=nights
+    values=link_overnights(values)
     from ...db import connect
     from ..hotel_binding import project
     with connect() as db:
