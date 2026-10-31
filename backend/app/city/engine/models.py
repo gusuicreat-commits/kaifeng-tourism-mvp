@@ -252,6 +252,8 @@ class MultiDayRequirements(DateRange):
     access_confirmations: tuple[DatedAccessConfirmation,...] = Field(default=(),max_length=60)
     show_buffer_seconds: int = Field(default=300,ge=0,le=3600)
     solve_seconds: float = Field(default=1,ge=0.05,le=3)
+    trip_solve_seconds: float | None = Field(default=None,ge=0.05,le=9,
+        description='多天整趟搜索的总时间（秒）；为空时按 min(3, 天数) 秒。')
     alternatives: int = Field(default=3,ge=1,le=3)
     pricing: PricingOptions | None = None
 

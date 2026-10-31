@@ -1766,6 +1766,21 @@
           "title": "Solve Seconds",
           "type": "number"
         },
+        "trip_solve_seconds": {
+          "anyOf": [
+            {
+              "maximum": 9,
+              "minimum": 0.05,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "多天整趟搜索的总时间（秒）；为空时按 min(3, 天数) 秒。",
+          "title": "Trip Solve Seconds"
+        },
         "alternatives": {
           "default": 3,
           "maximum": 3,
