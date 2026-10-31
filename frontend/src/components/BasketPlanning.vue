@@ -13,7 +13,7 @@ import {interactionModes,readMode,writeMode,type InteractionMode} from '../inter
 const props=defineProps<{tripId:string;revision?:number;autoPlan?:boolean;workflowResult?:PlanningReply|null}>(),emit=defineEmits<{busy:[value:boolean];complete:[];close:[]}>()
 const initializing=ref(true),confirming=ref(false),conversation=ref<HTMLElement>()
 let disposed=false,requestSequence=0
-const busy=ref(false),error=ref(''),result=ref<PlanningResult|null>(null),selected=ref(0),day=ref(''),start=ref(''),end=ref(''),budget=ref(''),rounds=ref(0),cancelled=ref(false)
+const busy=ref(false),error=ref(''),result=ref<PlanningResult|null>(null),selected=ref(0),day=ref(''),start=ref(''),end=ref(''),budget=ref<string|number>(''),rounds=ref(0),cancelled=ref(false)
 const submittedHash=ref(''),planningVersion=ref(0)
 const form=ref<PlanningConstraints>({business_date:null,starts_at:null,ends_at:null,origin_place_id:null,destination_place_id:null,pace:'standard',objective:'balanced',modes:['walking'],budget_fen:null})
 interface DayForm{day_id:string;business_date:string;starts_at:string|null;ends_at:string|null;origin_place_id:string|null;destination_place_id:string|null;origin_text?:string|null;destination_text?:string|null}
@@ -110,7 +110,7 @@ const omittedText=(index:number)=>{
 }
 function params():PlanningInput{
  if(multiForm.value)return copy(multiForm.value)
- const c={...form.value,business_date:day.value||null,starts_at:day.value&&start.value?day.value+'T'+start.value+':00+08:00':null,ends_at:day.value&&end.value?day.value+'T'+end.value+':00+08:00':null,budget_fen:budget.value.trim()?Math.round(Number(budget.value)*100):null}
+ const c={...form.value,business_date:day.value||null,starts_at:day.value&&start.value?day.value+'T'+start.value+':00+08:00':null,ends_at:day.value&&end.value?day.value+'T'+end.value+':00+08:00':null,budget_fen:String(budget.value).trim()?Math.round(Number(budget.value)*100):null}
  if(tripDays.value===1||!validDays.value)return c
  const days=Array.from({length:tripDays.value},(_,i)=>{
   const date=new Date(day.value+'T12:00:00+08:00');date.setUTCDate(date.getUTCDate()+i)

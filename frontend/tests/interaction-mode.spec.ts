@@ -1,6 +1,6 @@
 import {test,expect,type Page} from '@playwright/test'
 import type {Basket} from '../src/basketApi'
-import type {PlanningInput,PlanningConstraints,PlanningResult,PlanningWorkspace} from '../src/explorationApi'
+import type {EnginePreview,PlanningInput,PlanningConstraints,PlanningResult,PlanningWorkspace} from '../src/explorationApi'
 
 const routePlaces=[['pl_wb_000003','开封府'],['pl_wb_vendor_000001','第一楼寺后街店'],['pl_wb_000013','鼓楼夜市']]
 async function prepare(page:Page,empty=false,complete=false,planning=true){
@@ -199,4 +199,26 @@ test('天数只接受1到3的整数，跨年多天沿用深度偏好与预算',a
  await expect(page.getByLabel('规划检测结果')).toContainText('合成规划请求已收到')
  expect(previews.at(-1)).toMatchObject({schema_version:'city-constraints/2',start_date:'2030-12-31',end_date:'2031-01-02',trip_days:3,days:[{business_date:'2030-12-31'},{business_date:'2031-01-01'},{business_date:'2031-01-02'}],pace:'relaxed',objective:'less_walking',modes:['transit'],party_size:3,pricing:{total_budget_fen:100000,party_size:3,hard_limit:true}})
  expect(previews.at(-1)).not.toHaveProperty('goals');expect(previews.at(-1)).not.toHaveProperty('overnights')
+})
+
+for(const days of [1,3])test(days+'天填写预算后显示引擎unknown回复，零预算也保留',async({page})=>{
+ const {trip,path,previews}=await prepare(page);await fillDay(page,days)
+ await page.route('**'+path+'/exploration/preview',async route=>{
+  const body=route.request().postDataJSON();previews.push(body.constraints)
+  const result:EnginePreview={status:'unknown',candidate_id:null,base_version:trip.version,planning_version:body.planning_version+1,basket_version:1,trip_version:trip.version,constraints:body.constraints,reply:'合成引擎回复：交通资料不足，请核对条件',result:{status:'unknown',itineraries:[],warnings:[],metrics:{}}}
+  await route.fulfill({json:result})
+ })
+ const form=page.locator('.planning-question'),assessment=page.getByLabel('规划检测结果')
+ await form.getByRole('button',{name:'深度互动',exact:false}).click()
+ await form.getByLabel('预算上限（选填）',{exact:true}).fill('125')
+ await form.getByRole('button',{name:'继续',exact:true}).click()
+ await form.getByRole('button',{name:'生成安排',exact:true}).click()
+ await expect(assessment).toContainText('合成引擎回复：交通资料不足，请核对条件')
+ expect(previews.at(-1)).toMatchObject(days===1?{budget_fen:12500}:{pricing:{total_budget_fen:12500}})
+ await page.getByLabel('已提供的安排').getByRole('button',{name:'适中 · 步行',exact:true}).click()
+ await form.getByLabel('预算上限（选填）',{exact:true}).fill('0')
+ await form.getByRole('button',{name:'继续',exact:true}).click()
+ await form.getByRole('button',{name:'生成安排',exact:true}).click()
+ await expect(assessment).toContainText('合成引擎回复：交通资料不足，请核对条件')
+ expect(previews.at(-1)).toMatchObject(days===1?{budget_fen:0}:{pricing:{total_budget_fen:0}})
 })
