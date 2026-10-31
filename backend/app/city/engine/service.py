@@ -133,7 +133,7 @@ def protect_requirements(row,req,replanning,previous,body,ctx):
     return req,prefix,ongoing,tuple(fixed_order)
 
 
-def preview(session,trip_id,body,replanning=False,planning_version=None):
+def preview(session,trip_id,body,replanning=False,planning_version=None,explain=None):
     if isinstance(body.requirements,MultiDayRequirements):
         from .multi_day_service import preview_multi_day
         return preview_multi_day(session,trip_id,body,replanning,planning_version)
@@ -206,6 +206,7 @@ def preview(session,trip_id,body,replanning=False,planning_version=None):
               'base_version':base_version,'expires_at':expiry if candidate_id else None,
               'result':result.model_dump(mode='json'),'changes':comparison,
               'alternative_changes':[compare_itineraries(previous,i) for i in result.itineraries],'must_confirm':bool(candidate_id)}
+    if explain is not None:response['unscheduled']=explain(req,ctx,result)
     with connect() as db:
         db.execute('BEGIN IMMEDIATE')
         cached=state.receipt(db,session,body.request_id,scope,data)
