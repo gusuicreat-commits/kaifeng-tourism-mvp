@@ -6,6 +6,7 @@ export function datedFacts(now=new Date()){
  return readFileSync(new URL('../backend/tests/fixtures/city_facts.json',import.meta.url),'utf8').replaceAll('2026-10-21',tomorrow)
 }
 export const scenic={id:'kaifengfu',name:'开封府',fact_id:'test:park'}
+export const expensiveScenic={id:'tieta',name:'铁塔景区',fact_id:'zz-expensive-park'}
 export const food={id:'chaoliangfen',name:'炒凉粉',fact_id:'test:food',place_id:'test:restaurant'}
 export const morning={id:'full-flow:morning',name:'[合成测试]上午展馆',fact_id:'full-flow:morning'}
 export const endpoints={origin_place_id:'test:gate',destination_place_id:'test:hotel'}
@@ -13,6 +14,13 @@ export function fullFlowFixtures(now=new Date()){
  const facts=JSON.parse(datedFacts(now)),records=facts.records
  const rule=records.find(r=>r.kind==='open_rule')
  records.push({...rule,fact_id:'full-flow:open-park',place_id:scenic.fact_id,reentry:'allowed',last_entry_at:rule.closes_at})
+ const park=records.find(r=>r.kind==='place'&&r.fact_id==='test:park')
+ const gate=records.find(r=>r.kind==='place'&&r.fact_id==='test:gate')
+ const entrance=records.find(r=>r.kind==='entrance'&&r.place_id==='test:park')
+ records.push({...park,fact_id:expensiveScenic.fact_id,name:expensiveScenic.name,longitude:114.306})
+ records.push({...gate,fact_id:'zz-expensive-gate',parent_place_id:expensiveScenic.fact_id,longitude:114.306})
+ records.push({...entrance,fact_id:'zz-expensive-entry',place_id:expensiveScenic.fact_id,entrance_place_id:'zz-expensive-gate'})
+ records.push({...rule,fact_id:'full-flow:open-expensive-park',place_id:expensiveScenic.fact_id,reentry:'allowed',last_entry_at:rule.closes_at})
  records.push({...records.find(r=>r.kind==='place'&&r.fact_id==='test:restaurant'),fact_id:morning.fact_id,name:morning.name,place_type:'poi'})
  records.push({...rule,fact_id:'full-flow:open-morning',place_id:morning.fact_id,opens_at:rule.business_date+'T08:00:00+08:00',closes_at:rule.business_date+'T12:00:00+08:00'})
  const dated=records.filter(r=>r.business_date),first=rule.business_date
@@ -23,6 +31,7 @@ export function fullFlowFixtures(now=new Date()){
  }
  const bindings=JSON.parse(readFileSync(new URL('../backend/tests/fixtures/object_bindings.json',import.meta.url),'utf8'))
  bindings.push(['scenic',scenic.id,'place',scenic.fact_id])
+ bindings.push(['scenic',expensiveScenic.id,'place',expensiveScenic.fact_id])
  return {facts,bindings,operations:journeys(facts)}
 }
 export function journeys(facts){
@@ -30,6 +39,7 @@ export function journeys(facts){
  const source=facts.records.find(r=>r.kind==='source')
  const until=facts.records.filter(r=>r.kind==='open_rule').map(r=>r.closes_at).sort().at(-1)
  const evidence={evidence_id:'full-flow:synthetic',revision:'1',kind:'estimate',source:'synthetic full-flow coordinate estimate; NOT real transport evidence',checked_at:source.collected_at,valid_from:source.effective_from,valid_until:until}
+ const ticketEvidence={evidence_id:'full-flow:ticket-price',revision:'1',kind:'estimate',source:'synthetic full-flow ticket price; NOT real ticket evidence',checked_at:source.collected_at,valid_from:source.effective_from,valid_until:until}
  const radians=n=>n*Math.PI/180
  const parks=place=>{
   const ids=[]
@@ -53,7 +63,7 @@ export function journeys(facts){
    output.push({journey_id:id,travel:{origin_place_id:origin.fact_id,destination_place_id:destination.fact_id,mode,lower_seconds:seconds,upper_seconds:seconds,evidence,path_status:'estimated',path_ref:id,coordinate_system:origin.coordinate_system},distance_m:distance,source_ids:[source.fact_id],time_basis:'provider_estimate',estimated_seconds:seconds,quote_expires_at:until,boundaries})
   }
  }
- return {schema_version:'city-operations/1',journeys:output}
+ return {schema_version:'city-operations/1',journeys:output,costs:[{place_id:expensiveScenic.fact_id,lower_fen:30000,upper_fen:30000,unit:'per_person',evidence:ticketEvidence}]}
 }
 export function writeFacts(){
  const directory=new URL('../.test-results/full-flow/',import.meta.url)
