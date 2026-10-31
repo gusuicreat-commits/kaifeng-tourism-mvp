@@ -2,6 +2,10 @@ import type { Scenic,Network,PlanInput,Plan,Crowds,Dataset,ScheduleFact } from '
 import type {Interview} from './planningWorkflow'
 import type {ChatResponse,MemoryCommit,MemoryContext,MemorySession,MemoryTrip} from './memoryTypes'
 const base=import.meta.env.VITE_API_BASE || ''
+// Agent 后端单步最多处理 45 秒，增加网络余量后由前端等待 55 秒。
+export const AGENT_STEP_TIMEOUT_MS=55000
+// 多天规划单日交通最多约 60 次请求，服务端交通时限约 15 秒，另留求解时间。
+export const PLANNING_PREVIEW_TIMEOUT_MS=60000
 export class ApiError extends Error {constructor(message:string,public status:number,public code?:string){super(message)}}
 export async function request<T>(path:string,options:RequestInit={},timeoutMs=20000):Promise<T>{
  const controller=new AbortController()

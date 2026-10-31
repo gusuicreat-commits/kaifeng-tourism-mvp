@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import {computed,onMounted,ref,watch} from 'vue'
 import {useRouter} from 'vue-router'
-import {api,mutate} from '../api'
+import {api,mutate,PLANNING_PREVIEW_TIMEOUT_MS} from '../api'
 import {cityApi,emptyCityDraft,isMultiDayDraft,type CityTripState} from '../cityApi'
 import {journey,loadJourney,clock,localDate,nameOf} from '../journey'
 import {explorationApi,type SingleDayItinerary} from '../explorationApi'
@@ -23,7 +23,7 @@ async function plan(){
   await api.memorySession()
   if(!trip.value)trip.value=await cityApi.create(emptyCityDraft())
   const goals=stops.value.filter(s=>s.selected).map(s=>({goal_id:'visit:'+s.id,target_kind:'place',target_id:s.id,kind:s.id.includes('vendor')?'dining':'visit',required:true,duration_seconds:s.minutes*60}))
-  preview.value=await mutate(`/city/v1/trips/${trip.value.id}/engine/preview`,{expected_version:trip.value.version,requirements:{business_date:day.value,starts_at:`${day.value}T${start.value}:00+08:00`,ends_at:`${day.value}T${end.value}:00+08:00`,origin_place_id:origin.value,destination_place_id:destination.value,modes:['walking'],goals}},'POST',90000)
+  preview.value=await mutate(`/city/v1/trips/${trip.value.id}/engine/preview`,{expected_version:trip.value.version,requirements:{business_date:day.value,starts_at:`${day.value}T${start.value}:00+08:00`,ends_at:`${day.value}T${end.value}:00+08:00`,origin_place_id:origin.value,destination_place_id:destination.value,modes:['walking'],goals}},'POST',PLANNING_PREVIEW_TIMEOUT_MS)
   selected.value=0
   if(preview.value?.result.status!=='feasible')error.value=preview.value?.result.issues.map(i=>i.message).join('；')||'当前时间或资料不足，请调整后重试。'
  }catch(e){error.value=(e as Error).message}finally{busy.value=false}

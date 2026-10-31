@@ -1,5 +1,5 @@
 import {interactionModes,readMode,type InteractionMode} from './interactionMode'
-import {mutate,request} from './api'
+import {AGENT_STEP_TIMEOUT_MS,mutate,request} from './api'
 import type {ObjectRef,BasketChoice} from './basketApi'
 import type {Itinerary,PlanningReply} from './explorationApi'
 
@@ -61,7 +61,7 @@ export const cityAgentApi={
  start:(ctx:CityContext,text:string,page_focus?:ObjectRef|null,interaction_mode:InteractionMode=interactionModes.value[ctx.identity.trip_id]??readMode(ctx.identity.trip_id)??'deep')=>mutate<AgentTask>(prefix(ctx.identity.trip_id)+'/agent/tasks',{
   text,interaction_mode,expected_version:ctx.identity.version,expected_route_version:ctx.identity.route_version,...(page_focus?{page_focus}:{})}),
  selectLocation:(t:AgentTask,choice:RouteLocationChoice,candidate_id:string)=>mutate<AgentTask>(prefix(t.trip_id)+`/agent/tasks/${t.task_id}/locations/confirm`,{expected_step:t.step,role:choice.role,resolution_id:choice.resolution_id,candidate_id}),
- step:(t:AgentTask)=>mutate<AgentTask>(prefix(t.trip_id)+`/agent/tasks/${t.task_id}/step`,{expected_step:t.step},'POST',16000),
+ step:(t:AgentTask)=>mutate<AgentTask>(prefix(t.trip_id)+`/agent/tasks/${t.task_id}/step`,{expected_step:t.step},'POST',AGENT_STEP_TIMEOUT_MS),
  get:(t:AgentTask)=>request<AgentTask>(prefix(t.trip_id)+`/agent/tasks/${t.task_id}`),
  cancel:(t:AgentTask)=>request<AgentTask>(prefix(t.trip_id)+`/agent/tasks/${t.task_id}/cancel`,{method:'POST'}),
  confirm:(t:AgentTask,alternative_index=0)=>mutate(prefix(t.trip_id)+'/assistant/confirm',{...t.result?.confirmation,confirmed:true,alternative_index}),

@@ -25,7 +25,8 @@ const planningCompleted=ref(false)
 watch([showPlanning,planningRevision],()=>planningCompleted.value=false)
 const continuePlanning=ref(false),workflowResult=ref<PlanningReply|null>(null)
 const inputBusy=computed(()=>busy.value||planningBusy.value)
-const ctx=ref<CityContext|null>(null),text=ref(''),task=ref<AgentTask|null>(null),busy=ref(false),error=ref('')
+const ctx=ref<CityContext|null>(null),text=ref(''),task=ref<AgentTask|null>(null),busy=ref(false),slowBusy=ref(false),error=ref('')
+let slowBusyTimer:ReturnType<typeof setTimeout>|undefined
 const weather=ref<WeatherReport|null>(null)
 const messages=ref<{role:string;text:string}[]>([])
 const chatScroll=ref<HTMLElement>(),atLatest=ref(true)
@@ -45,7 +46,8 @@ function takeVoice(){if(pendingVoiceText.value){text.value=[text.value.trim(),pe
 watch(pendingVoiceText,takeVoice,{immediate:true})
 let epoch=0,disposed=false,resizeObserver:ResizeObserver|undefined
 const labels:Record<string,string>={query_weather:'正在查询和风天气',search_locations:'正在查找起点和终点',query_reference_route:'正在查询高德参考路线',search_dining:'正在查找合适商家',query_shows:'正在核对演出时间',verify_travel:'正在验证交通衔接',preview_plan:'正在验证行程安排',understand:'正在理解你的要求'}
-const progress=computed(()=>task.value?.waiting?'小汴梁正在思考':labels[task.value?.events.at(-1)?.tool||'']||'正在理解你的要求')
+watch(busy,value=>{if(slowBusyTimer)clearTimeout(slowBusyTimer);slowBusy.value=false;if(value)slowBusyTimer=setTimeout(()=>slowBusy.value=true,8000)},{flush:'sync'})
+const progress=computed(()=>slowBusy.value?'正在向高德查询路线和计算方案，地点较多时可能需要半分钟…':task.value?.waiting?'小汴梁正在思考':labels[task.value?.events.at(-1)?.tool||'']||'正在理解你的要求')
 const candidate=computed(()=>task.value?.status==='needs_confirmation'&&task.value.result?.confirmation?task.value.result:null)
 const selectedCandidate=ref(0)
 const candidatePlans=computed(()=>candidate.value?.planning?.result.itineraries||[])
@@ -199,7 +201,7 @@ function discardBasket(){if(inputBusy.value)return;task.value=null;messages.valu
 watch(memoryEpoch,()=>{epoch++;busy.value=false;continuePlanning.value=false;ctx.value=null;task.value=null;messages.value=[];earlier.value=null;text.value='';error.value=''})
 watch(()=>props.tripId,()=>{epoch++;continuePlanning.value=false;if(task.value&&['running','awaiting_locations'].includes(task.value.status))void cityAgentApi.cancel(task.value).catch(()=>{});ctx.value=null;task.value=null;messages.value=[];void load()})
 onMounted(()=>{void load();resizeObserver=new ResizeObserver(()=>{if(atLatest.value)void scrollLatest()});if(chatScroll.value)resizeObserver.observe(chatScroll.value)})
-onBeforeUnmount(()=>{disposed=true;epoch++;resizeObserver?.disconnect();if(task.value&&['running','awaiting_locations'].includes(task.value.status))void cityAgentApi.cancel(task.value).catch(()=>{})})
+onBeforeUnmount(()=>{disposed=true;epoch++;resizeObserver?.disconnect();if(slowBusyTimer)clearTimeout(slowBusyTimer);if(task.value&&['running','awaiting_locations'].includes(task.value.status))void cityAgentApi.cancel(task.value).catch(()=>{})})
 </script>
 
 <template>
