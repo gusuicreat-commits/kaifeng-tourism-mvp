@@ -1265,6 +1265,24 @@ def test_date_grammar_recovery_never_guesses(city,monkeypatch,text,quote):
     assert not any(f.field=='date' for f in intent.planning.fields) and not meta.get('recovered_fields')
 
 
+@pytest.mark.parametrize('name,text',[
+    ('start_date','5月3号开始玩'),('end_date','玩到5月3号'),
+])
+def test_date_grammar_does_not_recover_date_when_range_endpoint_exists(city,monkeypatch,name,text):
+    model(monkeypatch,text,[field(name,'2030-05-03','5月3号')])
+    intent,meta=understand.parse(text,snapshot(city)[0])
+    assert [(f.field,f.value) for f in intent.planning.fields]==[(name,'2030-05-03')]
+    assert not meta.get('recovered_fields')
+
+
+def test_date_grammar_still_recovers_single_date_without_range_endpoints(city,monkeypatch):
+    text='5月3号玩，节奏轻松一点'
+    model(monkeypatch,text,[field('pace','relaxed','轻松一点')])
+    intent,meta=understand.parse(text,snapshot(city)[0])
+    assert [(f.field,f.value) for f in intent.planning.fields]==[('pace','relaxed'),('date','5月3号')]
+    assert meta['recovered_fields']==[{'field':'date','source':'date_grammar'}]
+
+
 def departure_clock(monkeypatch,time):
     from test_live_model_replay import freeze
     freeze(monkeypatch,{'recorded_at':'2030-05-01T'+time+'+08:00'})

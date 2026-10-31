@@ -1,4 +1,4 @@
-"""Quick interaction fills only bounded single-day planning gaps."""
+"""Quick interaction fills bounded single-day and multi-day planning gaps."""
 import copy
 import json
 from datetime import datetime, timedelta
@@ -124,15 +124,166 @@ def test_quick_with_date_and_time_lists_only_default_endpoints(reference_city,mo
     assert saved(reference_city)['ends_at'].endswith('T18:00:00+08:00')
 
 
-def test_quick_multiday_keeps_daily_questions(reference_city,monkeypatch):
-    text='玩两天，轻松安排一下'
+def test_quick_multiday_defaults_all_days(reference_city,monkeypatch):
+    calls=[];preview=engine_service.preview
+    def record(*a,**kw):
+        calls.append(a[2].requirements)
+        return preview(*a,**kw)
+    monkeypatch.setattr(engine_service,'preview',record)
+    text='玩三天，轻松安排一下'
     raw={'actions':[{'kind':'modify','quote':text}],
          'planning':{'operation':'update','quote':text,'fields':[
-             {'field':'trip_days','value':2,'quote':'两天'},
+             {'field':'trip_days','value':3,'quote':'三天'},
+             {'field':'pace','value':'relaxed','quote':'轻松'}], 'choices':[]}}
+    task=_run(reference_city,text,'quick',raw,monkeypatch)
+    assert task['status']=='needs_confirmation',task
+    reply=task['result']['reply']
+    assert reply.startswith('没说的我先按明天（10月25日）')
+    assert '每天9:00—20:00' in reply and '从开封府出发并返回' in reply
+    constraints=saved(reference_city)
+    assert constraints['start_date']=='2026-10-25' and constraints['end_date']=='2026-10-27'
+    assert len(constraints['days'])==3
+    assert all(d['starts_at'].endswith('T09:00:00+08:00') and d['ends_at'].endswith('T20:00:00+08:00')
+               and d['origin_place_id']==d['destination_place_id']==QUICK_PLACE_ID for d in constraints['days'])
+    assert len(constraints['overnights'])==2
+    assert len(calls)==1 and len(calls[0].days)==3
+    assert all(o.place_id==QUICK_PLACE_ID for o in calls[0].overnights)
+    assert reference_city['client'].get(_path(reference_city)).json()['route_version']==0
+
+
+@pytest.mark.parametrize('distorted',[False,True])
+def test_quick_multiday_preserves_daily_start_time(reference_city,monkeypatch,distorted):
+    text='玩三天，每天十点出发，轻松安排一下'
+    raw={'actions':[{'kind':'modify','quote':text}],
+         'planning':{'operation':'update','quote':text,'fields':[
+             {'field':'trip_days','value':3,'quote':'三天'},
+             {'field':'start_time','value':'10:00','quote':'每天十点出发','scope':'every_day'},
+             {'field':'pace','value':'relaxed','quote':'轻松'}], 'choices':[]}}
+    if distorted:
+        raw['planning']['fields'][1]['day_ref']='第二天'
+        raw['planning']['fields'].append(copy.deepcopy(raw['planning']['fields'][1]))
+        raw['actions']*=2
+        raw['extra']='好的，开始安排。'
+    task=_run(reference_city,text,'quick',raw,monkeypatch)
+    assert task['status']=='needs_confirmation',task
+    reply=task['result']['reply']
+    assert '每天20:00 结束' in reply and '9:00' not in reply
+    assert all(d['starts_at'].endswith('T10:00:00+08:00') for d in saved(reference_city)['days'])
+    assert not saved(reference_city)['pending_fields']
+
+
+def test_quick_multiday_preserves_explicit_second_day_condition(reference_city,monkeypatch):
+    text='玩三天，第二天十点出发，轻松安排一下'
+    raw={'actions':[{'kind':'modify','quote':text}],
+         'planning':{'operation':'update','quote':text,'fields':[
+             {'field':'trip_days','value':3,'quote':'三天'},
+             {'field':'start_time','value':'10:00','quote':'第二天十点出发','day_ref':'第二天'},
+             {'field':'pace','value':'relaxed','quote':'轻松'}], 'choices':[]}}
+    task=_run(reference_city,text,'quick',raw,monkeypatch)
+    assert task['status']=='needs_confirmation',task
+    starts=[d['starts_at'] for d in saved(reference_city)['days']]
+    assert starts==['2026-10-25T09:00:00+08:00','2026-10-26T10:00:00+08:00','2026-10-27T09:00:00+08:00']
+    assert '每天9:00' not in task['result']['reply']
+    assert '第1天9:00 开始' in task['result']['reply'] and '第3天9:00 开始' in task['result']['reply']
+
+
+@pytest.mark.parametrize('daily',[False,True])
+def test_quick_multiday_without_duration_still_asks_for_days(reference_city,monkeypatch,daily):
+    text='玩几天，你看着安排'+('，每天十点出发' if daily else '')
+    raw={'actions':[{'kind':'modify','quote':text}],
+         'planning':{'operation':'update','quote':text,'fields':[
+             {'field':'trip_days','value':None,'quote':'玩几天'}]+([
+             {'field':'start_time','value':'10:00','quote':'每天十点出发','scope':'every_day'}] if daily else []), 'choices':[]}}
+    task=_run(reference_city,text,'quick',raw,monkeypatch)
+    assert task['status']=='needs_clarification',task
+    assert '这趟行程玩几天，或哪天结束？' in task['result']['reply']
+    assert '没说的我先按' not in task['result']['reply']
+    assert not saved(reference_city)['start_date'] and not saved(reference_city)['days']
+
+
+def test_deep_multiday_known_duration_keeps_questions(reference_city,monkeypatch):
+    text='玩三天，轻松安排一下'
+    raw=_planning_output(text,[{'field':'trip_days','value':3,'quote':'三天'},
+                              {'field':'pace','value':'relaxed','quote':'轻松'}])
+    task=_run(reference_city,text,'deep',raw,monkeypatch)
+    assert task['status']=='needs_clarification',task
+    assert task['result']['reply'].startswith('你打算哪天开始这趟行程？')
+    assert '没说的我先按' not in task['result']['reply']
+    assert not saved(reference_city)['start_date'] and not saved(reference_city)['days']
+
+
+@pytest.mark.parametrize('text,fields,end',[
+    ('住两晚，你看着安排',[{'field':'trip_nights','value':2,'quote':'两晚'}],'2026-10-27'),
+    ('10月27日结束，你看着安排',[{'field':'end_date','value':'2026-10-27','quote':'10月27日'}],'2026-10-27'),
+    ('10月26日开始玩两天，你看着安排',[
+        {'field':'start_date','value':'2026-10-26','quote':'10月26日'},
+        {'field':'trip_days','value':2,'quote':'两天'}],'2026-10-27'),
+])
+def test_quick_multiday_uses_nights_or_dates(reference_city,monkeypatch,text,fields,end):
+    task=_run(reference_city,text,'quick',_planning_output(text,fields),monkeypatch)
+    assert task['status']=='needs_confirmation',task
+    if any(f['field'] in ('start_date','end_date') for f in fields):
+        assert not any(f['field']=='date' for f in task['understanding']['planning']['fields'])
+        assert {'field':'date','source':'date_grammar'} not in task['interpretation'].get('recovered_fields',[])
+    values=saved(reference_city)
+    assert values['start_date']==('2026-10-26' if '开始' in text else '2026-10-25')
+    assert values['end_date']==end
+    assert all(d['starts_at'].endswith('T09:00:00+08:00') and d['ends_at'].endswith('T20:00:00+08:00') for d in values['days'])
+    if '开始' in text:assert '明天' not in task['result']['reply']
+
+
+def test_quick_multiday_keeps_saved_clarification(reference_city,monkeypatch):
+    from app.city import exploration_state
+    from app.city.engine.models import MultiDayConstraints
+    question='预算有冲突，请确认采用哪一笔预算？'
+    values=MultiDayConstraints(schema_version='city-constraints/2',trip_days=3,clarifications=[question])
+    with connect() as db:exploration_state.save(db,reference_city['trip']['id'],values.model_dump(mode='json'),None,0)
+    monkeypatch.setattr(engine_service,'preview',lambda *a,**kw:pytest.fail('unresolved clarification must not preview'))
+    text='你看着安排吧'
+    task=_run(reference_city,text,'quick',{'planning':{'operation':'continue','quote':text}},monkeypatch)
+    assert task['status']=='needs_clarification',task
+    assert task['result']['reply'].startswith('没说的我先按明天（10月25日）')
+    assert question in task['result']['reply'] and saved(reference_city)['clarifications']==[question]
+
+
+def test_deep_multiday_without_duration_keeps_questions(reference_city,monkeypatch):
+    text='每天十点出发，轻松安排一下'
+    raw={'actions':[{'kind':'modify','quote':text}],
+         'planning':{'operation':'update','quote':text,'fields':[
+             {'field':'start_time','value':'10:00','quote':'每天十点出发','scope':'every_day'},
+             {'field':'pace','value':'relaxed','quote':'轻松'}], 'choices':[]}}
+    task=_run(reference_city,text,raw=raw,monkeypatch=monkeypatch)
+    assert task['status']=='needs_clarification',task
+    assert task['result']['reply'].startswith('你打算哪天开始这趟行程？')
+    assert '没说的我先按' not in task['result']['reply']
+
+
+def test_quick_multiday_keeps_budget_conflict_after_defaults(reference_city,monkeypatch):
+    text='玩三天，预算是500元还是预算是800元，轻松安排一下'
+    raw={'actions':[{'kind':'modify','quote':text}],
+         'planning':{'operation':'update','quote':text,'fields':[
+             {'field':'trip_days','value':3,'quote':'三天'},
+             {'field':'budget_fen','value':50000,'budget_basis':'total','quote':'预算是500元'},
+             {'field':'budget_fen','value':80000,'budget_basis':'total','quote':'预算是800元'},
              {'field':'pace','value':'relaxed','quote':'轻松'}], 'choices':[]}}
     task=_run(reference_city,text,'quick',raw,monkeypatch)
     assert task['status']=='needs_clarification',task
-    assert '没说的我先按' not in task['result']['reply']
+    reply=task['result']['reply']
+    assert reply.startswith('没说的我先按明天（10月25日）') and '50000' in reply and '80000' in reply
+    assert saved(reference_city)['start_date']=='2026-10-25'
+
+
+@pytest.mark.parametrize('fields,text',[
+    ([{'field':'trip_days','value':4,'quote':'四天'}],'玩四天，你看着安排'),
+    ([{'field':'trip_days','value':3,'quote':'三天'},
+      {'field':'start_time','value':'21:00','quote':'每天晚上九点出发','scope':'every_day'}],
+     '玩三天，每天晚上九点出发，你看着安排'),
+])
+def test_quick_multiday_defaults_still_respect_range_and_time_limits(reference_city,monkeypatch,fields,text):
+    monkeypatch.setattr(engine_service,'preview',lambda *a,**kw:pytest.fail('invalid dates or windows must not preview'))
+    task=_run(reference_city,text,'quick',_planning_output(text,fields),monkeypatch)
+    assert task['status']=='needs_clarification',task
+    assert saved(reference_city)['clarifications']
 
 
 def test_deep_mode_keeps_existing_question(reference_city,monkeypatch):
