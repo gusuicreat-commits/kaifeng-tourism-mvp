@@ -1,8 +1,10 @@
 """UI adapters to the existing planner and agent. No second solver or agent."""
 import json
+import time
 from uuid import UUID, uuid5
 from typing import Annotated, Literal
-from datetime import date
+from datetime import date, timedelta
+from zoneinfo import ZoneInfo
 from fastapi import APIRouter, Depends, HTTPException
 from pydantic import AwareDatetime, Discriminator, Field, Tag, field_validator, model_validator
 from pydantic import ValidationError
@@ -68,6 +70,37 @@ class Plan(Strict):
 
 class PlanV2(Plan):
     constraints:MultiDayConstraints
+
+
+class Conflict(Strict):
+    goal_id:str
+    key:str
+    name:str
+    reason_code:str
+    reason:str
+
+
+class ConstraintPatch(Strict):
+    starts_at:AwareDatetime | None=None
+    ends_at:AwareDatetime | None=None
+    business_date:date | None=None
+
+
+class NegotiationOption(Strict):
+    id:str
+    kind:Literal['priority','constraints']
+    label:str
+    requires_consent:bool=True
+    patch:ConstraintPatch | None=None
+    object_key:str | None=None
+    object_keys:tuple[str,...] | None=None
+    priority:Literal['want'] | None=None
+
+
+class ConflictAdjustments(Strict):
+    conflicts:tuple[Conflict,...]
+    options:tuple[NegotiationOption,...]
+    reply:str
 
 
 def constraint_schema(value):
@@ -162,6 +195,101 @@ def _unscheduled(solve_result, req, ctx, goal_keys, goal_meta):
                          'reason_code':classified[0],'reason':classified[1]})
         if rows:output[str(alternative_index)]=rows
     return output
+
+
+def _conflict_adjustments(solved,req,ctx,goal_keys,goal_meta,*,replanning=False,preferences=None):
+    if solved.itineraries:return None
+    required=[g for g in req.goals if g.required]
+    if not required:return None
+    issues={i.code for i in solved.issues};blocked={}
+    for item in solved.metrics.get('blocked_candidates',()):
+        blocked.setdefault(item.get('goal_id'),set()).update(item.get('reasons',()))
+    temporal={'TIME_WINDOW_EMPTY','SESSION_OUTSIDE_OPENING_OR_GOAL_WINDOW'}
+    affected=[g for g in required if blocked.get(g.goal_id,set()) & temporal
+              and not blocked[g.goal_id]-temporal-{'NO_USABLE_VARIANT'}]
+    hard=solved.status=='infeasible' and 'HARD_CONSTRAINT_CONFLICT' in issues
+    if not hard and not ('REQUIRED_GOAL_UNAVAILABLE' in issues and affected):return None
+    started=time.monotonic();count=0;rows=[];options=[]
+    def solve(candidate):
+        nonlocal count
+        remaining=8-(time.monotonic()-started)
+        if count>=5 or remaining<0.05:return None
+        candidate=candidate.model_copy(update={'alternatives':1,'solve_seconds':min(req.solve_seconds,1,remaining)})
+        # Preparation can prove a missing required time window without spending a solve.
+        if engine.prepare(candidate,ctx).issues:return None
+        remaining=8-(time.monotonic()-started)
+        if remaining<0.05:return None
+        candidate=candidate.model_copy(update={'solve_seconds':min(candidate.solve_seconds,remaining)})
+        count+=1
+        return engine.plan_trip(candidate,ctx)
+    def name(g):
+        target=ctx.facts.get(('show_session' if g.target_kind=='session' else g.target_kind,g.target_id))
+        if isinstance(target,facts.ShowSession):target=ctx.facts.get(('program',target.program_id))
+        return goal_meta.get(g.goal_id,{}).get('name') or getattr(target,'name','资料待添加')
+    for goal in required if hard else affected:
+        if hard:
+            solo=solve(req.model_copy(update={'goals':(goal,)}))
+            code,reason=(UNSCHEDULED_TOO_FAR if solo.status=='infeasible' else UNSCHEDULED_CONFLICT) if solo and solo.status in ('feasible','infeasible') else ('calculation_pending','单独安排尚未完成核算')
+            others='、'.join(name(g) for g in required if g.goal_id!=goal.goal_id)
+            if code=='time_conflict' and others:reason='和'+others+'放在一起时间不够'
+        else:code,reason=_unscheduled_reason(blocked[goal.goal_id])
+        rows.append({'goal_id':goal.goal_id,'key':goal_keys.get(goal.goal_id,goal.goal_id),
+                     'name':name(goal),'reason_code':code,'reason':reason})
+    def included(result):
+        return '、'.join(dict.fromkeys(goal_meta.get(a.goal_id,{}).get('name') or
+            getattr(ctx.facts.get(('place',a.place_id)),'name','资料待添加') for a in result.itineraries[0].activities))
+    local=ZoneInfo('Asia/Shanghai');start=req.starts_at.astimezone(local);end=req.ends_at.astimezone(local)
+    for field,base,direction,bound,label,identity in (
+        ('ends_at',end,1,end.replace(hour=22,minute=0,second=0,microsecond=0),'结束时间延后到 ','end'),
+        ('starts_at',start,-1,start.replace(hour=7,minute=0,second=0,microsecond=0),'开始时间提前到 ','start')):
+        if replanning and field=='starts_at':continue
+        for minutes in (60,120,180):
+            if count>=5 or time.monotonic()-started>=8:break
+            value=base+timedelta(minutes=direction*minutes)
+            if direction==1 and value>bound or direction==-1 and value<bound:break
+            if value<ctx.assessed_at and field=='starts_at':continue
+            candidate=Requirements.model_validate(req.model_dump()|{field:value})
+            result=solve(candidate)
+            if result and result.status=='feasible' and result.itineraries:
+                options.append({'id':'adjust:'+identity,'kind':'constraints','patch':{field:value.isoformat()},
+                    'label':label+value.strftime('%H:%M')+'（已核算能排进'+included(result)+'）','requires_consent':True})
+                break
+    if not replanning and any(r['reason_code'] in ('closed_in_window','no_session') for r in rows):
+        for days in (1,2):
+            if count>=5 or time.monotonic()-started>=8:break
+            delta=timedelta(days=days);business_date=req.business_date+delta
+            candidate=Requirements.model_validate(req.model_dump()|{'business_date':business_date,
+                'starts_at':req.starts_at+delta,'ends_at':req.ends_at+delta})
+            result=solve(candidate)
+            if result and result.status=='feasible' and result.itineraries:
+                options.append({'id':'adjust:date','kind':'constraints','patch':{'business_date':business_date.isoformat()},
+                    'label':f'改到 {business_date.month} 月 {business_date.day} 日（已核算能排进'+included(result)+'）','requires_consent':True})
+                break
+    ids={r['goal_id'] for r in rows};keys=[r['key'] for r in rows]
+    relaxable=all(goal_meta.get(gid,{}).get('status')=='pending' and not goal_meta[gid].get('locked') and gid in goal_keys for gid in ids)
+    names='、'.join(r['name'] for r in rows)
+    if relaxable:
+        relaxed=[]
+        for g in req.goals:
+            if g.goal_id not in ids:relaxed.append(g);continue
+            categories=goal_categories(g,ctx.facts) if preferences else set()
+            if preferences and (categories&set(preferences.avoid) or _spice_exceeded(g,ctx.facts,preferences.spice)):continue
+            relaxed.append(g.model_copy(update={'required':False,'importance':6+int(bool(preferences and categories&set(preferences.interests)))*2}))
+        result=solve(req.model_copy(update={'goals':tuple(relaxed)})) if relaxed else None
+        if result and result.status=='feasible' and result.itineraries:
+            options.append({'id':'relax:'+keys[0] if len(keys)==1 else 'relax:conflicts','kind':'priority',
+                **({'object_key':keys[0]} if len(keys)==1 else {'object_keys':keys}),'priority':'want',
+                'label':'把'+names+'改为想去，'+('先排'+included(result) if included(result) else '本轮不安排地点'),
+                'requires_consent':True})
+    summary='排不出方案：'+'；'.join(r['name']+'（'+r['reason']+'）' for r in rows)+'。'
+    if options:reply=summary+'可以这样调整：'+'；或'.join(o['label'] for o in options)+'。选一个，我按它重新排。'
+    else:
+        reply=summary+'本轮核算未找到延后、提前或换一天的可行方案，可以把'+names+'改为想去，或换个地点。'
+    existing={o['id'] for o in options}
+    options += [{'id':'relax:'+r['key'],'kind':'priority','object_key':r['key'],'priority':'want',
+        'label':'允许将'+r['name']+'改为想去','requires_consent':True} for r in rows
+        if goal_meta.get(r['goal_id'],{}).get('status')=='pending' and r['goal_id'] in goal_keys and 'relax:'+r['key'] not in existing][:2]
+    return ConflictAdjustments(conflicts=rows,options=options,reply=reply).model_dump(mode='json',exclude_none=True)
 
 
 @router.get('/constraints')
@@ -260,7 +388,7 @@ def _basket_goals(db,s,trip_id,goals,dates=None,*,ctx=None,preferences=None):
             goal=Goal(**values) if dates is None else TripGoal(**values,allowed_dates=dates,fixed_date=None)
             goals.append(goal)
         key_by_goal[goal.goal_id]=item['key']
-        goal_meta[goal.goal_id]={'key':item['key'],'name':item['name'],'status':item['status'],'goal':goal}
+        goal_meta[goal.goal_id]={'key':item['key'],'name':item['name'],'status':item['status'],'goal':goal,'locked':bool(existing and existing.required)}
         if (dates is not None or not existing) and getattr(fact,'parent_place_id',None):parent_groups[identity]=fact.parent_place_id
     # Until internal duration/path coverage can be reconciled, do not double count a park and its POIs.
     grouped=[child for child,parent in parent_groups.items() if any(g.target_kind=='place' and g.target_id==parent for g in goals)]
@@ -377,7 +505,11 @@ def preview_plan(trip_id,body,s,*,execution_guard=None):
     else:
         try:req=Requirements.model_validate(values|{'goals':goals,'alternatives':3})
         except ValidationError:raise HTTPException(422,detail='请检查同日开始、结束时间、目标数量与交通方式。') from None
+        diagnosis={}
         def explain(requirements,context,solved):
+            adjustments=_conflict_adjustments(solved,requirements,context,key_by_goal,goal_meta,
+                replanning=row['status'] in ('ACTIVE','PAUSED'),preferences=body.constraints.preferences)
+            if adjustments:diagnosis.update(adjustments)
             return _unscheduled(solved.model_dump(mode='json'),requirements,context,key_by_goal,goal_meta)
         if row['status'] in ('ACTIVE','PAUSED'):
             plan=engine.preview(s,trip_id,ReplanRequest(request_id=uuid5(body.request_id,'engine'),expected_version=body.expected_version,requirements=req),replanning=True,planning_version=planning_version,explain=explain)
@@ -394,6 +526,11 @@ def preview_plan(trip_id,body,s,*,execution_guard=None):
                 'issues':plan['result']['issues'],'options':options,'planning':plan,'formal_state_changed':False,
                 'goal_keys':key_by_goal,'activity_names':{a['goal_id']:getattr(ctx.facts.get(('place',a['place_id'])),'name','资料待添加') for i in plan['result']['itineraries'] for a in i['activities']}}
         result['unscheduled']=plan.get('unscheduled',{})
+        if diagnosis:
+            result.update(diagnosis,status='infeasible')
+            reasons={r['goal_id']:r['name']+'：'+r['reason'] for r in diagnosis['conflicts']}
+            result['issues']=[i|{'message':'；'.join(reasons[gid] for gid in i['affected_ids'] if gid in reasons)}
+                if i['code']=='REQUIRED_GOAL_UNAVAILABLE' and any(gid in reasons for gid in i['affected_ids']) else i for i in result['issues']]
     _preference_result(result,excluded,notices,pending)
     if old and result.get('planning'):
         for a in json.loads(old['itinerary_json'])['activities']:
@@ -498,7 +635,8 @@ def answer_choice(trip_id,body,s,*,execution_guard=None):
                 raise HTTPException(409,detail='此协商选项已失效，请重新核验。')
             if workspace['rounds']>=2:raise HTTPException(422,detail='请直接调整时间或素材篮，不再重复追问。')
             if option['kind']!='priority':raise HTTPException(422,detail='请在规划条件中调整可用时段。')
-            priorities[option['object_key']]={'priority':option['priority'],'status':'pending'}
+            for key in option.get('object_keys') or [option['object_key']]:
+                priorities[key]={'priority':option['priority'],'status':'pending'}
         else:
             try:constraints,priorities=reply_patch(body.text,collected['items'],constraints.model_dump(mode='json'))
             except ValidationError:raise HTTPException(422,detail='规划条件格式不正确，请检查时间。') from None
