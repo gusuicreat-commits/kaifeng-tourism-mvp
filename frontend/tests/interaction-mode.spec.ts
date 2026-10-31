@@ -54,8 +54,8 @@ async function fillDay(page:Page,days=1){
  await form.getByLabel('旅行日期',{exact:true}).fill('2030-05-01');await form.getByRole('button',{name:'继续',exact:true}).click()
  await form.getByRole('button',{name:days+'天',exact:true}).click()
  await form.getByLabel('开始时间',{exact:true}).fill('09:00');await form.getByLabel('最晚结束',{exact:true}).fill('18:00');await form.getByRole('button',{name:'继续',exact:true}).click()
- await form.getByRole('combobox',{name:'出发地点',exact:true}).selectOption('test:gate');await form.getByRole('button',{name:'继续',exact:true}).click()
- await form.getByRole('combobox',{name:'返程地点',exact:true}).selectOption('test:hotel');await form.getByRole('button',{name:'继续',exact:true}).click()
+ await form.getByLabel('出发地点',{exact:true}).fill('test:gate');await form.getByRole('button',{name:'继续',exact:true}).click()
+ await form.getByLabel('返程地点',{exact:true}).fill('test:hotel');await form.getByRole('button',{name:'继续',exact:true}).click()
  await expect(form).toContainText('几个人一起去？');await form.getByRole('button',{name:'2 人',exact:true}).click()
  await expect(form).toContainText('想怎么安排？')
 }
@@ -178,9 +178,9 @@ test('三天快速安排共用每天时间与端点，天数标签可修改回�
  await known.getByRole('button',{name:'09:00—18:00',exact:true}).click()
  await expect(form).toContainText('每天几点开始、几点结束？');await form.getByRole('button',{name:'继续',exact:true}).click()
  await known.getByRole('button',{name:'从[测试]入口',exact:true}).click()
- await expect(form).toContainText('每天从哪里出发？');await form.getByRole('button',{name:'继续',exact:true}).click()
+ await expect(form).toContainText('到开封，从哪个地点出发？');await form.getByRole('button',{name:'继续',exact:true}).click()
  await known.getByRole('button',{name:'回到[测试]返程点',exact:true}).click()
- await expect(form).toContainText('每天最后回到哪里？');await form.getByRole('button',{name:'继续',exact:true}).click()
+ await expect(form).toContainText('在开封玩完后，回到哪里？');await form.getByRole('button',{name:'继续',exact:true}).click()
  const count=previews.length
  await form.getByRole('button',{name:'快速安排',exact:false}).click()
  await expect(page.getByLabel('规划检测结果')).toContainText('合成规划请求已收到')
@@ -202,8 +202,8 @@ test('天数只接受1到3的整数，跨年多天沿用深度偏好与预算',a
  for(const value of ['','0','4','1.5']){await input.fill(value);await expect(form.getByRole('button',{name:'继续',exact:true})).toBeDisabled()}
  await input.fill('3');await form.getByRole('button',{name:'继续',exact:true}).click()
  await form.getByLabel('开始时间',{exact:true}).fill('10:00');await form.getByLabel('最晚结束',{exact:true}).fill('19:00');await form.getByRole('button',{name:'继续',exact:true}).click()
- await form.getByRole('combobox',{name:'出发地点',exact:true}).selectOption('test:hotel');await form.getByRole('button',{name:'继续',exact:true}).click()
- await form.getByRole('combobox',{name:'返程地点',exact:true}).selectOption('test:hotel');await form.getByRole('button',{name:'继续',exact:true}).click()
+ await form.getByLabel('出发地点',{exact:true}).fill('test:hotel');await form.getByRole('button',{name:'继续',exact:true}).click()
+ await form.getByLabel('返程地点',{exact:true}).fill('test:hotel');await form.getByRole('button',{name:'继续',exact:true}).click()
  await form.getByRole('button',{name:'3 人',exact:true}).click();await form.getByRole('button',{name:'深度互动',exact:false}).click()
  await form.getByRole('button',{name:'轻松',exact:true}).click();await form.getByRole('button',{name:'公交地铁',exact:true}).click();await form.getByRole('button',{name:'少走路',exact:true}).click();await form.getByLabel('预算上限（选填）',{exact:true}).fill('1000')
  const count=previews.length

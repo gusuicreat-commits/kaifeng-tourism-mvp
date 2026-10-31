@@ -57,7 +57,7 @@ test('已有核验绑定时使用正式地点ID，仍经原规划器核验且不
  await page.getByRole('button',{name:'核对出发与返回地点',exact:true}).click()
  await page.getByRole('button',{name:'查找并核对出发地点',exact:true}).click()
  await page.getByRole('button',{name:'确认此地点',exact:true}).click()
- await expect(page.getByRole('combobox',{name:'出发地点',exact:true})).toHaveValue('test:gate')
+ await expect(page.getByLabel('出发地点',{exact:true})).toHaveValue('[合成测试]已绑定车站')
  await expect(page.getByRole('region',{name:'出发地点地点核对',exact:true})).toContainText('匹配已有核验地点')
  await page.locator('.planning-question').getByRole('button',{name:'继续',exact:true}).click()
  await expect(page.getByLabel('规划检测结果')).toContainText('信息不足')
