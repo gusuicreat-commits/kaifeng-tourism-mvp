@@ -45,6 +45,123 @@ def clock(value):
     return (23, 59) if (h, m) == (24, 0) else (h, m)
 
 
+def _strip_holiday_overrides(text):
+    """Remove dated holiday overrides before reading the ordinary rule."""
+    return re.sub(rf'(?:\d{{4}}-)?\d{{1,2}}-\d{{1,2}}至(?:\d{{4}}-)?\d{{1,2}}-\d{{1,2}}\s*(?:周[一二三四五六日天](?:至周[一二三四五六日天])?\s*)?(?:{TIME}-{TIME}[,，、\s]*)+', '', text)
+
+
+def _last_entry(text):
+    last = re.search(rf'(?:最晚进入|停止入园|最晚入园)\s*({TIME})|({TIME})\s*(?:停止入园|停止检票)', text)
+    return clock(next(v for v in last.groups() if v)) if last else None
+
+
+def _windows(text):
+    windows = []
+    for o, c in re.findall(rf'({TIME})\s*[-–]\s*(?:次日)?({TIME})', text):
+        o, c = clock(o), clock(c)
+        # Same-date rules only: an after-midnight close is clamped to 23:59.
+        windows.append((o, c if c > o else (23, 59)))
+    return windows
+
+
+def _date_range(text):
+    match = re.search(r'(\d{1,2})月(\d{1,2})日\s*至\s*(\d{1,2})月(\d{1,2})日', text)
+    if match:
+        return tuple(map(int, match.groups()))
+    match = re.search(r'(\d{1,2})\s*/\s*(\d{1,2})\s*[-–]\s*(\d{1,2})\s*/\s*(\d{1,2})', text)
+    return tuple(map(int, match.groups())) if match else None
+
+
+def _date_in_range(day, span):
+    if not span:
+        return False
+    sm, sd, em, ed = span
+    current, start, end = (day.month, day.day), (sm, sd), (em, ed)
+    return start <= current <= end if start <= end else current >= start or current <= end
+
+
+def _season_matches(name, day):
+    month = day.month
+    if name == '夏令时':
+        return 5 <= month <= 9
+    if name == '冬令时':
+        return month >= 10 or month <= 4
+    if name == '夏季':
+        return 6 <= month <= 8
+    if name == '冬季':
+        return month in (12, 1, 2)
+    if name == '春秋季':
+        return month in (3, 4, 5, 9, 10, 11)
+    return False
+
+
+def _season_name(text):
+    match = re.search(r'(夏令时|冬令时|夏季|冬季|春秋季)', text)
+    return match.group(1) if match else None
+
+
+def _parse_day_detail(text, day):
+    """Return (windows, last_entry, assumed_season) for one business date."""
+    if not text:
+        return None, 'no_hours', None
+    text = text.replace('：', ':')
+    if '24小时' in text:
+        return [((0, 0), (23, 59))], None, None
+
+    text = _strip_holiday_overrides(text)
+    parts = re.split(r'[；;]', text)
+    seasonal_parts = []
+    for part in parts:
+        name = _season_name(part)
+        if name:
+            seasonal_parts.append((name, part))
+    if seasonal_parts:
+        for name, part in seasonal_parts:
+            if _season_matches(name, day):
+                windows = _windows(part)
+                if windows:
+                    return windows, _last_entry(part), name
+        return None, 'seasonal_no_match', None
+
+    date_parts = [part for part in parts if _date_range(part)]
+    if date_parts:
+        for part in date_parts:
+            if _date_in_range(day, _date_range(part)):
+                windows = _windows(part)
+                if windows:
+                    return windows, _last_entry(part), None
+        return None, 'seasonal_no_match', None
+
+    # Weekday rules retain parse_week's existing semantics. Normalize the
+    # additional dash spelling only for this dated entry point.
+    week, last = parse_week(text.replace('–', '-'))
+    if week:
+        return week.get(day.weekday(), []), last, None
+
+    # A plain interval with no weekday prefix is a daily rule.
+    windows = _windows(text)
+    if windows:
+        return windows, _last_entry(text), None
+    return None, 'unparsed', None
+
+
+def parse_day(text, day):
+    """Return (windows, last_entry) applicable to ``day`` or (None, reason)."""
+    windows, last, _ = _parse_day_detail(text, day)
+    return (windows, last) if windows is not None else (None, last)
+
+
+def _season_assumption(text, day):
+    if not text:
+        return None
+    parts = re.split(r'[；;]', _strip_holiday_overrides(text.replace('：', ':')))
+    for part in parts:
+        name = _season_name(part)
+        if name and _season_matches(name, day) and _windows(part):
+            return name
+    return None
+
+
 def parse_week(text):
     """Return ({weekday: [(open, close)]}, last_entry) or (None, reason)."""
     if not text:
@@ -52,7 +169,7 @@ def parse_week(text):
     if re.search(r'\d{1,2}月\d{1,2}日', text):
         return None, 'seasonal_text'
     # Drop holiday overrides such as "10-01至10-07 周一至周日 ..."; dates outside them use the weekly rule.
-    text = re.sub(rf'(?:\d{{4}}-)?\d{{1,2}}-\d{{1,2}}至(?:\d{{4}}-)?\d{{1,2}}-\d{{1,2}}\s*(?:周[一二三四五六日天](?:至周[一二三四五六日天])?\s*)?(?:{TIME}-{TIME}[,，、\s]*)+', '', text)
+    text = _strip_holiday_overrides(text)
     if '24小时' in text:
         return {d: [((0, 0), (23, 59))] for d in range(7)}, None
     last = re.search(rf'(?:最晚进入|停止入园|最晚入园)\s*({TIME})|({TIME})\s*(?:停止入园|停止检票)', text)
@@ -167,14 +284,15 @@ def build(catalog, bound, explicit, days, amap):
             row['coordinates'] = poi['location']
         if row['match'] in ('explicit', 'exact_name_nearby'):
             bindings[poi['id']] = place.fact_id
-        week, last = parse_week(hours)
-        if week is None:
-            row['skipped'] = last
-            report.append(row)
-            continue
         made = 0
+        reasons = []
+        assumed = set()
         for day in days:
-            windows = week.get(day.weekday(), [])
+            windows, last = parse_day(hours, day)
+            season = _season_assumption(hours, day) if windows is not None else None
+            if windows is None:
+                reasons.append(last)
+                continue
             if (place.fact_id, day) in existing or not windows:
                 continue
             for i, (o, c) in enumerate(windows, 1):
@@ -182,12 +300,20 @@ def build(catalog, bound, explicit, days, amap):
                 suffix = f'_{i}' if len(windows) > 1 else ''
                 fact_id = f'open_amap_{place.fact_id}_{day:%Y%m%d}{suffix}'
                 before = catalog.get(('open_rule', fact_id))
+                planning_note = NOTE
+                if season:
+                    assumed.add(season)
+                    planning_note += '季节按通用划分推算，以景区公告为准。'
                 records.append(facts.OpenRule(
                     kind='open_rule', fact_id=fact_id, version=before.version + 1 if before else 1,
                     place_id=place.fact_id, business_date=day, opens_at=moment(day, o), closes_at=moment(day, c),
                     last_entry_at=moment(day, entry) if entry else None, source_ids=(SOURCE_ID,),
-                    rights_status='internal_only', planning_status='reference', planning_note=NOTE))
+                    rights_status='internal_only', planning_status='reference', planning_note=planning_note))
                 made += 1
+        if assumed:
+            row['season_assumed'] = next(iter(assumed)) if len(assumed) == 1 else sorted(assumed)
+        if not made and reasons:
+            row['skipped'] = reasons[0]
         row['rules'] = made
         report.append(row)
     return records, report, bindings
