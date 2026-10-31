@@ -1,7 +1,7 @@
 """Per-person budget: party size from the visitor's own words, and a check of a preview's known costs.
 
 The solver's budget is a hard total that fails on unknown costs. A per-person budget is
-instead compared after preview with the plan's known per-visitor costs
+instead compared after preview with the plan's known costs
 (``known_cost_upper_fen``: transport legs plus entry boundaries and priced stops), and
 the reply names what that sum leaves out.
 """
@@ -98,10 +98,11 @@ def _unknown_items(days,catalog,costs_known):
     return items
 
 
-def check(values,itinerary,*,days,overnight=False,ctx=None):
+def check(values,itinerary,*,days,overnight=False,ctx=None,party_priced=False):
     """One sentence comparing the known per-person cost with the per-person budget, or ''.
 
     ``days`` are ``{'activities','legs','starts_at','ends_at'}`` for each planned day.
+    ``party_priced`` marks a single-day preview projected with party pricing.
     """
     budget=values.get('per_person_budget_fen')
     if budget is None or not itinerary:return ''
@@ -117,6 +118,13 @@ def check(values,itinerary,*,days,overnight=False,ctx=None):
     if itinerary.get('cost_unknown') and not unknown and not overnight:unknown.append('部分费用')
     if overnight:unknown.append('住宿')
     known=itinerary['known_cost_upper_fen']
+    pricing=values.get('pricing') or {}
+    party=pricing.get('party_size') or values.get('party_size')
+    party_priced=party_priced or itinerary.get('budget') is not None or pricing.get('party_size') is not None
+    total_known=known
+    if party:
+        if party_priced:known=(known+party-1)//party
+        else:total_known=known*party
     count=len(days)
     limit=budget*count if values.get('per_person_budget_daily') else budget
     basis=f'每人每天{_yuan(budget)}元×{count}天，' if values.get('per_person_budget_daily') and count>1 else ''
@@ -126,6 +134,5 @@ def check(values,itinerary,*,days,overnight=False,ctx=None):
     if known==0 and any(u not in ('餐饮','住宿') for u in unknown):
         return f'按每人{_yuan(budget)}元预算核对：已知费用不足以核对预算{missing}。'
     verdict=f'在预算内（{basis}每人{_yuan(limit)}元）' if known<=limit else f'超出约{_yuan(known-limit)}元（{basis}预算每人{_yuan(limit)}元），方案仍可确认，也可以减少收费项目'
-    party=values.get('party_size')
-    total=f'{party}人合计已知费用约{_yuan(known*party)}元，预算合计{_yuan(limit*party)}元（按每人×{party}人换算）。' if party else ''
+    total=f'{party}人合计已知费用约{_yuan(total_known)}元，预算合计{_yuan(limit*party)}元（按每人×{party}人换算）。' if party else ''
     return f'按每人预算核对：已知费用每人约{_yuan(known)}元，{verdict}{missing}。'+total

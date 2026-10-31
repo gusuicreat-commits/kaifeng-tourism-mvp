@@ -72,6 +72,42 @@ def test_over_budget_says_by_how_much_and_keeps_the_plan_confirmable():
     assert '2人合计已知费用约840元，预算合计600元（按每人×2人换算）' in sentence
 
 
+@pytest.mark.parametrize('basis', ['explicit', 'pricing', 'budget'])
+@pytest.mark.parametrize('limit,verdict', [(40000, '在预算内'), (20000, '超出约100元')])
+def test_party_priced_cost_is_divided_once_for_each_explicit_basis(basis,limit,verdict):
+    values={'per_person_budget_fen':limit,'party_size':2}
+    itinerary={'known_cost_upper_fen':60000,'cost_unknown':False}
+    if basis=='pricing':values.update(schema_version='city-constraints/2',pricing={'party_size':2})
+    if basis=='budget':itinerary['budget']={'known_total_fen':60000}
+    sentence=check(values,itinerary,days=[day()]*(1 if basis=='explicit' else 2),ctx=ctx(),party_priced=basis=='explicit')
+    assert f'已知费用每人约300元，{verdict}' in sentence
+    assert f'2人合计已知费用约600元，预算合计{limit*2//100}元' in sentence
+
+
+def test_party_priced_cost_rounds_up_per_person_without_rounding_the_total(monkeypatch):
+    from app.city.agent import budget_check
+    monkeypatch.setattr(budget_check,'_yuan',lambda fen:f'{fen/100:.2f}')
+    sentence=check({'per_person_budget_fen':3333,'pricing':{'party_size':3}},
+        {'known_cost_upper_fen':10001,'cost_unknown':False},days=[day(),day()],ctx=ctx())
+    assert '已知费用每人约33.34元，超出约0.01元' in sentence
+    assert '3人合计已知费用约100.01元，预算合计99.99元' in sentence
+
+
+def test_party_priced_daily_budget_scales_days_only_in_the_limit():
+    sentence=check({'per_person_budget_fen':40000,'per_person_budget_daily':True,'pricing':{'party_size':2}},
+        {'known_cost_upper_fen':120000,'cost_unknown':False},days=[day(),day()],ctx=ctx())
+    assert '已知费用每人约600元，在预算内（每人每天400元×2天，每人800元）' in sentence
+    assert '2人合计已知费用约1200元，预算合计1600元' in sentence
+
+
+@pytest.mark.parametrize('pricing', [None, {'party_size':None}])
+def test_multiday_without_priced_party_keeps_legacy_per_person_cost(pricing):
+    sentence=check({'per_person_budget_fen':40000,'party_size':2,'schema_version':'city-constraints/2','pricing':pricing},
+        {'known_cost_upper_fen':30000,'cost_unknown':False},days=[day(),day()],ctx=ctx())
+    assert '已知费用每人约300元，在预算内' in sentence
+    assert '2人合计已知费用约600元' in sentence
+
+
 def test_all_costs_unknown_cannot_be_checked():
     sentence = check({'per_person_budget_fen': 80000}, {'known_cost_upper_fen': 0, 'cost_unknown': True},
         days=[day([('visit', 'museum')], [leg('driving', None), leg('walking', 0, [None])])], ctx=ctx())
@@ -95,6 +131,32 @@ def per_person_fields(quote, value):
     return [field('date', '2030-05-01', '2030-05-01'), field('start_time', '09:00', '上午9点'), field('end_time', '20:00', '晚上8点'),
             field('origin', '[合成测试]origin', '[合成测试]origin'), field('destination', '[合成测试]hotel', '[合成测试]hotel'),
             field('budget_fen', value, quote) | {'budget_basis': 'per_person'}]
+
+
+def ticket_price(city):
+    from app.city import facts
+    from app.city.engine.models import OperationalBundle
+    from app.city.engine.storage import import_operations
+    from app.db import connect
+    cost=next(c for c in city['data']['operations']['costs'] if c['place_id']=='museum').copy()
+    cost.update(revision=2,unit='per_person',lower_fen=30000,upper_fen=30000)
+    with connect() as db:
+        import_operations(db,OperationalBundle.model_validate({'costs':[cost]}),facts.records(db),apply=True)
+
+
+@pytest.mark.parametrize('people,party', [('我们两个人，',2), ('',None)])
+def test_single_day_priced_ticket_reply_uses_preview_party_total(city,monkeypatch,people,party):
+    ticket_price(city)
+    text=prepare(city,monkeypatch)+'，'+people+'预算每人400元'
+    model(monkeypatch,text,per_person_fields('预算每人400元',40000))
+    task=run(city,text)
+    assert task['status']=='answered',task
+    result=task['result']['planning_workflow']['result']
+    assert result['planning']['result']['itineraries'][0]['known_cost_upper_fen']==30000*(party or 1)
+    assert '已知费用每人约300元，在预算内（每人400元）' in task['result']['reply']
+    if party:assert '2人合计已知费用约600元，预算合计800元' in task['result']['reply']
+    else:assert '人合计' not in task['result']['reply']
+    assert '方案出来后' not in task['result']['reply'] and get(city)['route_version']==0
 
 
 @pytest.mark.parametrize('people,party', [('我们三个人，', 3), ('和朋友一起，', None)])
@@ -144,6 +206,27 @@ def test_multi_day_per_person_budget_with_a_stated_party_uses_the_trip_summary(c
     assert '全程已计入费用' in task['result']['reply'] and '按每人预算核对' not in task['result']['reply']
     # Unknown items read like the per-person check: grouped, in visitor words.
     assert '（未计入：餐饮、住宿）' in task['result']['reply'], task['result']['reply']
+
+
+def test_multi_day_priced_ticket_check_uses_the_real_preview_total(city,monkeypatch,basket_material):
+    ticket_price(city)
+    text=daily_text(marker='两天都',end='2030-05-04')+'，我们两个人，预算每人400元'
+    budget=field('budget_fen',40000,'预算每人400元')|{'budget_basis':'per_person'}
+    model(monkeypatch,text,range_fields('2030-05-04')+daily_fields('every_day')+[budget])
+    task=run(city,text)
+    assert task['status']=='needs_confirmation',task
+    plan=task['result']['planning_workflow']['result']['result']['itineraries'][0]
+    assert len(plan['days'])==2 and plan['known_cost_upper_fen']==60000
+    assert plan['budget']['known_total_fen']==60000 and plan['budget']['per_person_fen']==30000
+    # The normal multi-day reply uses the total summary; check must also handle its party-priced input.
+    assert '全程已计入费用约600元' in task['result']['reply']
+    days=[{'activities':d['itinerary']['activities'],'legs':d['itinerary']['legs'],
+        'starts_at':d['requirements']['starts_at'],'ends_at':d['requirements']['ends_at']} for d in plan['days']]
+    for itinerary in (plan,{k:v for k,v in plan.items() if k!='budget'}):
+        sentence=check(saved(city),itinerary,days=days,overnight=True)
+        assert '已知费用每人约300元，在预算内（每人400元）' in sentence
+        assert '2人合计已知费用约600元，预算合计800元' in sentence
+    assert get(city)['route_version']==0
 
 
 def test_multi_day_total_budget_reaches_the_shared_budget_summary(city, monkeypatch, basket_material):

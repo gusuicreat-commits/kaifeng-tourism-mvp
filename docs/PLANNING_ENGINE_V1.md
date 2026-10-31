@@ -4,6 +4,14 @@
 
 2026-10-23状态复核：前端素材篮/协商、V3助手与正式行程确认已接通，真实高德报价和参考问路已有分轮证据；正式交通时段准入、真实业务资料和现场验收仍待完成。完整现状见 [PROJECT_STATUS](PROJECT_STATUS.md)，不能继续把2026-10-21的未接线项当作现状。
 
+## E22 单日人数计价（2026-10-31，待 Claude 验收）
+
+单日 `exploration.preview_plan` 在明确 `party_size` 时，将人数、人均预算及每日口径投影到 `Requirements.pricing`，其他计价选项保留默认值；未给人数时仍不设置 pricing，按原有一份费用计算。`budget_fen` 仍是总预算硬上限，人均预算仍作核对提示。地点、交通及入园边界共用 `costing.place_amount/travel_amount`，未知单位不猜人数或计价口径。候选持久化完整 requirements，确认重新准备与独立校验沿用同一 pricing，正式路线的 `known_cost_upper_fen` 与预览一致；前端直接展示这个总额。
+
+`solver.py` 的两处 `req.pricing is None` 费用权重在 pricing 非空时由 `set_objective` 的独立省钱分支接替：非硬计价先固定目标收益，再按缺价项数量、实际金额排序，最后比较时间。无需修改 solver；`backend/tests/test_single_day_party_pricing.py` 覆盖两人门票预算 500/700 元、人数缺省、人均预算非硬约束、确认一致，以及便宜但较慢的景点和交通选择。仅使用隔离合成资料。
+
+回复核对发现 `agent/budget_check.py` 的旧单日逻辑将 `known_cost_upper_fen` 视为人均金额，明确人数后会再次倍乘；本任务禁止改 `agent/`，此项待范围例外确认后修复，不能宣称单日按人预算回复已经一致。`full-flow.spec.ts` 的 8b 用例已按后端 issues 原文断言，无需猜测或改写固定文字。
+
 ## E12 多天交通报价复用（2026-10-31，待 Claude 验收）
 
 `live_travel.enrich` 在一次多天补全过程中，按起终点坐标、交通方式和北京时间 `HH:MM` 缓存报价（含失败结果）；跨日期同一时刻复用，不同出发时刻分别请求。命中不等待请求间隔、不消耗请求额度；各日 Journey 的 identity、证据有效期和快照仍独立生成。15 秒时限或 60 次上限用完后仍遍历剩余路段和日期：缓存命中继续生成当天快照，未命中不再请求或等待。单日及未传缓存的 `_enrich_day` 保持原有请求数和 Journey 前缀，缓存不跨调用保存。模块 INFO 日志记录本次 `provider_requests`、`cache_hits` 与因预算跳过的 `budget_skipped`（按路段与交通方式计数），每日另记跳过数，不改变 API 契约。

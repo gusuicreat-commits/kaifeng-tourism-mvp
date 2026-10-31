@@ -59,7 +59,7 @@ def _budget_reply(constraints,itinerary,days,notes,overnight=False):
             '；当前核算超过预算，方案仍可确认。' if budget['status']=='over' else '；当前核算在预算内（含估计金额）。' if budget['status']=='within_budget' else '。'
         return clean+f"全程已计入费用约{_yuan(budget['known_total_fen'])}元"+suffix
     from .budget_check import check,recorded_note
-    sentence=check(constraints,itinerary,days=days,overnight=overnight)
+    sentence=check(constraints,itinerary,days=days,overnight=overnight,party_priced=constraints.get('schema_version')!='city-constraints/2' and constraints.get('party_size') is not None)
     recorded=recorded_note(constraints)
     return ''.join(n for n in notes if not (sentence and n==recorded))+sentence
 

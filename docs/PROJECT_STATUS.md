@@ -1,5 +1,11 @@
 # 项目现状与剩余缺口
 
+## 2026-10-31 E22 单日人数计价（独立分支，待 Claude 验收）
+
+单日预览已按明确人数计地点及交通费用，总预算上限保持原值；不填人数沿用一份费用。候选与正式路线共用 pricing，合成案例中每人 300 元、两人合计 600 元，500 元预算无法排入、700 元可排入并确认。省钱分支继续按实际费用排序，无需修改 solver；验证入口及回复层尚待解决的范围冲突见 [规划引擎 E22](PLANNING_ENGINE_V1.md#e22-单日人数计价2026-10-31待-claude-验收)。未改多天计价或 Agent，未调用真实模型或外部服务，浏览器由 Claude 验收。
+
+验证：新增 10 项合成回归，全量 `.venv/bin/python -m pytest backend/tests -q -p no:cacheprovider` 为 3637 passed / 9 skipped（未配置隔离 PostgreSQL）；四组契约 `--check`、`npx vue-tsc --noEmit`、`npx vite build --configLoader runner` 通过。原测试断言未修改，Playwright 未执行。
+
 ## 2026-10-31 E21 单日必去冲突调整（独立分支，待 Claude 验收）
 
 必去项与出行时段不匹配时提供具体原因，合排冲突区分单独来不及与共同排不下；按原引擎核算可行的时间、日期及改为想去选项，点击时间选项直接重新预览，确认后才修改正式路线。营业时间未知等缺数据行为保留。求解预算与边界见 [规划流程 E21](PLANNING_WORKFLOW.md#e21-单日必去冲突调整2026-10-31待-claude-验收)；新增 15 项后端合成测试与真实本地后端 Playwright 用例。最终全量后端 3620 passed / 9 skipped（未配置隔离 PostgreSQL），四组契约 `--check`、`npx vue-tsc --noEmit` 和 `npx vite build --configLoader runner` 通过；Playwright `--list` 已识别新增用例，浏览器未执行。未调用真实模型或外部服务，浏览器由 Claude 验收。

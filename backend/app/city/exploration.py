@@ -36,8 +36,7 @@ class Constraints(Strict):
     objective:Literal['balanced','less_walking','less_waiting','lower_cost']='balanced'
     modes:tuple[Literal['walking','driving','transit'],...]=Field(default=('walking',),min_length=1,max_length=3)
     budget_fen:int | None=Field(default=None,ge=0,le=100000000)
-    # A per-person budget is checked against the plan's known per-person costs after
-    # preview; it never enters the solver, whose budget is a hard total.
+    # A per-person budget stays advisory; budget_fen is the solver's hard total.
     per_person_budget_fen:int | None=Field(default=None,ge=0,le=100000000)
     per_person_budget_daily:bool=False
     party_size:int | None=Field(default=None,ge=1,le=50)
@@ -472,6 +471,11 @@ def preview_plan(trip_id,body,s,*,execution_guard=None):
         draft=guard_single_day(db,row)
         ctx=engine.context(db)
         values=body.constraints.model_dump(exclude={'preferences','origin_text','destination_text',*AGENT_ONLY})
+        if body.constraints.party_size is not None:
+            from .budget_models import PricingOptions
+            values['pricing']=PricingOptions(party_size=body.constraints.party_size,
+                per_person_budget_fen=body.constraints.per_person_budget_fen,
+                per_person_daily=body.constraints.per_person_budget_daily)
         endpoint_replaced=False
         for k in ('origin_place_id','destination_place_id'):
             if values[k]:
