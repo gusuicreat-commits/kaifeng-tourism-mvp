@@ -131,7 +131,7 @@ def _execute(session,t,intent,proposed=None):
         if travel_services.read(db,t.trip_id)['version']!=service_version:
             raise HTTPException(409,detail={'code':'SERVICE_CONDITIONS_CHANGED'})
     if action['constraints'].get('schema_version')=='city-constraints/2':
-        from ..engine.models import MultiDayConstraints,MultiDayRequirements,PreviewRequestV2
+        from ..engine.models import MultiDayConstraints
         from .multi_day_intent import _questions
         constraints=MultiDayConstraints.model_validate(action['constraints'])
         missing=_questions(action['constraints'])
@@ -153,22 +153,10 @@ def _execute(session,t,intent,proposed=None):
                     'date_changed':action['date_changed'],'result':{'status':'needs_clarification' if missing or conflicts else 'unknown',
                         'issues':[{'code':'PLANNING_FIELD_CONFLICT' if conflicts else 'BASKET_CONFIRMATION_REQUIRED'}] if conflicts or pending else [],
                         'constraints':constraints.model_dump(mode='json')}}}
-        from ..engine.models import DayRequirements
-        req_data=constraints.model_dump(mode='json')
-        req_data['days']=[{k:v for k,v in d.items() if k in DayRequirements.model_fields} for d in req_data['days']]
-        req_data.pop('trip_days',None);req_data.pop('trip_nights',None)
-        for key in ('pending_fields','clarifications','range_impacts',*exploration.AGENT_ONLY):req_data.pop(key,None)
-        req_data['schema_version']='city-engine/2'
-        requirements=MultiDayRequirements.model_validate(req_data)
-        from ...db import connect
-        with connect() as db:
-            db.execute('BEGIN IMMEDIATE');guard(db)
-            saved=exploration_state.save(db,t.trip_id,constraints.model_dump(mode='json'),None,t.snapshot.workspace.get('rounds',0))
-        planning_version=saved['version']
-        result=exploration.engine.preview(session,t.trip_id,PreviewRequestV2(request_id=uuid5(UUID(t.id),'planning-preview'),
-            expected_version=action['trip_version'],requirements=requirements),planning_version=planning_version)
-        t.snapshot.workspace={'version':result.get('planning_version',planning_version),'constraints':constraints.model_dump(mode='json'),
-            'result':result,'rounds':result.get('rounds',0)}
+        result=exploration.preview_plan(UUID(t.trip_id),exploration.PlanV2(
+            request_id=uuid5(UUID(t.id),'planning-preview'),expected_version=action['trip_version'],
+            basket_version=basket_version,planning_version=planning_version,constraints=constraints),session,execution_guard=guard)
+        constraints=MultiDayConstraints.model_validate(result['constraints'])
         from ..assistant import context as assistant_context
         t.snapshot=assistant_context.load(session,t.trip_id,'modify',t.text)
         plan=(((result.get('result') or {}).get('itineraries') or [None])[0]) if result.get('status') in ('preview','feasible') else None

@@ -13,7 +13,7 @@ from . import facts
 from . import basket, state, exploration_state
 from .schema import Strict, EntityId
 from .engine import service as engine
-from .engine.models import Goal, Requirements, PreviewRequest, ReplanRequest, MultiDayConstraints
+from .engine.models import Goal, TripGoal, Requirements, PreviewRequest, ReplanRequest, MultiDayConstraints
 from .versions import guard_single_day, read_requirements, single_day
 
 router=APIRouter(prefix='/api/city/v1/trips/{trip_id}/exploration',tags=['Travel basket planning'])
@@ -174,17 +174,56 @@ def preview(trip_id:UUID,body:PlanBody,s:Session=Depends(current)):
     return preview_plan(trip_id,body,s)
 
 
+def _basket_goals(db,s,trip_id,goals,dates=None,*,ctx=None):
+    collected=basket.snapshot(db,s,trip_id);ctx=ctx or engine.context(db)
+    goals=list(goals);unmapped=[];key_by_goal={};goal_meta={};parent_groups={}
+    if dates is not None:
+        active={'basket:'+uuid5(UUID(str(trip_id)),item['key']).hex for item in collected['items']
+                if item['status']!='standby' and item['fact_id']}
+        goals=[g for g in goals if not g.goal_id.startswith('basket:') or g.goal_id in active]
+    for item in collected['items']:
+        if item['status']=='standby':continue
+        if not item['fact_id']:unmapped.append(item['key']);continue
+        fk=item['fact_kind'];identity=item['fact_id'];fact=ctx.facts.get((fk,identity))
+        if fk=='vendor':identity=fact.place_id;fk='place'
+        if fk=='show_session':fk='session'
+        gid='basket:'+uuid5(UUID(str(trip_id)),item['key']).hex
+        existing=next((g for g in goals if g.goal_id==gid),None) if dates is not None else next(
+            (g for g in goals if g.target_kind==fk and g.target_id==identity),None)
+        priority={'required':item['priority']=='must','importance':{'must':10,'want':6,'optional':1}[item['priority']]}
+        if existing:
+            changes=priority if dates is not None else {'required':True} if priority['required'] else {}
+            goal=existing.model_copy(update=changes)
+            goals=[goal if g.goal_id==existing.goal_id else g for g in goals]
+        else:
+            values={'goal_id':gid,'target_kind':fk,'target_id':identity,
+                'kind':'show' if fk in ('session','program') else 'dining' if fk=='food' or getattr(ctx.facts.get(('place',identity)),'place_type',None)=='restaurant' else 'visit',**priority}
+            goal=Goal(**values) if dates is None else TripGoal(**values,allowed_dates=dates,fixed_date=None)
+            goals.append(goal)
+        key_by_goal[goal.goal_id]=item['key']
+        goal_meta[goal.goal_id]={'key':item['key'],'name':item['name'],'status':item['status'],'goal':goal}
+        if (dates is not None or not existing) and getattr(fact,'parent_place_id',None):parent_groups[identity]=fact.parent_place_id
+    # Until internal duration/path coverage can be reconciled, do not double count a park and its POIs.
+    grouped=[child for child,parent in parent_groups.items() if any(g.target_kind=='place' and g.target_id==parent for g in goals)]
+    return collected,ctx,goals,unmapped,key_by_goal,goal_meta,grouped
+
+
 def preview_plan(trip_id,body,s,*,execution_guard=None):
     if isinstance(body,PlanV2):
         from .engine.models import PreviewRequestV2,MultiDayRequirements,DayRequirements
         limit('exploration:'+s.id,20)
         with connect() as db:
+            if execution_guard:execution_guard(db)
             row=state.owned(db,s,trip_id);state.check_version(row,body.expected_version);basket.guard(db,trip_id,body.basket_version)
             workspace=exploration_state.read(db,trip_id)
             if body.planning_version is not None:exploration_state.guard(db,trip_id,body.planning_version)
             from . import hotel_binding,travel_services
             projected,hotel_issues=hotel_binding.project(db,body.constraints.model_dump(mode='json'),
                                                         travel_services.read(db,trip_id))
+            if not body.constraints.days:raise HTTPException(422,detail='请补齐多天每日时段、端点和过夜条件。')
+            _,_,goals,unmapped,_,_,grouped=_basket_goals(db,s,trip_id,body.constraints.goals,
+                tuple(d.business_date for d in body.constraints.days))
+            projected['goals']=[g.model_dump(mode='json') for g in goals]
         pending=[i for i in hotel_issues if i not in hotel_binding.blocking(hotel_issues)]
         hotel_issues=hotel_binding.blocking(hotel_issues)
         if hotel_issues:
@@ -198,17 +237,25 @@ def preview_plan(trip_id,body,s,*,execution_guard=None):
                 projected['pricing']=PricingOptions(party_size=projected.get('party_size'),
                     per_person_budget_fen=projected.get('per_person_budget_fen'),
                     per_person_daily=projected.get('per_person_budget_daily',False)).model_dump(mode='json')
-        body=body.model_copy(update={'constraints':MultiDayConstraints.model_validate(projected)})
+        try:body=body.model_copy(update={'constraints':MultiDayConstraints.model_validate(projected)})
+        except ValidationError:raise HTTPException(422,detail='请检查多天目标数量、日期范围和每日条件。') from None
         req_data=body.constraints.model_dump(mode='json')
         req_data['days']=[{k:v for k,v in d.items() if k in DayRequirements.model_fields} for d in req_data['days']]
         for key in ('trip_days','trip_nights','pending_fields','clarifications','range_impacts',*AGENT_ONLY):req_data.pop(key,None)
         req_data['schema_version']='city-engine/2'
         try:requirements=MultiDayRequirements.model_validate(req_data)
         except ValidationError:raise HTTPException(422,detail='请补齐多天每日时段、端点和过夜条件。') from None
-        result=engine.preview(s,trip_id,PreviewRequestV2(request_id=body.request_id,expected_version=body.expected_version,
-            requirements=requirements),planning_version=workspace['version'])
+        if unmapped:result=unknown('所选内容的地点、商家或场次资料待添加；暂不能核验完整路线。',unmapped)
+        elif grouped:result=unknown('景区与内部看点的时长、路径关系待添加；暂不重复计算成独立城市停靠点。',grouped,'PARENT_CHILD_PENDING')
+        elif not goals:result=unknown('请先在素材篮里加入想去的地点，再生成多天方案。',code='BASKET_EMPTY')
+        else:
+            result=engine.preview(s,trip_id,PreviewRequestV2(request_id=body.request_id,expected_version=body.expected_version,
+                requirements=requirements),planning_version=workspace['version'])
+        if result['status']=='unknown':result['status']='needs_data'
         with connect() as db:
             db.execute('BEGIN IMMEDIATE')
+            if execution_guard:execution_guard(db)
+            state.check_version(state.owned(db,s,trip_id),body.expected_version);basket.guard(db,trip_id,body.basket_version)
             exploration_state.guard(db,trip_id,workspace['version'])
             saved=exploration_state.save(db,trip_id,body.constraints.model_dump(mode='json'),result,workspace['rounds'])
             # Saving the workspace bumps its version; the candidate must carry the version it
@@ -231,7 +278,7 @@ def preview_plan(trip_id,body,s,*,execution_guard=None):
         workspace=exploration_state.read(db,trip_id)
         planning_version=workspace['version']
         if body.planning_version is not None:exploration_state.guard(db,trip_id,body.planning_version)
-        collected=basket.snapshot(db,s,trip_id);draft=guard_single_day(db,row)
+        draft=guard_single_day(db,row)
         ctx=engine.context(db)
         values=body.constraints.model_dump(exclude={'origin_text','destination_text',*AGENT_ONLY})
         endpoint_replaced=False
@@ -243,7 +290,6 @@ def preview_plan(trip_id,body,s,*,execution_guard=None):
         missing=[k for k in ('business_date','starts_at','ends_at') if values[k] is None]
         missing += [k+'_place_id' for k in ('origin','destination') if not values[k+'_place_id'] and not getattr(body.constraints,k+'_text')]
         unmatched=[k for k in ('origin','destination') if not values[k+'_place_id'] and getattr(body.constraints,k+'_text')]
-        goals=[];unmapped=[];key_by_goal={};goal_meta={};parent_groups={}
         # Retain all formal remaining goals, including locks. Saving intentions never edits these.
         old=engine.route_row(db,trip_id)
         original=read_requirements(old['requirements_json']) if old else None
@@ -255,29 +301,7 @@ def preview_plan(trip_id,body,s,*,execution_guard=None):
             goals=[Goal(goal_id=x.stop_id,target_kind='session' if x.session_id else 'place',target_id=x.session_id or x.place_id,
                         kind=x.kind,required=x.locked,duration_seconds=x.duration_seconds,window_start=x.window_start,window_end=x.window_end)
                    for x in draft.stops if x.progress=='pending' and x.kind!='return']
-        for item in collected['items']:
-            if item['status']=='standby':continue
-            if not item['fact_id']:unmapped.append(item['key']);continue
-            fk=item['fact_kind'];identity=item['fact_id'];fact=ctx.facts.get((fk,identity))
-            if fk=='vendor':identity=fact.place_id;fk='place'
-            if fk=='show_session':fk='session'
-            existing=next((g for g in goals if g.target_kind==fk and g.target_id==identity),None)
-            if existing:
-                if item['priority']=='must':goals=[g.model_copy(update={'required':True}) if g.goal_id==existing.goal_id else g for g in goals]
-                key_by_goal[existing.goal_id]=item['key']
-                goal_meta[existing.goal_id]={'key':item['key'],'name':item['name'],'status':item['status'],
-                                             'goal':next(g for g in goals if g.goal_id==existing.goal_id)}
-                continue
-            gid='basket:'+uuid5(UUID(str(trip_id)),item['key']).hex
-            key_by_goal[gid]=item['key']
-            goal=Goal(goal_id=gid,target_kind=fk,target_id=identity,
-                kind='show' if fk in ('session','program') else 'dining' if fk=='food' or getattr(ctx.facts.get(('place',identity)),'place_type',None)=='restaurant' else 'visit',
-                required=item['priority']=='must',importance={'must':10,'want':6,'optional':1}[item['priority']])
-            goals.append(goal)
-            goal_meta[gid]={'key':item['key'],'name':item['name'],'status':item['status'],'goal':goal}
-            if getattr(fact,'parent_place_id',None):parent_groups[identity]=fact.parent_place_id
-        # Until internal duration/path coverage can be reconciled, do not double count a park and its POIs.
-        grouped=[child for child,parent in parent_groups.items() if any(g.target_kind=='place' and g.target_id==parent for g in goals)]
+        collected,ctx,goals,unmapped,key_by_goal,goal_meta,grouped=_basket_goals(db,s,trip_id,goals,ctx=ctx)
     if missing:
         result=unknown('请补充'+ '、'.join({'business_date':'日期','starts_at':'开始时间','ends_at':'结束时间','origin_place_id':'出发地点','destination_place_id':'返程地点'}[k] for k in missing),'','PERSONAL_CHOICE_MISSING')
         result['questions']=[{'field':k} for k in missing]

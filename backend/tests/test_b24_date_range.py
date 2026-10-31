@@ -5,6 +5,7 @@ from app.city.agent.planning_intent import _field_check
 from app.city.agent.date_range import resolve, counts
 from app.city.agent.semantic_execution import grounded_state
 from test_city_assistant import city
+from multi_day_helpers import basket_material
 
 
 def f(name, value, quote, **extra):
@@ -62,7 +63,7 @@ def test_future_state_scope_is_evidenced_and_rejected_by_executor_gate():
     grounded_state(value,'后面几天也一起改，每天休息20分钟')
 
 
-def test_complete_two_day_request_reaches_whole_trip_preview(city, monkeypatch):
+def test_complete_two_day_request_reaches_whole_trip_preview(city, monkeypatch, basket_material):
     from test_planning_understanding import model, field
     from test_city_agent import run
     from test_city_assistant import path
