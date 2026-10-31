@@ -9,6 +9,7 @@ from test_city_agent import run
 from test_planning_understanding import field, model
 from test_agent_backend_orchestration import prepare
 from test_b26_multi_day_conditions import daily_fields, daily_text, range_fields, saved
+from multi_day_helpers import basket_material
 
 
 @pytest.mark.parametrize('text,expected', [
@@ -112,7 +113,7 @@ def test_single_day_preview_checks_the_per_person_budget(city, monkeypatch, peop
     else:assert '人合计' not in reply
 
 
-def test_multi_day_preview_checks_a_daily_per_person_budget(city, monkeypatch):
+def test_multi_day_preview_checks_a_daily_per_person_budget(city, monkeypatch, basket_material):
     text = daily_text() + '，预算每人每天300元'
     budget = field('budget_fen', 30000, '预算每人每天300元') | {'budget_basis': 'per_person'}
     model(monkeypatch, text, range_fields() + daily_fields('every_day') + [budget])
@@ -130,7 +131,7 @@ def test_multi_day_preview_checks_a_daily_per_person_budget(city, monkeypatch):
     assert '多天全程预算尚未接通' not in reply and get(city) == before
 
 
-def test_multi_day_per_person_budget_with_a_stated_party_uses_the_trip_summary(city, monkeypatch):
+def test_multi_day_per_person_budget_with_a_stated_party_uses_the_trip_summary(city, monkeypatch, basket_material):
     text = daily_text() + '，我们三个人，预算每人每天300元'
     budget = field('budget_fen', 30000, '预算每人每天300元') | {'budget_basis': 'per_person'}
     model(monkeypatch, text, range_fields() + daily_fields('every_day') + [budget])
@@ -145,7 +146,7 @@ def test_multi_day_per_person_budget_with_a_stated_party_uses_the_trip_summary(c
     assert '（未计入：餐饮、住宿）' in task['result']['reply'], task['result']['reply']
 
 
-def test_multi_day_total_budget_reaches_the_shared_budget_summary(city, monkeypatch):
+def test_multi_day_total_budget_reaches_the_shared_budget_summary(city, monkeypatch, basket_material):
     text = daily_text() + '，总预算900元'
     budget = field('budget_fen', 90000, '总预算900元') | {'budget_basis': 'total'}
     model(monkeypatch, text, range_fields() + daily_fields('every_day') + [budget])

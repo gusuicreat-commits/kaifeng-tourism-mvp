@@ -1,5 +1,23 @@
-"""Synthetic V2 shapes only; these are not solver or real-route acceptance fixtures."""
+"""Synthetic V2 shapes and opt-in basket facts; never real-route acceptance evidence."""
 from datetime import date, datetime, timedelta
+import pytest
+
+
+@pytest.fixture
+def basket_material(city):
+    from app.db import connect
+    from app.city import facts
+    from test_exploration import collect
+    records=[]
+    with connect() as db:
+        rule=facts.records(db)['open_rule','open:museum']
+        for offset in (2,3,4):
+            records.append(rule.model_copy(update={'fact_id':rule.fact_id+':basket-day'+str(offset),
+                'business_date':rule.business_date+timedelta(days=offset),
+                **{k:getattr(rule,k)+timedelta(days=offset) if getattr(rule,k) else None for k in ('opens_at','closes_at','last_entry_at')}}))
+        facts.import_bundle(facts.FactBundle(records=records),db,apply=True)
+    response=collect(city['client'],city['trip'],'place','museum')
+    assert response.status_code==200,response.text
 
 
 def requirements(count=2):

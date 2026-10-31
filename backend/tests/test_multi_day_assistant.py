@@ -18,10 +18,11 @@ from test_city_assistant import city,walking,get,path
 from test_agent_in_trip_changes import active_current
 from test_multi_day_api import multi_engine,committed,start_today
 from test_city_engine_api import engine,confirm as engine_confirm
+from multi_day_helpers import basket_material
 
 
 @pytest.mark.parametrize('iso_ref',[False,True])
-def test_new_multi_day_daily_times_accept_normalized_day_refs(city,monkeypatch,iso_ref):
+def test_new_multi_day_daily_times_accept_normalized_day_refs(city,monkeypatch,iso_ref,basket_material):
     from test_planning_understanding import model,field
     from test_city_agent import run
     text='5月3日玩两天，每天20点结束；第一天九点出发，从[合成测试]origin到[合成测试]hotel；第二天十点出发，从[合成测试]hotel回[合成测试]origin'

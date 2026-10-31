@@ -6,6 +6,7 @@ from test_city_assistant import city, path, get
 from test_city_agent import run
 from test_agent_output_tolerance import emit, parse
 from test_planning_understanding import field, model
+from multi_day_helpers import basket_material
 
 
 def range_fields(end='2030-05-05'):
@@ -59,7 +60,7 @@ def test_repeated_short_quote_in_unrelated_sentences_cannot_borrow_scope():
 
 @pytest.mark.parametrize('scope',[None,'every_day'])
 @pytest.mark.parametrize('marker',['这几天都','每日都一样'])
-def test_short_quotes_in_parallel_clauses_apply_to_all_days(city,monkeypatch,scope,marker):
+def test_short_quotes_in_parallel_clauses_apply_to_all_days(city,monkeypatch,scope,marker,basket_material):
     text=daily_text(marker);before=get(city)
     model(monkeypatch,text,range_fields()+daily_fields(scope));task=run(city,text)
     assert task['status']=='needs_confirmation',task
@@ -179,7 +180,7 @@ def test_later_daily_answer_replaces_unscoped_pending_values(city,monkeypatch):
     assert '出发时间用于哪一天' not in task['result']['reply']
 
 
-def test_lodging_location_can_be_corrected_without_changing_endpoints(city,monkeypatch):
+def test_lodging_location_can_be_corrected_without_changing_endpoints(city,monkeypatch,basket_material):
     text=daily_text()+'，帮我查住在未登记住处的酒店'
     monkeypatch.setattr(hotels,'search',lambda q:{'status':'ok','items':[]})
     model(monkeypatch,text,range_fields()+daily_fields(),service_query={'quote':'帮我查住在未登记住处的酒店',
@@ -217,7 +218,7 @@ def test_single_day_never_supplies_hotel_dates(city,monkeypatch,multi_schema):
     assert '请提供入住日期' in task['result']['reply'] and '请提供退房日期或住几晚' in task['result']['reply']
 
 
-def test_one_utterance_with_short_quotes_and_lodging_reaches_whole_preview(city,monkeypatch):
+def test_one_utterance_with_short_quotes_and_lodging_reaches_whole_preview(city,monkeypatch,basket_material):
     text=daily_text('各天')+'，帮我查住在[合成测试]origin的酒店'
     monkeypatch.setattr(hotels,'search',lambda q:{'status':'ok','items':[]})
     model(monkeypatch,text,range_fields()+daily_fields(),service_query={
@@ -237,7 +238,7 @@ def test_every_day_evidence_needs_a_count_or_range_before_dou(sentence,daily):
 
 
 @pytest.mark.parametrize('stay,asks',[('[合成测试]origin附近',False),('[合成测试]origin那边',False),('未登记住处附近',True)])
-def test_stay_described_around_the_shared_endpoint_is_that_overnight_place(city,monkeypatch,stay,asks):
+def test_stay_described_around_the_shared_endpoint_is_that_overnight_place(city,monkeypatch,stay,asks,basket_material):
     text=daily_text()+f'，晚上住{stay}'
     monkeypatch.setattr(hotels,'search',lambda q:{'status':'ok','items':[]})
     model(monkeypatch,text,range_fields()+daily_fields(),service_query={'quote':f'晚上住{stay}','fields':[field('location_text',stay,stay)]})
