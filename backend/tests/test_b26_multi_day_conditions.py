@@ -2,11 +2,48 @@ import pytest
 
 from app.city import hotels
 from app.city.agent.date_range import daily_evidence
+from app.city.agent.multi_day_intent import link_overnights
 from test_city_assistant import city, path, get
 from test_city_agent import run
 from test_agent_output_tolerance import emit, parse
 from test_planning_understanding import field, model
-from multi_day_helpers import basket_material
+from multi_day_helpers import basket_material, requirements
+
+
+def test_link_overnights_derives_matching_boundaries():
+    values=requirements(3);values.pop('overnights')
+    nights=link_overnights(values)['overnights']
+    assert nights==[{'overnight_id':'night:'+a['business_date'],'from_day_id':'day:'+a['business_date'],
+        'to_day_id':'day:'+b['business_date'],'night_date':a['business_date'],'place_id':'hotel','source_kind':'user_place'}
+        for a,b in zip(values['days'],values['days'][1:])]
+
+
+@pytest.mark.parametrize('origin',['hotel','origin',None])
+def test_link_overnights_preserves_selected_hotel_by_night_date(origin):
+    values=requirements(3)
+    selected=values['overnights'][0]|{'source_kind':'selected_hotel','service_selection_id':'flyai:hotel',
+        'service_version':7,'binding_revision':2,'check_in':'2030-05-01T15:00:00+08:00','check_out':'2030-05-03T12:00:00+08:00'}
+    values['overnights']=[values['overnights'][1],selected]
+    values['days'][1]['origin_place_id']=origin
+    nights=link_overnights(values)['overnights']
+    assert nights[0]==selected
+    assert nights[1]['night_date']=='2030-05-02' and nights[1]['source_kind']=='user_place'
+
+
+@pytest.mark.parametrize('destination,origin,expected',[
+    ('origin','origin','origin'),('origin','hotel',None),(None,None,None)])
+def test_link_overnights_rederives_old_user_place(destination,origin,expected):
+    values=requirements();link_overnights(values)
+    values['days'][0]['destination_place_id']=destination
+    values['days'][1]['origin_place_id']=origin
+    nights=link_overnights(values)['overnights']
+    assert [o['place_id'] for o in nights]==([expected] if expected else [])
+
+
+def test_link_overnights_does_not_guess_between_different_endpoints():
+    values=requirements();values.pop('overnights')
+    values['days'][1]['origin_place_id']='origin'
+    assert link_overnights(values)['overnights']==[]
 
 
 def range_fields(end='2030-05-05'):

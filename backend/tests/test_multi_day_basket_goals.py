@@ -30,6 +30,29 @@ def preview(e,values):
 def goal_id(e,key):return 'basket:'+uuid5(UUID(e[1]['id']),key).hex
 
 
+@pytest.mark.parametrize('matching',[True,False])
+def test_direct_preview_links_only_matching_overnight_endpoints(basket_trip,matching):
+    e,values=basket_trip;c,t,_=e
+    assert collect(c,t,'place','museum','must').status_code==200
+    for d in values['days']:d['origin_place_id']=d['destination_place_id']='hotel'
+    if not matching:values['days'][1]['origin_place_id']='origin'
+    values.pop('overnights')
+    before=c.get(base(t)).json()
+    result=preview(e,values)
+    nights=result['constraints']['overnights']
+    assert c.get(base(t)+'/exploration/constraints').json()['constraints']==result['constraints']
+    assert c.get(base(t)).json()==before
+    if matching:
+        assert result['status']=='preview' and result['result']['status']=='feasible',result
+        assert len(nights)==1 and nights[0]['source_kind']=='user_place' and nights[0]['place_id']=='hotel'
+        assert all(p['overnights'][0]['place_id']=='hotel' for p in result['result']['itineraries'])
+        assert not any(i['code']=='OVERNIGHT_PENDING' for i in result['result']['issues'])
+    else:
+        assert nights==[] and result['status']=='needs_data',result
+        assert any(i['code']=='OVERNIGHT_PENDING' for i in result['result']['issues'])
+        assert not result.get('candidate_id')
+
+
 def test_two_basket_places_enter_whole_plan_and_saved_constraints(basket_trip):
     e,values=basket_trip;c,t,_=e
     for pid in ('museum','garden'):assert collect(c,t,'place',pid).status_code==200

@@ -211,6 +211,7 @@ def _basket_goals(db,s,trip_id,goals,dates=None,*,ctx=None):
 def preview_plan(trip_id,body,s,*,execution_guard=None):
     if isinstance(body,PlanV2):
         from .engine.models import PreviewRequestV2,MultiDayRequirements,DayRequirements
+        from .agent.multi_day_intent import link_overnights
         limit('exploration:'+s.id,20)
         with connect() as db:
             if execution_guard:execution_guard(db)
@@ -218,7 +219,7 @@ def preview_plan(trip_id,body,s,*,execution_guard=None):
             workspace=exploration_state.read(db,trip_id)
             if body.planning_version is not None:exploration_state.guard(db,trip_id,body.planning_version)
             from . import hotel_binding,travel_services
-            projected,hotel_issues=hotel_binding.project(db,body.constraints.model_dump(mode='json'),
+            projected,hotel_issues=hotel_binding.project(db,link_overnights(body.constraints.model_dump(mode='json')),
                                                         travel_services.read(db,trip_id))
             if not body.constraints.days:raise HTTPException(422,detail='请补齐多天每日时段、端点和过夜条件。')
             _,_,goals,unmapped,_,_,grouped=_basket_goals(db,s,trip_id,body.constraints.goals,

@@ -169,10 +169,7 @@ def _quick_multiday_defaults(values, today, snapshot):
             if field not in unresolved and not day.get(key) and not day.get(text_key):
                 day[key]=QUICK_PLACE_ID;day[text_key]=None;fields.append((field,None))
         day_added.append((index,fields))
-    selected=[o for o in constraints['overnights'] if o['source_kind']=='selected_hotel']
     constraints=link_overnights(constraints)
-    constraints['overnights']=[next((old for old in selected if old['night_date']==o['night_date']),o)
-                               for o in constraints['overnights']]
     constraints['clarifications']=list(dict.fromkeys(constraints['clarifications']))
     common=set.intersection(*(set(field for field,_ in fields) for _,fields in day_added))
     shared=[item for item in day_added[0][1] if item[0] in common]

@@ -39,9 +39,12 @@ def _questions(values):
 
 
 def link_overnights(values):
-    """Derive user-place overnights from adjacent, matching daily endpoints."""
+    """Keep explicit overnights; rederive user places from current daily endpoints."""
+    existing={o['night_date']:o for o in values.get('overnights',()) if o['source_kind']!='user_place'}
     nights=[]
     for a,b in zip(values.get('days',()),values.get('days',())[1:]):
+        if a['business_date'] in existing:
+            nights.append(existing[a['business_date']]);continue
         place=a.get('destination_place_id');other=b.get('origin_place_id')
         if place and other and place==other:
             nights.append({

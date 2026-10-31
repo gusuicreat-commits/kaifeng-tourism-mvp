@@ -467,3 +467,9 @@ B2 只接受 `user_place` 已有地点；过夜地点证据由服务端事实计
 `exploration._basket_goals` 共用素材篮快照、事实映射、候补/未映射过滤及公园与园内点重复计数检查。多天以稳定的 `basket:` 目标 ID 同步当前篮中目标；已有同 ID 目标只更新 required/importance，保留 allowed_dates/fixed_date 及其他限制；新目标允许引擎分配到所有行程日期。删除或候补的篮中目标从本轮条件移除，非篮中目标保留。同步条件写入工作区并返回，供“暂不安排”展示；空篮且无其他目标返回 needs_data，不生成候选。小汴梁多天路径也改用此预览入口，沿用原确认及版本门，不改日期追问或求解器。
 
 验证入口：`backend/tests/test_multi_day_basket_goals.py`，覆盖篮中目标进入真实本地求解、固定日期、优先级、移除/候补、空篮、缺映射、事实类型映射、公园/园内点检查，以及小汴梁替身与候选确认。既有多天日期/住宿/预算正向用例补入显式合成篮中地点，保留原断言；单日用例未改。真实资料库另复制到临时库实测，使用既有 FakeProvider 交通替身且封锁外网，原库与删除台账哈希不变；实际铁塔景区 ID 为 `pl_wb_000006`，任务所给 `pl_wb_000003` 对应开封府。这些结果不代表真实交通或现场验收。
+
+## 21. E10d 多天预览自动衔接过夜（2026-10-31，待 Claude 验收）
+
+`link_overnights` 按相邻日的 `night_date` 原样保留已有非 `user_place` 过夜；其余边界仅在前日终点与次日起点相同时生成 `user_place`，旧的 `user_place` 随端点更新或移除。快速模式直接共用此逻辑。`exploration.preview_plan` 的 PlanV2 分支在 `hotel_binding.project` 前补齐过夜，随规划条件保存并返回；端点不同且没有过夜时继续由现有引擎返回 `OVERNIGHT_PENDING`，不推测住处。
+
+验证入口：`backend/tests/test_b26_multi_day_conditions.py` 覆盖匹配边界、按晚保留酒店及端点变化；`backend/tests/test_multi_day_basket_goals.py` 直接提交不带过夜的双日条件，验证合成素材篮可行预览、工作区持久化、正式行程不变，以及不匹配边界仍待补资料。既有多天、酒店、快速模式断言不变；未修改引擎、接口契约或前端，未调用真实模型或外部服务。
