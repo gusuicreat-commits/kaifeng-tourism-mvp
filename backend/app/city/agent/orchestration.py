@@ -21,7 +21,13 @@ def _ready_reply(result):
     kept={a.get('goal_id') for a in first.get('activities',())}
     names=result.get('activity_names') or {}
     left=[names[g] for g in result.get('goal_keys') or {} if g not in kept and names.get(g)]
-    return '方案已准备好。'+(f"时间不够，这版没排进：{'、'.join(left)}。" if left else '')+'请点“确认方案”保存。'
+    explained=((result.get('unscheduled') or {}).get('0') or ())
+    if explained:
+        omitted='、'.join(f"{item.get('name') or names.get(item.get('goal_id'),'资料待添加')}（{item['reason']}）" for item in explained)
+        detail=f'这版没排进：{omitted}。'
+    else:
+        detail=f"时间不够，这版没排进：{'、'.join(left)}。" if left else ''
+    return '方案已准备好。'+detail+'请点“确认方案”保存。'
 
 
 def _missing_items(budget):

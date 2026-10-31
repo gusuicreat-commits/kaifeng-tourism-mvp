@@ -97,6 +97,71 @@ def planning_endpoint(items, place_id):
     return outside[0] if len(outside)==1 else place_id
 
 
+UNSCHEDULED_REASON_RULES=(
+    (frozenset({'OPENING_UNKNOWN','OPENING_AMBIGUOUS_OR_STALE'}),'opening_unknown','这天的营业时间资料不全'),
+    (frozenset({'TIME_WINDOW_EMPTY'}),'closed_in_window','开放时间和你的出行时段对不上'),
+    (frozenset({'SESSION_TIME_UNKNOWN','SESSION_OUTSIDE_OPENING_OR_GOAL_WINDOW','SESSION_NOT_READY'}),'no_session','这天没有可安排的场次'),
+    (frozenset({'RESERVATION_NOT_CONFIRMED','TICKET_NOT_CONFIRMED'}),'access_unconfirmed','需要先确认预约或门票'),
+    (frozenset({'COST_UNKNOWN'}),'cost_unknown','费用未知，按你的预算条件排不进'),
+)
+UNSCHEDULED_FALLBACK=('data_missing','位置或交通资料不全')
+UNSCHEDULED_TOO_FAR=('too_far_alone','单独去也来不及：路程加停留超出你的时间段')
+UNSCHEDULED_CONFLICT=('time_conflict','和其他地点放在一起时间不够')
+
+
+def _unscheduled_reason(reasons):
+    reasons=set(reasons)
+    for expected,code,reason in UNSCHEDULED_REASON_RULES:
+        if reasons & expected:return code,reason
+    return UNSCHEDULED_FALLBACK if reasons else None
+
+
+def _has_usable_transport(problem, goal_id):
+    """Return false only when the prepared target has no known path to the day endpoints."""
+    activities=[a for a in problem.activities if a.goal_id==goal_id]
+    if not activities:return True
+    origin=problem.requirements.origin_place_id;destination=problem.requirements.destination_place_id
+    return any(problem.matrix.get((origin,a.place_id)) and problem.matrix.get((a.place_id,destination)) for a in activities)
+
+
+def _unscheduled(solve_result, req, ctx, goal_keys, goal_meta):
+    """Explain omitted basket goals without changing the solver's selected activities."""
+    itineraries=solve_result.get('itineraries') or ()
+    if not itineraries:return {}
+    blocked={}
+    for item in (solve_result.get('metrics') or {}).get('blocked_candidates') or ():
+        blocked.setdefault(item.get('goal_id'),set()).update(item.get('reasons') or ())
+    try:problem=engine.prepare(req,ctx)
+    except Exception:problem=None
+    solo_cache={};solo_count=0
+    output={}
+    for alternative_index,itinerary in enumerate(itineraries):
+        kept={a.get('goal_id') for a in itinerary.get('activities') or ()}
+        omitted=[gid for gid in goal_keys if gid not in kept and goal_meta.get(gid,{}).get('status') not in ('standby','arranged')]
+        rows=[]
+        for gid in omitted:
+            meta=goal_meta.get(gid,{})
+            classified=_unscheduled_reason(blocked.get(gid,()))
+            if classified is None and problem is not None and not _has_usable_transport(problem,gid):
+                classified=UNSCHEDULED_FALLBACK
+            if classified is None:
+                if gid in solo_cache:classified=solo_cache[gid]
+                elif alternative_index==0 and solo_count<3:
+                    solo_count+=1
+                    goal=meta.get('goal')
+                    try:
+                        solo=engine.plan_trip(req.model_copy(update={'goals':(goal,), 'alternatives':1}),ctx)
+                        classified=UNSCHEDULED_TOO_FAR if solo.status=='infeasible' else UNSCHEDULED_CONFLICT
+                    except Exception:
+                        classified=UNSCHEDULED_CONFLICT
+                    solo_cache[gid]=classified
+                else:classified=UNSCHEDULED_CONFLICT
+            rows.append({'goal_id':gid,'key':meta.get('key',goal_keys[gid]),'name':meta.get('name') or '资料待添加',
+                         'reason_code':classified[0],'reason':classified[1]})
+        if rows:output[str(alternative_index)]=rows
+    return output
+
+
 @router.get('/constraints')
 def saved_constraints(trip_id:UUID,s:Session=Depends(current)):
     with connect() as db:
@@ -178,7 +243,7 @@ def preview_plan(trip_id,body,s,*,execution_guard=None):
         missing=[k for k in ('business_date','starts_at','ends_at') if values[k] is None]
         missing += [k+'_place_id' for k in ('origin','destination') if not values[k+'_place_id'] and not getattr(body.constraints,k+'_text')]
         unmatched=[k for k in ('origin','destination') if not values[k+'_place_id'] and getattr(body.constraints,k+'_text')]
-        goals=[];unmapped=[];key_by_goal={};parent_groups={}
+        goals=[];unmapped=[];key_by_goal={};goal_meta={};parent_groups={}
         # Retain all formal remaining goals, including locks. Saving intentions never edits these.
         old=engine.route_row(db,trip_id)
         original=read_requirements(old['requirements_json']) if old else None
@@ -199,12 +264,17 @@ def preview_plan(trip_id,body,s,*,execution_guard=None):
             existing=next((g for g in goals if g.target_kind==fk and g.target_id==identity),None)
             if existing:
                 if item['priority']=='must':goals=[g.model_copy(update={'required':True}) if g.goal_id==existing.goal_id else g for g in goals]
-                key_by_goal[existing.goal_id]=item['key'];continue
+                key_by_goal[existing.goal_id]=item['key']
+                goal_meta[existing.goal_id]={'key':item['key'],'name':item['name'],'status':item['status'],
+                                             'goal':next(g for g in goals if g.goal_id==existing.goal_id)}
+                continue
             gid='basket:'+uuid5(UUID(str(trip_id)),item['key']).hex
             key_by_goal[gid]=item['key']
-            goals.append(Goal(goal_id=gid,target_kind=fk,target_id=identity,
+            goal=Goal(goal_id=gid,target_kind=fk,target_id=identity,
                 kind='show' if fk in ('session','program') else 'dining' if fk=='food' or getattr(ctx.facts.get(('place',identity)),'place_type',None)=='restaurant' else 'visit',
-                required=item['priority']=='must',importance={'must':10,'want':6,'optional':1}[item['priority']]))
+                required=item['priority']=='must',importance={'must':10,'want':6,'optional':1}[item['priority']])
+            goals.append(goal)
+            goal_meta[gid]={'key':item['key'],'name':item['name'],'status':item['status'],'goal':goal}
             if getattr(fact,'parent_place_id',None):parent_groups[identity]=fact.parent_place_id
         # Until internal duration/path coverage can be reconciled, do not double count a park and its POIs.
         grouped=[child for child,parent in parent_groups.items() if any(g.target_kind=='place' and g.target_id==parent for g in goals)]
@@ -218,9 +288,11 @@ def preview_plan(trip_id,body,s,*,execution_guard=None):
     else:
         try:req=Requirements.model_validate(values|{'goals':goals,'alternatives':3})
         except ValidationError:raise HTTPException(422,detail='请检查同日开始、结束时间、目标数量与交通方式。') from None
+        def explain(requirements,context,solved):
+            return _unscheduled(solved.model_dump(mode='json'),requirements,context,key_by_goal,goal_meta)
         if row['status'] in ('ACTIVE','PAUSED'):
-            plan=engine.preview(s,trip_id,ReplanRequest(request_id=uuid5(body.request_id,'engine'),expected_version=body.expected_version,requirements=req),replanning=True,planning_version=planning_version)
-        else:plan=engine.preview(s,trip_id,PreviewRequest(request_id=uuid5(body.request_id,'engine'),expected_version=body.expected_version,requirements=req),planning_version=planning_version)
+            plan=engine.preview(s,trip_id,ReplanRequest(request_id=uuid5(body.request_id,'engine'),expected_version=body.expected_version,requirements=req),replanning=True,planning_version=planning_version,explain=explain)
+        else:plan=engine.preview(s,trip_id,PreviewRequest(request_id=uuid5(body.request_id,'engine'),expected_version=body.expected_version,requirements=req),planning_version=planning_version,explain=explain)
         if endpoint_replaced:plan['result']['warnings'].append(ENDPOINT_REPLACEMENT_WARNING)
         status=plan['result']['status'];options=[]
         if status=='infeasible':
@@ -232,6 +304,7 @@ def preview_plan(trip_id,body,s,*,execution_guard=None):
                 'reply':'请比较方案并确认，正式行程尚未改变。' if status=='feasible' else '已知硬约束存在冲突，请决定如何取舍。' if status=='infeasible' else '资料或计算条件不足，暂不能可靠判定。',
                 'issues':plan['result']['issues'],'options':options,'planning':plan,'formal_state_changed':False,
                 'goal_keys':key_by_goal,'activity_names':{a['goal_id']:getattr(ctx.facts.get(('place',a['place_id'])),'name','资料待添加') for i in plan['result']['itineraries'] for a in i['activities']}}
+        result['unscheduled']=plan.get('unscheduled',{})
     if old and result.get('planning'):
         for a in json.loads(old['itinerary_json'])['activities']:
             result['activity_names'].setdefault(a['goal_id'],getattr(ctx.facts.get(('place',a['place_id'])),'name','资料待添加'))

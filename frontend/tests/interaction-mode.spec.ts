@@ -34,7 +34,7 @@ async function prepare(page:Page,empty=false,complete=false,planning=true){
  })
  await page.goto('/assistant?city_trip='+trip.id+(planning?'&plan=basket':''))
  await expect(page.locator('#city-agent-input')).toBeEnabled()
- return {trip,path,previews,tasks,additions}
+ return {trip,path,basket,previews,tasks,additions}
 }
 async function fillDay(page:Page){
  const form=page.locator('.planning-question')
@@ -124,6 +124,25 @@ test('人数输入严格限制1到50，存储被禁用也能共用本页模式',
 
 test('首页规划入口直接打开素材篮规划表单',async({page})=>{
  await page.goto('/');await expect(page.getByRole('link',{name:'规划我的开封之旅',exact:true})).toHaveAttribute('href','/assistant?context=city&plan=basket')
+})
+
+for(const explained of [true,false])test('单日规划表保留候补和无原因项'+(explained?'，优先显示后端未安排原因并去重':'，无后端原因时仍标注候补'),async({page})=>{
+ const {trip,path,basket}=await prepare(page)
+ basket.items.push(
+  {key:'place:test:unknown',kind:'place',id:'test:unknown',name:'合成无原因地点',status:'pending'},
+  {key:'place:test:omitted',kind:'place',id:'test:omitted',name:'合成未排地点',status:'pending'},
+  {key:'place:test:spare',kind:'place',id:'test:spare',name:'合成候补地点',status:'standby'},
+  {key:'place:test:arranged',kind:'place',id:'test:arranged',name:'合成已安排地点',status:'arranged'}
+ )
+ await fillDay(page)
+ await page.route('**'+path+'/exploration/preview',async route=>{
+  const body=route.request().postDataJSON(),item={goal_id:'goal:omitted',key:'place:test:omitted',name:'合成未排地点',reason_code:'time_conflict',reason:'和其他地点放在一起时间不够'}
+  const result:PlanningResult={planning_version:body.planning_version+1,rounds:0,status:'feasible',reply:'合成规划完成，仍待确认',constraints:body.constraints,basket_version:basket.version,trip_version:trip.version,issues:[],options:[],goal_keys:{'goal:gate':'place:test:gate'},unscheduled:explained?{'0':[item,item]}:{},planning:{candidate_id:'mock-candidate',base_version:trip.version,result:{status:'feasible',warnings:[],metrics:{},itineraries:[{objectives:['balanced'],activities:[{goal_id:'goal:gate',place_id:'test:gate',session_id:null,kind:'visit',starts_at:'2030-05-01T09:00:00+08:00',departs_at:'2030-05-01T10:00:00+08:00',duration_seconds:3600,required:false}],legs:[],total_seconds:3600,travel_seconds:0,walking_distance_m:0,known_cost_upper_fen:0,cost_unknown:true,returns_at:'2030-05-01T10:00:00+08:00',evidence_mode:'synthetic'}]}}}
+  await route.fulfill({json:result})
+ })
+ await page.getByRole('group',{name:'选择互动模式',exact:true}).getByRole('button',{name:'快速安排',exact:false}).click()
+ const omitted=page.locator('.plan-option').first().locator('p').filter({hasText:'暂不安排：'})
+ await expect(omitted).toHaveText('暂不安排：'+(explained?'合成未排地点（和其他地点放在一起时间不够）、合成候补地点（候补）、合成无原因地点':'合成候补地点（候补）、合成无原因地点、合成未排地点')+'候补、未选择或在当前约束下未纳入；素材不会删除。')
 })
 
 test('素材篮入口独占偏好收集，普通对话保留原偏好卡',async({page})=>{
