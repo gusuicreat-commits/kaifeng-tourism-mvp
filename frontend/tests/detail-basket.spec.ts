@@ -225,7 +225,7 @@ test('缺地点资料时可填写起终点，刷新保留且不生成正式路�
  const workspace=(await(await page.request.get(path+'/exploration/constraints')).json()).constraints
  expect(workspace.business_date).toBe(tomorrow);expect(workspace.starts_at).toBe(tomorrow+'T09:00:00+08:00');expect(workspace.ends_at).toBe(tomorrow+'T18:00:00+08:00')
  await page.getByLabel('出发地点',{exact:true}).fill('我住的酒店')
- await page.getByLabel('返回地点',{exact:true}).fill('开封站')
+ await page.getByLabel('返程地点',{exact:true}).fill('开封站')
  await page.screenshot({path:'../docs/screenshots/endpoint-input-mobile.png',fullPage:true})
  await page.locator('.planning-question').getByRole('button',{name:'继续',exact:true}).click()
  await finishCityPlanningMode(page,'quick')

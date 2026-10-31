@@ -185,13 +185,13 @@ test('三天快速安排共用每天时间与端点，天数标签可修改回�
  await form.getByRole('button',{name:'快速安排',exact:false}).click()
  await expect(page.getByLabel('规划检测结果')).toContainText('合成规划请求已收到')
  expect(previews).toHaveLength(count+1)
- expect(previews.at(-1)).toEqual({schema_version:'city-constraints/2',start_date:'2030-05-01',end_date:'2030-05-03',trip_days:3,days:[1,2,3].map(n=>({day_id:'day:2030-05-0'+n,business_date:'2030-05-0'+n,starts_at:`2030-05-0${n}T09:00:00+08:00`,ends_at:`2030-05-0${n}T18:00:00+08:00`,origin_place_id:'test:gate',destination_place_id:'test:hotel'})),pace:'standard',objective:'balanced',modes:['walking'],party_size:2})
+ expect(previews.at(-1)).toEqual({schema_version:'city-constraints/2',start_date:'2030-05-01',end_date:'2030-05-03',trip_days:3,days:[1,2,3].map(n=>({day_id:'day:2030-05-0'+n,business_date:'2030-05-0'+n,starts_at:`2030-05-0${n}T09:00:00+08:00`,ends_at:`2030-05-0${n}T18:00:00+08:00`,origin_place_id:'test:gate',origin_text:'[测试]入口',destination_place_id:'test:hotel',destination_text:'[测试]返程点'})),pace:'standard',objective:'balanced',modes:['walking'],party_size:2})
  await known.getByRole('button',{name:'3 天',exact:true}).click()
  await expect(form.getByLabel('游玩天数',{exact:true})).toHaveValue('3')
  await form.getByRole('button',{name:'1天',exact:true}).click()
  await expect(known.getByRole('button',{name:'1 天',exact:true})).toBeVisible()
  await expect.poll(()=>previews.length).toBe(count+2)
- expect(previews.at(-1)).toEqual({business_date:'2030-05-01',starts_at:'2030-05-01T09:00:00+08:00',ends_at:'2030-05-01T18:00:00+08:00',origin_place_id:'test:gate',destination_place_id:'test:hotel',pace:'standard',objective:'balanced',modes:['walking'],budget_fen:null,party_size:2})
+ expect(previews.at(-1)).toEqual({business_date:'2030-05-01',starts_at:'2030-05-01T09:00:00+08:00',ends_at:'2030-05-01T18:00:00+08:00',origin_place_id:'test:gate',origin_text:'[测试]入口',destination_place_id:'test:hotel',destination_text:'[测试]返程点',pace:'standard',objective:'balanced',modes:['walking'],budget_fen:null,party_size:2})
 })
 
 test('天数只接受1到3的整数，跨年多天沿用深度偏好与预算',async({page})=>{
