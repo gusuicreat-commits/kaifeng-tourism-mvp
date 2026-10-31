@@ -244,3 +244,36 @@ test.describe('完整规划流程：真实后端与合成资料',()=>{
  })
 
 })
+
+test.describe('偏好条件：真实后端',()=>{
+ test.setTimeout(60000)
+ test('深度互动排除美食并显示原因，确认景区方案',async({page},info)=>{
+  await home(page,info,'E13-preferences')
+  await page.getByRole('button',{name:'景点',exact:true}).click()
+  await page.locator(`.scenic-card a[href="/scenic/${scenic.id}"]`).click()
+  await page.getByRole('button',{name:'加入素材篮：'+scenic.name,exact:true}).click()
+  await page.getByRole('link',{name:'汴梁游记首页',exact:true}).click()
+  await addFood(page)
+  const trip=await openBasketPlanning(page,info,[scenic.name,food.name])
+  await fillDay(page,info)
+  await form(page).getByRole('button',{name:/^深度互动/}).click()
+  await form(page).getByRole('group',{name:'不想安排（可多选）',exact:true}).getByRole('button',{name:'品美食',exact:true}).click()
+  await expect(page.getByLabel('已提供的安排')).toContainText('不想安排：美食')
+  await form(page).getByRole('button',{name:'继续',exact:true}).click()
+  const candidate=await preview(page,info,()=>form(page).getByRole('button',{name:'生成安排',exact:true}).click(),'preference-candidate')
+  expect(candidate.request.constraints.preferences?.avoid).toEqual(['food'])
+  for(const plan of candidate.result.planning!.result.itineraries){
+   expect('days' in plan).toBeFalsy()
+   if(!('days' in plan))expect(plan.activities.map(a=>a.place_id)).not.toContain(food.place_id)
+  }
+  expect(candidate.result.unscheduled?.['0']).toEqual([expect.objectContaining({name:food.name,reason_code:'preference_excluded',reason:'你说过不想安排美食'})])
+  await expect(page.locator('.plan-option').first()).toContainText('暂不安排：'+food.name+'（你说过不想安排美食）')
+  const saved=await confirm(page,info,trip,[scenic.fact_id])
+  expect(saved.constraints?.preferences?.avoid).toEqual(['food'])
+  const route=await read<RouteSnapshot>(page,prefix(trip.id)+'/engine/current')
+  expect(route.itinerary).toBeTruthy()
+  const itinerary=route.itinerary!
+  expect('days' in itinerary).toBeFalsy()
+  if(!('days' in itinerary))expect(itinerary.activities.map(a=>a.place_id)).not.toContain(food.place_id)
+ })
+})

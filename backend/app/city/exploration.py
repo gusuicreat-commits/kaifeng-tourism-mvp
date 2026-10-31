@@ -12,6 +12,7 @@ from ..memory.storage import stamp
 from . import facts
 from . import basket, state, exploration_state
 from .schema import Strict, EntityId
+from .preferences import TripPreferences, CATEGORY_NAMES
 from .engine import service as engine
 from .engine.models import Goal, TripGoal, Requirements, PreviewRequest, ReplanRequest, MultiDayConstraints
 from .versions import guard_single_day, read_requirements, single_day
@@ -20,6 +21,7 @@ router=APIRouter(prefix='/api/city/v1/trips/{trip_id}/exploration',tags=['Travel
 
 
 class Constraints(Strict):
+    preferences:TripPreferences | None = None
     business_date:date | None = None
     starts_at:AwareDatetime | None = None
     ends_at:AwareDatetime | None = None
@@ -174,9 +176,40 @@ def preview(trip_id:UUID,body:PlanBody,s:Session=Depends(current)):
     return preview_plan(trip_id,body,s)
 
 
-def _basket_goals(db,s,trip_id,goals,dates=None,*,ctx=None):
+def goal_categories(goal,items):
+    target=items.get(('show_session' if goal.target_kind=='session' else goal.target_kind,goal.target_id))
+    place=target if isinstance(target,facts.Place) else items.get(('place',getattr(target,'stage_place_id',getattr(target,'place_id',None))))
+    categories=set()
+    if goal.target_kind in ('session','program') or getattr(place,'place_type',None)=='stage':categories.add('shows')
+    if getattr(place,'place_type',None)=='night_visit':categories.add('night')
+    if goal.kind=='dining':categories.add('food')
+    parent=items.get(('place',getattr(place,'parent_place_id',None)))
+    if getattr(place,'place_type',None)=='scenic' or getattr(parent,'place_type',None)=='scenic':categories.add('scenic')
+    return categories
+
+
+def _spice_exceeded(goal,items,spice):
+    rejected={'none':{'mild','hot'},'mild':{'hot'}}.get(spice,set())
+    if not rejected:return False
+    if goal.target_kind=='food':
+        vendors=[items.get(('vendor',x.vendor_id)) for x in items.values() if isinstance(x,facts.Supply) and x.food_id==goal.target_id]
+    elif goal.target_kind=='place' and getattr(items.get(('place',goal.target_id)),'place_type',None)=='restaurant':
+        vendors=[x for x in items.values() if isinstance(x,facts.Vendor) and x.place_id==goal.target_id]
+    else:return False
+    return bool(vendors) and all(getattr(v,'spiciness',None) in rejected for v in vendors)
+
+
+def _preference_result(result,excluded,notices):
+    if excluded:
+        plans=(result.get('planning') or {}).get('result',result.get('result') or {}).get('itineraries') or [None]
+        existing=result.get('unscheduled',{})
+        result['unscheduled']={str(i):excluded+existing.get(str(i),[]) for i in range(len(plans))}
+    if notices:result['reply']=result.get('reply','请比较整套方案并确认，正式行程尚未改变。')+' '+''.join(notices)
+
+
+def _basket_goals(db,s,trip_id,goals,dates=None,*,ctx=None,preferences=None):
     collected=basket.snapshot(db,s,trip_id);ctx=ctx or engine.context(db)
-    goals=list(goals);unmapped=[];key_by_goal={};goal_meta={};parent_groups={}
+    goals=list(goals);unmapped=[];key_by_goal={};goal_meta={};parent_groups={};excluded=[];notices=[]
     if dates is not None:
         active={'basket:'+uuid5(UUID(str(trip_id)),item['key']).hex for item in collected['items']
                 if item['status']!='standby' and item['fact_id']}
@@ -191,13 +224,28 @@ def _basket_goals(db,s,trip_id,goals,dates=None,*,ctx=None):
         existing=next((g for g in goals if g.goal_id==gid),None) if dates is not None else next(
             (g for g in goals if g.target_kind==fk and g.target_id==identity),None)
         priority={'required':item['priority']=='must','importance':{'must':10,'want':6,'optional':1}[item['priority']]}
+        values={'goal_id':gid,'target_kind':fk,'target_id':identity,
+            'kind':'show' if fk in ('session','program') else 'dining' if fk=='food' or getattr(ctx.facts.get(('place',identity)),'place_type',None)=='restaurant' else 'visit',**priority}
+        candidate=existing or Goal(**values)
+        must=priority['required'] or bool(dates is None and existing and existing.required)
+        categories=goal_categories(candidate,ctx.facts) if preferences else set()
+        avoided=next((k for k in CATEGORY_NAMES if preferences and k in categories and k in preferences.avoid),None)
+        spicy=preferences and _spice_exceeded(candidate,ctx.facts,preferences.spice)
+        if avoided or spicy:
+            if must:
+                notices.append('「'+item['name']+'」你设为必去，已保留，虽然它属于你说过不想安排的类别。')
+            else:
+                reason='你说过不想安排'+CATEGORY_NAMES[avoided] if avoided else '口味偏辣，和你说的“'+('不吃辣' if preferences.spice=='none' else '微辣可以')+'”不符'
+                excluded.append({'goal_id':candidate.goal_id,'key':item['key'],'name':item['name'],'reason_code':'preference_excluded','reason':reason})
+                goals=[g for g in goals if g.goal_id!=candidate.goal_id]
+                continue
+        if preferences and not must and categories&set(preferences.interests):priority['importance']+=2
         if existing:
-            changes=priority if dates is not None else {'required':True} if priority['required'] else {}
+            changes=priority if dates is not None else {'required':True} if priority['required'] else {'importance':priority['importance']} if preferences and not must and categories&set(preferences.interests) else {}
             goal=existing.model_copy(update=changes)
             goals=[goal if g.goal_id==existing.goal_id else g for g in goals]
         else:
-            values={'goal_id':gid,'target_kind':fk,'target_id':identity,
-                'kind':'show' if fk in ('session','program') else 'dining' if fk=='food' or getattr(ctx.facts.get(('place',identity)),'place_type',None)=='restaurant' else 'visit',**priority}
+            values.update(priority)
             goal=Goal(**values) if dates is None else TripGoal(**values,allowed_dates=dates,fixed_date=None)
             goals.append(goal)
         key_by_goal[goal.goal_id]=item['key']
@@ -205,7 +253,7 @@ def _basket_goals(db,s,trip_id,goals,dates=None,*,ctx=None):
         if (dates is not None or not existing) and getattr(fact,'parent_place_id',None):parent_groups[identity]=fact.parent_place_id
     # Until internal duration/path coverage can be reconciled, do not double count a park and its POIs.
     grouped=[child for child,parent in parent_groups.items() if any(g.target_kind=='place' and g.target_id==parent for g in goals)]
-    return collected,ctx,goals,unmapped,key_by_goal,goal_meta,grouped
+    return collected,ctx,goals,unmapped,key_by_goal,goal_meta,grouped,excluded,notices
 
 
 def preview_plan(trip_id,body,s,*,execution_guard=None):
@@ -222,8 +270,8 @@ def preview_plan(trip_id,body,s,*,execution_guard=None):
             projected,hotel_issues=hotel_binding.project(db,link_overnights(body.constraints.model_dump(mode='json')),
                                                         travel_services.read(db,trip_id))
             if not body.constraints.days:raise HTTPException(422,detail='请补齐多天每日时段、端点和过夜条件。')
-            _,_,goals,unmapped,_,_,grouped=_basket_goals(db,s,trip_id,body.constraints.goals,
-                tuple(d.business_date for d in body.constraints.days))
+            _,_,goals,unmapped,_,_,grouped,excluded,notices=_basket_goals(db,s,trip_id,body.constraints.goals,
+                tuple(d.business_date for d in body.constraints.days),preferences=body.constraints.preferences)
             projected['goals']=[g.model_dump(mode='json') for g in goals]
         pending=[i for i in hotel_issues if i not in hotel_binding.blocking(hotel_issues)]
         hotel_issues=hotel_binding.blocking(hotel_issues)
@@ -242,7 +290,7 @@ def preview_plan(trip_id,body,s,*,execution_guard=None):
         except ValidationError:raise HTTPException(422,detail='请检查多天目标数量、日期范围和每日条件。') from None
         req_data=body.constraints.model_dump(mode='json')
         req_data['days']=[{k:v for k,v in d.items() if k in DayRequirements.model_fields} for d in req_data['days']]
-        for key in ('trip_days','trip_nights','pending_fields','clarifications','range_impacts',*AGENT_ONLY):req_data.pop(key,None)
+        for key in ('preferences','trip_days','trip_nights','pending_fields','clarifications','range_impacts',*AGENT_ONLY):req_data.pop(key,None)
         req_data['schema_version']='city-engine/2'
         try:requirements=MultiDayRequirements.model_validate(req_data)
         except ValidationError:raise HTTPException(422,detail='请补齐多天每日时段、端点和过夜条件。') from None
@@ -253,6 +301,7 @@ def preview_plan(trip_id,body,s,*,execution_guard=None):
             result=engine.preview(s,trip_id,PreviewRequestV2(request_id=body.request_id,expected_version=body.expected_version,
                 requirements=requirements),planning_version=workspace['version'])
         if result['status']=='unknown':result['status']='needs_data'
+        _preference_result(result,excluded,notices)
         with connect() as db:
             db.execute('BEGIN IMMEDIATE')
             if execution_guard:execution_guard(db)
@@ -281,7 +330,7 @@ def preview_plan(trip_id,body,s,*,execution_guard=None):
         if body.planning_version is not None:exploration_state.guard(db,trip_id,body.planning_version)
         draft=guard_single_day(db,row)
         ctx=engine.context(db)
-        values=body.constraints.model_dump(exclude={'origin_text','destination_text',*AGENT_ONLY})
+        values=body.constraints.model_dump(exclude={'preferences','origin_text','destination_text',*AGENT_ONLY})
         endpoint_replaced=False
         for k in ('origin_place_id','destination_place_id'):
             if values[k]:
@@ -302,7 +351,7 @@ def preview_plan(trip_id,body,s,*,execution_guard=None):
             goals=[Goal(goal_id=x.stop_id,target_kind='session' if x.session_id else 'place',target_id=x.session_id or x.place_id,
                         kind=x.kind,required=x.locked,duration_seconds=x.duration_seconds,window_start=x.window_start,window_end=x.window_end)
                    for x in draft.stops if x.progress=='pending' and x.kind!='return']
-        collected,ctx,goals,unmapped,key_by_goal,goal_meta,grouped=_basket_goals(db,s,trip_id,goals,ctx=ctx)
+        collected,ctx,goals,unmapped,key_by_goal,goal_meta,grouped,excluded,notices=_basket_goals(db,s,trip_id,goals,ctx=ctx,preferences=body.constraints.preferences)
     if missing:
         result=unknown('请补充'+ '、'.join({'business_date':'日期','starts_at':'开始时间','ends_at':'结束时间','origin_place_id':'出发地点','destination_place_id':'返程地点'}[k] for k in missing),'','PERSONAL_CHOICE_MISSING')
         result['questions']=[{'field':k} for k in missing]
@@ -330,6 +379,7 @@ def preview_plan(trip_id,body,s,*,execution_guard=None):
                 'issues':plan['result']['issues'],'options':options,'planning':plan,'formal_state_changed':False,
                 'goal_keys':key_by_goal,'activity_names':{a['goal_id']:getattr(ctx.facts.get(('place',a['place_id'])),'name','资料待添加') for i in plan['result']['itineraries'] for a in i['activities']}}
         result['unscheduled']=plan.get('unscheduled',{})
+    _preference_result(result,excluded,notices)
     if old and result.get('planning'):
         for a in json.loads(old['itinerary_json'])['activities']:
             result['activity_names'].setdefault(a['goal_id'],getattr(ctx.facts.get(('place',a['place_id'])),'name','资料待添加'))

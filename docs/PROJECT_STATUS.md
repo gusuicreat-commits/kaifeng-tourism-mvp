@@ -1,5 +1,11 @@
 # 项目现状与剩余缺口
 
+## 2026-10-31 E13 深度互动偏好进入规划（独立分支，待 Claude 验收）
+
+口味、兴趣和不想安排的类别已接入单日与多天工作区、素材篮目标投影和深度模式表单。类别/辣度排除、必去保留提示、兴趣重要性增加 2 及 `preference_excluded` 原因显示共用确定性实现，空偏好保持原行为。契约与合成测试已更新；实现边界与验收入口见 [规划流程 E13](PLANNING_WORKFLOW.md#e13-深度互动偏好进入规划2026-10-31待-claude-验收)。未改 Agent、提示词或求解器，未调用真实模型或外部服务；对话理解留给 E14，浏览器由 Claude 验收。
+
+验证：偏好专项 62 passed；`.venv/bin/python -m pytest backend/tests -q -p no:cacheprovider` 全量 3575 passed / 9 skipped（未配置隔离 PostgreSQL），四组契约 `--check`、`npx vue-tsc --noEmit` 与 `npx vite build --configLoader runner` 通过。新增 Playwright 用例未执行。
+
 ## 2026-10-31 E10b 规划表单游玩天数（已合并，Claude 已跑全部 7 组 Playwright 通过）
 
 素材篮规划在日期后增加默认 1 天的天数步骤，支持 1–3 天；单日保持原请求，多天共用每日时间和起终点并组装 `city-constraints/2`，快速安排直接生成。已知条件中的天数可点击修改；目标与过夜由 E10c/E10d 后端逻辑补齐，前端复用现有多天方案与整套确认。输入上限与交互入口见 [规划流程 E10b](PLANNING_WORKFLOW.md#e10b-素材篮表单的游玩天数2026-10-31待-claude-浏览器验收)。

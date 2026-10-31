@@ -4,6 +4,7 @@ from typing import Literal
 from uuid import UUID
 from pydantic import AwareDatetime, Field, model_validator
 from ..budget_models import PricingOptions, BudgetSummary
+from ..preferences import TripPreferences
 from ..schema import (Strict, EntityId, Mode, Evidence, TravelEstimate, Stop, TZ, DayIdentity, DayWindow,
                       DateRange, Overnight, validate_days, validate_overnights)
 
@@ -305,6 +306,7 @@ class PendingDayField(Strict):
 
 
 class MultiDayConstraints(Strict):
+    preferences: TripPreferences | None = None
     schema_version: Literal['city-constraints/2']
     start_date: date | None = None
     end_date: date | None = None

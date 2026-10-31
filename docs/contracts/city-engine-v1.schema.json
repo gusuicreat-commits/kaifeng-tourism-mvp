@@ -273,6 +273,17 @@
     "Constraints": {
       "additionalProperties": false,
       "properties": {
+        "preferences": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/TripPreferences"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
         "business_date": {
           "anyOf": [
             {
@@ -2115,6 +2126,60 @@
         "evidence"
       ],
       "title": "TravelEstimate",
+      "type": "object"
+    },
+    "TripPreferences": {
+      "additionalProperties": false,
+      "properties": {
+        "spice": {
+          "anyOf": [
+            {
+              "enum": [
+                "none",
+                "mild",
+                "any"
+              ],
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Spice"
+        },
+        "interests": {
+          "default": [],
+          "items": {
+            "enum": [
+              "shows",
+              "food",
+              "night",
+              "scenic"
+            ],
+            "type": "string"
+          },
+          "maxItems": 4,
+          "title": "Interests",
+          "type": "array"
+        },
+        "avoid": {
+          "default": [],
+          "items": {
+            "enum": [
+              "shows",
+              "food",
+              "night",
+              "scenic"
+            ],
+            "type": "string"
+          },
+          "maxItems": 4,
+          "title": "Avoid",
+          "type": "array"
+        }
+      },
+      "title": "TripPreferences",
       "type": "object"
     }
   },

@@ -222,3 +222,51 @@ for(const days of [1,3])test(days+'天填写预算后显示引擎unknown回复�
  await expect(assessment).toContainText('合成引擎回复：交通资料不足，请核对条件')
  expect(previews.at(-1)).toMatchObject(days===1?{budget_fen:0}:{pricing:{total_budget_fen:0}})
 })
+
+for(const days of [1,3])test(days+'天深度偏好请求、互斥、已知条件与未安排原因',async({page})=>{
+ const {previews,path,trip,basket}=await prepare(page);await fillDay(page,days)
+ await page.route('**'+path+'/exploration/preview',async route=>{
+  const body=route.request().postDataJSON();previews.push(body.constraints)
+  const single={objectives:['balanced'],activities:[],legs:[],total_seconds:0,travel_seconds:0,walking_distance_m:0,known_cost_upper_fen:0,cost_unknown:true,returns_at:'2030-05-01T09:00:00+08:00',evidence_mode:'synthetic'}
+  const multi={schema_version:'city-itinerary/2',start_date:'2030-05-01',end_date:'2030-05-03',days:body.constraints.days?.map((d:Record<string,unknown>)=>({...d,original_requirements:d,requirements:{...d,goals:[],pace:'standard',objective:'balanced',modes:['walking']},itinerary:single})),overnights:[],active_seconds:0,elapsed_seconds:0}
+  const result={planning_version:body.planning_version+1,rounds:0,status:'feasible',reply:'合成偏好规划完成',constraints:body.constraints,basket_version:basket.version,trip_version:trip.version,issues:[],options:[],unscheduled:{'0':[{goal_id:'excluded:food',key:'food:test:food',name:'合成美食',reason_code:'preference_excluded',reason:'你说过不想安排美食'}]},planning:{candidate_id:'mock-candidate',base_version:trip.version,result:{status:'feasible',warnings:[],metrics:{},itineraries:[days===1?single:multi]}}}
+  if(days===1)await route.fulfill({json:result})
+  else {const {planning,...rest}=result;await route.fulfill({json:{...rest,status:'preview',...planning}})}
+ })
+ const form=page.locator('.planning-question'),known=page.getByLabel('已提供的安排')
+ await form.getByRole('button',{name:'深度互动',exact:false}).click()
+ const spice=form.getByRole('group',{name:'能吃辣吗',exact:true}),interests=form.getByRole('group',{name:'更感兴趣（可多选）',exact:true}),avoid=form.getByRole('group',{name:'不想安排（可多选）',exact:true})
+ await spice.getByRole('button',{name:'微辣可以',exact:true}).click()
+ await spice.getByRole('button',{name:'不吃辣',exact:true}).click()
+ await expect(spice.getByRole('button',{name:'微辣可以',exact:true})).toHaveAttribute('aria-pressed','false')
+ await interests.getByRole('button',{name:'品美食',exact:true}).click()
+ await avoid.getByRole('button',{name:'品美食',exact:true}).click()
+ await expect(interests.getByRole('button',{name:'品美食',exact:true})).toHaveAttribute('aria-pressed','false')
+ await avoid.getByRole('button',{name:'看演出',exact:true}).click()
+ await interests.getByRole('button',{name:'看演出',exact:true}).click()
+ await expect(avoid.getByRole('button',{name:'看演出',exact:true})).toHaveAttribute('aria-pressed','false')
+ await interests.getByRole('button',{name:'逛夜景',exact:true}).click()
+ await avoid.getByRole('button',{name:'景区古迹',exact:true}).click()
+ for(const label of ['不吃辣','感兴趣：演出','感兴趣：夜游','不想安排：美食','不想安排：景区'])await expect(known.getByRole('button',{name:label,exact:true})).toBeVisible()
+ await form.getByRole('button',{name:'继续',exact:true}).click()
+ await form.getByRole('button',{name:'生成安排',exact:true}).click()
+ await expect(page.getByLabel('规划检测结果')).toContainText('合成美食（你说过不想安排美食）')
+ expect(previews.at(-1)?.preferences).toEqual({spice:'none',interests:['shows','night'],avoid:['food','scenic']})
+})
+
+test('深度偏好可取消单选，切到快速模式不发送偏好',async({page})=>{
+ const {previews}=await prepare(page);await fillDay(page)
+ const form=page.locator('.planning-question')
+ await form.getByRole('button',{name:'深度互动',exact:false}).click()
+ const spice=form.getByRole('group',{name:'能吃辣吗',exact:true})
+ await spice.getByRole('button',{name:'都可以',exact:true}).click()
+ await spice.getByRole('button',{name:'都可以',exact:true}).click()
+ await expect(spice.getByRole('button',{name:'都可以',exact:true})).toHaveAttribute('aria-pressed','false')
+ await spice.getByRole('button',{name:'不吃辣',exact:true}).click()
+ await form.getByRole('group',{name:'不想安排（可多选）',exact:true}).getByRole('button',{name:'品美食',exact:true}).click()
+ await page.getByRole('group',{name:'互动模式',exact:true}).getByRole('button',{name:'快速安排',exact:true}).click()
+ await expect(page.getByLabel('规划检测结果')).toContainText('合成规划请求已收到')
+ expect(previews.at(-1)).not.toHaveProperty('preferences')
+ for(const name of ['能吃辣吗','更感兴趣（可多选）','不想安排（可多选）'])await expect(page.getByRole('group',{name,exact:true})).toHaveCount(0)
+ await expect(page.getByLabel('已提供的安排').getByRole('button',{name:'不吃辣',exact:true})).toHaveCount(0)
+})
