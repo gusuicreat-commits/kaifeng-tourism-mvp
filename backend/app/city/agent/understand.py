@@ -681,7 +681,10 @@ def dropped_reply(intent,meta,text):
         coverage=quotes
         if item['path']=='state_request.start_time' and intent.state_request:
             coverage=[q for q in quotes if q!=intent.state_request.quote]
-        if any(quote in kept or kept in quote for kept in coverage):continue
+        # A contracted range's endpoint can be wrong while the shared quote still
+        # correctly grounds the other endpoint; tell the visitor this one was dropped.
+        endpoint=item.get('field') in ('start_date','end_date') and item.get('reason')=='date_not_in_quote'
+        if not endpoint and any(quote in kept or kept in quote for kept in coverage):continue
         seen.add(quote);notices.append('这部分我没采用：『'+quote+'』（'+reasons[item['category']]+'）。')
     return ''.join(notices)
 

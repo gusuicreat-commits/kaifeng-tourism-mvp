@@ -12,6 +12,10 @@ _RELATIVE = {
     '明天': 1, '明日': 1, '明儿': 1, '明晚': 1, '明早': 1,
     '后天': 2, '后儿': 2, '大后天': 3,
 }
+_RELATIVE_RANGES = {left[0]+right[0]: (start, end)
+                    for left, start in _RELATIVE.items() for right, end in _RELATIVE.items()
+                    if end-start == 1}
+_RELATIVE_RANGE = rf'(?:{"|".join(map(re.escape, _RELATIVE_RANGES))})(?:(?:两|二|2)?(?:天|日))'
 _TIME_SUFFIX = re.compile(r'(?:早上|上午|中午|下午|傍晚|晚上|夜里)$')
 
 # Keep the alternatives ordered from the most specific to the least specific so
@@ -20,7 +24,8 @@ _CN_NUMBER = r'[一二三四五六七八九十两]{1,3}'
 _DATE_NUMBER = rf'(?:\d{{1,2}}|{_CN_NUMBER})'
 DATE_EXPRESSION = (
     rf'(?:'
-    rf'(?:大后天|今天|今日|今儿|今晚|今早|今夜|明天|明日|明儿|明晚|明早|后天|后儿)'
+    rf'{_RELATIVE_RANGE}'
+    rf'|(?:大后天|今天|今日|今儿|今晚|今早|今夜|明天|明日|明儿|明晚|明早|后天|后儿)'
     # "这星期天气" is this week's weather, not Sunday: 天 there starts 天气.
     rf'|(?:这个|下个|本|这|下)?(?:周|星期|礼拜)(?:[一二三四五六日]|天(?!气))'
     rf'|(?:这个|下个|本|这|下)?周末'
@@ -37,6 +42,14 @@ DATE_EXPRESSION = (
 def find_date_expressions(text):
     """Return date expressions in source order, preserving their original text."""
     return re.findall(DATE_EXPRESSION, text)
+
+
+def relative_date_range(expression, today):
+    """Return endpoints for an adjacent relative-day contraction, else None."""
+    if not isinstance(expression, str) or not re.fullmatch(_RELATIVE_RANGE, expression.strip()):
+        return None
+    start, end = _RELATIVE_RANGES[expression.strip()[:2]]
+    return today + timedelta(days=start), today + timedelta(days=end)
 
 
 def _number(value):

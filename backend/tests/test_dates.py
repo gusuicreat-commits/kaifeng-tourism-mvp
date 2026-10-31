@@ -3,10 +3,60 @@ import re
 
 import pytest
 
-from app.city.agent.dates import DATE_EXPRESSION, find_date_expressions, resolve_date
+from app.city.agent.dates import DATE_EXPRESSION, find_date_expressions, resolve_date, relative_date_range, _RELATIVE
 
 
 PREFIXES = ('', '这', '本', '这个', '下', '下个')
+RELATIVE_HEADS = {word[0]: offset for word, offset in _RELATIVE.items()}
+RELATIVE_PAIRS = [(left+right, start, end) for left, start in RELATIVE_HEADS.items()
+                  for right, end in RELATIVE_HEADS.items() if end-start == 1]
+
+
+@pytest.mark.parametrize('expression,start,end', RELATIVE_PAIRS)
+@pytest.mark.parametrize('suffix', ('天', '日', '两天', '两日', '二天', '二日', '2天', '2日'))
+@pytest.mark.parametrize('today', (date(2026,10,26), date(2026,10,31), date(2026,12,31), date(2028,2,28)))
+def test_adjacent_relative_contractions_are_ranges(today, suffix, expression, start, end):
+    expression+=suffix
+    assert relative_date_range(expression,today)==(today+timedelta(days=start),today+timedelta(days=end))
+    assert find_date_expressions('计划'+expression+'去开封')==[expression]
+    assert re.findall(DATE_EXPRESSION,'计划'+expression+'去开封')==[expression]
+    with pytest.raises(ValueError):resolve_date(expression,today)
+
+
+@pytest.mark.parametrize('expression', [pair[0] for pair in RELATIVE_PAIRS])
+def test_bare_adjacent_contractions_are_not_ranges(expression):
+    assert relative_date_range(expression,date(2026,10,26)) is None
+    assert find_date_expressions(expression)==[]
+    assert find_date_expressions('计划'+expression+'去开封')==[]
+
+
+@pytest.mark.parametrize('text,expected', [
+    ('逛完之后大概六点回', []),
+    ('明天之后大后天也行', ['明天', '大后天']),
+])
+def test_contraction_head_needs_a_day_suffix(text, expected):
+    assert find_date_expressions(text)==expected
+    assert re.findall(DATE_EXPRESSION,text)==expected
+
+
+RELATIVE_CONTEXTS = ('{w}', '我{w}去开封', '计划{w}', '我们{w}下午出发', '定在{w}', '之后{w}', '就{w}吧')
+
+
+@pytest.mark.parametrize('word', list(_RELATIVE))
+@pytest.mark.parametrize('template', RELATIVE_CONTEXTS)
+def test_single_relative_words_match_main_in_sentence_positions(word, template):
+    text=template.format(w=word)
+    assert find_date_expressions(text)==[word]
+    assert re.findall(DATE_EXPRESSION,text)==[word]
+
+
+@pytest.mark.parametrize('expression', [left+right for left, start in RELATIVE_HEADS.items()
+    for right, end in RELATIVE_HEADS.items() if end-start != 1]+['明昨','昨今','前后'])
+@pytest.mark.parametrize('suffix', ('', '两天'))
+def test_nonadjacent_or_unknown_contractions_are_not_ranges(expression,suffix):
+    expression+=suffix
+    assert relative_date_range(expression,date(2026,10,26)) is None
+    assert find_date_expressions(expression)==[]
 
 
 def _weekday_expected(today, target, prefix):
