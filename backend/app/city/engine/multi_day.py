@@ -66,12 +66,13 @@ def signature(plan):
 def rank_plan(req,plan,objective):
     selected={a.goal_id for d in plan.days for a in d.itinerary.activities}
     reward=sum(1+g.importance for g in req.goals if not g.required and g.goal_id in selected)
+    empty_days=sum(not d.itinerary.activities and not d.itinerary.ongoing for d in plan.days)
     waiting=sum(a.wait_seconds for d in plan.days for a in d.itinerary.activities)
     if objective=='less_walking':cost=(plan.walking_distance_m,plan.travel_seconds,plan.active_seconds)
     elif objective=='lower_cost':cost=((plan.cost_unknown,) if req.pricing else ())+ (plan.known_cost_upper_fen,plan.travel_seconds,plan.active_seconds)
     elif objective=='less_waiting':cost=(waiting,plan.travel_seconds,plan.active_seconds,plan.walking_distance_m)
     else:cost=(2*plan.travel_seconds+waiting+plan.walking_distance_m/2+plan.active_seconds,)
-    return cost+(-reward,) if req.pricing and req.pricing.hard_limit and objective=='lower_cost' else (-reward,)+cost
+    return cost+(-reward,empty_days) if req.pricing and req.pricing.hard_limit and objective=='lower_cost' else (-reward,empty_days)+cost
 
 
 def assignments(req,problems,available,objective,expired):
@@ -103,7 +104,7 @@ def assignments(req,problems,available,objective,expired):
                         else:costs.append(sum(min(travel_seconds(j) for j in leg) for leg in legs))
                 if costs:secondary+=min(costs)
                 else:missing+=1
-        return (overflow,-reward,missing,secondary,max(loads),sum(v*v for v in loads),state)
+        return (overflow,-reward,missing,sum(not ids for ids in state),secondary,max(loads),sum(v*v for v in loads),state)
     for goal in ordered:
         if expired():return (),True
         expanded=[]
@@ -121,7 +122,8 @@ def assignments(req,problems,available,objective,expired):
 
 def plan_multi_day(req,ctx,*,clock=None,deadline=None):
     clock=clock or time.monotonic
-    started=clock();solve_deadline=started+req.solve_seconds
+    seconds=req.trip_solve_seconds if req.trip_solve_seconds is not None else min(3,len(req.days))
+    started=clock();solve_deadline=started+seconds
     if deadline is not None:solve_deadline=min(solve_deadline,deadline)
     metrics={'algorithm':'bounded dated assignment + OR-Tools CP-SAT','global_optimum_claimed':False,
         'assignment_elapsed_ms':0,'solve_elapsed_ms':[],'validation_elapsed_ms':0,'travel_elapsed_ms':0,
@@ -177,7 +179,7 @@ def plan_multi_day(req,ctx,*,clock=None,deadline=None):
         best=None
         remaining=solve_deadline-clock()
         stages_left=min(len(stages)-stage,max(1,int(remaining/(MIN_SOLVE_SECONDS*len(req.days)))))
-        stage_deadline=clock()+remaining/stages_left
+        stage_deadline=clock()+remaining*(0.6 if stage==0 and len(stages)>1 else 1/stages_left)
         for state in states[:limit]:
             metrics['assignment_attempts']+=1;days=[]
             for i,(day,ids) in enumerate(zip(req.days,state)):
@@ -188,7 +190,7 @@ def plan_multi_day(req,ctx,*,clock=None,deadline=None):
                     remaining=min(solve_deadline,stage_deadline)-clock()
                     if remaining<MIN_SOLVE_SECONDS:
                         complete=False;metrics.update(search_truncated=True,timeout_scope='whole_trip');break
-                    seconds=remaining/max(1,len(req.days)-i)
+                    seconds=min(req.solve_seconds,remaining/max(1,len(req.days)-i))
                     if seconds<MIN_SOLVE_SECONDS:seconds=remaining
                     dayreq=day_requirements(req,day,[g for g in req.goals if g.goal_id in ids],objective,seconds)
                     p=replace(problems[i],requirements=dayreq,activities=[replace(a,id=f'a{index}')

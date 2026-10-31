@@ -482,11 +482,11 @@ def test_single_day_never_enters_multi_day_module(sample,monkeypatch):
 @pytest.mark.parametrize('count',[1,2,3])
 def test_multi_day_budget_shared_and_no_round_up_of_subminimum_remaining(sample,monkeypatch,count):
     from app.city.engine import multi_day
-    req,ctx=multi_sample(sample,count,goals=[],solve_seconds=0.2,alternatives=1)
+    req,ctx=multi_sample(sample,count,goals=[],trip_solve_seconds=0.2,alternatives=1)
     ticks=[0.0];allocations=[];original=multi_day.solve
     def limited(problem,*,deadline,clock):
         allocations.append(problem.requirements.solve_seconds)
-        assert deadline<=req.solve_seconds and clock()+problem.requirements.solve_seconds<=deadline+1e-8
+        assert deadline<=req.trip_solve_seconds and clock()+problem.requirements.solve_seconds<=deadline+1e-8
         result=original(problem)
         ticks[0]+=problem.requirements.solve_seconds
         return result
@@ -552,7 +552,7 @@ def test_multi_day_workflow_deadline_includes_final_validation(sample,monkeypatc
 
 def test_multi_day_preparation_consumes_whole_trip_time_before_any_solver(sample,monkeypatch):
     from app.city.engine import multi_day
-    req,ctx=multi_sample(sample,goals=[]);ticks=[0.0];original=multi_day.prepare;prepared=[]
+    req,ctx=multi_sample(sample,goals=[],trip_solve_seconds=1);ticks=[0.0];original=multi_day.prepare;prepared=[]
     def prepare(*args,**kwargs):
         prepared.append(args[0].business_date);result=original(*args,**kwargs);ticks[0]+=0.6;return result
     monkeypatch.setattr(multi_day,'prepare',prepare)
@@ -575,7 +575,7 @@ def test_multi_day_feasible_incumbent_is_still_explicitly_unexhausted(sample,mon
 
 
 def test_multi_day_small_total_budget_prioritizes_requested_objective(sample):
-    req,ctx=multi_sample(sample,1,goals=[],solve_seconds=0.12)
+    req,ctx=multi_sample(sample,1,goals=[],trip_solve_seconds=0.12)
     result=plan_trip(req,ctx)
     assert result.status=='feasible',result
     assert result.itineraries[0].objectives[0]=='balanced'

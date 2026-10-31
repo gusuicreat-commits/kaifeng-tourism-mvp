@@ -88,6 +88,30 @@ def test_whole_preview_confirmation_idempotency_read_and_overnight(multi_engine)
     with connect() as db:assert db.execute('SELECT count(*) FROM city_engine_routes').fetchone()[0]==1
 
 
+def test_three_day_preview_keeps_default_trip_budget_after_service_projection(multi_engine,monkeypatch):
+    from types import SimpleNamespace
+    from app.city.engine import multi_day
+    e,req=multi_engine;req['alternatives']=3
+    ticks=[0.0];calls=[];original=multi_day.solve
+    def solve(problem,*,deadline,clock):
+        calls.append((problem.requirements.business_date,deadline))
+        result=original(problem,deadline=deadline,clock=clock)
+        ticks[0]+=0.192
+        return result
+    monkeypatch.setattr(multi_day,'time',SimpleNamespace(monotonic=lambda:ticks[0]))
+    monkeypatch.setattr(multi_day,'solve',solve)
+    response=preview(e,req)
+    assert response.status_code==200,response.text
+    data=response.json()
+    assert data['status']=='preview' and data['result']['status']=='feasible',data
+    assert all(len(p['days'])==3 and all(d['itinerary']['activities'] for d in p['days'])
+        for p in data['result']['itineraries'])
+    assert [deadline for _,deadline in calls[:3]]==pytest.approx([1.8]*3)
+    with connect() as db:
+        saved=MultiDayRequirements.model_validate_json(db.execute('SELECT requirements_json FROM city_engine_candidates').fetchone()[0])
+    assert saved.trip_solve_seconds is None and saved.solve_seconds==1
+
+
 def test_confirm_concurrency_one_whole_version_and_failure_rolls_back(multi_engine,monkeypatch):
     e,req=multi_engine;p=preview(e,req).json();before=saved_rows()
     original=state.event
