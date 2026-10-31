@@ -6,7 +6,7 @@ from pydantic import BaseModel
 from app.city.engine.models import PreviewRequest,ReplanRequest,ConfirmRequest,SolveResult,OperationalBundle
 
 from app.city.basket import BasketMutation
-from app.city.exploration import Plan,Answer
+from app.city.exploration import Plan,Answer,ConflictAdjustments
 from app.city.engine.models import PreviewRequestV2,ReplanRequestV2,SolveResultV2,MultiDayConstraints
 from app.city.exploration import PlanV2
 from app.city.versions import PreviewBody,ReplanBody
@@ -15,6 +15,7 @@ class Contracts(BaseModel):
     basket_mutation: BasketMutation
     exploration_preview: Plan
     exploration_answer: Answer
+    exploration_conflict_adjustments: ConflictAdjustments
     preview: PreviewRequest
     replan: ReplanRequest
     confirm: ConfirmRequest

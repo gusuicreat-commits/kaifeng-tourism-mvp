@@ -270,6 +270,116 @@
       "title": "ConfirmRequest",
       "type": "object"
     },
+    "Conflict": {
+      "additionalProperties": false,
+      "properties": {
+        "goal_id": {
+          "title": "Goal Id",
+          "type": "string"
+        },
+        "key": {
+          "title": "Key",
+          "type": "string"
+        },
+        "name": {
+          "title": "Name",
+          "type": "string"
+        },
+        "reason_code": {
+          "title": "Reason Code",
+          "type": "string"
+        },
+        "reason": {
+          "title": "Reason",
+          "type": "string"
+        }
+      },
+      "required": [
+        "goal_id",
+        "key",
+        "name",
+        "reason_code",
+        "reason"
+      ],
+      "title": "Conflict",
+      "type": "object"
+    },
+    "ConflictAdjustments": {
+      "additionalProperties": false,
+      "properties": {
+        "conflicts": {
+          "items": {
+            "$ref": "#/$defs/Conflict"
+          },
+          "title": "Conflicts",
+          "type": "array"
+        },
+        "options": {
+          "items": {
+            "$ref": "#/$defs/NegotiationOption"
+          },
+          "title": "Options",
+          "type": "array"
+        },
+        "reply": {
+          "title": "Reply",
+          "type": "string"
+        }
+      },
+      "required": [
+        "conflicts",
+        "options",
+        "reply"
+      ],
+      "title": "ConflictAdjustments",
+      "type": "object"
+    },
+    "ConstraintPatch": {
+      "additionalProperties": false,
+      "properties": {
+        "starts_at": {
+          "anyOf": [
+            {
+              "format": "date-time",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Starts At"
+        },
+        "ends_at": {
+          "anyOf": [
+            {
+              "format": "date-time",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Ends At"
+        },
+        "business_date": {
+          "anyOf": [
+            {
+              "format": "date",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Business Date"
+        }
+      },
+      "title": "ConstraintPatch",
+      "type": "object"
+    },
     "Constraints": {
       "additionalProperties": false,
       "properties": {
@@ -1038,6 +1148,90 @@
         "time_basis"
       ],
       "title": "Journey",
+      "type": "object"
+    },
+    "NegotiationOption": {
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "title": "Id",
+          "type": "string"
+        },
+        "kind": {
+          "enum": [
+            "priority",
+            "constraints"
+          ],
+          "title": "Kind",
+          "type": "string"
+        },
+        "label": {
+          "title": "Label",
+          "type": "string"
+        },
+        "requires_consent": {
+          "default": true,
+          "title": "Requires Consent",
+          "type": "boolean"
+        },
+        "patch": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/ConstraintPatch"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "object_key": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Object Key"
+        },
+        "object_keys": {
+          "anyOf": [
+            {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Object Keys"
+        },
+        "priority": {
+          "anyOf": [
+            {
+              "const": "want",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Priority"
+        }
+      },
+      "required": [
+        "id",
+        "kind",
+        "label"
+      ],
+      "title": "NegotiationOption",
       "type": "object"
     },
     "OngoingInput": {
@@ -2193,6 +2387,9 @@
     "exploration_answer": {
       "$ref": "#/$defs/Answer"
     },
+    "exploration_conflict_adjustments": {
+      "$ref": "#/$defs/ConflictAdjustments"
+    },
     "preview": {
       "$ref": "#/$defs/PreviewRequest"
     },
@@ -2213,6 +2410,7 @@
     "basket_mutation",
     "exploration_preview",
     "exploration_answer",
+    "exploration_conflict_adjustments",
     "preview",
     "replan",
     "confirm",
