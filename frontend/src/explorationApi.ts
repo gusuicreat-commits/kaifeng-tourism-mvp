@@ -1,4 +1,4 @@
-import {request,mutate} from './api'
+import {PLANNING_PREVIEW_TIMEOUT_MS,request,mutate} from './api'
 import type {CityDraft} from './cityApi'
 export {isMultiDayItinerary,routeDays} from './days'
 import {isMultiDayItinerary} from './days'
@@ -49,7 +49,7 @@ export const alternativeDifference=(plan:Itinerary|MultiDayItinerary,primary?:It
 const prefix=(id:string)=>'/city/v1/trips/'+encodeURIComponent(id)
 export const explorationApi={
  constraints:(id:string)=>request<PlanningWorkspace>(prefix(id)+'/exploration/constraints'),
- preview:(id:string,tripVersion:number,basketVersion:number,constraints:PlanningInput,planningVersion:number)=>mutate<PlanningReply>(prefix(id)+'/exploration/preview',{expected_version:tripVersion,basket_version:basketVersion,constraints,planning_version:planningVersion}),
+ preview:(id:string,tripVersion:number,basketVersion:number,constraints:PlanningInput,planningVersion:number)=>mutate<PlanningReply>(prefix(id)+'/exploration/preview',{expected_version:tripVersion,basket_version:basketVersion,constraints,planning_version:planningVersion},'POST',PLANNING_PREVIEW_TIMEOUT_MS),
  answer:(id:string,tripVersion:number,basketVersion:number,planningVersion:number,reply:{option_id?:string;text?:string})=>mutate<PlanningWorkspace>(prefix(id)+'/exploration/answer',{expected_version:tripVersion,basket_version:basketVersion,planning_version:planningVersion,...reply}),
  cancel:(id:string,tripVersion:number,basketVersion:number,planningVersion:number)=>mutate<PlanningWorkspace>(prefix(id)+'/exploration/cancel',{expected_version:tripVersion,basket_version:basketVersion,planning_version:planningVersion}),
  confirm:(id:string,version:number,candidate_id:string,alternative_index:number)=>mutate(prefix(id)+'/engine/confirm',{expected_version:version,candidate_id,alternative_index}),

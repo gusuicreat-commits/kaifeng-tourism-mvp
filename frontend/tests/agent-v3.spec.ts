@@ -125,6 +125,18 @@ test('city task runs through actual APIs and confirms the shared route version',
  expect(errors).toEqual([])
 })
 
+test('对话步骤超过旧时限仍等待回复，并在八秒后显示查询提示',async({page})=>{
+ test.setTimeout(60000)
+ const {path}=await prepare(page)
+ let delayNextStep=true
+ await page.route('**'+path+'/agent/tasks/*/step',async route=>{if(delayNextStep){delayNextStep=false;await new Promise(resolve=>setTimeout(resolve,18000))}await route.continue()})
+ const input=page.getByLabel('告诉小汴梁你的问题或想调整的安排')
+ await input.fill('附近找个吃饭的地方，下午演出必须保留，最好少走一点。');await page.getByRole('button',{name:'发送',exact:true}).click()
+ await expect(page.getByRole('status')).toContainText('正在向高德查询路线和计算方案，地点较多时可能需要半分钟…',{timeout:12000})
+ await expect(page.getByRole('heading',{name:'请核对新安排'})).toBeVisible({timeout:30000})
+ await expect(page.getByText('请求超时，请重试。')).toHaveCount(0)
+})
+
 test('discard candidate leaves official city state unchanged',async({page})=>{
  const {trip,path}=await prepare(page)
  await page.getByLabel('告诉小汴梁你的问题或想调整的安排').fill('附近找个吃饭的地方，演出必须看。')
