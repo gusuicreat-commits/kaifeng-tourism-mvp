@@ -5,7 +5,7 @@ import type {Basket} from '../src/basketApi'
 import type {CityTripState} from '../src/cityApi'
 import {draftDays} from '../src/days'
 import type {EnginePreview,MultiDayPlanningConstraints,MultiDayItinerary,PlanningConstraints,PlanningInput,PlanningReply,PlanningResult,PlanningWorkspace,RouteSnapshot,SingleDayItinerary} from '../src/explorationApi'
-import {scenic,food,morning,endpoints} from '../playwright.full-flow.fixture.mjs'
+import {scenic,expensiveScenic,food,morning,endpoints} from '../playwright.full-flow.fixture.mjs'
 
 const cityFacts=JSON.parse(readFileSync(fileURLToPath(new URL('../../backend/tests/fixtures/city_facts.json',import.meta.url)),'utf8')) as {records:Array<{kind:string;fact_id:string;name?:string}>}
 const nightPlaces=['pl_wb_000003','pl_wb_vendor_000001','pl_wb_000013']
@@ -47,7 +47,7 @@ async function openBasketPlanning(page:Page,info:TestInfo,names:string[]){
  for(const name of names)await expect(page.locator('.basket-item').filter({hasText:name})).toBeVisible()
  const trip=await current(page),basket=await read<Basket>(page,prefix(trip.id)+'/basket')
  expect(basket.items.map(i=>i.name).sort()).toEqual([...names].sort())
- expect(basket.items.find(i=>i.id===food.id)).toMatchObject({fact_id:food.fact_id})
+ if(names.includes(food.name))expect(basket.items.find(i=>i.id===food.id)).toMatchObject({fact_id:food.fact_id})
  await shot(page,info,'basket')
  await page.getByRole('link',{name:'交给小汴梁安排',exact:true}).click()
  await expect(form(page).getByRole('button',{name:'明天',exact:true})).toBeEnabled()
@@ -386,16 +386,50 @@ test.describe('完整规划流程：真实后端与合成资料',()=>{
   }
   const assessment=page.getByLabel('规划检测结果',{exact:true})
   if('planning' in result){
-   await expect(assessment).toContainText(result.reply)
-   expect(result.planning?.result.issues?.length).toBeGreaterThan(0)
+   const solved=result.planning?.result
+   expect(result.planning?.candidate_id).toBeTruthy()
+   expect(solved?.itineraries.length).toBeGreaterThan(0)
+   await expect(assessment).toContainText(/费用资料不全|费用待添加/)
   }else{
-   expect(result.result.issues?.length).toBeGreaterThan(0)
-   for(const issue of result.result.issues||[])await expect(assessment).toContainText(issue.message)
+   const solved=result.result
+   expect(result.candidate_id).toBeTruthy()
+   expect(solved.itineraries.length).toBeGreaterThan(0)
+   expect((solved.itineraries[0] as MultiDayItinerary).days.length).toBeGreaterThan(0)
+   expect((solved.itineraries[0] as MultiDayItinerary).budget?.status).toBe('unknown')
+   await expect(assessment.locator('.budget-breakdown [role="status"]')).toContainText('仍有未计入费用，暂不能判断预算够用')
   }
   const saved=await read<PlanningWorkspace>(page,prefix(trip.id)+'/exploration/constraints')
   expect(saved.constraints).toMatchObject(days===1?{budget_fen:100000}:{pricing:{total_budget_fen:100000}})
   expect((await read<CityTripState>(page,prefix(trip.id))).route_version).toBe(0)
   await shot(page,info,'budget-assessment')
+ })
+
+ for(const days of [1,3])test(`8b 已知费用超预算 ${days} 天不出方案并回显预算问题`,async({page},info)=>{
+  await home(page,info,'8b-budget-over-'+days)
+  await page.goto('/scenic/'+expensiveScenic.id)
+  await page.getByRole('button',{name:'加入素材篮：'+expensiveScenic.name,exact:true}).click()
+  await expect(page.getByRole('button',{name:'移出素材篮：'+expensiveScenic.name,exact:true})).toBeVisible()
+  const trip=await openBasketPlanning(page,info,[expensiveScenic.name])
+  await fillDay(page,info,days)
+  const question=form(page)
+  await question.getByRole('button',{name:/^深度互动/}).click()
+  await question.getByRole('button',{name:'轻松',exact:true}).click()
+  await question.getByRole('button',{name:'公交地铁',exact:true}).click()
+  await question.getByRole('button',{name:'少走路',exact:true}).click()
+  await question.getByLabel('预算上限（选填）',{exact:true}).fill('100')
+  await question.getByRole('button',{name:'继续',exact:true}).click()
+  const {request,result}=await capturePreview(page,info,()=>question.getByRole('button',{name:'生成安排',exact:true}).click(),'budget-over-result')
+  if(days===1)expect(request.constraints).toMatchObject({budget_fen:10000})
+  else expect(request.constraints).toMatchObject({schema_version:'city-constraints/2',trip_days:3,pricing:{total_budget_fen:10000,party_size:2,hard_limit:true}})
+  const solved='planning' in result?result.planning?.result:result.result
+  expect(solved?.itineraries||[]).toHaveLength(0)
+  const issues=solved?.issues||[]
+  expect(issues.length).toBeGreaterThan(0)
+  const assessment=page.getByLabel('规划检测结果',{exact:true})
+  for(const issue of issues)await expect(assessment).toContainText(issue.message)
+  await expect(assessment.locator('.plan-option')).toHaveCount(0)
+  expect((await read<CityTripState>(page,prefix(trip.id))).route_version).toBe(0)
+  await shot(page,info,'budget-over-assessment')
  })
 
  test('9 素材设为候补后保留名称标注，所有方案均排除它',async({page},info)=>{

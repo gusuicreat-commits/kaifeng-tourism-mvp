@@ -42,6 +42,12 @@ def full_flow_client(client,full_flow_data,monkeypatch):
     return client
 
 
+@pytest.fixture
+def demo_full_flow_client(full_flow_client,monkeypatch):
+    monkeypatch.setenv('KAIFENG_DEMO_MODE','1')
+    return full_flow_client
+
+
 @pytest.mark.parametrize('instant',[
     '2026-10-31T15:59:59+00:00','2026-10-31T16:00:00+00:00',
     '2026-12-31T16:00:00+00:00','2028-02-28T00:00:00+00:00',
@@ -299,6 +305,28 @@ def test_full_flow_deep_budget_returns_result(full_flow_trip,full_flow_data,days
     else:
         assert saved['result']['result']==solved
         assert saved['constraints']['pricing']['total_budget_fen']==100000 and 'budget_fen' not in saved['constraints']
+
+
+@pytest.mark.parametrize('days',[1,3])
+def test_full_flow_demo_budget_keeps_plans_with_unknown_costs(demo_full_flow_client,full_flow_data,days):
+    c=demo_full_flow_client;data=full_flow_data
+    assert c.post('/api/v1/sessions').status_code==200
+    response=c.post('/api/city/v1/trips',json={'request_id':rid(),'draft':{}})
+    assert response.status_code==201,response.text
+    trip=response.json()
+    full_flow_collect(c,trip,data)
+    budget={'budget_fen':100000} if days==1 else {'pricing':{'party_size':2,'vehicle_count':1,'driving_basis':'taxi',
+        'total_budget_fen':100000,'per_person_budget_fen':None,'per_person_daily':False,'dining_per_person_day_fen':None,'hard_limit':True}}
+    result=full_flow_preview(c,trip,data,days=days,pace='relaxed',objective='less_walking',modes=['transit'],**budget)
+    if days==1:
+        solved=result['planning']['result']
+        assert result['status']=='feasible' and solved['status']=='feasible' and solved['itineraries']
+        assert all(plan['cost_unknown'] for plan in solved['itineraries'])
+    else:
+        solved=result['result']
+        assert result['status']=='preview' and solved['status']=='feasible' and solved['itineraries']
+        assert all(plan['budget']['status']=='unknown' and plan['cost_unknown'] for plan in solved['itineraries'])
+    assert c.get(base(trip)).json()['route_version']==0
 
 
 def test_full_flow_standby_is_preserved_and_never_scheduled(full_flow_trip,full_flow_data):
