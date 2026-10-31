@@ -13,7 +13,7 @@ import {interactionModes,readMode,writeMode,type InteractionMode} from '../inter
 const props=defineProps<{tripId:string;revision?:number;autoPlan?:boolean;workflowResult?:PlanningReply|null}>(),emit=defineEmits<{busy:[value:boolean];complete:[];close:[]}>()
 const initializing=ref(true),confirming=ref(false),conversation=ref<HTMLElement>()
 let disposed=false,requestSequence=0
-const busy=ref(false),error=ref(''),result=ref<PlanningResult|null>(null),selected=ref(0),day=ref(''),start=ref(''),end=ref(''),budget=ref(''),rounds=ref(0),cancelled=ref(false)
+const busy=ref(false),error=ref(''),result=ref<PlanningResult|null>(null),selected=ref(0),day=ref(''),start=ref(''),end=ref(''),budget=ref<string|number>(''),rounds=ref(0),cancelled=ref(false)
 const submittedHash=ref(''),planningVersion=ref(0)
 const form=ref<PlanningConstraints>({business_date:null,starts_at:null,ends_at:null,origin_place_id:null,destination_place_id:null,pace:'standard',objective:'balanced',modes:['walking'],budget_fen:null})
 interface DayForm{day_id:string;business_date:string;starts_at:string|null;ends_at:string|null;origin_place_id:string|null;destination_place_id:string|null;origin_text?:string|null;destination_text?:string|null}
@@ -33,13 +33,16 @@ function updateDayTime(d:DayForm,field:'starts_at'|'ends_at',value:string){d[fie
 function updateOvernight(o:OvernightForm,value:string){o.place_id=value||null;Object.assign(o,{source_kind:'user_place',service_selection_id:null,service_version:null,binding_revision:null,place_evidence:'unknown',stay_evidence:'unknown',evidence_refs:[]});for(const d of multiForm.value?.days||[]){if(d.day_id===o.from_day_id){d.destination_place_id=o.place_id;d.destination_text=null}if(d.day_id===o.to_day_id){d.origin_place_id=o.place_id;d.origin_text=null}}}
 const places=computed(()=>journey.catalog.filter(x=>x.record.kind==='place'))
 const editingStep=ref(''),activeStep=ref('date'),earlyTimeConfirmed=ref(false)
+// MultiDayConstraints.days and its date-range validator both cap executable plans at 3 days.
+const maxTripDays=3,tripDays=ref(1),daysConfirmed=ref(false)
+const validDays=computed(()=>Number.isInteger(tripDays.value)&&tripDays.value>=1&&tripDays.value<=maxTripDays)
 const preferencesComplete=ref(false)
 const interactionMode=computed(()=>interactionModes.value[props.tripId]??null)
 const partySize=computed({get:()=>form.value.party_size??null,set:(value:number|null)=>{form.value.party_size=value}})
 const validParty=computed(()=>Number.isInteger(partySize.value)&&Number(partySize.value)>=1&&Number(partySize.value)<=50)
 const earlyTime=computed(()=>!!start.value&&Number(start.value.slice(0,2))<6)
 watch([day,start,end],()=>{earlyTimeConfirmed.value=false})
-const coreMissing=computed(()=>!day.value?'date':!start.value||!end.value?'time':!(form.value.origin_place_id||form.value.origin_text?.trim())?'origin':!(form.value.destination_place_id||form.value.destination_text?.trim())?'destination':'ready')
+const coreMissing=computed(()=>!day.value?'date':!daysConfirmed.value?'days':!start.value||!end.value?'time':!(form.value.origin_place_id||form.value.origin_text?.trim())?'origin':!(form.value.destination_place_id||form.value.destination_text?.trim())?'destination':'ready')
 const missingStep=computed(()=>multi.value?(readyMulti.value?'ready':'multi'):!materials.value.length&&!day.value?'empty':coreMissing.value!=='ready'?coreMissing.value:!validParty.value?'party':!interactionMode.value?'mode':interactionMode.value==='deep'&&!preferencesComplete.value?'preferences':'ready')
 const step=computed(()=>editingStep.value||activeStep.value)
 const personalMissing=computed(()=>result.value?.issues?.some(x=>x.code==='PERSONAL_CHOICE_MISSING'))
@@ -47,8 +50,8 @@ const visibleResult=computed(()=>result.value&&!personalMissing.value&&(multi.va
 watch([step,visibleResult,busy],async()=>{if(busy.value||initializing.value)return;await nextTick();conversation.value?.querySelector<HTMLElement>('.planning-question,.planning-assessment')?.scrollIntoView({block:'nearest',behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth'})})
 const materials=computed(()=>journey.choices.filter(x=>x.status!=='standby'))
 const enteringLocations=computed(()=>['origin','destination'].includes(step.value)&&!places.value.length)
-const question=computed(()=>enteringLocations.value?'从哪里出发，最后返回哪里？':({empty:'素材篮还是空的，先挑几个地方，还是用推荐路线？',date:'你打算哪天去？',time:'当天几点开始，最晚几点结束？',origin:'从哪里出发？',destination:'最后回到哪里？',party:'几个人一起去？',mode:'想怎么安排？',preferences:'最后几个问题，帮我更懂你',ready:'这些安排合适吗？'}[step.value]||''))
-const canContinue=computed(()=>enteringLocations.value?!!(form.value.origin_place_id||form.value.origin_text?.trim())&&!!(form.value.destination_place_id||form.value.destination_text?.trim()):step.value==='party'?validParty.value:step.value==='date'?!!day.value:step.value==='time'?!!start.value&&!!end.value:step.value==='origin'?!!(form.value.origin_place_id||form.value.origin_text?.trim()):step.value==='destination'?!!(form.value.destination_place_id||form.value.destination_text?.trim()):!['empty','mode'].includes(step.value))
+const question=computed(()=>enteringLocations.value?(tripDays.value>1?'每天从哪里出发，最后返回哪里？':'从哪里出发，最后返回哪里？'):({empty:'素材篮还是空的，先挑几个地方，还是用推荐路线？',date:tripDays.value>1?'第一天是哪天？':'你打算哪天去？',days:'这次玩几天？',time:tripDays.value>1?'每天几点开始、几点结束？':'当天几点开始，最晚几点结束？',origin:tripDays.value>1?'每天从哪里出发？':'从哪里出发？',destination:tripDays.value>1?'每天最后回到哪里？':'最后回到哪里？',party:'几个人一起去？',mode:'想怎么安排？',preferences:'最后几个问题，帮我更懂你',ready:'这些安排合适吗？'}[step.value]||''))
+const canContinue=computed(()=>enteringLocations.value?!!(form.value.origin_place_id||form.value.origin_text?.trim())&&!!(form.value.destination_place_id||form.value.destination_text?.trim()):step.value==='days'?validDays.value:step.value==='party'?validParty.value:step.value==='date'?!!day.value:step.value==='time'?!!start.value&&!!end.value:step.value==='origin'?!!(form.value.origin_place_id||form.value.origin_text?.trim()):step.value==='destination'?!!(form.value.destination_place_id||form.value.destination_text?.trim()):!['empty','mode'].includes(step.value))
 watch(()=>busy.value||initializing.value,value=>emit('busy',value),{immediate:true})
 function chooseDay(offset:number){const date=new Date(localDate()+'T12:00:00+08:00');date.setDate(date.getDate()+offset);day.value=new Intl.DateTimeFormat('en-CA',{timeZone:'Asia/Shanghai',year:'numeric',month:'2-digit',day:'2-digit'}).format(date);void advance()}
 async function advance(){
@@ -57,10 +60,12 @@ async function advance(){
  if(earlyTime.value&&!earlyTimeConfirmed.value){editingStep.value='time';error.value='开始时间为凌晨，请核对并确认后继续。';return}
  error.value=''
  const current=step.value,revising=!!editingStep.value&&!!result.value&&!personalMissing.value
+ if(current==='days')daysConfirmed.value=true
  if(current==='preferences'){preferencesComplete.value=true;result.value=null}
  if(current==='ready'||(current!=='preferences'&&revising)||coreMissing.value!=='ready')await run()
  if(!error.value){activeStep.value=missingStep.value;editingStep.value='';if(current!=='ready'&&!revising&&missingStep.value==='ready'&&interactionMode.value==='quick')await run()}
 }
+async function chooseDays(value:number){tripDays.value=value;await advance()}
 async function chooseParty(value:number){partySize.value=value;await advance()}
 function selectMode(value:InteractionMode){writeMode(props.tripId,value)}
 function toggleMode(){selectMode(interactionMode.value==='quick'?'deep':'quick')}
@@ -95,7 +100,7 @@ const chosenChanges=computed(()=>result.value?.planning?.alternative_changes?.[s
 const alternatives=computed(()=>result.value?.planning?.result.itineraries||[])
 const multiPreview=computed(()=>alternatives.value.some(isMultiDayItinerary))
 const singleAlternatives=computed(()=>alternatives.value.filter((p):p is SingleDayItinerary=>!isMultiDayItinerary(p)))
-const omittedMulti=computed(()=>{const plan=alternatives.value[selected.value];if(!plan||!isMultiDayItinerary(plan))return [];const included=new Set(plan.days.flatMap(d=>[...d.itinerary.activities.map(a=>a.goal_id),...(d.itinerary.ongoing?[d.itinerary.ongoing.stop_id]:[])]));const goals=(multiForm.value?.goals||[]) as {goal_id:string;target_id:string}[];return goals.filter(g=>!included.has(g.goal_id)).map(g=>result.value?.activity_names?.[g.goal_id]||nameOf(g.target_id))})
+const omittedMulti=computed(()=>{const plan=alternatives.value[selected.value];if(!plan||!isMultiDayItinerary(plan))return [];const included=new Set(plan.days.flatMap(d=>[...d.itinerary.activities.map(a=>a.goal_id),...(d.itinerary.ongoing?[d.itinerary.ongoing.stop_id]:[])]));const goals=(multiForm.value?.goals||('schema_version' in result.value!.constraints?result.value!.constraints.goals:[])||[]) as {goal_id:string;target_id:string}[];return goals.filter(g=>!included.has(g.goal_id)).map(g=>result.value?.activity_names?.[g.goal_id]||nameOf(g.target_id))})
 const omitted=(index:number)=>{const chosen=new Set(singleAlternatives.value[index]?.activities.map(x=>result.value?.goal_keys?.[x.goal_id]));return journey.choices.filter(x=>x.status==='standby'||!chosen.has(x.key)&&x.status!=='arranged')}
 const omittedText=(index:number)=>{
  const items=new Map<string,string>(),remaining=omitted(index)
@@ -103,11 +108,21 @@ const omittedText=(index:number)=>{
  for(const x of [...remaining.filter(x=>x.status==='standby'),...remaining.filter(x=>x.status!=='standby')])if(!items.has(x.key))items.set(x.key,x.name+(x.status==='standby'?'（候补）':''))
  return [...items.values()].join('、')
 }
-const params=():PlanningInput=>multiForm.value?copy(multiForm.value):({...form.value,business_date:day.value||null,starts_at:day.value&&start.value?day.value+'T'+start.value+':00+08:00':null,ends_at:day.value&&end.value?day.value+'T'+end.value+':00+08:00':null,budget_fen:budget.value.trim()?Math.round(Number(budget.value)*100):null})
-async function run(){success.value=false;if(initializing.value||busy.value||multiReadOnly.value||journey.trip?.id!==props.tripId)return;if(!multi.value&&earlyTime.value&&!earlyTimeConfirmed.value){editingStep.value='time';error.value='开始时间为凌晨，请核对并确认后继续。';return}busy.value=true;error.value='';cancelled.value=false;result.value=null;const epoch=memoryEpoch.value,id=props.tripId,sequence=++requestSequence
+function params():PlanningInput{
+ if(multiForm.value)return copy(multiForm.value)
+ const c={...form.value,business_date:day.value||null,starts_at:day.value&&start.value?day.value+'T'+start.value+':00+08:00':null,ends_at:day.value&&end.value?day.value+'T'+end.value+':00+08:00':null,budget_fen:String(budget.value).trim()?Math.round(Number(budget.value)*100):null}
+ if(tripDays.value===1||!validDays.value)return c
+ const days=Array.from({length:tripDays.value},(_,i)=>{
+  const date=new Date(day.value+'T12:00:00+08:00');date.setUTCDate(date.getUTCDate()+i)
+  const business_date=day.value?date.toISOString().slice(0,10):''
+  return {day_id:'day:'+business_date,business_date,starts_at:start.value?business_date+'T'+start.value+':00+08:00':null,ends_at:end.value?business_date+'T'+end.value+':00+08:00':null,origin_place_id:c.origin_place_id,destination_place_id:c.destination_place_id,origin_text:c.origin_text,destination_text:c.destination_text}
+ })
+ return {schema_version:'city-constraints/2',start_date:day.value||null,end_date:days.at(-1)?.business_date||null,trip_days:tripDays.value,days,pace:c.pace,objective:c.objective,modes:c.modes,party_size:c.party_size,per_person_budget_fen:c.per_person_budget_fen,per_person_budget_daily:c.per_person_budget_daily,...(c.budget_fen!=null?{pricing:{party_size:c.party_size??null,vehicle_count:1,driving_basis:'taxi',total_budget_fen:c.budget_fen,per_person_budget_fen:c.per_person_budget_fen??null,per_person_daily:c.per_person_budget_daily??false,dining_per_person_day_fen:null,hard_limit:true}}:{})}
+}
+async function run(){success.value=false;if(initializing.value||busy.value||multiReadOnly.value||journey.trip?.id!==props.tripId)return;if(!multi.value&&(!validDays.value||tripDays.value>1&&coreMissing.value!=='ready'))return;if(!multi.value&&earlyTime.value&&!earlyTimeConfirmed.value){editingStep.value='time';error.value='开始时间为凌晨，请核对并确认后继续。';return}busy.value=true;error.value='';cancelled.value=false;result.value=null;const epoch=memoryEpoch.value,id=props.tripId,sequence=++requestSequence
  try{await loadBasket();if(disposed||sequence!==requestSequence||epoch!==memoryEpoch.value||journey.trip?.id!==id)return;if(journey.basketError)throw new Error(journey.basketError);const input=params();submittedHash.value=JSON.stringify(input);const r=await explorationApi.preview(id,journey.trip.version,journey.basketVersion,input,planningVersion.value);if(!disposed&&sequence===requestSequence&&epoch===memoryEpoch.value&&id===props.tripId&&!cancelled.value){result.value=normalize(r);planningVersion.value=r.planning_version??planningVersion.value;rounds.value=r.rounds||0;selected.value=0}}
  catch(e){if(!disposed&&epoch===memoryEpoch.value&&sequence===requestSequence){error.value=(e as Error).message;if(e instanceof ApiError&&e.status===409)initializing.value=true}}finally{if(!disposed&&epoch===memoryEpoch.value&&sequence===requestSequence)busy.value=false}}
-function applyConstraints(c:PlanningInput){if('schema_version' in c){multiForm.value=copy(c) as typeof multiForm.value;return}multiForm.value=null;form.value={...c,modes:[...c.modes]};day.value=c.business_date||'';start.value=c.starts_at?clock(c.starts_at):'';end.value=c.ends_at?clock(c.ends_at):'';budget.value=c.budget_fen!=null?String(c.budget_fen/100):''}
+function applyConstraints(c:PlanningInput){if('schema_version' in c){multiForm.value=copy(c) as typeof multiForm.value;return}multiForm.value=null;tripDays.value=1;daysConfirmed.value=!!c.business_date;form.value={...c,modes:[...c.modes]};day.value=c.business_date||'';start.value=c.starts_at?clock(c.starts_at):'';end.value=c.ends_at?clock(c.ends_at):'';budget.value=c.budget_fen!=null?String(c.budget_fen/100):''}
 async function answer(reply:{option_id?:string;text?:string}){if(busy.value||stale.value||!journey.trip)return;busy.value=true;error.value='';const guard=memoryEpoch.value,id=props.tripId,sequence=++requestSequence
  try{const saved=await explorationApi.answer(id,journey.trip.version,journey.basketVersion,planningVersion.value,reply);if(disposed||guard!==memoryEpoch.value||sequence!==requestSequence||journey.trip?.id!==id)return;planningVersion.value=saved.version;rounds.value=saved.rounds;applyConstraints(saved.constraints!);result.value=null;await loadBasket();busy.value=false;await run()}
  catch(e){if(!disposed&&guard===memoryEpoch.value&&sequence===requestSequence){error.value=(e as Error).message;if(e instanceof ApiError&&e.status===409)initializing.value=true}}
@@ -136,6 +151,7 @@ watch(memoryEpoch,()=>{resetLocal();error.value='记录已清除';busy.value=fal
  <template v-else-if="!success">
  <template v-if="!multi"><div v-if="day||start||form.origin_place_id||form.destination_place_id||form.origin_text||form.destination_text" class="planning-known" aria-label="已提供的安排">
   <button v-if="day" type="button" :disabled="busy" @click="editStep('date')">{{day}}</button>
+  <button v-if="day" type="button" :disabled="busy" @click="editStep('days')">{{tripDays}} 天</button>
   <button v-if="start&&end" type="button" :disabled="busy" @click="editStep('time')">{{start}}—{{end}}</button>
   <button v-if="form.origin_place_id||form.origin_text" type="button" :disabled="busy" @click="editStep('origin')">从{{form.origin_place_id?nameOf(form.origin_place_id):form.origin_text}}</button>
   <button v-if="form.destination_place_id||form.destination_text" type="button" :disabled="busy" @click="editStep('destination')">回到{{form.destination_place_id?nameOf(form.destination_place_id):form.destination_text}}</button>
@@ -147,6 +163,7 @@ watch(memoryEpoch,()=>{resetLocal();error.value='记录已清除';busy.value=fal
   <p class="planning-question-text">{{question}}</p>
   <div v-if="step==='empty'" class="planning-empty-actions"><RouterLink class="button secondary" to="/">先去发现开封</RouterLink><button type="button" class="button primary" :disabled="busy" @click="recommendedRoute">用推荐的开封夜游路线</button></div>
   <template v-else-if="step==='date'"><div class="planning-quick"><button type="button" :disabled="busy" @click="chooseDay(0)">今天</button><button type="button" :disabled="busy" @click="chooseDay(1)">明天</button></div><label>旅行日期<input v-model="day" type="date" required :disabled="busy"></label></template>
+  <template v-else-if="step==='days'"><div class="planning-picks" role="group" aria-label="快捷选择天数"><button v-for="n in maxTripDays" :key="n" type="button" :aria-pressed="tripDays===n" :disabled="busy" @click="chooseDays(n)">{{n}}天</button></div><label>游玩天数<input v-model.number="tripDays" type="number" min="1" :max="maxTripDays" step="1" required :disabled="busy"></label></template>
   <div v-else-if="step==='time'" class="planning-time-pair"><label>开始时间<input v-model="start" type="time" required :disabled="busy"></label><label>最晚结束<input id="planning-end" v-model="end" type="time" required :disabled="busy"></label></div>
   <template v-else-if="step==='origin'||step==='destination'">
    <label v-if="places.length">{{step==='origin'?'出发地点':'返程地点'}}<select :value="step==='origin'?form.origin_place_id:form.destination_place_id" :disabled="busy" @change="step==='origin'?form.origin_place_id=($event.target as HTMLSelectElement).value:form.destination_place_id=($event.target as HTMLSelectElement).value"><option :value="null">请选择地点</option><option v-for="p in places" :key="p.record.fact_id" :value="p.record.fact_id">{{p.record.name}}</option></select></label>

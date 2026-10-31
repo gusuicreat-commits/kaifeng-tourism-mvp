@@ -12,6 +12,12 @@ export function fullFlowFixtures(now=new Date()){
  const facts=JSON.parse(datedFacts(now)),records=facts.records
  const rule=records.find(r=>r.kind==='open_rule')
  records.push({...rule,fact_id:'full-flow:open-park',place_id:scenic.fact_id,reentry:'allowed',last_entry_at:rule.closes_at})
+ const dated=records.filter(r=>r.business_date),first=rule.business_date
+ for(let offset=1;offset<3;offset++){
+  const date=new Date(first+'T12:00:00+08:00');date.setUTCDate(date.getUTCDate()+offset)
+  const next=date.toISOString().slice(0,10)
+  for(const record of dated)records.push({...JSON.parse(JSON.stringify(record).replaceAll(first,next)),fact_id:record.fact_id+':day'+(offset+1)})
+ }
  const bindings=JSON.parse(readFileSync(new URL('../backend/tests/fixtures/object_bindings.json',import.meta.url),'utf8'))
  bindings.push(['scenic',scenic.id,'place',scenic.fact_id])
  return {facts,bindings,operations:journeys(facts)}
@@ -19,7 +25,7 @@ export function fullFlowFixtures(now=new Date()){
 export function journeys(facts){
  const places=facts.records.filter(r=>r.kind==='place'&&Number.isFinite(r.longitude)&&Number.isFinite(r.latitude))
  const source=facts.records.find(r=>r.kind==='source')
- const until=facts.records.find(r=>r.kind==='open_rule').closes_at
+ const until=facts.records.filter(r=>r.kind==='open_rule').map(r=>r.closes_at).sort().at(-1)
  const evidence={evidence_id:'full-flow:synthetic',revision:'1',kind:'estimate',source:'synthetic full-flow coordinate estimate; NOT real transport evidence',checked_at:source.collected_at,valid_from:source.effective_from,valid_until:until}
  const radians=n=>n*Math.PI/180
  const parks=place=>{
