@@ -1,4 +1,4 @@
-from datetime import date
+from datetime import date, timedelta
 import pytest
 from app.city.agent.models import PlanningField, StateIntent
 from app.city.agent.planning_intent import _field_check
@@ -24,6 +24,85 @@ def test_range_roles_and_explicit_cross_year_are_independent():
     assert _field_check(f('start_date','2026-10-31','10月31日到11月1日'),'10月31日到11月1日',today) is None
     assert _field_check(f('end_date','2026-11-01','10月31日到11月1日'),'10月31日到11月1日',today) is None
     assert resolve('2026-12-31',today)<resolve('2027-01-01',today)
+
+
+@pytest.mark.parametrize('expression,offset',[('今明两天',0),('明后两天',1),('后大两日',2)])
+@pytest.mark.parametrize('today',[date(2026,10,31),date(2026,12,31),date(2028,2,28)])
+def test_contracted_ranges_ground_only_the_matching_role_and_duration(expression,offset,today):
+    start=today+timedelta(days=offset);end=start+timedelta(days=1)
+    for key,value in [('start_date',start),('end_date',end)]:
+        assert _field_check(f(key,value.isoformat(),expression),expression,today) is None
+        wrong=end if key=='start_date' else start
+        assert _field_check(f(key,wrong.isoformat(),expression),expression,today)=='date_not_in_quote'
+    assert _field_check(f('trip_days',2,expression),expression,today) is None
+    assert _field_check(f('trip_days',3,expression),expression,today)=='trip_days_not_in_quote'
+    assert _field_check(f('date',start.isoformat(),expression),expression,today) is not None
+    assert _field_check(f('date',expression,expression),expression,today) is not None
+
+
+@pytest.mark.parametrize('include_days',[False,True])
+@pytest.mark.parametrize('expression,offset',[('今明两天',0),('明后两天',1),('后大两日',2)])
+def test_contracted_range_model_fields_persist_daily_conditions(city,monkeypatch,expression,offset,include_days):
+    from test_planning_understanding import model, field
+    from test_city_agent import run
+    from test_city_assistant import path
+    start=city['clock'][0].date()+timedelta(days=offset);end=start+timedelta(days=1)
+    text=expression+'，每天9点到18点，从[合成测试]origin出发回[合成测试]origin，步行'
+    fields=[field('start_date',start.isoformat(),expression),field('end_date',end.isoformat(),expression),
+        {'field':'start_time','value':'09:00','quote':'每天9点到18点','scope':'every_day'},
+        {'field':'end_time','value':'18:00','quote':'每天9点到18点','scope':'every_day'},
+        {'field':'origin','value':'[合成测试]origin','quote':'从[合成测试]origin出发','scope':'every_day'},
+        {'field':'destination','value':'[合成测试]origin','quote':'回[合成测试]origin','scope':'every_day'},
+        field('mode','walking','步行')]
+    if include_days:fields.append(field('trip_days',2,expression))
+    model(monkeypatch,text,fields);task=run(city,text)
+    assert not task['interpretation'].get('dropped_fields'),task
+    assert not task['interpretation'].get('validation_failure'),task
+    saved=city['client'].get(path(city,'/exploration/constraints')).json()['constraints']
+    assert saved['schema_version']=='city-constraints/2'
+    assert saved['start_date']==start.isoformat() and saved['end_date']==end.isoformat()
+    assert len(saved['days'])==2
+    for i,day in enumerate(saved['days']):
+        expected=(start+timedelta(days=i)).isoformat()
+        assert day['business_date']==expected
+        assert day['starts_at']==expected+'T09:00:00+08:00'
+        assert day['ends_at']==expected+'T18:00:00+08:00'
+        assert day['origin_place_id']==day['destination_place_id']=='origin'
+    if include_days:assert saved['trip_days']==2
+
+
+def test_bad_contracted_range_endpoint_drops_only_that_field_and_explains(city,monkeypatch):
+    from test_agent_output_tolerance import emit, dropped
+    from test_city_agent import run
+    from test_city_assistant import path
+    text='明后两天，步行'
+    emit(monkeypatch,{'planning':{'quote':text,'fields':[
+        {'field':'start_date','value':'2030-05-02','quote':'明后两天'},
+        {'field':'end_date','value':'2030-05-04','quote':'明后两天','extra':'ignored'},
+        {'field':'trip_days','value':2,'quote':'明后两天'},
+        {'field':'mode','value':'walking','quote':'步行'}]}})
+    task=run(city,text)
+    assert [(v['field'],v['value']) for v in task['understanding']['planning']['fields']]==[
+        ('start_date','2030-05-02'),('trip_days',2),('mode','walking')]
+    dropped(task['interpretation'],'planning.fields[1]',reason='date_not_in_quote')
+    assert '这部分我没采用：『明后两天』' in task['result']['reply']
+    saved=city['client'].get(path(city,'/exploration/constraints')).json()['constraints']
+    assert saved['start_date']=='2030-05-02' and saved['end_date']=='2030-05-03'
+
+
+def test_contracted_range_and_separately_quoted_duration_use_existing_conflict(city,monkeypatch):
+    from test_planning_understanding import model, field
+    from test_city_agent import run
+    from test_city_assistant import path
+    text='明后两天，一共三天'
+    model(monkeypatch,text,[field('start_date','2030-05-02','明后两天'),
+        field('end_date','2030-05-03','明后两天'),field('trip_days',3,'三天')])
+    task=run(city,text)
+    assert task['status']=='needs_clarification'
+    assert not task['interpretation'].get('dropped_fields')
+    assert '日期范围和游玩天数不一致，以哪个为准？' in task['result']['reply']
+    saved=city['client'].get(path(city,'/exploration/constraints')).json()
+    assert saved['result'] is None and saved['constraints']['trip_days']==3
 
 
 def test_nights_and_day_scope_are_grounded_without_making_up_clock():

@@ -5,7 +5,7 @@ from decimal import Decimal, InvalidOperation
 from .. import facts
 from ..schema import TZ
 from .models import PlanningIntent, PlanningField, BasketProposal, BasketProposalItem, BasketChoicePrompt, MaterialChoice, Action, Understanding
-from .dates import DATE_EXPRESSION, find_date_expressions, resolve_date
+from .dates import DATE_EXPRESSION, find_date_expressions, resolve_date, relative_date_range
 from .evidence import request_evidence, query_evidence, effective_clock, preference_evidence
 
 PREFERENCE_FIELDS=('spice','interest','avoid')
@@ -59,6 +59,9 @@ def _field_check(f, text, today):
                 return None if f.value==2 else 'trip_days_not_in_quote'
             # 一日游 / 两日行程 count days; a bare 日 is a calendar date (11月3日), not a duration.
             numbers=counts(f.quote,'(?:天|日(?=游|行程))' if f.field=='trip_days' else '(?:晚|夜)')
+            if f.field=='trip_days':
+                numbers.extend((span[1]-span[0]).days+1 for e in find_date_expressions(f.quote)
+                               if (span:=relative_date_range(e,today)))
             return None if numbers and f.value==max(numbers) else f.field+'_not_in_quote'
         if f.field=='budget_fen':
             # The model selects the amount; other numbers in its quote are not conflicting budgets.
