@@ -19,7 +19,8 @@ def model(monkeypatch,text,fields=(),**extra):
     monkeypatch.setattr(language,'available',lambda:True)
     def generate(system,payload,**kw):
         calls.append(payload)
-        assert len(system)+len(json.dumps(payload,ensure_ascii=False))<=12000
+        # 输入预算以 provider 上限为准。
+        assert len(system)+len(json.dumps(payload,ensure_ascii=False))<=provider.MODEL_INPUT_CHARACTERS
         return copy.deepcopy(output),{'source':'mock_model','http_attempts':0}
     monkeypatch.setattr(provider,'generate',generate)
     return calls

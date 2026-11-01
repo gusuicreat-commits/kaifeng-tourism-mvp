@@ -77,6 +77,57 @@ def test_answer_applies_preferences_then_previews_and_explains_exclusion(city,mo
     assert get(city)['route_version']==0
 
 
+@pytest.mark.parametrize('text,fields,spice,avoid,interests',[
+    ('晚上就不出去了',[field('avoid','night','晚上就不出去了')],None,['night'],[]),
+    ('入夜以后我宁可待在住处',[field('avoid','night','入夜以后我宁可待在住处')],None,['night'],[]),
+    ('夜市就免了',[field('avoid','night','夜市就免了')],None,['night'],[]),
+    ('辣的不行',[field('spice','none','辣的不行')],'none',[],[]),
+    ('我比较怕辣',[field('spice','none','我比较怕辣')],'none',[],[]),
+    ('吃不了辣，别给我排吃的了，多去几个景点',[
+        field('spice','none','吃不了辣'),field('avoid','food','别给我排吃的了'),
+        field('interest','scenic','多去几个景点')],'none',['food'],['scenic']),
+])
+def test_pending_colloquial_preferences_pass_grounding_and_are_saved(city,monkeypatch,text,fields,spice,avoid,interests):
+    prepared(city);run(city,monkeypatch)
+    before=saved(city)
+    calls=model(monkeypatch,text,fields)
+    intent,meta=understand.parse(text,snapshot(city)[0])
+    assert calls[0]['context']['planning_readiness']['awaiting']=='preferences'
+    assert [f.model_dump(include={'field','value','quote'}) for f in intent.planning.fields]==fields
+    assert not intent.constraints and not meta.get('dropped'),meta
+    task=_run(city,text,'deep')
+    assert workflow(task)['status']=='feasible',task
+    assert not task['interpretation'].get('preference_fallback')
+    assert not task['interpretation'].get('dropped'),task['interpretation']
+    values=saved(city)
+    assert values['preferences']=={'spice':spice,'interests':interests,'avoid':avoid}
+    assert values['ends_at']==before['ends_at'] and values['preferences_pending'] is False
+    assert get(city)['route_version']==0
+
+
+def test_pending_colloquial_preferences_survive_misplacement_duplicates_and_chat(city,monkeypatch):
+    prepared(city);run(city,monkeypatch)
+    text='辣的我受不了，夜里就待在住处吧'
+    spice=field('spice','none','辣的我受不了')
+    model(monkeypatch,text,[dict(spice,extra='ignored'),spice],
+        constraints=[field('avoid','night','夜里就待在住处吧')],conversation={'reply':'明白了'})
+    task=_run(city,text,'deep')
+    assert workflow(task)['status']=='feasible',task
+    assert saved(city)['preferences']=={'spice':'none','interests':[],'avoid':['night']}
+    assert not task['interpretation'].get('preference_fallback')
+
+
+@pytest.mark.parametrize('text',['景点古迹少安排点','演出别太多','夜景安排少一点'])
+def test_pending_reduced_category_answer_does_not_exclude_or_increase(city,monkeypatch,text):
+    prepared(city);run(city,monkeypatch)
+    before=saved(city)
+    model(monkeypatch,text,actions=[],planning={'quote':text,'fields':[]})
+    task=_run(city,text,'deep')
+    assert workflow(task)['status']=='feasible',task
+    assert saved(city)['preferences']==before['preferences']
+    assert not any(v['reason_code']=='preference_excluded' for items in workflow(task)['unscheduled'].values() for v in items)
+
+
 @pytest.mark.parametrize('text,fields',[
     ('都行',[field('spice','any','都行')]),
     ('换成轻松点',[field('pace','relaxed','轻松点')]),
@@ -389,6 +440,7 @@ def test_grounded_preference_drop_only_reports_uncovered_quote(city,monkeypatch,
 @pytest.mark.parametrize('value,expected',[
     ('shows night',['shows','night']),('shows,night',['shows','night']),('shows，night',['shows','night']),
     ('shows、night',['shows','night']),('shows/night',['shows','night']),('shows\t\nnight',['shows','night']),
+    ('shows;night',['shows','night']),('shows；food',['shows','food']),('night|scenic',['night','scenic']),
     (['shows','night'],['shows','night']),(['shows/night'],['shows','night']),
     (['shows','night,food/scenic'],['shows','night','food','scenic']),
 ])
@@ -406,7 +458,7 @@ def test_multi_category_values_are_split_before_validation(city,monkeypatch,name
 
 
 @pytest.mark.parametrize('name',['interest','avoid'])
-@pytest.mark.parametrize('value',['shows,xyz',['shows','xyz'],['shows,xyz'],['shows',None],['shows','']])
+@pytest.mark.parametrize('value',['shows,xyz','shows;夜市',['shows','xyz'],['shows,xyz'],['shows',None],['shows','']])
 def test_invalid_multi_category_value_drops_the_whole_item(city,monkeypatch,name,value):
     prepared(city)
     text='不吃辣，演出和其他都随意'
