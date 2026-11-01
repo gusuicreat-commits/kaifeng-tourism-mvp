@@ -219,3 +219,5 @@ input:not([type=checkbox]):not([type=file]),select,.planner-form textarea{border
 /* 页头右侧：导航 + 素材篮入口（手机上导航固定在底部，篮子留在右上角） */
 .header-actions{display:flex;align-items:center;gap:30px;height:100%}
 @media(max-width:760px){.header-actions{gap:18px}}
+/* 地图页有自己的顶栏，不显示素材篮入口 */
+.guide-route .basket-entry{display:none}

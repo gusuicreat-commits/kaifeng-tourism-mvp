@@ -84,7 +84,7 @@ test('页头素材篮入口显示收藏数量并进入素材篮',async({page})=>
  for(const width of [390,1440]){
   await page.setViewportSize({width,height:844})
   await page.goto('/scenic/qingming')
-  const entry=page.locator('header .basket-entry')
+  const entry=page.locator('.basket-entry')
   await expect(entry).toBeVisible()
   await expect(entry).toHaveAttribute('aria-label','旅行素材篮，还没有收藏')
   await expect(entry.locator('.basket-count')).toHaveCount(0)
@@ -96,5 +96,23 @@ test('页头素材篮入口显示收藏数量并进入素材篮',async({page})=>
   await expect(page).toHaveURL(/\/basket$/)
   await expect(entry).toHaveAttribute('aria-current','page')
   await page.context().clearCookies();await page.evaluate(()=>sessionStorage.clear())
+ }
+})
+
+test('页面下滑后素材篮入口固定在右上角，地图页不显示',async({page})=>{
+ for(const width of [390,1440]){
+  await page.setViewportSize({width,height:844})
+  await page.goto('/scenic/wansui')
+  const entry=page.locator('.basket-entry')
+  await expect(entry).toBeVisible()
+  const top=await entry.boundingBox()
+  await page.evaluate(()=>scrollTo(0,document.body.scrollHeight))
+  await expect(entry).toHaveClass(/floating/)
+  const fixed=await entry.boundingBox()
+  expect(fixed!.y).toBeGreaterThanOrEqual(0);expect(fixed!.y).toBeLessThan(30)
+  expect(Math.abs(fixed!.x-top!.x)).toBeLessThan(4)
+  await page.evaluate(()=>scrollTo(0,0))
+  await expect(entry).not.toHaveClass(/floating/)
+  await page.goto('/guide');await expect(page.locator('.basket-entry')).toBeHidden()
  }
 })
