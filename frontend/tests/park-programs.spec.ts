@@ -77,3 +77,24 @@ test('当日节目表每个节目下也能加入素材篮',async({page})=>{
  await expect(page.getByRole('button',{name:'移出素材篮：大宋·东京保卫战',exact:true}).first()).toBeVisible()
  expect(sent.at(-1)).toMatchObject({operation:'put',item:{kind:'program',object_id:'prg_test_dongjing'}})
 })
+
+test('页头素材篮入口显示收藏数量并进入素材篮',async({page})=>{
+ await mockMatches(page,{'大宋·东京保卫战':'prg_test_dongjing'})
+ await mockBasket(page)
+ for(const width of [390,1440]){
+  await page.setViewportSize({width,height:844})
+  await page.goto('/scenic/qingming')
+  const entry=page.locator('header .basket-entry')
+  await expect(entry).toBeVisible()
+  await expect(entry).toHaveAttribute('aria-label','旅行素材篮，还没有收藏')
+  await expect(entry.locator('.basket-count')).toHaveCount(0)
+  await page.getByRole('button',{name:'加入素材篮：大宋·东京保卫战',exact:true}).click()
+  await expect(entry).toHaveAttribute('aria-label','旅行素材篮，已收藏 1 项')
+  await expect(entry.locator('.basket-count')).toHaveText('1')
+  expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true)
+  await entry.click()
+  await expect(page).toHaveURL(/\/basket$/)
+  await expect(entry).toHaveAttribute('aria-current','page')
+  await page.context().clearCookies();await page.evaluate(()=>sessionStorage.clear())
+ }
+})

@@ -215,3 +215,7 @@ input:not([type=checkbox]):not([type=file]),select,.planner-form textarea{border
 .home-trip-card{display:flex;align-items:center;justify-content:space-between;gap:20px;margin:0 0 38px;padding:22px 24px;border:1px solid #dfd2bd;border-radius:2px 18px 2px 18px;background:#fff9eef2;box-shadow:0 10px 26px #6c594010}
 .home-trip-copy{min-width:0}.home-trip-kicker{display:block;color:#a85b4b;font-size:9px;letter-spacing:1.8px;margin-bottom:8px}.home-trip-card h2{font-family:"Songti SC","STSong",serif;font-size:24px;font-weight:500;margin:0 0 6px;color:#443a32}.home-trip-card p{margin:0;color:#817563;font-size:12px}.home-trip-actions{display:flex;gap:8px;flex-shrink:0}.home-trip-card .button{min-height:35px;padding:9px 13px;font-size:11px}
 @media(max-width:760px){.home-trip-card{align-items:flex-start;flex-direction:column;margin-bottom:29px;padding:18px}.home-trip-actions{width:100%}.home-trip-actions .button{flex:1}.global-assistant-launcher{right:16px;bottom:calc(82px + env(safe-area-inset-bottom,0px));width:48px;height:48px}.detail-actions{flex-wrap:wrap;gap:10px}.detail-actions .button{flex:1;min-width:135px}.detail-actions .text-link{width:100%}}
+
+/* 页头右侧：导航 + 素材篮入口（手机上导航固定在底部，篮子留在右上角） */
+.header-actions{display:flex;align-items:center;gap:30px;height:100%}
+@media(max-width:760px){.header-actions{gap:18px}}
