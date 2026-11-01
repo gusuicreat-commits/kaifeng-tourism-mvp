@@ -44,7 +44,8 @@ export function fullFlowFixtures(now=new Date()){
  }
  // The progress test uses the real server clock and must record an already elapsed time.
  const today=new Intl.DateTimeFormat('en-CA',{timeZone:'Asia/Shanghai',year:'numeric',month:'2-digit',day:'2-digit'}).format(now)
- for(const record of dated.filter(r=>r.kind==='open_rule'&&[scenic.fact_id,spicy.place_id,bland.place_id].includes(r.place_id)))records.push({...JSON.parse(JSON.stringify(record).replaceAll(first,today)),fact_id:record.fact_id+':today'})
+ // 进度用例使用真实时钟，当天规则全天开放以免受运行时刻影响。
+ for(const record of dated.filter(r=>r.kind==='open_rule'&&[scenic.fact_id,spicy.place_id,bland.place_id].includes(r.place_id)))records.push({...JSON.parse(JSON.stringify(record).replaceAll(first,today)),fact_id:record.fact_id+':today',opens_at:today+'T00:00:00+08:00',closes_at:today+'T23:59:00+08:00',...(record.last_entry_at?{last_entry_at:today+'T23:59:00+08:00'}:{})})
  const bindings=JSON.parse(readFileSync(new URL('../backend/tests/fixtures/object_bindings.json',import.meta.url),'utf8'))
  bindings.push(['scenic',scenic.id,'place',scenic.fact_id])
  bindings.push(['scenic',expensiveScenic.id,'place',expensiveScenic.fact_id])

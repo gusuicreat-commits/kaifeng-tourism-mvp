@@ -781,6 +781,8 @@ test.describe('创新点端到端：真实后端',()=>{
  })
 
  test('创新点6：完成首站后跳过下一站，其余安排不动，刷新及修改结束时间后偏好预算仍保留',async({page},info)=>{
+  const time=new Intl.DateTimeFormat('en-GB',{timeZone:'Asia/Shanghai',hour:'2-digit',minute:'2-digit',second:'2-digit',hour12:false}).format(new Date())
+  if(time>'22:30:00')test.skip(true,'进度用例需要当天剩余至少一小时')
   test.setTimeout(150000)
   await home(page,info,'innovation-6-progress')
   await add(page,info,'/scenic/'+scenic.id,scenic.name,'scenic')
