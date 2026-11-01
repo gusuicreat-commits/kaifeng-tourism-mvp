@@ -77,6 +77,21 @@ def test_answer_applies_preferences_then_previews_and_explains_exclusion(city,mo
     assert get(city)['route_version']==0
 
 
+@pytest.mark.parametrize('multi',[False,True])
+def test_all_excluded_reply_never_suggests_an_empty_basket(request,monkeypatch,multi):
+    if multi:
+        e,values=request.getfixturevalue('basket_trip');c,t,data=e;visitor={'client':c,'trip':t,'data':data}
+    else:visitor=request.getfixturevalue('city');values=None
+    prepared(visitor,values,items=(('food','food'),))
+    run(visitor,monkeypatch)
+    task=run(visitor,monkeypatch,'不安排美食',[field('avoid','food','不安排美食')])
+    result=workflow(task)
+    assert result['issues'][0]['code']=='PREFERENCE_EXCLUDED_ALL',task
+    assert result['reply'] in task['result']['reply']
+    assert '先从详情页加入' not in task['result']['reply']
+    assert '素材篮里的' in task['result']['reply']
+
+
 @pytest.mark.parametrize('text,fields',[
     ('都行',[field('spice','any','都行')]),
     ('换成轻松点',[field('pace','relaxed','轻松点')]),

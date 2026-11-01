@@ -2,6 +2,12 @@
 
 核对日期：2026-10-23。下面的交互规则以 [PRD](PRD.md) 为准；已有代码与验收边界见 [PROJECT_STATUS](PROJECT_STATUS.md)。产品要求不因代码已有分支就自动算通过。
 
+## E31 素材篮确认后续排与偏好全排除（2026-11-01，待 Claude 验收）
+
+确认对话素材篮变更后清除旧的 `BASKET_CONFIRMATION_REQUIRED` 结果，读取已保存条件重新预览。续排检查日期、时段和起终点，不再被手动表单独有的人数、偏好步骤阻断；快速与深度模式共用此入口，核心条件缺失时仍停在对应问题，不提交正式行程。根因是原 `confirmBasket()` 复用了旧确认结果，而 `resume()` 仅在包含个人问答门槛的 `missingStep === 'ready'` 时运行。
+
+单日、多天没有可排目标且已映射素材全因偏好被排除时，返回 `PREFERENCE_EXCLUDED_ALL`，按实际原因分别说明类别或辣度、名称与恢复方式；类别按 `CATEGORY_NAMES` 顺序去重，只列实际触发排除的类别，混合排除分别点名对应素材。内部 `cause` 在返回和保存前移除，保留 `unscheduled` 原因，不改接口契约。真空篮仍为 `BASKET_EMPTY`，资料待添加的素材仍按数据缺口提示。后端回归在 `backend/tests/test_trip_preferences.py`、`backend/tests/test_preference_dialogue.py`；真实本地后端浏览器用例在 `frontend/tests/full-flow.spec.ts` 的“素材篮确认续排：真实后端”，模型替身仅追加一条合成句子。
+
 ## E14 偏好对话理解与深度追问（2026-10-31，本地实现，待 Claude 验收）
 
 模型通过 `PlanningField.spice/interest/avoid` 理解偏好，逐项核对本轮原话，单日、多天共用合并逻辑：没提到的保留，同类别冲突按原话先后取最后一项。格式走样沿用挪位、去重与单项丢弃，未采用的偏好会在回复中说明；不通过关键词表推断口味或兴趣。

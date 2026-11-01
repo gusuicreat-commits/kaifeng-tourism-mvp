@@ -172,7 +172,6 @@ async function confirm(){
 async function confirmBasket(){
  const proposal=basketProposal.value
  if(!proposal||inputBusy.value||basketChoices.value.length)return
- const workflow=task.value?.result?.planning_workflow?.result
  const current=++epoch,guard=memoryEpoch.value,id=props.tripId
  const active=()=>!disposed&&current===epoch&&guard===memoryEpoch.value&&id===props.tripId
  busy.value=true;error.value=''
@@ -190,7 +189,7 @@ async function confirmBasket(){
   }
   task.value=null;await loadBasket();await refresh();if(!active())return
   messages.value.push({role:'小汴梁',text:'素材篮已更新，接着按已保存的条件安排。'})
-  continuePlanning.value=true;workflowResult.value=workflow||null;planningRevision.value++;showPlanning.value=true
+  continuePlanning.value=true;workflowResult.value=null;planningRevision.value++;showPlanning.value=true
  }catch(e){if(active()){
   task.value=null;await loadBasket()
   error.value=e instanceof ApiError&&e.status===409?'素材篮或行程已变化，请刷新后重新提出要求；本次未覆盖冲突项。':e instanceof Error?e.message:'素材篮未更新，请重试'

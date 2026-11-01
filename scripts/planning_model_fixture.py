@@ -21,6 +21,7 @@ def install():
         '改成2030-05-02':{'fields':[field('date','2030-05-02','2030-05-02')]},
         '[合成测试]museum改为想去':{'choices':[{'name':'[合成测试]museum','priority':'want','priority_stated':True,'quote':'[合成测试]museum改为想去'}]},
         '想去[合成测试]museum':{'choices':[{'name':'[合成测试]museum','priority':'want','quote':'想去[合成测试]museum'}]},
+        '明天，上午9点到下午6点，从开封府府门广场集合点出发，最后回[测试]返程点，[合成测试]上午展馆一定要去':{'fields':[field('date','明天','明天'),morning,evening,field('origin','开封府府门广场集合点','从开封府府门广场集合点出发'),field('destination','[测试]返程点','最后回[测试]返程点')],'choices':[{'name':'[合成测试]上午展馆','priority':'must','priority_stated':True,'quote':'[合成测试]上午展馆一定要去'}]},
     }
     for text in ('我想明天去开封玩','我明天想去开封玩','明天我想去开封玩','我们打算明天去开封旅游'):
         cases[text]={'fields':[field('date','明天','明天')]}

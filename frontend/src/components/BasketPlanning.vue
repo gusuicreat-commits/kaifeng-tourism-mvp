@@ -177,7 +177,13 @@ async function cancel(){if(confirming.value)return;const version=planningVersion
 async function initialize(){error.value='';initializing.value=true;const epoch=memoryEpoch.value,id=props.tripId,sequence=++requestSequence;if(!(id in interactionModes.value))readMode(id)
  try{await loadJourney();if(journey.trip?.id!==id)throw new Error('当前旅程已变化，请重新打开规划');const draft=journey.trip.draft;const saved=await explorationApi.constraints(id);if(disposed||sequence!==requestSequence||epoch!==memoryEpoch.value||journey.trip?.id!==id)return;const c=saved.constraints;if(c)applyConstraints(c);else if(isMultiDayDraft(draft))throw new Error('多天规划条件暂未读取，请从小汴梁继续安排。');else applyConstraints({business_date:draft.business_date,starts_at:draft.starts_at,ends_at:draft.ends_at,origin_place_id:draft.origin_place_id,destination_place_id:draft.destination_place_id,pace:draft.pace||'standard',objective:draft.objective||'balanced',modes:[...draft.modes],budget_fen:null});planningVersion.value=saved.version;rounds.value=saved.rounds;result.value=props.workflowResult?normalize({...props.workflowResult,planning_version:saved.version}):saved.result?normalize(saved.result):null;submittedHash.value=JSON.stringify(params());preferencesComplete.value=!!result.value&&!personalMissing.value||!!c&&'party_size' in c&&!!c.party_size;activeStep.value=missingStep.value;initializing.value=false}
  catch(e){if(!disposed&&epoch===memoryEpoch.value)error.value='规划条件未加载完成：'+(e as Error).message}}
-async function resume(){await initialize();if(!disposed&&!initializing.value&&props.autoPlan&&missingStep.value==='ready')await run()}
+async function resume(){
+ await initialize()
+ if(disposed||initializing.value||!props.autoPlan)return
+ // Conversation conditions are saved already; wizard-only personal questions must not block resuming.
+ result.value=null;activeStep.value=multi.value?(readyMulti.value?'ready':'multi'):coreMissing.value
+ if(activeStep.value==='ready')await run()
+}
 watch(()=>props.revision,()=>void resume())
 onMounted(resume)
 onBeforeUnmount(()=>emit('busy',false))
