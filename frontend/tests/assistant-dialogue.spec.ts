@@ -102,7 +102,12 @@ for(const cancel of [false,true])test(`首次模型等待${cancel?'可以取消'
  await page.getByRole('button',{name:'发送',exact:true}).click()
  if(cancel){
   await expect(page.getByRole('status')).toContainText('小汴梁正在思考')
+  // 发出后自己的话立即显示；等待时左侧是小汴梁的三点思考气泡，并且在视野内
+  await expect(page.locator('.chat-message.from-user').last()).toContainText('你能干嘛')
+  await expect(page.locator('.agent-typing .typing-dots i')).toHaveCount(3)
+  await expect(page.locator('.agent-typing')).toBeInViewport()
   await page.getByRole('button',{name:'停止处理',exact:true}).click()
+  await expect(page.locator('.agent-typing')).toHaveCount(0)
   await expect(page.locator('.agent-messages p').last()).toContainText('已取消')
   await expect(input).toBeEnabled();await page.waitForTimeout(400);expect(steps).toBe(1)
  }else{

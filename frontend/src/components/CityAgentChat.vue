@@ -31,8 +31,15 @@ const weather=ref<WeatherReport|null>(null)
 const messages=ref<{role:string;text:string}[]>([])
 const chatScroll=ref<HTMLElement>(),atLatest=ref(true)
 const earlier=ref<number|null>(null),historyBusy=ref(false)
-function trackScroll(){const el=chatScroll.value;if(el)atLatest.value=el.scrollHeight-el.scrollTop-el.clientHeight<48}
-async function scrollLatest(){atLatest.value=true;await nextTick();const el=chatScroll.value;if(el)el.scrollTop=el.scrollHeight}
+function trackScroll(){const el=chatScroll.value;if(el)atLatest.value=followTyping||el.scrollHeight-el.scrollTop-el.clientHeight<48}
+// 下方可能还有规划表单：等待时让思考气泡露出，回复到达后滚到回复开头，而不是直接滚到最底部。
+let followTyping=false
+async function scrollLatest(){atLatest.value=true;await nextTick();const el=chatScroll.value;if(!el)return
+ const typing=el.querySelector<HTMLElement>('.agent-typing')
+ if(typing){followTyping=true;const r=typing.getBoundingClientRect(),c=el.getBoundingClientRect();if(r.bottom>c.bottom-12||r.top<c.top)el.scrollTop+=r.bottom-c.bottom+16;return}
+ if(followTyping){followTyping=false;const last=[...el.querySelectorAll<HTMLElement>('.agent-messages .chat-message')].at(-1)
+  if(last){const r=last.getBoundingClientRect(),c=el.getBoundingClientRect();if(r.top<c.top||r.top>c.bottom-80){el.scrollTop+=r.top-c.top-12}return}}
+ el.scrollTop=el.scrollHeight}
 async function loadEarlier(){
  if(!earlier.value||historyBusy.value)return
  historyBusy.value=true;const guard=memoryEpoch.value,id=props.tripId,el=chatScroll.value
@@ -215,7 +222,7 @@ onBeforeUnmount(()=>{disposed=true;epoch++;resizeObserver?.disconnect();if(slowB
   <p v-if="focus" class="detail-context-note">当前话题：{{focus.kind==='food'?'这道美食':focus.kind==='scenic'?'这座景区':'当前地点'}} <RouterLink :to="focus.kind==='scenic'?'/scenic/'+focus.object_id:focus.kind==='food'?'/food/'+focus.object_id:focus.kind==='vendor'?'/vendor/'+encodeURIComponent(focus.object_id):'/place/'+encodeURIComponent(focus.object_id)">返回详情</RouterLink></p>
   <p v-if="ctx?.official_plan.status==='stale'">当前路线需要重新核验。</p>
   <div class="agent-messages" role="log" aria-label="聊天记录" aria-live="polite" aria-relevant="additions"><article v-for="(m,i) in messages" :key="i" class="chat-message" :class="{'from-user':m.role==='你'}"><span class="message-author">{{m.role}}</span><p>{{m.text}}</p></article></div>
-  <p v-if="busy" role="status">{{progress}}…</p>
+  <article v-if="busy" class="chat-message agent-typing" role="status"><span class="message-author">小汴梁</span><div class="typing-bubble"><span class="typing-dots" aria-hidden="true"><i/><i/><i/></span><small>{{progress}}…</small></div></article>
   <p v-if="error" role="alert">{{error}}</p>
   <p v-for="(answer,i) in task?.result?.answers||[]" :key="i">{{answer.reply}}</p>
   <section v-if="task?.status==='awaiting_locations'" class="route-location-choices" aria-label="地点消歧">
@@ -281,7 +288,16 @@ onBeforeUnmount(()=>{disposed=true;epoch++;resizeObserver?.disconnect();if(slowB
 .chat-heading{flex-shrink:0;display:flex;align-items:center;justify-content:space-between;gap:12px;min-height:44px;padding:0 20px;border-bottom:1px solid #e7ddcb;color:#8e704c;background:#f4eddf}
 .chat-heading>span{font:15px/1.6 "Songti SC","STSong",serif;letter-spacing:.2em}.chat-heading small{font-size:11px;color:#9a8b76}.chat-heading button{min-height:44px;font-size:12px;color:#466a5b}
 .chat-scroll{flex:1;min-height:0;overflow-y:auto;overscroll-behavior-y:contain;scrollbar-width:thin;scrollbar-color:#c8b99f transparent;padding:20px;scroll-padding-block:20px;-webkit-overflow-scrolling:touch}
-.chat-scroll:focus-visible{outline:2px solid #78917e;outline-offset:-3px}.agent-messages{display:flex;flex-direction:column;gap:20px;overflow-wrap:anywhere}.chat-message{display:flex;flex-direction:column;align-items:flex-start;max-width:88%;align-self:flex-start;min-width:0}.message-author{font:12px/1.6 "Songti SC","STSong",serif;color:#907853;letter-spacing:.12em;padding:0 4px 6px}.chat-message p{margin:0;padding:13px 16px;border:1px solid #e4d8c4;border-radius:2px 14px 14px 14px;background:#fffcf6;box-shadow:0 3px 9px #765d3410;color:#304e43;font:17px/1.9 "Songti SC","STSong","Noto Serif CJK SC",serif;white-space:pre-wrap;overflow-wrap:anywhere}.chat-message.from-user{align-self:flex-end;align-items:flex-end}.from-user .message-author{color:#6d816d}.from-user p{border-color:#d5decb;background:#eaf0e3;border-radius:14px 2px 14px 14px}
+.chat-scroll:focus-visible{outline:2px solid #78917e;outline-offset:-3px}.agent-messages{display:flex;flex-direction:column;gap:20px;overflow-wrap:anywhere}.chat-message{display:flex;flex-direction:column;align-items:flex-start;max-width:88%;align-self:flex-start;min-width:0}.message-author{font:12px/1.6 "Songti SC","STSong",serif;color:#907853;letter-spacing:.12em;padding:0 4px 6px}.chat-message p{margin:0;padding:13px 16px;border:1px solid #e4d8c4;border-radius:2px 14px 14px 14px;background:#fffcf6;box-shadow:0 3px 9px #765d3410;color:#304e43;font:17px/1.9 "Songti SC","STSong","Noto Serif CJK SC",serif;white-space:pre-wrap;overflow-wrap:anywhere}.chat-message.from-user{align-self:flex-end;align-items:flex-end}
+/* 等待回复：左侧小汴梁气泡，三个点表示正在思考，下方小字说明当前步骤 */
+.agent-typing{margin-top:20px}
+.typing-bubble{display:flex;flex-direction:column;gap:6px;padding:13px 18px 11px;border:1px solid #e4d8c4;border-radius:2px 14px 14px 14px;background:#fffcf6;box-shadow:0 3px 9px #765d3410}
+.typing-dots{display:inline-flex;gap:6px;align-items:center;height:14px}
+.typing-dots i{width:7px;height:7px;border-radius:50%;background:#b18a58;opacity:.35;animation:typing-dot 1.2s ease-in-out infinite}
+.typing-dots i:nth-child(2){animation-delay:.18s}.typing-dots i:nth-child(3){animation-delay:.36s}
+.typing-bubble small{font:12px/1.6 "Songti SC","STSong",serif;color:#8b806b;letter-spacing:.04em}
+@keyframes typing-dot{0%,70%,100%{opacity:.35;transform:translateY(0)}35%{opacity:1;transform:translateY(-4px)}}
+@media(prefers-reduced-motion:reduce){.typing-dots i{animation:none;opacity:.7}}.from-user .message-author{color:#6d816d}.from-user p{border-color:#d5decb;background:#eaf0e3;border-radius:14px 2px 14px 14px}
 .agent-planning-warnings{margin:12px 0;padding:10px 14px;background:#f5eee1;border-left:3px solid #b29567;color:#7d694c;font-size:12px;line-height:1.7}
 .chat-earlier{display:block;margin:0 auto 18px;min-height:44px;color:#88724e;font-size:12px}
 .preference-message{display:flex;flex-direction:column;align-items:flex-start;max-width:100%;align-self:flex-start;min-width:0;margin-top:20px}.preference-message :deep(.preference-card){margin-top:0}
