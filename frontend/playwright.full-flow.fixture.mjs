@@ -10,6 +10,9 @@ export const expensiveScenic={id:'tieta',name:'铁塔景区',fact_id:'zz-expensi
 export const food={id:'chaoliangfen',name:'炒凉粉',fact_id:'test:food',place_id:'test:restaurant'}
 export const morning={id:'full-flow:morning',name:'[合成测试]上午展馆',fact_id:'full-flow:morning'}
 export const endpoints={origin_place_id:'test:gate',destination_place_id:'test:hotel'}
+export const spicy={id:'full-flow:hot-vendor',name:'[合成测试]偏辣美食馆',place_id:'full-flow:hot-place'}
+export const bland={id:'full-flow:bland-vendor',name:'[合成测试]清淡美食馆',place_id:'full-flow:bland-place'}
+export const reference={id:'full-flow:reference',name:'[合成测试]来源展馆'}
 export function fullFlowFixtures(now=new Date()){
  const facts=JSON.parse(datedFacts(now)),records=facts.records
  const rule=records.find(r=>r.kind==='open_rule')
@@ -25,12 +28,23 @@ export function fullFlowFixtures(now=new Date()){
  records.push({...rule,fact_id:'full-flow:open-expensive-park',place_id:expensiveScenic.fact_id,reentry:'allowed',last_entry_at:rule.closes_at})
  records.push({...records.find(r=>r.kind==='place'&&r.fact_id==='test:restaurant'),fact_id:morning.fact_id,name:morning.name,place_type:'poi'})
  records.push({...rule,fact_id:'full-flow:open-morning',place_id:morning.fact_id,opens_at:rule.business_date+'T08:00:00+08:00',closes_at:rule.business_date+'T12:00:00+08:00'})
+ for(const [item,spiciness] of [[spicy,'hot'],[bland,'none']]){
+  records.push({...records.find(r=>r.kind==='place'&&r.fact_id==='test:restaurant'),fact_id:item.place_id,name:item.name})
+  records.push({...records.find(r=>r.kind==='vendor'),fact_id:item.id,place_id:item.place_id,spiciness})
+  records.push({...rule,fact_id:'full-flow:open-'+spiciness,place_id:item.place_id})
+ }
+ const referenceMeta={validation_status:'unverified',verified_at:null,reviewer:null,verification_method:null,rights_status:'internal_only',planning_status:'reference',planning_note:'SYNTHETIC TEST ONLY - reference admission, not real verified data'}
+ records.push({...records.find(r=>r.kind==='place'&&r.fact_id==='test:restaurant'),...referenceMeta,fact_id:reference.id,name:reference.name,place_type:'poi'})
+ records.push({...rule,...referenceMeta,fact_id:'full-flow:open-reference',place_id:reference.id})
  const dated=records.filter(r=>r.business_date),first=rule.business_date
  for(let offset=1;offset<3;offset++){
   const date=new Date(first+'T12:00:00+08:00');date.setUTCDate(date.getUTCDate()+offset)
   const next=date.toISOString().slice(0,10)
   for(const record of dated)records.push({...JSON.parse(JSON.stringify(record).replaceAll(first,next)),fact_id:record.fact_id+':day'+(offset+1)})
  }
+ // The progress test uses the real server clock and must record an already elapsed time.
+ const today=new Intl.DateTimeFormat('en-CA',{timeZone:'Asia/Shanghai',year:'numeric',month:'2-digit',day:'2-digit'}).format(now)
+ for(const record of dated.filter(r=>r.kind==='open_rule'&&[scenic.fact_id,spicy.place_id,bland.place_id].includes(r.place_id)))records.push({...JSON.parse(JSON.stringify(record).replaceAll(first,today)),fact_id:record.fact_id+':today'})
  const bindings=JSON.parse(readFileSync(new URL('../backend/tests/fixtures/object_bindings.json',import.meta.url),'utf8'))
  bindings.push(['scenic',scenic.id,'place',scenic.fact_id])
  bindings.push(['scenic',expensiveScenic.id,'place',expensiveScenic.fact_id])
