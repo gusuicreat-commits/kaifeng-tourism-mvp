@@ -27,7 +27,7 @@ def generate(script,*args):
 
 @pytest.fixture(scope='module')
 def full_flow_data():
-    script="import {fullFlowFixtures,scenic,food,morning,endpoints} from './playwright.full-flow.fixture.mjs'; process.stdout.write(JSON.stringify({...fullFlowFixtures(),scenic,food,morning,endpoints}))"
+    script="import {fullFlowFixtures,scenic,food,morning,endpoints,progress} from './playwright.full-flow.fixture.mjs'; process.stdout.write(JSON.stringify({...fullFlowFixtures(),scenic,food,morning,endpoints,progress}))"
     return json.loads(generate(script))
 
 
@@ -344,3 +344,52 @@ def test_full_flow_standby_is_preserved_and_never_scheduled(full_flow_trip,full_
     standby=next(i for i in basket['items'] if i['id']==data['scenic']['id'])
     assert standby['name']==data['scenic']['name'] and standby['status']=='standby'
     assert len(basket['items'])==2
+
+
+@pytest.mark.parametrize('time',['08:00','09:00','14:00','18:30','19:30','22:00','22:30'])
+def test_full_flow_progress_keeps_all_stops_at_any_run_time(demo_full_flow_client,full_flow_data,monkeypatch,time):
+    from app.city import state
+    from app.city.engine import service
+    from test_city_state import update
+    c=demo_full_flow_client;data=full_flow_data;p=data['progress']
+    today=next(r['business_date'] for r in data['facts']['records'] if r['fact_id']==p['place']['id']+':open-today')
+    moment=datetime.fromisoformat(today+'T'+time+':00+08:00')
+    for module in (state,service):monkeypatch.setattr(module,'now',lambda:moment)
+    c.post('/api/v1/sessions')
+    created=c.post('/api/city/v1/trips',json={'request_id':rid(),'draft':{}})
+    assert created.status_code==201,created.text
+    trip=created.json()
+    for kind,item in [('place',p['place']),('vendor',p['spicy']),('vendor',p['bland'])]:
+        added=collect(c,trip,kind,item['id']);assert added.status_code==200,added.text
+    start=moment+timedelta(minutes=1)
+    candidate=full_flow_preview(c,trip,data,business_date=today,starts_at=start.isoformat(),
+        ends_at=today+'T23:30:00+08:00',budget_fen=100000,preferences={'spice':None,'interests':['shows'],'avoid':[]})
+    assert candidate['status']=='feasible',candidate
+    assert candidate['unscheduled']=={} and not candidate.get('conflicts'),candidate
+    plans=candidate['planning']['result']['itineraries']
+    assert plans
+    expected={p['place']['fact_id'],p['spicy']['place_id'],p['bland']['place_id']}
+    for plan in plans:
+        assert {a['place_id'] for a in plan['activities']}==expected,plan
+        assert len(plan['activities'])==3 and all(a['duration_seconds']==600 for a in plan['activities'])
+    confirmed=c.post(base(trip)+'/engine/confirm',json={'request_id':rid(),'expected_version':trip['version'],
+        'candidate_id':candidate['planning']['candidate_id']})
+    assert confirmed.status_code==200,confirmed.text
+    saved=c.get(base(trip)).json()
+    assert {s['place_id'] for s in saved['draft']['stops']}==expected
+    route=c.get(base(trip)+'/engine/current').json()
+    active=update(c,saved,{'operation':'transition','status':'ACTIVE'})
+    assert active.status_code==200,active.text
+    moment=start+timedelta(seconds=1)
+    done=update(c,active.json(),{'operation':'mark_completed','stop_id':saved['draft']['stops'][0]['stop_id'],
+        'actual_start':start.isoformat(),'actual_end':start.isoformat()})
+    assert done.status_code==200,done.text
+    skipped=update(c,done.json(),{'operation':'skip_stop','stop_id':saved['draft']['stops'][1]['stop_id']})
+    assert skipped.status_code==200,skipped.text
+    reloaded=c.get(base(trip)).json()
+    assert [s['progress'] for s in reloaded['draft']['stops']]==['completed','skipped','pending']
+    assert reloaded['draft']['stops'][0]==done.json()['draft']['stops'][0]
+    assert reloaded['draft']['stops'][2]==saved['draft']['stops'][2]
+    assert c.get(base(trip)+'/engine/current').json()['itinerary']==route['itinerary']
+    constraints=c.get(base(trip)+'/exploration/constraints').json()['constraints']
+    assert constraints['budget_fen']==100000 and constraints['preferences']['interests']==['shows']

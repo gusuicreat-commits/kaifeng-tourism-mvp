@@ -12,6 +12,11 @@ export const morning={id:'full-flow:morning',name:'[合成测试]上午展馆',f
 export const endpoints={origin_place_id:'test:gate',destination_place_id:'test:hotel'}
 export const spicy={id:'full-flow:hot-vendor',name:'[合成测试]偏辣美食馆',place_id:'full-flow:hot-place'}
 export const bland={id:'full-flow:bland-vendor',name:'[合成测试]清淡美食馆',place_id:'full-flow:bland-place'}
+export const progress={
+ place:{id:'full-flow:progress-place',name:'[合成测试]进度展馆',fact_id:'full-flow:progress-place'},
+ spicy:{id:'full-flow:progress-hot-vendor',name:'[合成测试]进度偏辣店',place_id:'full-flow:progress-hot-place'},
+ bland:{id:'full-flow:progress-bland-vendor',name:'[合成测试]进度清淡店',place_id:'full-flow:progress-bland-place'},
+}
 export const reference={id:'full-flow:reference',name:'[合成测试]来源展馆'}
 export function fullFlowFixtures(now=new Date()){
  const facts=JSON.parse(datedFacts(now)),records=facts.records
@@ -46,6 +51,13 @@ export function fullFlowFixtures(now=new Date()){
  const today=new Intl.DateTimeFormat('en-CA',{timeZone:'Asia/Shanghai',year:'numeric',month:'2-digit',day:'2-digit'}).format(now)
  // 进度用例使用真实时钟，当天规则全天开放以免受运行时刻影响。
  for(const record of dated.filter(r=>r.kind==='open_rule'&&[scenic.fact_id,spicy.place_id,bland.place_id].includes(r.place_id)))records.push({...JSON.parse(JSON.stringify(record).replaceAll(first,today)),fact_id:record.fact_id+':today',opens_at:today+'T00:00:00+08:00',closes_at:today+'T23:59:00+08:00',...(record.last_entry_at?{last_entry_at:today+'T23:59:00+08:00'}:{})})
+ // Progress needs three distinct stops even at 22:30; these synthetic visits each take 10 minutes.
+ for(const [item,spiciness] of [[progress.place,null],[progress.spicy,'hot'],[progress.bland,'none']]){
+  const placeId=item.place_id||item.fact_id
+  records.push({...records.find(r=>r.kind==='place'&&r.fact_id==='test:restaurant'),fact_id:placeId,name:item.name,place_type:spiciness?'restaurant':'poi',suggested_stay_min:10})
+  if(spiciness)records.push({...records.find(r=>r.kind==='vendor'),fact_id:item.id,place_id:placeId,spiciness})
+  records.push({...rule,fact_id:placeId+':open-today',place_id:placeId,business_date:today,opens_at:today+'T00:00:00+08:00',closes_at:today+'T23:59:00+08:00'})
+ }
  const bindings=JSON.parse(readFileSync(new URL('../backend/tests/fixtures/object_bindings.json',import.meta.url),'utf8'))
  bindings.push(['scenic',scenic.id,'place',scenic.fact_id])
  bindings.push(['scenic',expensiveScenic.id,'place',expensiveScenic.fact_id])
