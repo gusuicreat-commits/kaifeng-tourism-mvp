@@ -180,8 +180,10 @@ async function initialize(){error.value='';initializing.value=true;const epoch=m
 async function resume(){
  await initialize()
  if(disposed||initializing.value||!props.autoPlan)return
- // Conversation conditions are saved already; wizard-only personal questions must not block resuming.
- result.value=null;activeStep.value=multi.value?(readyMulti.value?'ready':'multi'):coreMissing.value
+ // Only a mode already chosen for this trip lets conversation planning bypass personal questions.
+ result.value=null
+ if(!interactionMode.value){activeStep.value=missingStep.value;return}
+ activeStep.value=multi.value?(readyMulti.value?'ready':'multi'):coreMissing.value
  if(activeStep.value==='ready')await run()
 }
 watch(()=>props.revision,()=>void resume())

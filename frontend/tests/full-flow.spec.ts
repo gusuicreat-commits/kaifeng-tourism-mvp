@@ -5,7 +5,7 @@ import type {Basket} from '../src/basketApi'
 import type {CityTripState} from '../src/cityApi'
 import {draftDays} from '../src/days'
 import type {EnginePreview,MultiDayPlanningConstraints,MultiDayItinerary,PlanningConstraints,PlanningInput,PlanningReply,PlanningResult,PlanningWorkspace,RouteSnapshot,SingleDayItinerary} from '../src/explorationApi'
-import {scenic,expensiveScenic,food,morning,endpoints,spicy,bland,reference} from '../playwright.full-flow.fixture.mjs'
+import {scenic,expensiveScenic,food,morning,endpoints,spicy,bland,reference,progress} from '../playwright.full-flow.fixture.mjs'
 
 const cityFacts=JSON.parse(readFileSync(fileURLToPath(new URL('../../backend/tests/fixtures/city_facts.json',import.meta.url)),'utf8')) as {records:Array<{kind:string;fact_id:string;name?:string}>}
 const nightPlaces=['pl_wb_000003','pl_wb_vendor_000001','pl_wb_000013']
@@ -781,14 +781,15 @@ test.describe('创新点端到端：真实后端',()=>{
  })
 
  test('创新点6：完成首站后跳过下一站，其余安排不动，刷新及修改结束时间后偏好预算仍保留',async({page},info)=>{
+  const {place,spicy,bland}=progress
   const time=new Intl.DateTimeFormat('en-GB',{timeZone:'Asia/Shanghai',hour:'2-digit',minute:'2-digit',second:'2-digit',hour12:false}).format(new Date())
   if(time>'22:30:00')test.skip(true,'进度用例需要当天剩余至少一小时')
   test.setTimeout(150000)
   await home(page,info,'innovation-6-progress')
-  await add(page,info,'/scenic/'+scenic.id,scenic.name,'scenic')
+  await add(page,info,'/place/'+encodeURIComponent(place.id),place.name,'place')
   await add(page,info,'/vendor/'+encodeURIComponent(spicy.id),spicy.name,'spicy')
   await add(page,info,'/vendor/'+encodeURIComponent(bland.id),bland.name,'bland')
-  const trip=await openBasketPlanning(page,info,[scenic.name,spicy.name,bland.name])
+  const trip=await openBasketPlanning(page,info,[place.name,spicy.name,bland.name])
   const start=new Date(Math.ceil((Date.now()+15000)/60000)*60000)
   const parts=new Intl.DateTimeFormat('sv-SE',{timeZone:'Asia/Shanghai',year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit',hour12:false}).format(start).split(' ')
   await form(page).getByRole('button',{name:'今天',exact:true}).click()
@@ -807,7 +808,7 @@ test.describe('创新点端到端：真实后端',()=>{
   await shot(page,info,'progress-constraints')
   await form(page).getByRole('button',{name:'继续',exact:true}).click()
   await capturePreview(page,info,()=>form(page).getByRole('button',{name:'生成安排',exact:true}).click(),'progress-candidate')
-  const original=await confirm(page,info,trip,[scenic.fact_id,spicy.place_id,bland.place_id])
+  const original=await confirm(page,info,trip,[place.fact_id,spicy.place_id,bland.place_id])
   // Real backend rejects future completion records; wait only until the chosen minute elapses.
   await expect.poll(()=>Date.now(),{timeout:90000,intervals:[1000]}).toBeGreaterThan(start.getTime())
   await page.getByRole('button',{name:'标记已游玩',exact:true}).click()
@@ -820,7 +821,7 @@ test.describe('创新点端到端：真实后端',()=>{
   expect(first.progress).toBe('completed')
   await expect(page.locator('.completed')).toContainText('已游玩')
   const history=page.locator('.journey-timeline .completed')
-  const firstName=[{place_id:scenic.fact_id,name:scenic.name},spicy,bland].find(p=>p.place_id===first.place_id)!.name
+  const firstName=[{place_id:place.fact_id,name:place.name},spicy,bland].find(p=>p.place_id===first.place_id)!.name
   expect(first.actual_start).toBeTruthy()
   const firstTime=new Date(first.actual_start!).toLocaleTimeString('zh-CN',{timeZone:'Asia/Shanghai',hour:'2-digit',minute:'2-digit',hour12:false})
   await shot(page,info,'first-completed')
