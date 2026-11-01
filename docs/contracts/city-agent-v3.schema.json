@@ -588,7 +588,7 @@
       "additionalProperties": false,
       "properties": {
         "field": {
-          "description": "city/date;start_time/end_time;origin/destination;pace;objective;mode;budget_fen;trip_days;start_date/end_date;trip_nights。spice辣度none不辣/mild微辣/any能吃辣/都行；interest多排/avoid不排:shows演出/food美食/night夜游/scenic景区；美食是兴趣非新增菜品。",
+          "description": "city/date;start_time/end_time;origin/destination;pace;objective;mode;budget_fen;trip_days;start_date/end_date;trip_nights。spice辣度none不辣/mild微辣/any能吃辣/都行；interest多排/avoid不排:shows演出/food美食/night夜游/scenic景区；美食是兴趣非新增菜品。口语拒绝(不出去了/就算了/不行/免了/没兴趣)→avoid；夜间不出门/夜市→avoid:night非end_time；怕辣/辣的不行→spice:none非constraints.food；少一点/少安排是减少，不填avoid/interest。",
           "enum": [
             "city",
             "date",

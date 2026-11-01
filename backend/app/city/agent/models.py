@@ -104,7 +104,7 @@ class Correction(Strict):
 
 class PlanningField(Strict):
     field: Literal['city','date','start_date','end_date','start_time','end_time','origin','destination','pace','objective','mode','budget_fen','trip_days','trip_nights','spice','interest','avoid'] = Field(
-        description='city/date;start_time/end_time;origin/destination;pace;objective;mode;budget_fen;trip_days;start_date/end_date;trip_nights。spice辣度none不辣/mild微辣/any能吃辣/都行；interest多排/avoid不排:shows演出/food美食/night夜游/scenic景区；美食是兴趣非新增菜品。')
+        description='city/date;start_time/end_time;origin/destination;pace;objective;mode;budget_fen;trip_days;start_date/end_date;trip_nights。spice辣度none不辣/mild微辣/any能吃辣/都行；interest多排/avoid不排:shows演出/food美食/night夜游/scenic景区；美食是兴趣非新增菜品。口语拒绝(不出去了/就算了/不行/免了/没兴趣)→avoid；夜间不出门/夜市→avoid:night非end_time；怕辣/辣的不行→spice:none非constraints.food；少一点/少安排是减少，不填avoid/interest。')
     value: str | int | None = Field(description='日期抄原文；晚间沿用到后续钟点（今晚五点半…十点回→17:30、22:00），无钟点不猜，几点前回来用end_time。pace=relaxed/standard/compact;objective=balanced均衡/less_walking少走路/走不动/腿脚不便/less_waiting/lower_cost；无分钟不填walking_seconds。')
     quote: str = Field(min_length=1, max_length=500, description='quote连续摘本轮，field.quote含value；往返复用origin.quote。')
     budget_basis: Literal['total','per_person'] | None = Field(

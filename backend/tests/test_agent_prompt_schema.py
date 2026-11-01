@@ -111,6 +111,24 @@ def test_cancel_is_only_for_pending_changes_and_place_rejections_use_standby():
     assert description in _system_texts()['understanding']
 
 
+def test_pending_preference_rules_reach_the_model():
+    description=agent_models.PlanningField.model_fields['field'].description
+    sent=_system_texts()['understanding']
+    assert description in sent
+    assert description.startswith('city/date;start_time/end_time;origin/destination;pace;objective;mode;budget_fen;trip_days;start_date/end_date;trip_nights。spice辣度none不辣/mild微辣/any能吃辣/都行；interest多排/avoid不排:shows演出/food美食/night夜游/scenic景区；美食是兴趣非新增菜品。')
+    for meaning in (
+        ('口语拒绝','→avoid'),
+        ('夜间不出门/夜市','avoid:night','非end_time'),
+        ('怕辣/辣的不行','spice:none','非constraints.food'),
+        ('减少','不填avoid/interest'),
+    ):
+        assert all(word in description for word in meaning),meaning
+    planning=dict(understand.UNDERSTANDING_PROMPT_SECTIONS)['planning']
+    assert 'awaiting=preferences' in planning and '答偏好' in planning
+    assert planning.replace('awaiting=preferences答偏好。','')=='【规划】只有单纯问两个地点之间怎么走/多久/多远/路线怎么走才给route_query；含多个停靠点、去A去B去C、出发并返回、全程步行等整趟游玩是planning，不是问路。地点抄原文，不发明ID或坐标，origin与use_current_position二选一。只有明确这里/当前位置才用当前位置，不因缺GPS阻止明确地点问路。天气给weather_query；查询不修改游玩日期，明确天气重排用planning.operation=weather_replan。planning单patch：fields填city城市、origin出发地、destination结束地、日期、HH:MM时间、budget_fen分。day_ref/scope=every_day据quote。constraints只放用户明确提出的要求，区分hard/soft/optional/unknown；模糊时间null/unknown。未提的偏好(节奏/目标/步行上限)不输出、不填默认值。走路/全程步行只是mode；walking_seconds仅在说“步行不超过X分钟”时给秒数。'
+    assert '口味/辣度不是菜名，放planning.fields的spice' in sent
+
+
 def test_schema_compaction_preserves_single_shared_and_recursive_definitions():
     source = {
         '$defs': {
