@@ -879,3 +879,36 @@ test.describe('创新点端到端：真实后端',()=>{
   await expect(option).toContainText('参考')
  })
 })
+
+test.describe('素材篮确认续排：真实后端',()=>{
+ for(const mode of ['快速安排','深度互动'])test.describe(mode,()=>{
+  test('对话确认素材篮变更后自动接着排',async({page},info)=>{
+   await home(page,info,'E31-'+mode)
+   await page.goto('/place/'+encodeURIComponent(morning.id))
+   await page.getByRole('button',{name:'加入素材篮：'+morning.name,exact:true}).click()
+   await expect(page.getByRole('button',{name:'移出素材篮：'+morning.name,exact:true})).toBeVisible()
+   const trip=await current(page)
+   await page.goto('/assistant?city_trip='+trip.id)
+   await page.getByRole('group',{name:'互动模式',exact:true}).getByRole('button',{name:mode,exact:true}).click()
+   await page.locator('#city-agent-input').fill('明天，上午9点到下午6点，从开封府府门广场集合点出发，最后回[测试]返程点，[合成测试]上午展馆一定要去')
+   await page.getByRole('button',{name:'发送',exact:true}).click()
+   await expect(page.getByLabel('待确认的素材篮变更')).toBeVisible()
+   const saved=await read<PlanningWorkspace>(page,prefix(trip.id)+'/exploration/constraints')
+   const constraints=saved.constraints as PlanningConstraints
+   expect(constraints.party_size).toBeFalsy()
+   expect((await read<Basket>(page,prefix(trip.id)+'/basket')).items[0].priority).toBe('want')
+   let requests=0
+   page.on('request',r=>{if(r.method()==='POST'&&/\/exploration\/preview$/.test(r.url()))requests++})
+   const next=await capturePreview(page,info,()=>page.getByRole('button',{name:'确认加入',exact:true}).click(),'E31-resumed')
+   expect(next.request.constraints).toEqual(expect.objectContaining({business_date:constraints.business_date,starts_at:constraints.starts_at,ends_at:constraints.ends_at,origin_place_id:'pl_mvp_kaifengfu_meeting',destination_place_id:endpoints.destination_place_id}))
+   expect(next.result.status).toBe('feasible')
+   const assessment=page.getByLabel('规划检测结果',{exact:true})
+   await expect(assessment.locator('.plan-option').first()).toBeVisible()
+   await expect(assessment).not.toContainText('确认素材篮变更后接着安排')
+   await expect(assessment).not.toContainText('旧预览失效')
+   expect(requests).toBe(1)
+   expect((await read<Basket>(page,prefix(trip.id)+'/basket')).items[0].priority).toBe('must')
+   expect((await current(page)).route_version).toBe(0)
+  })
+ })
+})

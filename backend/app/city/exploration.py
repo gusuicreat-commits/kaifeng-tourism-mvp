@@ -382,6 +382,7 @@ def _spice_exceeded(goal,items,spice):
 
 def _preference_result(result,excluded,notices,pending=()):
     if excluded or pending:
+        excluded=[{k:v for k,v in item.items() if k!='cause'} for item in excluded]
         plans=(result.get('planning') or {}).get('result',result.get('result') or {}).get('itineraries') or [None]
         existing=result.get('unscheduled',{})
         # Unmapped basket entries have no solver goal, so only attach them when
@@ -391,6 +392,21 @@ def _preference_result(result,excluded,notices,pending=()):
         if excluded or usable_pending:
             result['unscheduled']={str(i):excluded+list(usable_pending)+existing.get(str(i),[]) for i in range(len(plans))}
     if notices:result['reply']=result.get('reply','请比较整套方案并确认，正式行程尚未改变。')+' '+''.join(notices)
+
+
+def _preference_excluded_all(excluded,preferences):
+    avoided=[i for i in excluded if i['cause'].startswith('avoid:')]
+    spicy=[i for i in excluded if i['cause']=='spice']
+    categories=[CATEGORY_NAMES[k] for k in CATEGORY_NAMES if any(i['cause']=='avoid:'+k for i in avoided)]
+    message=''
+    if avoided:
+        message='按你说的不想安排'+'、'.join(categories)+'，素材篮里的'+'、'.join(i['name'] for i in avoided)+\
+            '都没有排进去。想保留的话，说一声“'+categories[0]+'也可以安排”，或到素材篮调整。'
+    if spicy:
+        names='、'.join(i['name'] for i in spicy)
+        message+=names+'口味偏辣，也没有排进去。' if avoided else '素材篮里的'+names+'口味偏辣，和你说的“'+\
+            ('不吃辣' if preferences.spice=='none' else '微辣可以')+'”不符，都没有排进去。能接受的话说一声“辣一点也可以”，或到素材篮调整。'
+    return unknown(message,code='PREFERENCE_EXCLUDED_ALL')
 
 
 # 园内节目：节目不作为独立城市停靠点，而是把所属景区的游览时段扩到能包住演出时间。
@@ -552,7 +568,8 @@ def _basket_goals(db,s,trip_id,goals,dates=None,*,ctx=None,preferences=None):
                 notices.append('「'+item['name']+'」你设为必去，已保留，虽然它属于你说过不想安排的类别。')
             else:
                 reason='你说过不想安排'+CATEGORY_NAMES[avoided] if avoided else '口味偏辣，和你说的“'+('不吃辣' if preferences.spice=='none' else '微辣可以')+'”不符'
-                excluded.append({'goal_id':candidate.goal_id,'key':item['key'],'name':item['name'],'reason_code':'preference_excluded','reason':reason})
+                excluded.append({'goal_id':candidate.goal_id,'key':item['key'],'name':item['name'],'reason_code':'preference_excluded',
+                    'reason':reason,'cause':'avoid:'+avoided if avoided else 'spice'})
                 goals=[g for g in goals if g.goal_id!=candidate.goal_id]
                 continue
         if preferences and not must and categories&set(preferences.interests):priority['importance']+=2
@@ -613,6 +630,7 @@ def preview_plan(trip_id,body,s,*,execution_guard=None):
         try:requirements=MultiDayRequirements.model_validate(req_data)
         except ValidationError:raise HTTPException(422,detail='请补齐多天每日时段、端点和过夜条件。') from None
         if grouped:result=unknown('景区与内部看点的时长、路径关系待添加；暂不重复计算成独立城市停靠点。',grouped,'PARENT_CHILD_PENDING')
+        elif not goals and excluded and not unmapped:result=_preference_excluded_all(excluded,body.constraints.preferences)
         elif not goals:
             result=unknown('所选内容的地点、商家或场次资料待添加；暂不能核验完整路线。',unmapped) if unmapped else unknown(
                 '请先在素材篮里加入想去的地点，再生成多天方案。',code='BASKET_EMPTY')
@@ -683,6 +701,7 @@ def preview_plan(trip_id,body,s,*,execution_guard=None):
         result['questions']=[{'field':k} for k in missing]
     elif unmatched:result=unknown('已记下出发和返回地点，位置资料待核验，暂不能生成路线。',code='ENDPOINT_MATCH_PENDING')
     elif grouped:result=unknown('景区与内部看点的时长、路径关系待添加；暂不重复计算成独立城市停靠点。',grouped,'PARENT_CHILD_PENDING')
+    elif not goals and excluded and not unmapped:result=_preference_excluded_all(excluded,body.constraints.preferences)
     elif not goals:
         result=unknown('所选内容的地点、商家或场次资料待添加；暂不能核验完整路线。',unmapped) if unmapped else unknown(
             '先从详情页加入想去的地方或美食。',code='BASKET_EMPTY')

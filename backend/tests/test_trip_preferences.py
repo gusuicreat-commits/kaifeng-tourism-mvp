@@ -29,6 +29,7 @@ def assert_excluded(result,name,reason):
     assert set(result['unscheduled'])=={str(i) for i in range(len(plans))}
     for rows in result['unscheduled'].values():
         assert rows[0]['name']==name and rows[0]['reason_code']=='preference_excluded' and rows[0]['reason']==reason
+        assert all('cause' not in row for row in rows)
 
 
 @pytest.mark.parametrize('category,kind,identity,patch,name',[
@@ -194,6 +195,69 @@ def test_all_excluded_still_explained_and_saved(engine):
     result=plan(engine,preferences={'avoid':['food']}).json()
     assert_excluded(result,c.get(base(t)+'/basket').json()['items'][0]['name'],'你说过不想安排美食')
     assert not result.get('planning')
+    assert c.get(base(t)+'/exploration/constraints').json()['result']['unscheduled']==result['unscheduled']
+
+
+@pytest.mark.parametrize('items,code',[
+    ((('place','garden'),('food','food')),'PREFERENCE_EXCLUDED_ALL'),
+    ((('place','museum'),('food','food')),None),
+    ((),'BASKET_EMPTY')])
+@pytest.mark.parametrize('multi',[False,True])
+def test_preference_exclusion_distinguishes_empty_and_partial(request,multi,items,code):
+    e,values=request.getfixturevalue('basket_trip') if multi else (request.getfixturevalue('engine'),{})
+    c,t,_=e
+    change_fact('place','garden',place_type='scenic')
+    for kind,identity in items:collect(c,t,kind,identity)
+    preferences={'avoid':['scenic','food','shows']}
+    result=preview(e,values|{'preferences':preferences}) if multi else plan(e,preferences=preferences).json()
+    if code is None:
+        assert result['status']==('preview' if multi else 'feasible'),result
+        assert [g['target_id'] for g in candidate_goals(result)]==['museum']
+        assert_excluded(result,next(i['name'] for i in c.get(base(t)+'/basket').json()['items'] if i['id']=='food'),'你说过不想安排美食')
+    else:
+        assert result['status']==('needs_data' if multi else 'unknown'),result
+        assert result['issues'][0]['code']==code
+        if items:
+            names='、'.join(i['name'] for i in c.get(base(t)+'/basket').json()['items'])
+            message='按你说的不想安排美食、景区，素材篮里的'+names+'都没有排进去。想保留的话，说一声“美食也可以安排”，或到素材篮调整。'
+            assert result['reply']==result['issues'][0]['message']==message
+            assert [i['name'] for i in result['unscheduled']['0']]==names.split('、')
+            assert all(i['reason_code']=='preference_excluded' for i in result['unscheduled']['0'])
+        else:assert not result.get('unscheduled')
+
+
+@pytest.mark.parametrize('spice,quote',[('none','不吃辣'),('mild','微辣可以')])
+@pytest.mark.parametrize('multi',[False,True])
+def test_all_excluded_by_spice_uses_actual_reason(request,multi,spice,quote):
+    e,values=request.getfixturevalue('basket_trip') if multi else (request.getfixturevalue('engine'),{})
+    c,t,_=e;change_fact('vendor','vendor',spiciness='hot');collect(c,t,'food','food')
+    preferences={'spice':spice}
+    result=preview(e,values|{'preferences':preferences}) if multi else plan(e,preferences=preferences).json()
+    name=c.get(base(t)+'/basket').json()['items'][0]['name']
+    message='素材篮里的'+name+'口味偏辣，和你说的“'+quote+'”不符，都没有排进去。能接受的话说一声“辣一点也可以”，或到素材篮调整。'
+    assert result['issues'][0]['code']=='PREFERENCE_EXCLUDED_ALL'
+    assert result['reply']==result['issues'][0]['message']==message
+    assert_excluded(result,name,'口味偏辣，和你说的“'+quote+'”不符')
+    assert c.get(base(t)+'/exploration/constraints').json()['result']['unscheduled']==result['unscheduled']
+
+
+@pytest.mark.parametrize('multi',[False,True])
+def test_all_excluded_by_category_and_spice_lists_each_reason(request,multi):
+    e,values=request.getfixturevalue('basket_trip') if multi else (request.getfixturevalue('engine'),{})
+    c,t,_=e;change_fact('vendor','vendor',spiciness='hot')
+    for identity in ('garden','museum'):
+        change_fact('place',identity,place_type='scenic');collect(c,t,'place',identity)
+    collect(c,t,'food','food')
+    preferences={'avoid':['night','scenic','shows'],'spice':'none'}
+    result=preview(e,values|{'preferences':preferences}) if multi else plan(e,preferences=preferences).json()
+    items=c.get(base(t)+'/basket').json()['items']
+    names='、'.join(i['name'] for i in items if i['kind']=='place')
+    food=next(i['name'] for i in items if i['id']=='food')
+    message='按你说的不想安排景区，素材篮里的'+names+'都没有排进去。想保留的话，说一声“景区也可以安排”，或到素材篮调整。'+food+'口味偏辣，也没有排进去。'
+    assert result['issues'][0]['code']=='PREFERENCE_EXCLUDED_ALL'
+    assert result['reply']==result['issues'][0]['message']==message
+    assert [row['name'] for row in result['unscheduled']['0']]==[i['name'] for i in items]
+    assert all('cause' not in row for row in result['unscheduled']['0'])
     assert c.get(base(t)+'/exploration/constraints').json()['result']['unscheduled']==result['unscheduled']
 
 
