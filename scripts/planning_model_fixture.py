@@ -14,6 +14,14 @@ def install():
     morning=field('start_time','09:00','上午9点')
     evening=field('end_time','18:00','下午6点')
     cases={
+        '明天出游':{'fields':[field('date','明天','明天')]},
+        '上午9点开始，下午6点结束':{'fields':[morning,evening]},
+        '起点和终点都是开封府府门广场集合点':{'fields':[field('origin','开封府府门广场集合点','开封府府门广场集合点'),field('destination','开封府府门广场集合点','开封府府门广场集合点')]},
+        '明天上午9点到下午6点，起点和终点都是开封府府门广场集合点':{'fields':[field('date','明天','明天'),morning,evening,field('origin','开封府府门广场集合点','开封府府门广场集合点'),field('destination','开封府府门广场集合点','开封府府门广场集合点')]},
+        '想多看演出，夜游就算了':{'fields':[field('interest','shows','想多看演出'),field('avoid','night','夜游就算了')]},
+        '不吃辣':{'fields':[field('spice','none','不吃辣')]},
+        '不吃辣，更想多安排美食':{'fields':[field('spice','none','不吃辣'),field('interest','food','更想多安排美食')]},
+        '结束时间改为晚上11点':{'fields':[field('end_time','23:00','晚上11点')]},
         '就这样':{'operation':'continue'},
         '2030-05-01，上午9点到下午6点':{'fields':[day,morning,evening]},
         '2030-05-01，上午9点到下午6点，轻松一点':{'fields':[day,morning,evening,field('pace','relaxed','轻松一点')]},
